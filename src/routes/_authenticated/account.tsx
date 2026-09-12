@@ -98,7 +98,7 @@ function AccountPage() {
       if (!user) throw new Error("Your session expired. Please log in again.");
       const { error } = await supabase
         .from("profiles")
-        .upsert({ id: user.id, email: user.email, ...parsed.data });
+        .upsert({ id: user.id, email: user.email ?? null, ...parsed.data });
       if (error) throw error;
       await queryClient.invalidateQueries({ queryKey: ["profile"] });
       toast.success("Profile saved.");
