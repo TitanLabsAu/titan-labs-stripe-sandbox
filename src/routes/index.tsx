@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import titanLogo from "@/assets/titan-logo.asset.json";
+import { TitanLogo } from "@/components/TitanLogo";
 import klow80 from "@/assets/klow80.asset.json";
 import wolverine from "@/assets/wolverine.asset.json";
 import nad1000 from "@/assets/nad1000.asset.json";
@@ -65,7 +65,7 @@ function Index() {
   return (
     <div className="bg-hero min-h-screen">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5">
-        <img src={titanLogo.url} alt="Titan Labs Aus logo" className="h-12 w-auto sm:h-16" />
+        <TitanLogo size={52} />
         <nav className="flex items-center gap-3">
           {signedIn ? (
             <Button asChild className="font-bold uppercase">

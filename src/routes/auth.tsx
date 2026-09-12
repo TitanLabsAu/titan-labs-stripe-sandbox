@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import titanLogo from "@/assets/titan-logo.asset.json";
+import { TitanLogo } from "@/components/TitanLogo";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -88,7 +88,7 @@ function AuthPage() {
     <main className="bg-hero flex min-h-screen items-center justify-center px-4 py-16">
       <div className="w-full max-w-md">
         <Link to="/" className="mb-8 flex justify-center">
-          <img src={titanLogo.url} alt="Titan Labs Aus logo" className="h-24 w-auto" />
+          <TitanLogo size={72} />
         </Link>
 
         <div className="shadow-glow rounded-xl border border-border bg-card/80 p-8 backdrop-blur">
