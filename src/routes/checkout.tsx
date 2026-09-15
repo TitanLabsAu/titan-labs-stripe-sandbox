@@ -19,7 +19,7 @@ export const Route = createFileRoute("/checkout")({
   component: CheckoutPage,
 });
 
-const SHIPPING = 15;
+const SHIPPING = 20;
 
 function CheckoutPage() {
   const { items, subtotal } = useCart();
