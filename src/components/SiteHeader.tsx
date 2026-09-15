@@ -1,11 +1,22 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { CartSheet } from "@/components/CartSheet";
 import { TitanLogo } from "@/components/TitanLogo";
 import { supabase } from "@/integrations/supabase/client";
 
 export function SiteHeader() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [signedIn, setSignedIn] = useState(false);
 
   useEffect(() => {
@@ -16,6 +27,13 @@ export function SiteHeader() {
     return () => sub.subscription.unsubscribe();
   }, []);
 
+  async function handleSignOut() {
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await supabase.auth.signOut();
+    navigate({ to: "/auth", replace: true });
+  }
+
   return (
     <header className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-5">
       <Link to="/" aria-label="Titan Labs Australia home">
@@ -23,9 +41,27 @@ export function SiteHeader() {
       </Link>
       <nav className="flex items-center gap-2 sm:gap-3">
         {signedIn ? (
-          <Button asChild className="font-bold uppercase">
-            <Link to="/account">My account</Link>
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="font-bold uppercase">
+                My account
+                <ChevronDown className="ml-1 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem asChild>
+                <Link to="/account">Profile</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/orders">Current orders</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/order-history">Order history</Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={() => void handleSignOut()}>Sign out</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         ) : (
           <>
             <Button asChild variant="ghost">

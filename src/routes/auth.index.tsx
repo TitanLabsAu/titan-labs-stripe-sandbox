@@ -36,7 +36,7 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/account", replace: true });
+      if (data.session) navigate({ to: "/", replace: true });
     });
   }, [navigate]);
 
@@ -64,7 +64,7 @@ function AuthPage() {
         password,
       });
       if (error) throw error;
-      navigate({ to: "/account" });
+      navigate({ to: "/" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong.");
     } finally {

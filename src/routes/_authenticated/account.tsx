@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import titanLogo from "@/assets/titan-logo.asset.json";
+import { SiteHeader } from "@/components/SiteHeader";
 import { AddressFields, combineAddress } from "@/components/AddressFields";
 
 export const Route = createFileRoute("/_authenticated/account")({
@@ -129,23 +129,11 @@ function AccountPage() {
     }
   }
 
-  async function handleSignOut() {
-    await queryClient.cancelQueries();
-    queryClient.clear();
-    await supabase.auth.signOut();
-    navigate({ to: "/auth", replace: true });
-  }
-
   return (
-    <main className="bg-hero min-h-screen px-4 py-10">
-      <div className="mx-auto max-w-2xl">
-        <header className="mb-8 flex items-center justify-between gap-4">
-          <img src={titanLogo.url} alt="Titan Labs Aus logo" className="h-14 w-auto" />
-          <Button variant="outline" onClick={handleSignOut}>
-            Sign out
-          </Button>
-        </header>
-
+    <div className="bg-hero min-h-screen">
+      <SiteHeader />
+      <main className="px-4 pb-16">
+        <div className="mx-auto max-w-2xl">
         <div className="shadow-glow rounded-xl border border-border bg-card/80 p-8 backdrop-blur">
           <h1 className="text-3xl font-extrabold uppercase tracking-tight text-steel">
             Your profile
@@ -155,6 +143,12 @@ function AccountPage() {
               ? "Your details are on file. Update them any time."
               : "Complete your details so we can process and ship your orders."}
           </p>
+          {profile?.email && (
+            <p className="mt-3 text-sm text-muted-foreground">
+              Signed in as <span className="text-foreground">{profile.email}</span>
+            </p>
+          )}
+
 
           {isLoading ? (
             <p className="mt-8 text-sm text-muted-foreground">Loading your details…</p>
@@ -206,16 +200,17 @@ function AccountPage() {
               </div>
 
               <Button type="submit" className="w-full font-bold uppercase" disabled={saving}>
-                {saving ? "Saving…" : "Save profile"}
+                {saving ? "Saving…" : "Update details"}
               </Button>
             </form>
           )}
         </div>
 
-        <p className="mt-6 text-center text-xs text-muted-foreground">
-          Research use only. Not for human consumption.
-        </p>
-      </div>
-    </main>
+          <p className="mt-6 text-center text-xs text-muted-foreground">
+            Research use only. Not for human consumption.
+          </p>
+        </div>
+      </main>
+    </div>
   );
 }
