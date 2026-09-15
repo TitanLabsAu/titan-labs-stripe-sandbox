@@ -146,6 +146,87 @@ export const adminMarkNotificationsRead = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export type AdminMember = AdminCustomer & {
+  id: string;
+  created_at: string;
+  order_count: number;
+  live_count: number;
+  delivered_count: number;
+  total_spent: number;
+};
+
+export const adminListMembers = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<AdminMember[]> => {
+    await assertAdmin(context as any);
+
+    const { data: profiles, error } = await context.supabase
+      .from("profiles")
+      .select(
+        "id, email, first_name, last_name, phone_number, address_line, city, state, postcode, postal_address, created_at",
+      )
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+
+    const { data: orders } = await context.supabase
+      .from("orders")
+      .select("user_id, status, total");
+
+    const stats = new Map<
+      string,
+      { order_count: number; live_count: number; delivered_count: number; total_spent: number }
+    >();
+    for (const o of (orders ?? []) as any[]) {
+      const s =
+        stats.get(o.user_id) ??
+        { order_count: 0, live_count: 0, delivered_count: 0, total_spent: 0 };
+      s.order_count += 1;
+      if (o.status === "processing" || o.status === "shipped") s.live_count += 1;
+      if (o.status === "delivered") s.delivered_count += 1;
+      s.total_spent += Number(o.total ?? 0);
+      stats.set(o.user_id, s);
+    }
+
+    return ((profiles ?? []) as any[]).map((p) => ({
+      ...(p as AdminMember),
+      ...(stats.get(p.id) ?? {
+        order_count: 0,
+        live_count: 0,
+        delivered_count: 0,
+        total_spent: 0,
+      }),
+    }));
+  });
+
+export const adminGetMemberOrders = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { userId: string }) => input)
+  .handler(async ({ data, context }): Promise<AdminOrder[]> => {
+    await assertAdmin(context as any);
+
+    const { data: orders, error } = await context.supabase
+      .from("orders")
+      .select(
+        "id, user_id, status, tracking_number, tracking_status, subtotal, shipping, total, created_at, delivered_at, order_items(id, product_name, product_slug, unit_price, quantity)",
+      )
+      .eq("user_id", data.userId)
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+
+    const { data: profile } = await context.supabase
+      .from("profiles")
+      .select(
+        "email, first_name, last_name, phone_number, address_line, city, state, postcode, postal_address",
+      )
+      .eq("id", data.userId)
+      .maybeSingle();
+
+    return ((orders ?? []) as unknown as AdminOrder[]).map((o) => ({
+      ...o,
+      customer: (profile as AdminCustomer) ?? null,
+    }));
+  });
+
 /** Checks Australia Post now for every live order that has a tracking number. */
 export const adminRefreshTracking = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
