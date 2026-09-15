@@ -40,6 +40,7 @@ export function AddressFields({
 
   useEffect(() => {
     const q = query.trim();
+    console.log("[addr] effect", q);
     if (q.length < 3) {
       setSuggestions([]);
       return;
@@ -48,12 +49,14 @@ export function AddressFields({
     const timer = setTimeout(async () => {
       try {
         setBusy(true);
+        console.log("[addr] fetching");
         const results = await suggestRef.current({ data: { query: q, sessionToken: tokenRef.current } });
         if (id === requestId.current) {
           setSuggestions(results);
           setOpen(true);
         }
-      } catch {
+      } catch (err) {
+        console.log("[addr] error", String(err));
         if (id === requestId.current) setSuggestions([]);
       } finally {
         if (id === requestId.current) setBusy(false);
