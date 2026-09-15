@@ -1,0 +1,217 @@
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { formatPrice } from "@/lib/products";
+import {
+  adminGetMemberOrders,
+  adminListMembers,
+  type AdminMember,
+  type AdminOrder,
+} from "@/lib/admin.functions";
+
+function formatDate(value: string) {
+  return new Date(value).toLocaleDateString("en-AU", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function trackingUrl(tracking: string) {
+  return `https://auspost.com.au/mypost/track/details/${encodeURIComponent(tracking)}`;
+}
+
+function memberName(m: AdminMember) {
+  return [m.first_name, m.last_name].filter(Boolean).join(" ") || m.email || "Unnamed member";
+}
+
+function MemberOrderCard({ order }: { order: AdminOrder }) {
+  return (
+    <article className="rounded-xl border border-border bg-card/80 p-5">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
+        <div>
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+            Order #{order.id.slice(0, 8)}
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Placed {formatDate(order.created_at)}
+            {order.delivered_at ? ` · Delivered ${formatDate(order.delivered_at)}` : ""}
+          </p>
+        </div>
+        <span className="rounded-full border border-accent/50 px-3 py-1 text-xs font-bold uppercase tracking-wide text-accent">
+          {order.status}
+        </span>
+      </header>
+
+      <ul className="mt-3 divide-y divide-border">
+        {order.order_items.map((item) => (
+          <li key={item.id} className="flex items-center justify-between gap-4 py-2 text-sm">
+            <div>
+              <p className="font-bold uppercase text-foreground">{item.product_name}</p>
+              <p className="text-xs text-muted-foreground">
+                {item.quantity} × {formatPrice(Number(item.unit_price))}
+              </p>
+            </div>
+            <span className="font-extrabold text-accent">
+              {formatPrice(Number(item.unit_price) * item.quantity)}
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      <div className="mt-3 space-y-1 border-t border-border pt-3 text-sm text-muted-foreground">
+        <div className="flex justify-between">
+          <span>Subtotal</span>
+          <span>{formatPrice(Number(order.subtotal))}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Express shipping</span>
+          <span>{formatPrice(Number(order.shipping))}</span>
+        </div>
+        <div className="flex items-center justify-between pt-1">
+          <span className="font-bold uppercase text-foreground">Total</span>
+          <span className="text-xl font-extrabold text-accent">
+            {formatPrice(Number(order.total))}
+          </span>
+        </div>
+      </div>
+
+      <p className="mt-3 text-sm">
+        {order.tracking_number ? (
+          <a
+            href={trackingUrl(order.tracking_number)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bold text-accent underline underline-offset-4"
+          >
+            Track {order.tracking_number}
+          </a>
+        ) : (
+          <span className="text-muted-foreground">No tracking number yet.</span>
+        )}
+      </p>
+    </article>
+  );
+}
+
+function MemberDetail({ member, onBack }: { member: AdminMember; onBack: () => void }) {
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin-member-orders", member.id],
+    queryFn: () => adminGetMemberOrders({ data: { userId: member.id } }),
+  });
+
+  const orders = data ?? [];
+  const live = orders.filter((o) => o.status === "processing" || o.status === "shipped");
+  const closed = orders.filter((o) => o.status === "delivered" || o.status === "cancelled");
+
+  return (
+    <div className="space-y-6">
+      <Button variant="outline" className="font-bold uppercase" onClick={onBack}>
+        ← All members
+      </Button>
+
+      <div className="rounded-xl border border-border bg-card/80 p-6">
+        <h2 className="text-2xl font-extrabold uppercase text-foreground">{memberName(member)}</h2>
+        <div className="mt-3 grid gap-1 text-sm text-muted-foreground sm:grid-cols-2">
+          <p>{member.email ?? "No email"}</p>
+          <p>{member.phone_number ?? "No phone number"}</p>
+          <p className="sm:col-span-2">
+            {[member.address_line, member.city, member.state, member.postcode]
+              .filter(Boolean)
+              .join(", ") ||
+              member.postal_address ||
+              "No address on file"}
+          </p>
+          <p className="sm:col-span-2">
+            Member since {formatDate(member.created_at)} · {member.order_count} order(s) ·{" "}
+            {formatPrice(member.total_spent)} spent
+          </p>
+        </div>
+      </div>
+
+      {isLoading ? (
+        <p className="text-sm text-muted-foreground">Loading orders…</p>
+      ) : (
+        <>
+          <section className="space-y-4">
+            <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">
+              Live orders ({live.length})
+            </h3>
+            {live.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No live orders.</p>
+            ) : (
+              live.map((o) => <MemberOrderCard key={o.id} order={o} />)
+            )}
+          </section>
+
+          <section className="space-y-4">
+            <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">
+              Delivered &amp; closed orders ({closed.length})
+            </h3>
+            {closed.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No delivered orders yet.</p>
+            ) : (
+              closed.map((o) => <MemberOrderCard key={o.id} order={o} />)
+            )}
+          </section>
+        </>
+      )}
+    </div>
+  );
+}
+
+export function AdminMembers() {
+  const [selected, setSelected] = useState<AdminMember | null>(null);
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin-members"],
+    queryFn: () => adminListMembers({}),
+  });
+
+  if (selected) return <MemberDetail member={selected} onBack={() => setSelected(null)} />;
+  if (isLoading) return <p className="text-sm text-muted-foreground">Loading members…</p>;
+
+  const members = data ?? [];
+  if (members.length === 0) {
+    return (
+      <div className="rounded-xl border border-border bg-card/70 p-8 text-center">
+        <p className="text-sm text-muted-foreground">No customers have signed up yet.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {members.map((m) => (
+        <button
+          key={m.id}
+          type="button"
+          onClick={() => setSelected(m)}
+          className="w-full rounded-xl border border-border bg-card/80 p-5 text-left transition hover:border-accent/60"
+        >
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="text-sm text-muted-foreground">
+              <p className="text-base font-extrabold uppercase text-foreground">
+                {memberName(m)}
+              </p>
+              <p>{m.email ?? "No email"}</p>
+              <p>{m.phone_number ?? "No phone number"}</p>
+              <p>
+                {[m.address_line, m.city, m.state, m.postcode].filter(Boolean).join(", ") ||
+                  m.postal_address ||
+                  "No address on file"}
+              </p>
+            </div>
+            <div className="text-right text-sm text-muted-foreground">
+              <p className="text-2xl font-extrabold text-accent">{m.order_count}</p>
+              <p className="text-xs uppercase tracking-[0.2em]">orders</p>
+              <p className="mt-1 text-xs">
+                {m.live_count} live · {m.delivered_count} delivered
+              </p>
+              <p className="text-xs">{formatPrice(m.total_spent)} spent</p>
+            </div>
+          </div>
+        </button>
+      ))}
+    </div>
+  );
+}
