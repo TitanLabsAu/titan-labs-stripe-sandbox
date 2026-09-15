@@ -18,6 +18,7 @@ import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated
 import { Route as AuthIndexRouteImport } from './routes/auth.index'
 import { Route as AuthSignupRouteImport } from './routes/auth.signup'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
+import { Route as ApiPublicAuspostPollRouteImport } from './routes/api/public/auspost-poll'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -64,6 +65,11 @@ const ProductSlugRoute = ProductSlugRouteImport.update({
   path: '/product/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicAuspostPollRoute = ApiPublicAuspostPollRouteImport.update({
+  id: '/api/public/auspost-poll',
+  path: '/api/public/auspost-poll',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -74,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/auth/signup': typeof AuthSignupRoute
   '/product/$slug': typeof ProductSlugRoute
   '/auth/': typeof AuthIndexRoute
+  '/api/public/auspost-poll': typeof ApiPublicAuspostPollRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -84,6 +91,7 @@ export interface FileRoutesByTo {
   '/auth/signup': typeof AuthSignupRoute
   '/product/$slug': typeof ProductSlugRoute
   '/auth': typeof AuthIndexRoute
+  '/api/public/auspost-poll': typeof ApiPublicAuspostPollRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -96,6 +104,7 @@ export interface FileRoutesById {
   '/auth/signup': typeof AuthSignupRoute
   '/product/$slug': typeof ProductSlugRoute
   '/auth/': typeof AuthIndexRoute
+  '/api/public/auspost-poll': typeof ApiPublicAuspostPollRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -108,6 +117,7 @@ export interface FileRouteTypes {
     | '/auth/signup'
     | '/product/$slug'
     | '/auth/'
+    | '/api/public/auspost-poll'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -118,6 +128,7 @@ export interface FileRouteTypes {
     | '/auth/signup'
     | '/product/$slug'
     | '/auth'
+    | '/api/public/auspost-poll'
   id:
     | '__root__'
     | '/'
@@ -129,6 +140,7 @@ export interface FileRouteTypes {
     | '/auth/signup'
     | '/product/$slug'
     | '/auth/'
+    | '/api/public/auspost-poll'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -138,6 +150,7 @@ export interface RootRouteChildren {
   AuthSignupRoute: typeof AuthSignupRoute
   ProductSlugRoute: typeof ProductSlugRoute
   AuthIndexRoute: typeof AuthIndexRoute
+  ApiPublicAuspostPollRoute: typeof ApiPublicAuspostPollRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -205,6 +218,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/auspost-poll': {
+      id: '/api/public/auspost-poll'
+      path: '/api/public/auspost-poll'
+      fullPath: '/api/public/auspost-poll'
+      preLoaderRoute: typeof ApiPublicAuspostPollRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -230,6 +250,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthSignupRoute: AuthSignupRoute,
   ProductSlugRoute: ProductSlugRoute,
   AuthIndexRoute: AuthIndexRoute,
+  ApiPublicAuspostPollRoute: ApiPublicAuspostPollRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
