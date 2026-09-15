@@ -13,11 +13,13 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedOrderHistoryRouteImport } from './routes/_authenticated/order-history'
 import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
 import { Route as AuthIndexRouteImport } from './routes/auth.index'
 import { Route as AuthSignupRouteImport } from './routes/auth.signup'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
+import { Route as ApiPublicAuspostPollRouteImport } from './routes/api/public/auspost-poll'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -36,6 +38,11 @@ const CheckoutRoute = CheckoutRouteImport.update({
 const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
   id: '/account',
   path: '/account',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedOrderHistoryRoute =
@@ -64,26 +71,35 @@ const ProductSlugRoute = ProductSlugRouteImport.update({
   path: '/product/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicAuspostPollRoute = ApiPublicAuspostPollRouteImport.update({
+  id: '/api/public/auspost-poll',
+  path: '/api/public/auspost-poll',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
   '/account': typeof AuthenticatedAccountRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/order-history': typeof AuthenticatedOrderHistoryRoute
   '/orders': typeof AuthenticatedOrdersRoute
   '/auth/signup': typeof AuthSignupRoute
   '/product/$slug': typeof ProductSlugRoute
   '/auth/': typeof AuthIndexRoute
+  '/api/public/auspost-poll': typeof ApiPublicAuspostPollRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
   '/account': typeof AuthenticatedAccountRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/order-history': typeof AuthenticatedOrderHistoryRoute
   '/orders': typeof AuthenticatedOrdersRoute
   '/auth/signup': typeof AuthSignupRoute
   '/product/$slug': typeof ProductSlugRoute
   '/auth': typeof AuthIndexRoute
+  '/api/public/auspost-poll': typeof ApiPublicAuspostPollRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -91,11 +107,13 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/checkout': typeof CheckoutRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/order-history': typeof AuthenticatedOrderHistoryRoute
   '/_authenticated/orders': typeof AuthenticatedOrdersRoute
   '/auth/signup': typeof AuthSignupRoute
   '/product/$slug': typeof ProductSlugRoute
   '/auth/': typeof AuthIndexRoute
+  '/api/public/auspost-poll': typeof ApiPublicAuspostPollRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -103,32 +121,38 @@ export interface FileRouteTypes {
     | '/'
     | '/checkout'
     | '/account'
+    | '/admin'
     | '/order-history'
     | '/orders'
     | '/auth/signup'
     | '/product/$slug'
     | '/auth/'
+    | '/api/public/auspost-poll'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/checkout'
     | '/account'
+    | '/admin'
     | '/order-history'
     | '/orders'
     | '/auth/signup'
     | '/product/$slug'
     | '/auth'
+    | '/api/public/auspost-poll'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/checkout'
     | '/_authenticated/account'
+    | '/_authenticated/admin'
     | '/_authenticated/order-history'
     | '/_authenticated/orders'
     | '/auth/signup'
     | '/product/$slug'
     | '/auth/'
+    | '/api/public/auspost-poll'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -138,6 +162,7 @@ export interface RootRouteChildren {
   AuthSignupRoute: typeof AuthSignupRoute
   ProductSlugRoute: typeof ProductSlugRoute
   AuthIndexRoute: typeof AuthIndexRoute
+  ApiPublicAuspostPollRoute: typeof ApiPublicAuspostPollRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -168,6 +193,13 @@ declare module '@tanstack/react-router' {
       path: '/account'
       fullPath: '/account'
       preLoaderRoute: typeof AuthenticatedAccountRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/order-history': {
@@ -205,17 +237,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/auspost-poll': {
+      id: '/api/public/auspost-poll'
+      path: '/api/public/auspost-poll'
+      fullPath: '/api/public/auspost-poll'
+      preLoaderRoute: typeof ApiPublicAuspostPollRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedOrderHistoryRoute: typeof AuthenticatedOrderHistoryRoute
   AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAccountRoute: AuthenticatedAccountRoute,
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedOrderHistoryRoute: AuthenticatedOrderHistoryRoute,
   AuthenticatedOrdersRoute: AuthenticatedOrdersRoute,
 }
@@ -230,6 +271,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthSignupRoute: AuthSignupRoute,
   ProductSlugRoute: ProductSlugRoute,
   AuthIndexRoute: AuthIndexRoute,
+  ApiPublicAuspostPollRoute: ApiPublicAuspostPollRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

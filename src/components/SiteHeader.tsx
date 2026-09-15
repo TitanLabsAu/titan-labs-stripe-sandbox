@@ -13,11 +13,14 @@ import {
 import { CartSheet } from "@/components/CartSheet";
 import { TitanLogo } from "@/components/TitanLogo";
 import { supabase } from "@/integrations/supabase/client";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 export function SiteHeader() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [signedIn, setSignedIn] = useState(false);
+  const { isAdmin } = useIsAdmin();
+
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSignedIn(Boolean(data.session)));
@@ -48,8 +51,14 @@ export function SiteHeader() {
             View the Range
           </Link>
         </Button>
+        {signedIn && isAdmin ? (
+          <Button asChild className="font-bold uppercase">
+            <Link to="/admin">Admin</Link>
+          </Button>
+        ) : null}
         {signedIn ? (
           <DropdownMenu>
+
             <DropdownMenuTrigger asChild>
               <Button className="font-bold uppercase">
                 My account
