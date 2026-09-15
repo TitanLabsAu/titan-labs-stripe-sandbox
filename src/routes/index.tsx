@@ -34,16 +34,6 @@ const pillars = [
 ];
 
 function Index() {
-  const [signedIn, setSignedIn] = useState(false);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setSignedIn(Boolean(data.session)));
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) =>
-      setSignedIn(Boolean(session)),
-    );
-    return () => sub.subscription.unsubscribe();
-  }, []);
-
   return (
     <div className="bg-hero min-h-screen">
       <SiteHeader />
@@ -62,16 +52,6 @@ function Index() {
           Australian-owned research supply. Lab-tested peptides and wellness compounds, shipped fast
           and discreetly. Create your free account to unlock ordering.
         </p>
-        <div className="mt-9 flex flex-wrap justify-center gap-4">
-          <Button asChild size="lg" className="shadow-glow font-bold uppercase tracking-wide">
-            <Link to={signedIn ? "/account" : "/auth"}>
-              {signedIn ? "Go to my account" : "Create your account"}
-            </Link>
-          </Button>
-          <Button asChild size="lg" variant="outline" className="font-bold uppercase tracking-wide">
-            <a href="#range">View the range</a>
-          </Button>
-        </div>
       </section>
 
       <section id="range" className="mx-auto max-w-6xl px-4 pb-20">
