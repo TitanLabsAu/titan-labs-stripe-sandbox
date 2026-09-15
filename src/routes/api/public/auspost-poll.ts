@@ -5,8 +5,15 @@ export const Route = createFileRoute("/api/public/auspost-poll")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const unauthorized = await authenticateCronRequest(request);
-        if (unauthorized) return unauthorized;
+        const cronSecret = process.env["AUSPOST_CRON_SECRET"];
+        const bearer = /^Bearer ([^\s,]+)$/.exec(request.headers.get("authorization") ?? "")?.[1];
+        const ownSecretMatches = Boolean(cronSecret && bearer && bearer === cronSecret);
+
+        if (!ownSecretMatches) {
+          const unauthorized = await authenticateCronRequest(request);
+          if (unauthorized) return unauthorized;
+        }
+
 
         try {
           const { syncAustraliaPostTracking } = await import("@/lib/auspost.server");
