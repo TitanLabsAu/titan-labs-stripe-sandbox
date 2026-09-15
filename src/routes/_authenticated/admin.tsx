@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/SiteHeader";
+import { AdminMembers } from "@/components/AdminMembers";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -350,6 +351,10 @@ function AdminPage() {
                   <OrdersPanel scope="closed" />
                 </TabsContent>
               </Tabs>
+            </TabsContent>
+
+            <TabsContent value="members" className="mt-6">
+              <AdminMembers />
             </TabsContent>
 
             <TabsContent value="notifications" className="mt-6">
