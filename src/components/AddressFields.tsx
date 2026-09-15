@@ -24,6 +24,8 @@ export function AddressFields({
 }) {
   const suggest = useServerFn(suggestAddresses);
   const resolve = useServerFn(resolveAddress);
+  const suggestRef = useRef(suggest);
+  suggestRef.current = suggest;
 
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
@@ -46,7 +48,7 @@ export function AddressFields({
     const timer = setTimeout(async () => {
       try {
         setBusy(true);
-        const results = await suggest({ data: { query: q, sessionToken: tokenRef.current } });
+        const results = await suggestRef.current({ data: { query: q, sessionToken: tokenRef.current } });
         if (id === requestId.current) {
           setSuggestions(results);
           setOpen(true);
@@ -58,7 +60,7 @@ export function AddressFields({
       }
     }, 300);
     return () => clearTimeout(timer);
-  }, [query, suggest]);
+  }, [query]);
 
   async function pick(s: AddressSuggestion) {
     setOpen(false);
