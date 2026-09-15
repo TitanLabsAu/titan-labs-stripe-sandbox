@@ -1,6 +1,9 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { sendTemplateEmail } from "@/lib/email-templates/send-email";
 
+const ADMIN_EMAIL = "sjrendall@live.com.au";
 const TRACK_URL = "https://digitalapi.auspost.com.au/shipping/v1/track";
+
 
 type TrackResult = { status: string | null; raw: unknown };
 
@@ -86,7 +89,33 @@ export async function syncAustraliaPostTracking(): Promise<SyncSummary> {
         title: `Order #${order.id.slice(0, 8)} delivered`,
         body: `Australia Post has marked tracking ${tracking} as delivered. The order moved to Closed Orders.`,
       });
+
+      try {
+        const { data: profile } = await supabaseAdmin
+          .from("profiles")
+          .select("first_name, last_name, email")
+          .eq("id", order.user_id)
+          .maybeSingle();
+
+        const customerName =
+          [profile?.first_name, profile?.last_name].filter(Boolean).join(" ") ||
+          profile?.email ||
+          "a customer";
+
+        await sendTemplateEmail("order-delivered", ADMIN_EMAIL, {
+          templateData: {
+            orderNumber: order.id.slice(0, 8),
+            customerName,
+            trackingNumber: tracking,
+            total: `$${Number(order.total).toFixed(2)}`,
+          },
+          idempotencyKey: `order-delivered-${order.id}`,
+        });
+      } catch (err) {
+        console.error("[auspost] delivery email failed", err);
+      }
     }
+
   }
 
   return summary;
