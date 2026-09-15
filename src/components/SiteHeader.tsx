@@ -43,7 +43,7 @@ export function SiteHeader() {
         <Button asChild variant="ghost">
           <Link to="/">Home</Link>
         </Button>
-        <Button asChild variant="ghost" className="hidden font-bold uppercase xs:inline-flex sm:inline-flex">
+        <Button asChild variant="ghost" className="hidden font-bold uppercase sm:inline-flex">
           <Link to="/" hash="range">
             View the Range
           </Link>
