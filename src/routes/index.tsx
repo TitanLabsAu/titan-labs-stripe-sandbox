@@ -2,10 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { TitanLogo } from "@/components/TitanLogo";
-import klow80 from "@/assets/klow80.asset.json";
-import wolverine from "@/assets/wolverine.asset.json";
-import nad1000 from "@/assets/nad1000.asset.json";
+import { SiteHeader } from "@/components/SiteHeader";
+import { products, formatPrice } from "@/lib/products";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -28,22 +26,6 @@ export const Route = createFileRoute("/")({
   }),
   component: Index,
 });
-
-const products = [
-  { name: "KLOW 80mg", price: "$140", image: klow80.url, alt: "KLOW 80mg vials by Titan Labs" },
-  {
-    name: "Wolverine 20mg",
-    price: "$120",
-    image: wolverine.url,
-    alt: "Wolverine 20mg vials by Titan Labs",
-  },
-  {
-    name: "NAD+ 1000mg",
-    price: "$120",
-    image: nad1000.url,
-    alt: "NAD+ 1000mg vials by Titan Labs",
-  },
-];
 
 const pillars = [
   { title: "Science Backed", body: "Formulas you can trust, batch tested for purity." },
