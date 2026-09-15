@@ -2,10 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { TitanLogo } from "@/components/TitanLogo";
-import klow80 from "@/assets/klow80.asset.json";
-import wolverine from "@/assets/wolverine.asset.json";
-import nad1000 from "@/assets/nad1000.asset.json";
+import { SiteHeader } from "@/components/SiteHeader";
+import { products, formatPrice } from "@/lib/products";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -29,22 +27,6 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const products = [
-  { name: "KLOW 80mg", price: "$140", image: klow80.url, alt: "KLOW 80mg vials by Titan Labs" },
-  {
-    name: "Wolverine 20mg",
-    price: "$120",
-    image: wolverine.url,
-    alt: "Wolverine 20mg vials by Titan Labs",
-  },
-  {
-    name: "NAD+ 1000mg",
-    price: "$120",
-    image: nad1000.url,
-    alt: "NAD+ 1000mg vials by Titan Labs",
-  },
-];
-
 const pillars = [
   { title: "Science Backed", body: "Formulas you can trust, batch tested for purity." },
   { title: "Premium Quality", body: "Only the highest grade compounds, every single vial." },
@@ -64,25 +46,8 @@ function Index() {
 
   return (
     <div className="bg-hero min-h-screen">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5">
-        <TitanLogo size={52} />
-        <nav className="flex items-center gap-3">
-          {signedIn ? (
-            <Button asChild className="font-bold uppercase">
-              <Link to="/account">My account</Link>
-            </Button>
-          ) : (
-            <>
-              <Button asChild variant="ghost">
-                <Link to="/auth">Log in</Link>
-              </Button>
-              <Button asChild className="font-bold uppercase">
-                <Link to="/auth">Create account</Link>
-              </Button>
-            </>
-          )}
-        </nav>
-      </header>
+      <SiteHeader />
+
 
       <section className="mx-auto max-w-6xl px-4 pb-20 pt-10 text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.35em] text-accent">
@@ -115,9 +80,11 @@ function Index() {
         </h2>
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {products.map((p) => (
-            <article
-              key={p.name}
-              className="overflow-hidden rounded-xl border border-border bg-card/70 transition-transform hover:-translate-y-1"
+            <Link
+              key={p.slug}
+              to="/product/$slug"
+              params={{ slug: p.slug }}
+              className="block overflow-hidden rounded-xl border border-border bg-card/70 transition-transform hover:-translate-y-1"
             >
               <img
                 src={p.image}
@@ -129,9 +96,12 @@ function Index() {
                 <h3 className="text-lg font-bold uppercase tracking-tight text-foreground">
                   {p.name}
                 </h3>
-                <span className="text-lg font-extrabold text-accent">{p.price}</span>
+                <span className="text-lg font-extrabold text-accent">{formatPrice(p.price)}</span>
               </div>
-            </article>
+              <p className="px-5 pb-5 text-xs uppercase tracking-[0.2em] text-accent">
+                View &amp; buy →
+              </p>
+            </Link>
           ))}
         </div>
         <p className="mt-8 text-center text-sm text-muted-foreground">
