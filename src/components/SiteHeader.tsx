@@ -40,10 +40,10 @@ export function SiteHeader() {
         <TitanLogo size={52} />
       </Link>
       <nav className="flex items-center gap-2 sm:gap-3">
-        <Button asChild variant="ghost">
+        <Button asChild className="font-bold uppercase">
           <Link to="/">Home</Link>
         </Button>
-        <Button asChild variant="ghost" className="hidden font-bold uppercase sm:inline-flex">
+        <Button asChild className="hidden font-bold uppercase sm:inline-flex">
           <Link to="/" hash="range">
             View the Range
           </Link>
@@ -72,7 +72,7 @@ export function SiteHeader() {
           </DropdownMenu>
         ) : (
           <>
-            <Button asChild variant="ghost">
+            <Button asChild className="font-bold uppercase">
               <Link to="/auth">Log in</Link>
             </Button>
             <Button asChild className="hidden font-bold uppercase sm:inline-flex">
