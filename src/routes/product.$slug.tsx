@@ -136,6 +136,7 @@ function ProductPage() {
                 size="lg"
                 className="mt-5 w-full font-bold uppercase tracking-wide"
                 onClick={() => {
+                  expectedCarted.current = (carted ?? 0) + qty;
                   addItem(product.slug, qty);
                   toast.success(`${qty} × ${product.name} added to cart`);
                 }}
