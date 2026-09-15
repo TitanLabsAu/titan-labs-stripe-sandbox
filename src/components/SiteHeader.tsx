@@ -51,8 +51,14 @@ export function SiteHeader() {
             View the Range
           </Link>
         </Button>
+        {signedIn && isAdmin ? (
+          <Button asChild className="font-bold uppercase">
+            <Link to="/admin">Admin</Link>
+          </Button>
+        ) : null}
         {signedIn ? (
           <DropdownMenu>
+
             <DropdownMenuTrigger asChild>
               <Button className="font-bold uppercase">
                 My account
