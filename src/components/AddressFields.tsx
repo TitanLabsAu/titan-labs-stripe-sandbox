@@ -51,6 +51,7 @@ export function AddressFields({
         setBusy(true);
         console.log("[addr] fetching");
         const results = await suggestRef.current({ data: { query: q, sessionToken: tokenRef.current } });
+        console.log("[addr] got", JSON.stringify(results));
         if (id === requestId.current) {
           setSuggestions(results);
           setOpen(true);
