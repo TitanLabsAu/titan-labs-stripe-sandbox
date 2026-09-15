@@ -5,9 +5,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { TitanLogo } from "@/components/TitanLogo";
+import { AddressFields, combineAddress } from "@/components/AddressFields";
 
 export const Route = createFileRoute("/auth/signup")({
   head: () => ({
@@ -34,7 +34,10 @@ export const Route = createFileRoute("/auth/signup")({
 const signupSchema = z.object({
   first_name: z.string().trim().min(1, "First name is required").max(60),
   last_name: z.string().trim().min(1, "Last name is required").max(60),
-  postal_address: z.string().trim().min(5, "Postal address is required").max(300),
+  address_line: z.string().trim().min(3, "Address is required").max(200),
+  city: z.string().trim().min(1, "City is required").max(100),
+  state: z.string().trim().min(1, "State is required").max(40),
+  postcode: z.string().trim().min(3, "Post code is required").max(10),
   email: z.string().trim().email("Enter a valid email address").max(255),
   password: z.string().min(6, "Password must be at least 6 characters").max(72),
 });
@@ -44,7 +47,10 @@ function SignupPage() {
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
-    postal_address: "",
+    address_line: "",
+    city: "",
+    state: "",
+    postcode: "",
     email: "",
     password: "",
   });
