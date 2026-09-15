@@ -315,6 +315,9 @@ function AdminPage() {
               <TabsTrigger value="orders" className="font-bold uppercase">
                 Orders
               </TabsTrigger>
+              <TabsTrigger value="members" className="font-bold uppercase">
+                Members
+              </TabsTrigger>
               <TabsTrigger value="notifications" className="font-bold uppercase">
                 Notifications
               </TabsTrigger>
