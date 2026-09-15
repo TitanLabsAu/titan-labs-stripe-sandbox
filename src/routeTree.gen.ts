@@ -42,9 +42,9 @@ const AuthIndexRoute = AuthIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthSignupRoute = AuthSignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => AuthRoute,
+  id: '/auth/signup',
+  path: '/auth/signup',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ProductSlugRoute = ProductSlugRouteImport.update({
   id: '/product/$slug',
@@ -105,6 +105,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   CheckoutRoute: typeof CheckoutRoute
+  AuthSignupRoute: typeof AuthSignupRoute
   ProductSlugRoute: typeof ProductSlugRoute
   AuthIndexRoute: typeof AuthIndexRoute
 }
@@ -148,10 +149,10 @@ declare module '@tanstack/react-router' {
     }
     '/auth/signup': {
       id: '/auth/signup'
-      path: '/signup'
+      path: '/auth/signup'
       fullPath: '/auth/signup'
       preLoaderRoute: typeof AuthSignupRouteImport
-      parentRoute: typeof AuthRoute
+      parentRoute: typeof rootRouteImport
     }
     '/product/$slug': {
       id: '/product/$slug'
@@ -178,6 +179,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   CheckoutRoute: CheckoutRoute,
+  AuthSignupRoute: AuthSignupRoute,
   ProductSlugRoute: ProductSlugRoute,
   AuthIndexRoute: AuthIndexRoute,
 }
