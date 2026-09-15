@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import titanLogo from "@/assets/titan-logo.asset.json";
+import { SiteHeader } from "@/components/SiteHeader";
 import { AddressFields, combineAddress } from "@/components/AddressFields";
 
 export const Route = createFileRoute("/_authenticated/account")({
