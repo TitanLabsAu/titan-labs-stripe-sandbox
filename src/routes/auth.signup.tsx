@@ -80,7 +80,11 @@ function SignupPage() {
           data: {
             first_name: parsed.data.first_name,
             last_name: parsed.data.last_name,
-            postal_address: parsed.data.postal_address,
+            address_line: parsed.data.address_line,
+            city: parsed.data.city,
+            state: parsed.data.state,
+            postcode: parsed.data.postcode,
+            postal_address: combineAddress(parsed.data),
           },
         },
       });
