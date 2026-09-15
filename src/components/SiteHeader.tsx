@@ -32,7 +32,7 @@ export function SiteHeader() {
               <Link to="/auth">Log in</Link>
             </Button>
             <Button asChild className="hidden font-bold uppercase sm:inline-flex">
-              <Link to="/auth">Create account</Link>
+              <Link to="/auth/signup">Create account</Link>
             </Button>
           </>
         )}
