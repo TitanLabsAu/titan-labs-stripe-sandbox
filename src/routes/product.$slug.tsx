@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -38,15 +38,25 @@ export const Route = createFileRoute("/product/$slug")({
 function ProductPage() {
   const { product } = Route.useLoaderData();
   const { addItem, items } = useCart();
-  const [qty, setQty] = useState(() =>
-    Math.max(1, Math.min(99, items.find((i) => i.slug === product.slug)?.quantity ?? 1)),
-  );
-  const [prevSlug, setPrevSlug] = useState(product.slug);
-  if (prevSlug !== product.slug) {
-    setPrevSlug(product.slug);
-    setQty(
-      Math.max(1, Math.min(99, items.find((i) => i.slug === product.slug)?.quantity ?? 1)),
-    );
+  const carted = items.find((i) => i.slug === product.slug)?.quantity ?? null;
+
+  const [qty, setQty] = useState(1);
+  const [synced, setSynced] = useState<{ slug: string; carted: number | null }>({
+    slug: product.slug,
+    carted: null,
+  });
+  const expectedCarted = useRef<number | null>(null);
+
+  if (synced.slug !== product.slug || synced.carted !== carted) {
+    const isOwnAdd =
+      synced.slug === product.slug &&
+      expectedCarted.current !== null &&
+      carted === expectedCarted.current;
+    if (!isOwnAdd) {
+      setQty(carted ?? 1);
+    }
+    expectedCarted.current = null;
+    setSynced({ slug: product.slug, carted });
   }
 
   const total = product.price * qty;
