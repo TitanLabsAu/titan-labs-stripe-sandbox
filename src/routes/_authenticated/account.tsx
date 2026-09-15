@@ -52,7 +52,10 @@ function AccountPage() {
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
-    postal_address: "",
+    address_line: "",
+    city: "",
+    state: "",
+    postcode: "",
     phone_number: "",
   });
 
@@ -77,14 +80,23 @@ function AccountPage() {
       setForm({
         first_name: profile.first_name ?? "",
         last_name: profile.last_name ?? "",
-        postal_address: profile.postal_address ?? "",
+        address_line: profile.address_line ?? "",
+        city: profile.city ?? "",
+        state: profile.state ?? "",
+        postcode: profile.postcode ?? "",
         phone_number: profile.phone_number ?? "",
       });
     }
   }, [profile]);
 
   const complete = Boolean(
-    profile?.first_name && profile?.last_name && profile?.postal_address && profile?.phone_number,
+    profile?.first_name &&
+      profile?.last_name &&
+      profile?.address_line &&
+      profile?.city &&
+      profile?.state &&
+      profile?.postcode &&
+      profile?.phone_number,
   );
 
   async function handleSave(e: React.FormEvent) {
