@@ -39,6 +39,11 @@ function ProductPage() {
   const { product } = Route.useLoaderData();
   const { addItem } = useCart();
   const [qty, setQty] = useState(1);
+  const [prevSlug, setPrevSlug] = useState(product.slug);
+  if (prevSlug !== product.slug) {
+    setPrevSlug(product.slug);
+    setQty(1);
+  }
 
   const total = product.price * qty;
 
