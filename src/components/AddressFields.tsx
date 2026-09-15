@@ -36,7 +36,6 @@ export function AddressFields({
 
   useEffect(() => {
     const q = query.trim();
-    console.log("[addr] effect", q);
     if (q.length < 3) {
       setSuggestions([]);
       return;
@@ -45,15 +44,12 @@ export function AddressFields({
     const timer = setTimeout(async () => {
       try {
         setBusy(true);
-        console.log("[addr] fetching");
         const results = await suggestAddresses({ data: { query: q, sessionToken: tokenRef.current } });
-        console.log("[addr] got", JSON.stringify(results));
         if (id === requestId.current) {
           setSuggestions(results);
           setOpen(true);
         }
-      } catch (err) {
-        console.log("[addr] error", String(err));
+      } catch {
         if (id === requestId.current) setSuggestions([]);
       } finally {
         if (id === requestId.current) setBusy(false);
