@@ -152,18 +152,15 @@ function SignupPage() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="postal_address">Postal address</Label>
-                  <Textarea
-                    id="postal_address"
-                    rows={2}
-                    autoComplete="street-address"
-                    value={form.postal_address}
-                    maxLength={300}
-                    onChange={(e) => setForm({ ...form, postal_address: e.target.value })}
-                    required
-                  />
-                </div>
+                <AddressFields
+                  value={{
+                    address_line: form.address_line,
+                    city: form.city,
+                    state: form.state,
+                    postcode: form.postcode,
+                  }}
+                  onChange={(next) => setForm({ ...form, ...next })}
+                />
 
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
