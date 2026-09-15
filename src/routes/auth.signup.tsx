@@ -1,0 +1,212 @@
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+import { TitanLogo } from "@/components/TitanLogo";
+
+export const Route = createFileRoute("/auth/signup")({
+  head: () => ({
+    meta: [
+      { title: "Create Account | Titan Labs Aus" },
+      {
+        name: "description",
+        content:
+          "Create your Titan Labs Aus account with your name, postal address and email, then confirm your email to start ordering.",
+      },
+      { property: "og:title", content: "Create Account | Titan Labs Aus" },
+      {
+        property: "og:description",
+        content:
+          "Sign up to Titan Labs Aus with your details and confirm your email to unlock ordering.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: SignupPage,
+});
+
+const signupSchema = z.object({
+  first_name: z.string().trim().min(1, "First name is required").max(60),
+  last_name: z.string().trim().min(1, "Last name is required").max(60),
+  postal_address: z.string().trim().min(5, "Postal address is required").max(300),
+  email: z.string().trim().email("Enter a valid email address").max(255),
+  password: z.string().min(6, "Password must be at least 6 characters").max(72),
+});
+
+function SignupPage() {
+  const navigate = useNavigate();
+  const [form, setForm] = useState({
+    first_name: "",
+    last_name: "",
+    postal_address: "",
+    email: "",
+    password: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) navigate({ to: "/account", replace: true });
+    });
+  }, [navigate]);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const parsed = signupSchema.safeParse(form);
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message ?? "Please check your details.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signUp({
+        email: parsed.data.email,
+        password: parsed.data.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth`,
+          data: {
+            first_name: parsed.data.first_name,
+            last_name: parsed.data.last_name,
+            postal_address: parsed.data.postal_address,
+          },
+        },
+      });
+      if (error) throw error;
+      setSent(true);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <main className="bg-hero flex min-h-screen items-center justify-center px-4 py-16">
+      <div className="w-full max-w-md">
+        <Link to="/" className="mb-8 flex justify-center">
+          <TitanLogo size={72} />
+        </Link>
+
+        <div className="shadow-glow rounded-xl border border-border bg-card/80 p-8 backdrop-blur">
+          {sent ? (
+            <div className="space-y-4 text-center">
+              <h1 className="text-2xl font-extrabold tracking-tight text-steel">Check your email</h1>
+              <p className="text-sm text-muted-foreground">
+                We've sent a confirmation link to{" "}
+                <span className="text-foreground">{form.email}</span>. Click it to confirm your
+                account, then log in here.
+              </p>
+              <Button asChild variant="outline" className="w-full">
+                <Link to="/auth">Back to log in</Link>
+              </Button>
+            </div>
+          ) : (
+            <>
+              <h1 className="text-center text-3xl font-extrabold uppercase tracking-tight text-steel">
+                Create Account
+              </h1>
+              <p className="mt-2 text-center text-sm text-muted-foreground">
+                Enter your details, then confirm your email to unlock ordering.
+              </p>
+
+              <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="first_name">First name</Label>
+                    <Input
+                      id="first_name"
+                      autoComplete="given-name"
+                      value={form.first_name}
+                      maxLength={60}
+                      onChange={(e) => setForm({ ...form, first_name: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="last_name">Last name</Label>
+                    <Input
+                      id="last_name"
+                      autoComplete="family-name"
+                      value={form.last_name}
+                      maxLength={60}
+                      onChange={(e) => setForm({ ...form, last_name: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="postal_address">Postal address</Label>
+                  <Textarea
+                    id="postal_address"
+                    rows={2}
+                    autoComplete="street-address"
+                    value={form.postal_address}
+                    maxLength={300}
+                    onChange={(e) => setForm({ ...form, postal_address: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    value={form.email}
+                    maxLength={255}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    autoComplete="new-password"
+                    value={form.password}
+                    maxLength={72}
+                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <Button type="submit" className="w-full font-bold uppercase" disabled={loading}>
+                  {loading ? "Please wait…" : "Create account"}
+                </Button>
+              </form>
+
+              <Link
+                to="/auth"
+                className="mt-6 block w-full text-center text-sm text-muted-foreground underline-offset-4 hover:text-accent hover:underline"
+              >
+                Already have an account? Log in
+              </Link>
+            </>
+          )}
+        </div>
+
+        <Link
+          to="/"
+          className="mt-6 block text-center text-sm text-muted-foreground underline-offset-4 hover:text-accent hover:underline"
+        >
+          ← Back to home
+        </Link>
+
+        <p className="mt-4 text-center text-xs text-muted-foreground">
+          Research use only. Not for human consumption.
+        </p>
+      </div>
+    </main>
+  );
+}

@@ -110,7 +110,7 @@ function Index() {
             start ordering.
           </p>
           <Button asChild size="lg" className="mt-8 font-bold uppercase tracking-wide">
-            <Link to="/auth">Get started</Link>
+            <Link to="/auth/signup">Get started</Link>
           </Button>
         </div>
       </section>
