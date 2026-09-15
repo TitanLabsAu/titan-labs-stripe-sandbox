@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -22,10 +21,7 @@ export function AddressFields({
   value: AddressValue;
   onChange: (next: AddressValue) => void;
 }) {
-  const suggest = useServerFn(suggestAddresses);
-  const resolve = useServerFn(resolveAddress);
-  const suggestRef = useRef(suggest);
-  suggestRef.current = suggest;
+
 
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
@@ -50,7 +46,7 @@ export function AddressFields({
       try {
         setBusy(true);
         console.log("[addr] fetching");
-        const results = await suggestRef.current({ data: { query: q, sessionToken: tokenRef.current } });
+        const results = await suggestAddresses({ data: { query: q, sessionToken: tokenRef.current } });
         console.log("[addr] got", JSON.stringify(results));
         if (id === requestId.current) {
           setSuggestions(results);
@@ -71,7 +67,7 @@ export function AddressFields({
     setQuery(s.label);
     try {
       setBusy(true);
-      const detail = await resolve({ data: { placeId: s.placeId, sessionToken: tokenRef.current } });
+      const detail = await resolveAddress({ data: { placeId: s.placeId, sessionToken: tokenRef.current } });
       tokenRef.current = typeof crypto !== "undefined" ? crypto.randomUUID() : `${Date.now()}-token`;
       onChange({
         address_line: detail.address_line,
