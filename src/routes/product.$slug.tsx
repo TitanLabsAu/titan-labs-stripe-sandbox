@@ -37,12 +37,16 @@ export const Route = createFileRoute("/product/$slug")({
 
 function ProductPage() {
   const { product } = Route.useLoaderData();
-  const { addItem } = useCart();
-  const [qty, setQty] = useState(1);
+  const { addItem, items } = useCart();
+  const [qty, setQty] = useState(() =>
+    Math.max(1, Math.min(99, items.find((i) => i.slug === product.slug)?.quantity ?? 1)),
+  );
   const [prevSlug, setPrevSlug] = useState(product.slug);
   if (prevSlug !== product.slug) {
     setPrevSlug(product.slug);
-    setQty(1);
+    setQty(
+      Math.max(1, Math.min(99, items.find((i) => i.slug === product.slug)?.quantity ?? 1)),
+    );
   }
 
   const total = product.price * qty;
