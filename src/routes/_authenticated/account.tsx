@@ -113,7 +113,12 @@ function AccountPage() {
       if (!user) throw new Error("Your session expired. Please log in again.");
       const { error } = await supabase
         .from("profiles")
-        .upsert({ id: user.id, email: user.email ?? null, ...parsed.data });
+        .upsert({
+          id: user.id,
+          email: user.email ?? null,
+          ...parsed.data,
+          postal_address: combineAddress(parsed.data),
+        });
       if (error) throw error;
       await queryClient.invalidateQueries({ queryKey: ["profile"] });
       toast.success("Profile saved.");
@@ -178,17 +183,15 @@ function AccountPage() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="postal_address">Postal address</Label>
-                <Textarea
-                  id="postal_address"
-                  rows={3}
-                  value={form.postal_address}
-                  maxLength={300}
-                  onChange={(e) => setForm({ ...form, postal_address: e.target.value })}
-                  required
-                />
-              </div>
+              <AddressFields
+                value={{
+                  address_line: form.address_line,
+                  city: form.city,
+                  state: form.state,
+                  postcode: form.postcode,
+                }}
+                onChange={(next) => setForm({ ...form, ...next })}
+              />
 
               <div className="space-y-2">
                 <Label htmlFor="phone_number">Phone number</Label>
