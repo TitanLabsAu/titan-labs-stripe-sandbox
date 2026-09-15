@@ -16,6 +16,8 @@ export type Database = {
     Tables: {
       profiles: {
         Row: {
+          address_line: string | null
+          city: string | null
           created_at: string
           email: string | null
           first_name: string | null
@@ -23,9 +25,13 @@ export type Database = {
           last_name: string | null
           phone_number: string | null
           postal_address: string | null
+          postcode: string | null
+          state: string | null
           updated_at: string
         }
         Insert: {
+          address_line?: string | null
+          city?: string | null
           created_at?: string
           email?: string | null
           first_name?: string | null
@@ -33,9 +39,13 @@ export type Database = {
           last_name?: string | null
           phone_number?: string | null
           postal_address?: string | null
+          postcode?: string | null
+          state?: string | null
           updated_at?: string
         }
         Update: {
+          address_line?: string | null
+          city?: string | null
           created_at?: string
           email?: string | null
           first_name?: string | null
@@ -43,6 +53,8 @@ export type Database = {
           last_name?: string | null
           phone_number?: string | null
           postal_address?: string | null
+          postcode?: string | null
+          state?: string | null
           updated_at?: string
         }
         Relationships: []
