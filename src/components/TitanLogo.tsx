@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import mascot from "@/assets/titan-mascot.png";
+import shield from "@/assets/titan-shield-logo.png";
 
 type Props = {
   className?: string;
@@ -9,17 +9,17 @@ type Props = {
 };
 
 /**
- * Titan Labs Australia logo: the flag-bearing titan scientist emblem
- * paired with the metallic wordmark.
+ * Titan Labs Australia logo: the metallic Spartan shield emblem paired
+ * with the metallic wordmark.
  */
 export function TitanLogo({ className, size = 56, showWordmark = true }: Props) {
   return (
     <div className={cn("flex items-center gap-3", className)}>
       <img
-        src={mascot}
-        alt="Titan Labs Australia emblem"
+        src={shield}
+        alt="Titan Labs Australia Spartan shield emblem"
         style={{ height: size }}
-        className="w-auto drop-shadow-[0_0_18px_rgba(47,107,255,0.55)]"
+        className="w-auto drop-shadow-[0_0_18px_color-mix(in_oklab,var(--primary)_55%,transparent)]"
       />
 
       {showWordmark && (
