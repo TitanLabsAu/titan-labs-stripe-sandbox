@@ -386,7 +386,11 @@ export type AdminDiscountCode = {
   note: string | null;
   active: boolean;
   created_at: string;
+  expires_at: string | null;
 };
+
+const DISCOUNT_COLS =
+  "id, code, discount_type, value, max_uses, times_used, user_id, milestone, note, active, created_at, expires_at";
 
 export const adminListDiscountCodes = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -394,7 +398,7 @@ export const adminListDiscountCodes = createServerFn({ method: "POST" })
     await assertAdmin(context as any);
     const { data, error } = await context.supabase
       .from("discount_codes")
-      .select("id, code, discount_type, value, max_uses, times_used, user_id, milestone, note, active, created_at")
+      .select(DISCOUNT_COLS)
       .order("created_at", { ascending: false });
     if (error) throw error;
     return (data ?? []) as unknown as AdminDiscountCode[];
@@ -405,9 +409,10 @@ export const adminCreateDiscountCode = createServerFn({ method: "POST" })
   .inputValidator(
     (input: {
       code: string;
-      discount_type: "percent" | "fixed";
+      discount_type: "percent" | "fixed" | "full";
       value: number;
-      singleUse: boolean;
+      maxUses?: number | null;
+      expiresAt?: string | null;
       note?: string;
       userId?: string | null;
     }) => input,
@@ -416,13 +421,21 @@ export const adminCreateDiscountCode = createServerFn({ method: "POST" })
     await assertAdmin(context as any);
     const code = data.code.trim().toUpperCase().replace(/\s+/g, "");
     if (!code) throw new Error("A code is required");
-    if (!(data.value > 0)) throw new Error("Enter a discount amount greater than zero");
+
+    const isFull = data.discount_type === "full";
+    const value = isFull ? 100 : Number(data.value);
+    if (!(value > 0)) throw new Error("Enter a discount amount greater than zero");
+    if (data.discount_type === "percent" && value > 100) {
+      throw new Error("A percentage discount cannot be more than 100%");
+    }
+
     const { error } = await context.supabase.from("discount_codes").insert({
       code,
-      discount_type: data.discount_type,
-      value: data.value,
-      max_uses: data.singleUse ? 1 : 1000000,
-      note: data.note ?? null,
+      discount_type: isFull ? "percent" : data.discount_type,
+      value,
+      max_uses: data.maxUses && data.maxUses > 0 ? data.maxUses : 1000000,
+      expires_at: data.expiresAt ? new Date(data.expiresAt).toISOString() : null,
+      note: data.note?.trim() ? data.note.trim() : null,
       user_id: data.userId ?? null,
     });
     if (error) throw error;
