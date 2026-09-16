@@ -254,6 +254,20 @@ export function AdminMembers() {
                   m.postal_address ||
                   "No address on file"}
               </p>
+              <p className="mt-1 text-xs">
+                Member since {formatDate(m.created_at)}
+                {m.last_order_at ? ` · last order ${formatDate(m.last_order_at)}` : ""}
+              </p>
+              <p className="mt-2 text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                Top peptides
+              </p>
+              {m.top_products.length === 0 ? (
+                <p className="text-xs">No purchases yet</p>
+              ) : (
+                <p className="text-xs">
+                  {m.top_products.map((t) => `${t.name} × ${t.qty}`).join(" · ")}
+                </p>
+              )}
             </div>
             <div className="text-right text-sm text-muted-foreground">
               <p className="text-2xl font-extrabold text-accent">{m.order_count}</p>
