@@ -5,11 +5,13 @@ import { Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/SiteHeader";
 import { useCart } from "@/lib/cart";
-import { formatPrice, getProduct, products } from "@/lib/products";
+import { formatPrice } from "@/lib/products";
+import { getProductBySlug } from "@/lib/catalog.functions";
+import { useProducts } from "@/lib/useCatalog";
 
 export const Route = createFileRoute("/product/$slug")({
-  loader: ({ params }) => {
-    const product = getProduct(params.slug);
+  loader: async ({ params }) => {
+    const product = await getProductBySlug({ data: { slug: params.slug } });
     if (!product) throw notFound();
     return { product };
   },
