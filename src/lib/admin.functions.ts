@@ -431,7 +431,7 @@ export const adminCreateDiscountCode = createServerFn({ method: "POST" })
 
     const { error } = await context.supabase.from("discount_codes").insert({
       code,
-      discount_type: isFull ? "percent" : data.discount_type,
+      discount_type: (isFull ? "percent" : data.discount_type) as "percent" | "fixed",
       value,
       max_uses: data.maxUses && data.maxUses > 0 ? data.maxUses : 1000000,
       expires_at: data.expiresAt ? new Date(data.expiresAt).toISOString() : null,
