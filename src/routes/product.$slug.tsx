@@ -39,6 +39,7 @@ export const Route = createFileRoute("/product/$slug")({
 
 function ProductPage() {
   const { product } = Route.useLoaderData();
+  const { products } = useProducts();
   const { addItem, items } = useCart();
   const carted = items.find((i) => i.slug === product.slug)?.quantity ?? null;
 
