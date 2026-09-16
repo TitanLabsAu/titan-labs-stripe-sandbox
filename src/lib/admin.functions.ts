@@ -153,6 +153,8 @@ export type AdminMember = AdminCustomer & {
   live_count: number;
   delivered_count: number;
   total_spent: number;
+  last_order_at: string | null;
+  top_products: { name: string; qty: number }[];
 };
 
 export const adminListMembers = createServerFn({ method: "POST" })
