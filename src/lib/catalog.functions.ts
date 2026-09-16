@@ -1,0 +1,84 @@
+import { createServerFn } from "@tanstack/react-start";
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
+import type { Product } from "@/lib/products";
+
+export type SiteLink = { id: string; label: string; url: string; sort_order: number };
+
+function publicClient() {
+  const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
+  return createClient<Database>(process.env["SUPABASE_URL"]!, key, {
+    auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
+    global: {
+      fetch: (input, init) => {
+        const h = new Headers(init?.headers);
+        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) {
+          h.delete("Authorization");
+        }
+        h.set("apikey", key);
+        return fetch(input, { ...init, headers: h });
+      },
+    },
+  });
+}
+
+function toProduct(row: any): Product {
+  return {
+    slug: row.slug,
+    name: row.name,
+    price: Number(row.price),
+    image: row.image_url,
+    alt: row.alt || row.name,
+    blurb: row.blurb ?? "",
+    description: row.description ?? "",
+    details: (row.details ?? []) as string[],
+  };
+}
+
+const PRODUCT_COLUMNS = "slug, name, price, image_url, alt, blurb, description, details";
+
+export const listProducts = createServerFn({ method: "GET" }).handler(
+  async (): Promise<Product[]> => {
+    const { data, error } = await publicClient()
+      .from("products")
+      .select(PRODUCT_COLUMNS)
+      .eq("active", true)
+      .order("sort_order", { ascending: true });
+    if (error) throw error;
+    return (data ?? []).map(toProduct);
+  },
+);
+
+export const getProductBySlug = createServerFn({ method: "GET" })
+  .inputValidator((input: { slug: string }) => input)
+  .handler(async ({ data }): Promise<Product | null> => {
+    const { data: row, error } = await publicClient()
+      .from("products")
+      .select(PRODUCT_COLUMNS)
+      .eq("slug", data.slug)
+      .eq("active", true)
+      .maybeSingle();
+    if (error) throw error;
+    return row ? toProduct(row) : null;
+  });
+
+export const listSiteLinks = createServerFn({ method: "GET" }).handler(
+  async (): Promise<SiteLink[]> => {
+    const { data, error } = await publicClient()
+      .from("site_links")
+      .select("id, label, url, sort_order")
+      .order("sort_order", { ascending: true });
+    if (error) throw error;
+    return (data ?? []) as SiteLink[];
+  },
+);
+
+export const getSiteContent = createServerFn({ method: "GET" }).handler(
+  async (): Promise<Record<string, string>> => {
+    const { data, error } = await publicClient().from("site_content").select("key, body");
+    if (error) throw error;
+    const out: Record<string, string> = {};
+    for (const row of data ?? []) out[(row as any).key] = (row as any).body ?? "";
+    return out;
+  },
+);
