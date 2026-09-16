@@ -19,7 +19,15 @@ export const HOME_FIELDS: HomeField[] = [
     label: "Free shipping banner",
     fallback: "FREE express shipping on all orders over $200",
   },
-  { key: "home_range_title", label: "Range heading", fallback: "The range" },
+  { key: "home_featured_title", label: "Hot products heading", fallback: "Hot right now" },
+  {
+    key: "home_featured_note",
+    label: "Hot products intro",
+    multiline: true,
+    fallback: "This month's picks and promotions from the Titan Labs range.",
+  },
+  { key: "home_range_button", label: "Range button text", fallback: "View the full range" },
+  { key: "home_range_title", label: "Range page heading", fallback: "The range" },
   {
     key: "home_range_note",
     label: "Note under the range",

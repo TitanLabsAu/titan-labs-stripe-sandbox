@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ProtocolsRouteImport } from './routes/protocols'
+import { Route as RangeRouteImport } from './routes/range'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedOrderHistoryRouteImport } from './routes/_authenticated/order-history'
@@ -40,6 +41,11 @@ const CheckoutRoute = CheckoutRouteImport.update({
 const ProtocolsRoute = ProtocolsRouteImport.update({
   id: '/protocols',
   path: '/protocols',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RangeRoute = RangeRouteImport.update({
+  id: '/range',
+  path: '/range',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
   '/protocols': typeof ProtocolsRoute
+  '/range': typeof RangeRoute
   '/account': typeof AuthenticatedAccountRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/order-history': typeof AuthenticatedOrderHistoryRoute
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
   '/protocols': typeof ProtocolsRoute
+  '/range': typeof RangeRoute
   '/account': typeof AuthenticatedAccountRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/order-history': typeof AuthenticatedOrderHistoryRoute
@@ -124,6 +132,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/checkout': typeof CheckoutRoute
   '/protocols': typeof ProtocolsRoute
+  '/range': typeof RangeRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/order-history': typeof AuthenticatedOrderHistoryRoute
@@ -140,6 +149,7 @@ export interface FileRouteTypes {
     | '/'
     | '/checkout'
     | '/protocols'
+    | '/range'
     | '/account'
     | '/admin'
     | '/order-history'
@@ -154,6 +164,7 @@ export interface FileRouteTypes {
     | '/'
     | '/checkout'
     | '/protocols'
+    | '/range'
     | '/account'
     | '/admin'
     | '/order-history'
@@ -169,6 +180,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/checkout'
     | '/protocols'
+    | '/range'
     | '/_authenticated/account'
     | '/_authenticated/admin'
     | '/_authenticated/order-history'
@@ -185,6 +197,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   CheckoutRoute: typeof CheckoutRoute
   ProtocolsRoute: typeof ProtocolsRoute
+  RangeRoute: typeof RangeRoute
   AuthSignupRoute: typeof AuthSignupRoute
   ProductSlugRoute: typeof ProductSlugRoute
   AuthIndexRoute: typeof AuthIndexRoute
@@ -220,6 +233,13 @@ declare module '@tanstack/react-router' {
       path: '/protocols'
       fullPath: '/protocols'
       preLoaderRoute: typeof ProtocolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/range': {
+      id: '/range'
+      path: '/range'
+      fullPath: '/range'
+      preLoaderRoute: typeof RangeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/account': {
@@ -310,6 +330,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   CheckoutRoute: CheckoutRoute,
   ProtocolsRoute: ProtocolsRoute,
+  RangeRoute: RangeRoute,
   AuthSignupRoute: AuthSignupRoute,
   ProductSlugRoute: ProductSlugRoute,
   AuthIndexRoute: AuthIndexRoute,
