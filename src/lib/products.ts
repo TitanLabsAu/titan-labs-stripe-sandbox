@@ -2,6 +2,8 @@ import klow80 from "@/assets/klow80.asset.json";
 import wolverine from "@/assets/wolverine.asset.json";
 import nad1000 from "@/assets/nad1000.asset.json";
 
+export type ProductLink = { label: string; url: string };
+
 export type Product = {
   slug: string;
   name: string;
@@ -11,6 +13,9 @@ export type Product = {
   blurb: string;
   description?: string;
   details: string[];
+  categories?: string[];
+  protocol?: string;
+  links?: ProductLink[];
 };
 
 export const products: Product[] = [
@@ -25,15 +30,6 @@ export const products: Product[] = [
     details: ["80mg per vial", "Lab tested for purity", "Express, insured shipping"],
   },
   {
-    slug: "wolverine-20mg",
-    name: "Wolverine 20mg",
-    price: 120,
-    image: wolverine.url,
-    alt: "Wolverine 20mg vials by Titan Labs",
-    blurb: "Our recovery favourite. 20mg per vial, pure form, research use only.",
-    details: ["20mg per vial", "Lab tested for purity", "Express, insured shipping"],
-  },
-  {
     slug: "nad-1000mg",
     name: "NAD+ 1000mg",
     price: 120,
@@ -41,6 +37,15 @@ export const products: Product[] = [
     alt: "NAD+ 1000mg vials by Titan Labs",
     blurb: "High strength 1000mg NAD+ for wellness research protocols.",
     details: ["1000mg per vial", "Lab tested for purity", "Express, insured shipping"],
+  },
+  {
+    slug: "wolverine-20mg",
+    name: "Wolverine 20mg",
+    price: 120,
+    image: wolverine.url,
+    alt: "Wolverine 20mg vials by Titan Labs",
+    blurb: "Our recovery favourite. 20mg per vial, pure form, research use only.",
+    details: ["20mg per vial", "Lab tested for purity", "Express, insured shipping"],
   },
 ];
 
