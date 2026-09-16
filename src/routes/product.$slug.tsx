@@ -99,6 +99,53 @@ function ProductPage() {
               ))}
             </ul>
 
+            {(product.categories ?? []).length > 0 ? (
+              <p className="mt-5 flex flex-wrap gap-2">
+                {(product.categories ?? []).map((c) => (
+                  <span
+                    key={c}
+                    className="rounded-full border border-accent/50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-accent"
+                  >
+                    {c}
+                  </span>
+                ))}
+              </p>
+            ) : null}
+
+            {product.protocol ? (
+              <div className="mt-6 rounded-xl border border-border bg-card/70 p-5">
+                <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
+                  How to use this product
+                </h2>
+                <p className="mt-3 whitespace-pre-wrap text-sm text-muted-foreground">
+                  {product.protocol}
+                </p>
+                <Link
+                  to="/protocols"
+                  className="mt-3 inline-block text-xs font-bold uppercase tracking-[0.2em] text-accent underline underline-offset-4"
+                >
+                  Reconstitution calculator →
+                </Link>
+              </div>
+            ) : null}
+
+            {(product.links ?? []).length > 0 ? (
+              <div className="mt-5 flex flex-wrap gap-3">
+                {(product.links ?? []).map((l) => (
+                  <a
+                    key={l.url}
+                    href={l.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-md border border-accent px-4 py-2 text-xs font-bold uppercase tracking-[0.15em] text-accent hover:bg-accent/10"
+                  >
+                    {l.label || "View link"}
+                  </a>
+                ))}
+              </div>
+            ) : null}
+
+
             <div className="mt-8 rounded-xl border border-border bg-card/70 p-5">
               <label className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
                 Quantity
