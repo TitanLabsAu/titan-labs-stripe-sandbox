@@ -312,17 +312,30 @@ function AdminPage() {
           </p>
         ) : (
           <Tabs defaultValue="orders" className="mt-8">
-            <TabsList>
+            <TabsList className="flex flex-wrap">
               <TabsTrigger value="orders" className="font-bold uppercase">
                 Orders
               </TabsTrigger>
               <TabsTrigger value="members" className="font-bold uppercase">
                 Members
               </TabsTrigger>
+              <TabsTrigger value="products" className="font-bold uppercase">
+                Products
+              </TabsTrigger>
+              <TabsTrigger value="links" className="font-bold uppercase">
+                Links
+              </TabsTrigger>
+              <TabsTrigger value="protocols" className="font-bold uppercase">
+                Protocols
+              </TabsTrigger>
+              <TabsTrigger value="discounts" className="font-bold uppercase">
+                Discounts
+              </TabsTrigger>
               <TabsTrigger value="notifications" className="font-bold uppercase">
                 Notifications
               </TabsTrigger>
             </TabsList>
+
 
             <TabsContent value="orders" className="mt-6">
               <div className="mb-4 flex justify-end">
