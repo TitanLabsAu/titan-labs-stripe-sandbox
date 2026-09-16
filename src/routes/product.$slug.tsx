@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/SiteHeader";
+import { ReconstitutionCalculator } from "@/components/ReconstitutionCalculator";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/products";
 import { getProductBySlug } from "@/lib/catalog.functions";
@@ -84,8 +85,20 @@ function ProductPage() {
             <h1 className="text-4xl font-extrabold uppercase tracking-tight text-foreground">
               {product.name}
             </h1>
-            <p className="mt-3 text-2xl font-extrabold text-accent">
-              {formatPrice(product.price)}
+            <p className="mt-3 flex items-baseline gap-3">
+              {product.wasPrice ? (
+                <span className="text-lg text-muted-foreground line-through">
+                  {formatPrice(product.wasPrice)}
+                </span>
+              ) : null}
+              <span className="text-2xl font-extrabold text-accent">
+                {formatPrice(product.price)}
+              </span>
+              {product.promoLabel ? (
+                <span className="rounded-full bg-accent px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent-foreground">
+                  {product.promoLabel}
+                </span>
+              ) : null}
             </p>
             <p className="mt-4 text-muted-foreground">{product.blurb}</p>
             {product.description ? (
@@ -120,14 +133,22 @@ function ProductPage() {
                 <p className="mt-3 whitespace-pre-wrap text-sm text-muted-foreground">
                   {product.protocol}
                 </p>
-                <Link
-                  to="/protocols"
-                  className="mt-3 inline-block text-xs font-bold uppercase tracking-[0.2em] text-accent underline underline-offset-4"
-                >
-                  Reconstitution calculator →
-                </Link>
               </div>
             ) : null}
+
+            <div className="mt-6">
+              {product.reconNotes ? (
+                <p className="mb-3 whitespace-pre-wrap text-sm text-muted-foreground">
+                  {product.reconNotes}
+                </p>
+              ) : null}
+              <ReconstitutionCalculator
+                title={`Reconstitution for ${product.name}`}
+                vialMg={product.reconVialMg ?? null}
+                waterMl={product.reconWaterMl ?? null}
+                doseMcg={product.reconDoseMcg ?? null}
+              />
+            </div>
 
             {(product.links ?? []).length > 0 ? (
               <div className="mt-5 flex flex-wrap gap-3">

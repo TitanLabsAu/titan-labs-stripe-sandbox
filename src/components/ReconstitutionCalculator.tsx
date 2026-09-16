@@ -2,25 +2,42 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function ReconstitutionCalculator() {
-  const [vialMg, setVialMg] = useState("10");
-  const [waterMl, setWaterMl] = useState("2");
-  const [doseMcg, setDoseMcg] = useState("250");
+type Props = {
+  title?: string;
+  vialMg?: number | null;
+  waterMl?: number | null;
+  doseMcg?: number | null;
+  /** Called whenever the numbers change (used by the admin product editor). */
+  onChange?: (v: { vialMg: string; waterMl: string; doseMcg: string }) => void;
+};
 
-  const mg = Number(vialMg);
-  const ml = Number(waterMl);
-  const dose = Number(doseMcg);
+export function ReconstitutionCalculator({ title, vialMg, waterMl, doseMcg, onChange }: Props) {
+  const [vial, setVial] = useState(vialMg != null ? String(vialMg) : "10");
+  const [water, setWater] = useState(waterMl != null ? String(waterMl) : "2");
+  const [dose, setDose] = useState(doseMcg != null ? String(doseMcg) : "250");
+
+  const update = (patch: Partial<{ vial: string; water: string; dose: string }>) => {
+    const next = { vial, water, dose, ...patch };
+    setVial(next.vial);
+    setWater(next.water);
+    setDose(next.dose);
+    onChange?.({ vialMg: next.vial, waterMl: next.water, doseMcg: next.dose });
+  };
+
+  const mg = Number(vial);
+  const ml = Number(water);
+  const doseNum = Number(dose);
   const valid = mg > 0 && ml > 0;
 
   const mgPerMl = valid ? mg / ml : 0;
   const mcgPerUnit = mgPerMl * 10; // 1 insulin unit = 0.01 mL
-  const unitsForDose = valid && dose > 0 ? dose / mcgPerUnit : 0;
-  const dosesPerVial = valid && dose > 0 ? (mg * 1000) / dose : 0;
+  const unitsForDose = valid && doseNum > 0 ? doseNum / mcgPerUnit : 0;
+  const dosesPerVial = valid && doseNum > 0 ? (mg * 1000) / doseNum : 0;
 
   return (
     <div className="rounded-xl border border-border bg-card/80 p-6">
       <h3 className="text-lg font-extrabold uppercase text-foreground">
-        Reconstitution calculator
+        {title ?? "Reconstitution calculator"}
       </h3>
       <div className="mt-4 grid gap-4 sm:grid-cols-3">
         <div>
@@ -29,8 +46,8 @@ export function ReconstitutionCalculator() {
             type="number"
             min={0}
             step="any"
-            value={vialMg}
-            onChange={(e) => setVialMg(e.target.value)}
+            value={vial}
+            onChange={(e) => update({ vial: e.target.value })}
           />
         </div>
         <div>
@@ -39,8 +56,8 @@ export function ReconstitutionCalculator() {
             type="number"
             min={0}
             step="any"
-            value={waterMl}
-            onChange={(e) => setWaterMl(e.target.value)}
+            value={water}
+            onChange={(e) => update({ water: e.target.value })}
           />
         </div>
         <div>
@@ -49,8 +66,8 @@ export function ReconstitutionCalculator() {
             type="number"
             min={0}
             step="any"
-            value={doseMcg}
-            onChange={(e) => setDoseMcg(e.target.value)}
+            value={dose}
+            onChange={(e) => update({ dose: e.target.value })}
           />
         </div>
       </div>
@@ -66,13 +83,15 @@ export function ReconstitutionCalculator() {
           <div className="flex justify-between gap-4">
             <dt className="text-muted-foreground">Draw for your dose</dt>
             <dd className="font-extrabold text-accent">
-              {dose > 0 ? `${unitsForDose.toFixed(1)} units (${(unitsForDose / 100).toFixed(3)} mL)` : "—"}
+              {doseNum > 0
+                ? `${unitsForDose.toFixed(1)} units (${(unitsForDose / 100).toFixed(3)} mL)`
+                : "—"}
             </dd>
           </div>
           <div className="flex justify-between gap-4">
             <dt className="text-muted-foreground">Doses per vial</dt>
             <dd className="font-extrabold text-accent">
-              {dose > 0 ? dosesPerVial.toFixed(1) : "—"}
+              {doseNum > 0 ? dosesPerVial.toFixed(1) : "—"}
             </dd>
           </div>
         </dl>

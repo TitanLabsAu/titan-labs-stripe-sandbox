@@ -1,11 +1,10 @@
-import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/SiteHeader";
-import { formatPrice } from "@/lib/products";
-import { useProducts, useSiteContent, useSiteLinks } from "@/lib/useCatalog";
-import { CATEGORIES } from "@/lib/categories";
-import { homeValue } from "@/lib/homeContent";
+import { SiteFooter } from "@/components/SiteFooter";
+import { ProductCard } from "@/components/ProductCard";
+import { useProducts, useSiteContent } from "@/lib/useCatalog";
+import { featuredSlugs, homeValue } from "@/lib/homeContent";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -31,15 +30,12 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { products } = useProducts();
-  const { data: siteLinks } = useSiteLinks();
   const { data: content } = useSiteContent();
-  const [category, setCategory] = useState<string>("All");
 
-  const sorted = [...products].sort((a, b) => a.name.localeCompare(b.name));
-  const visible =
-    category === "All"
-      ? sorted
-      : sorted.filter((p) => (p.categories ?? []).includes(category));
+  const slugs = featuredSlugs(content);
+  const featured = slugs
+    .map((s) => products.find((p) => p.slug === s))
+    .filter((p): p is NonNullable<typeof p> => Boolean(p));
 
   const pillars = [1, 2, 3].map((n) => ({
     title: homeValue(content, `home_pillar${n}_title`),
@@ -50,7 +46,7 @@ function Index() {
     <div className="bg-hero min-h-screen">
       <SiteHeader />
 
-      <section className="mx-auto max-w-6xl px-4 pb-20 pt-10 text-center">
+      <section className="mx-auto max-w-6xl px-4 pb-16 pt-10 text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.35em] text-accent">
           {homeValue(content, "home_tagline")}
         </p>
@@ -63,72 +59,28 @@ function Index() {
         <p className="mx-auto mt-8 inline-block rounded-full border border-accent bg-accent/10 px-6 py-2 text-sm font-extrabold uppercase tracking-[0.15em] text-accent">
           {homeValue(content, "home_shipping_banner")}
         </p>
+        <div className="mt-8">
+          <Button asChild size="lg" className="font-bold uppercase tracking-wide">
+            <Link to="/range">{homeValue(content, "home_range_button")}</Link>
+          </Button>
+        </div>
       </section>
 
-      <section id="range" className="mx-auto max-w-6xl px-4 pb-20">
-        <h2 className="text-center text-3xl font-extrabold uppercase tracking-tight text-foreground">
-          {homeValue(content, "home_range_title")}
-        </h2>
-
-        <div className="mt-8 flex flex-wrap justify-center gap-2">
-          {["All", ...CATEGORIES].map((c) => (
-            <button
-              key={c}
-              type="button"
-              onClick={() => setCategory(c)}
-              className={`rounded-full border px-5 py-2 text-xs font-bold uppercase tracking-[0.15em] transition ${
-                category === c
-                  ? "border-accent bg-accent text-accent-foreground"
-                  : "border-border text-muted-foreground hover:border-accent/60"
-              }`}
-            >
-              {c}
-            </button>
-          ))}
-        </div>
-
-        {visible.length === 0 ? (
-          <p className="mt-10 text-center text-sm text-muted-foreground">
-            Nothing in this category yet — try another.
+      {featured.length > 0 ? (
+        <section className="mx-auto max-w-6xl px-4 pb-20">
+          <h2 className="text-center text-3xl font-extrabold uppercase tracking-tight text-foreground">
+            {homeValue(content, "home_featured_title")}
+          </h2>
+          <p className="mx-auto mt-3 max-w-2xl text-center text-sm text-muted-foreground">
+            {homeValue(content, "home_featured_note")}
           </p>
-        ) : (
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {visible.map((p) => (
-              <Link
-                key={p.slug}
-                to="/product/$slug"
-                params={{ slug: p.slug }}
-                className="block overflow-hidden rounded-xl border border-border bg-card/70 transition-transform hover:-translate-y-1"
-              >
-                <img
-                  src={p.image}
-                  alt={p.alt}
-                  loading="lazy"
-                  className="aspect-[4/3] w-full object-cover"
-                />
-                <div className="flex items-center justify-between gap-3 p-5">
-                  <h3 className="text-lg font-bold uppercase tracking-tight text-foreground">
-                    {p.name}
-                  </h3>
-                  <span className="text-lg font-extrabold text-accent">{formatPrice(p.price)}</span>
-                </div>
-                {(p.categories ?? []).length > 0 ? (
-                  <p className="px-5 pb-2 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                    {(p.categories ?? []).join(" · ")}
-                  </p>
-                ) : null}
-                <p className="px-5 pb-5 text-xs uppercase tracking-[0.2em] text-accent">
-                  View &amp; buy →
-                </p>
-              </Link>
+            {featured.map((p) => (
+              <ProductCard key={p.slug} product={p} />
             ))}
           </div>
-        )}
-
-        <p className="mt-8 text-center text-sm text-muted-foreground">
-          {homeValue(content, "home_range_note")}
-        </p>
-      </section>
+        </section>
+      ) : null}
 
       <section className="mx-auto max-w-6xl px-4 pb-20">
         <div className="grid gap-6 sm:grid-cols-3">
@@ -157,30 +109,7 @@ function Index() {
         </div>
       </section>
 
-      <footer className="border-t border-border px-4 py-8 text-center text-xs text-muted-foreground">
-        <p className="mb-3">
-          <Link to="/protocols" className="font-bold text-accent underline underline-offset-4">
-            Reconstitution &amp; dosage protocols
-          </Link>
-        </p>
-        {siteLinks && siteLinks.length > 0 ? (
-          <p className="mb-3 flex flex-wrap justify-center gap-x-4 gap-y-2">
-            {siteLinks.map((l) => (
-              <a
-                key={l.id}
-                href={l.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-bold text-accent underline underline-offset-4"
-              >
-                {l.label}
-              </a>
-            ))}
-          </p>
-        ) : null}
-        <p>{homeValue(content, "home_footer_text")}</p>
-        <p className="mt-2">Research use only. Not for human consumption.</p>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

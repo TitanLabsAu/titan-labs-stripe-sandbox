@@ -271,6 +271,8 @@ export type AdminProduct = {
   slug: string;
   name: string;
   price: number;
+  sale_price: number | null;
+  promo_label: string;
   image_url: string;
   alt: string;
   blurb: string;
@@ -278,13 +280,17 @@ export type AdminProduct = {
   details: string[];
   categories: string[];
   protocol: string;
+  recon_vial_mg: number | null;
+  recon_water_ml: number | null;
+  recon_dose_mcg: number | null;
+  recon_notes: string;
   product_links: AdminProductLink[];
   active: boolean;
   sort_order: number;
 };
 
 const PRODUCT_COLS =
-  "id, slug, name, price, image_url, alt, blurb, description, details, categories, protocol, product_links, active, sort_order";
+  "id, slug, name, price, sale_price, promo_label, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mcg, recon_notes, product_links, active, sort_order";
 
 export const adminListProducts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -307,6 +313,15 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
       slug: data.slug.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
       name: data.name.trim(),
       price: Number(data.price ?? 0),
+      sale_price:
+        data.sale_price === null || data.sale_price === undefined || Number.isNaN(Number(data.sale_price))
+          ? null
+          : Number(data.sale_price),
+      promo_label: data.promo_label ?? "",
+      recon_vial_mg: data.recon_vial_mg ?? null,
+      recon_water_ml: data.recon_water_ml ?? null,
+      recon_dose_mcg: data.recon_dose_mcg ?? null,
+      recon_notes: data.recon_notes ?? "",
       image_url: data.image_url ?? "",
       alt: data.alt ?? data.name.trim(),
       blurb: data.blurb ?? "",

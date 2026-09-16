@@ -19,7 +19,15 @@ export const HOME_FIELDS: HomeField[] = [
     label: "Free shipping banner",
     fallback: "FREE express shipping on all orders over $200",
   },
-  { key: "home_range_title", label: "Range heading", fallback: "The range" },
+  { key: "home_featured_title", label: "Hot products heading", fallback: "Hot right now" },
+  {
+    key: "home_featured_note",
+    label: "Hot products intro",
+    multiline: true,
+    fallback: "This month's picks and promotions from the Titan Labs range.",
+  },
+  { key: "home_range_button", label: "Range button text", fallback: "View the full range" },
+  { key: "home_range_title", label: "Range page heading", fallback: "The range" },
   {
     key: "home_range_note",
     label: "Note under the range",
@@ -63,6 +71,14 @@ export const HOME_FIELDS: HomeField[] = [
     fallback: "Titan Labs Aus ★ Trusted source ★ Discreet shipping ★ Telegram @Titanlabsau",
   },
 ];
+
+/** Slugs of the products the owner has pinned to the home page. */
+export function featuredSlugs(content: Record<string, string> | undefined) {
+  return (content?.["home_featured"] ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
 
 export function homeValue(content: Record<string, string> | undefined, key: string) {
   const field = HOME_FIELDS.find((f) => f.key === key);
