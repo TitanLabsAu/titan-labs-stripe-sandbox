@@ -7,7 +7,11 @@ export type ProductLink = { label: string; url: string };
 export type Product = {
   slug: string;
   name: string;
+  /** Price the customer pays (already the sale price when one is set). */
   price: number;
+  /** Original price, present only when the product is on sale. */
+  wasPrice?: number | null;
+  promoLabel?: string;
   image: string;
   alt: string;
   blurb: string;
@@ -15,6 +19,10 @@ export type Product = {
   details: string[];
   categories?: string[];
   protocol?: string;
+  reconVialMg?: number | null;
+  reconWaterMl?: number | null;
+  reconDoseMcg?: number | null;
+  reconNotes?: string;
   links?: ProductLink[];
 };
 

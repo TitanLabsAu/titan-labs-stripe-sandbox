@@ -24,10 +24,16 @@ function publicClient() {
 
 function toProduct(row: any): Product {
   const links = Array.isArray(row.product_links) ? (row.product_links as ProductLink[]) : [];
+  const listPrice = Number(row.price);
+  const sale =
+    row.sale_price === null || row.sale_price === undefined ? null : Number(row.sale_price);
+  const onSale = sale !== null && sale > 0 && sale < listPrice;
   return {
     slug: row.slug,
     name: row.name,
-    price: Number(row.price),
+    price: onSale ? (sale as number) : listPrice,
+    wasPrice: onSale ? listPrice : null,
+    promoLabel: row.promo_label ?? "",
     image: row.image_url,
     alt: row.alt || row.name,
     blurb: row.blurb ?? "",
@@ -35,12 +41,16 @@ function toProduct(row: any): Product {
     details: (row.details ?? []) as string[],
     categories: (row.categories ?? []) as string[],
     protocol: row.protocol ?? "",
+    reconVialMg: row.recon_vial_mg === null || row.recon_vial_mg === undefined ? null : Number(row.recon_vial_mg),
+    reconWaterMl: row.recon_water_ml === null || row.recon_water_ml === undefined ? null : Number(row.recon_water_ml),
+    reconDoseMcg: row.recon_dose_mcg === null || row.recon_dose_mcg === undefined ? null : Number(row.recon_dose_mcg),
+    reconNotes: row.recon_notes ?? "",
     links: links.filter((l) => l && l.url),
   };
 }
 
 const PRODUCT_COLUMNS =
-  "slug, name, price, image_url, alt, blurb, description, details, categories, protocol, product_links";
+  "slug, name, price, sale_price, promo_label, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mcg, recon_notes, product_links";
 
 export const listProducts = createServerFn({ method: "GET" }).handler(
   async (): Promise<Product[]> => {
