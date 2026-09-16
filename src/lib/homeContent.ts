@@ -72,6 +72,14 @@ export const HOME_FIELDS: HomeField[] = [
   },
 ];
 
+/** Slugs of the products the owner has pinned to the home page. */
+export function featuredSlugs(content: Record<string, string> | undefined) {
+  return (content?.["home_featured"] ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
 export function homeValue(content: Record<string, string> | undefined, key: string) {
   const field = HOME_FIELDS.find((f) => f.key === key);
   const value = content?.[key]?.trim();

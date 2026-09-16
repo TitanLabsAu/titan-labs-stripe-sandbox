@@ -47,9 +47,7 @@ export function SiteHeader() {
           <Link to="/">Home</Link>
         </Button>
         <Button asChild className="hidden font-bold uppercase sm:inline-flex">
-          <Link to="/" hash="range">
-            View the Range
-          </Link>
+          <Link to="/range">View the Range</Link>
         </Button>
         {signedIn && isAdmin ? (
           <Button asChild className="font-bold uppercase">
