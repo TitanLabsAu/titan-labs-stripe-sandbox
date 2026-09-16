@@ -4,6 +4,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/products";
 import { useProducts } from "@/lib/useCatalog";
+import { FREE_SHIPPING_THRESHOLD, shippingFor } from "@/lib/categories";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -20,12 +21,13 @@ export const Route = createFileRoute("/checkout")({
   component: CheckoutPage,
 });
 
-const SHIPPING = 20;
-
 function CheckoutPage() {
   const { items, subtotal } = useCart();
   const { getProduct } = useProducts();
-  const total = items.length > 0 ? subtotal + SHIPPING : 0;
+  const shipping = shippingFor(subtotal);
+  const freeShipping = items.length > 0 && shipping === 0;
+  const total = items.length > 0 ? subtotal + shipping : 0;
+  const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
 
   return (
     <div className="bg-hero min-h-screen">
@@ -79,8 +81,22 @@ function CheckoutPage() {
               </div>
               <div className="flex justify-between text-muted-foreground">
                 <span>Express shipping</span>
-                <span>{formatPrice(SHIPPING)}</span>
+                {freeShipping ? (
+                  <span className="font-bold uppercase text-accent">Free</span>
+                ) : (
+                  <span>{formatPrice(shipping)}</span>
+                )}
               </div>
+              {freeShipping ? (
+                <p className="text-xs font-bold uppercase tracking-wide text-accent">
+                  Free express shipping applied — order over{" "}
+                  {formatPrice(FREE_SHIPPING_THRESHOLD)}
+                </p>
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  Spend {formatPrice(remaining)} more for free express shipping.
+                </p>
+              )}
               <div className="flex items-center justify-between pt-2 text-base">
                 <span className="font-bold uppercase tracking-wide text-foreground">Total</span>
                 <span className="text-2xl font-extrabold text-accent">{formatPrice(total)}</span>
