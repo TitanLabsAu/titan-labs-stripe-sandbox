@@ -172,32 +172,56 @@ export const adminListMembers = createServerFn({ method: "POST" })
 
     const { data: orders } = await context.supabase
       .from("orders")
-      .select("user_id, status, total");
+      .select("user_id, status, total, created_at, order_items(product_name, quantity)");
 
-    const stats = new Map<
-      string,
-      { order_count: number; live_count: number; delivered_count: number; total_spent: number }
-    >();
+    type Stat = {
+      order_count: number;
+      live_count: number;
+      delivered_count: number;
+      total_spent: number;
+      last_order_at: string | null;
+      tally: Map<string, number>;
+    };
+
+    const stats = new Map<string, Stat>();
     for (const o of (orders ?? []) as any[]) {
-      const s =
-        stats.get(o.user_id) ??
-        { order_count: 0, live_count: 0, delivered_count: 0, total_spent: 0 };
+      const s: Stat =
+        stats.get(o.user_id) ?? {
+          order_count: 0,
+          live_count: 0,
+          delivered_count: 0,
+          total_spent: 0,
+          last_order_at: null,
+          tally: new Map<string, number>(),
+        };
       s.order_count += 1;
       if (o.status === "processing" || o.status === "shipped") s.live_count += 1;
       if (o.status === "delivered") s.delivered_count += 1;
       s.total_spent += Number(o.total ?? 0);
+      if (!s.last_order_at || o.created_at > s.last_order_at) s.last_order_at = o.created_at;
+      for (const item of (o.order_items ?? []) as any[]) {
+        s.tally.set(item.product_name, (s.tally.get(item.product_name) ?? 0) + item.quantity);
+      }
       stats.set(o.user_id, s);
     }
 
-    return ((profiles ?? []) as any[]).map((p) => ({
-      ...(p as AdminMember),
-      ...(stats.get(p.id) ?? {
-        order_count: 0,
-        live_count: 0,
-        delivered_count: 0,
-        total_spent: 0,
-      }),
-    }));
+    return ((profiles ?? []) as any[]).map((p) => {
+      const s = stats.get(p.id);
+      return {
+        ...(p as AdminMember),
+        order_count: s?.order_count ?? 0,
+        live_count: s?.live_count ?? 0,
+        delivered_count: s?.delivered_count ?? 0,
+        total_spent: s?.total_spent ?? 0,
+        last_order_at: s?.last_order_at ?? null,
+        top_products: s
+          ? [...s.tally.entries()]
+              .map(([name, qty]) => ({ name, qty }))
+              .sort((a, b) => b.qty - a.qty)
+              .slice(0, 3)
+          : [],
+      };
+    });
   });
 
 export const adminGetMemberOrders = createServerFn({ method: "POST" })
