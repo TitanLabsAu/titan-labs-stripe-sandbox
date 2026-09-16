@@ -18,24 +18,33 @@ export type Database = {
         Row: {
           body: string | null
           created_at: string
+          email_sent: boolean
           id: string
+          kind: string
           order_id: string | null
+          payload: Json | null
           read: boolean
           title: string
         }
         Insert: {
           body?: string | null
           created_at?: string
+          email_sent?: boolean
           id?: string
+          kind?: string
           order_id?: string | null
+          payload?: Json | null
           read?: boolean
           title: string
         }
         Update: {
           body?: string | null
           created_at?: string
+          email_sent?: boolean
           id?: string
+          kind?: string
           order_id?: string | null
+          payload?: Json | null
           read?: boolean
           title?: string
         }
@@ -55,6 +64,7 @@ export type Database = {
           code: string
           created_at: string
           discount_type: Database["public"]["Enums"]["discount_type"]
+          expires_at: string | null
           id: string
           max_uses: number
           milestone: number | null
@@ -69,6 +79,7 @@ export type Database = {
           code: string
           created_at?: string
           discount_type?: Database["public"]["Enums"]["discount_type"]
+          expires_at?: string | null
           id?: string
           max_uses?: number
           milestone?: number | null
@@ -83,6 +94,7 @@ export type Database = {
           code?: string
           created_at?: string
           discount_type?: Database["public"]["Enums"]["discount_type"]
+          expires_at?: string | null
           id?: string
           max_uses?: number
           milestone?: number | null
@@ -182,6 +194,7 @@ export type Database = {
           active: boolean
           alt: string
           blurb: string
+          categories: string[]
           created_at: string
           description: string
           details: string[]
@@ -189,6 +202,8 @@ export type Database = {
           image_url: string
           name: string
           price: number
+          product_links: Json
+          protocol: string
           slug: string
           sort_order: number
           updated_at: string
@@ -197,6 +212,7 @@ export type Database = {
           active?: boolean
           alt?: string
           blurb?: string
+          categories?: string[]
           created_at?: string
           description?: string
           details?: string[]
@@ -204,6 +220,8 @@ export type Database = {
           image_url?: string
           name: string
           price?: number
+          product_links?: Json
+          protocol?: string
           slug: string
           sort_order?: number
           updated_at?: string
@@ -212,6 +230,7 @@ export type Database = {
           active?: boolean
           alt?: string
           blurb?: string
+          categories?: string[]
           created_at?: string
           description?: string
           details?: string[]
@@ -219,6 +238,8 @@ export type Database = {
           image_url?: string
           name?: string
           price?: number
+          product_links?: Json
+          protocol?: string
           slug?: string
           sort_order?: number
           updated_at?: string
