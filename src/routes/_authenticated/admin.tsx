@@ -5,8 +5,6 @@ import { toast } from "sonner";
 import { SiteHeader } from "@/components/SiteHeader";
 import { AdminMembers } from "@/components/AdminMembers";
 import { AdminProducts } from "@/components/AdminProducts";
-import { AdminLinks } from "@/components/AdminLinks";
-import { AdminProtocols } from "@/components/AdminProtocols";
 import { AdminDiscounts } from "@/components/AdminDiscounts";
 import { AdminEdits } from "@/components/AdminEdits";
 import { Button } from "@/components/ui/button";
@@ -327,12 +325,6 @@ function AdminPage() {
               <TabsTrigger value="products" className="font-bold uppercase">
                 Products
               </TabsTrigger>
-              <TabsTrigger value="links" className="font-bold uppercase">
-                Links
-              </TabsTrigger>
-              <TabsTrigger value="protocols" className="font-bold uppercase">
-                Protocols
-              </TabsTrigger>
               <TabsTrigger value="discounts" className="font-bold uppercase">
                 Discounts
               </TabsTrigger>
@@ -382,13 +374,6 @@ function AdminPage() {
               <AdminProducts />
             </TabsContent>
 
-            <TabsContent value="links" className="mt-6">
-              <AdminLinks />
-            </TabsContent>
-
-            <TabsContent value="protocols" className="mt-6">
-              <AdminProtocols />
-            </TabsContent>
 
             <TabsContent value="discounts" className="mt-6">
               <AdminDiscounts />
