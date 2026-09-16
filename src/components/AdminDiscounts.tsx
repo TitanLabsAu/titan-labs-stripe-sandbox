@@ -35,7 +35,7 @@ export function AdminDiscounts() {
           discount_type: type,
           value: Number(value),
           singleUse,
-          note: note || undefined,
+          ...(note ? { note } : {}),
         },
       }),
     onSuccess: (res) => {
