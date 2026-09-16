@@ -18,7 +18,14 @@ export const Route = createFileRoute("/api/public/auspost-poll")({
         try {
           const { syncAustraliaPostTracking } = await import("@/lib/auspost.server");
           const summary = await syncAustraliaPostTracking();
-          return Response.json({ ok: true, ...summary });
+          let milestoneEmails = 0;
+          try {
+            const { sendPendingMilestoneEmails } = await import("@/lib/milestone-email.server");
+            milestoneEmails = (await sendPendingMilestoneEmails()).sent;
+          } catch (e) {
+            console.error("[milestone-email]", e);
+          }
+          return Response.json({ ok: true, ...summary, milestoneEmails });
         } catch (error) {
           console.error("[auspost-poll]", error);
           return Response.json({ ok: false, error: "Tracking sync failed" }, { status: 500 });
