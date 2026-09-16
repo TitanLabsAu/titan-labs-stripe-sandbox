@@ -4,6 +4,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/SiteHeader";
 import { AdminMembers } from "@/components/AdminMembers";
+import { AdminProducts } from "@/components/AdminProducts";
+import { AdminLinks } from "@/components/AdminLinks";
+import { AdminProtocols } from "@/components/AdminProtocols";
+import { AdminDiscounts } from "@/components/AdminDiscounts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -368,6 +372,22 @@ function AdminPage() {
 
             <TabsContent value="members" className="mt-6">
               <AdminMembers />
+            </TabsContent>
+
+            <TabsContent value="products" className="mt-6">
+              <AdminProducts />
+            </TabsContent>
+
+            <TabsContent value="links" className="mt-6">
+              <AdminLinks />
+            </TabsContent>
+
+            <TabsContent value="protocols" className="mt-6">
+              <AdminProtocols />
+            </TabsContent>
+
+            <TabsContent value="discounts" className="mt-6">
+              <AdminDiscounts />
             </TabsContent>
 
             <TabsContent value="notifications" className="mt-6">
