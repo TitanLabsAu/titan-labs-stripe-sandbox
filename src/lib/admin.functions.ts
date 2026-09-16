@@ -238,6 +238,8 @@ export const adminRefreshTracking = createServerFn({ method: "POST" })
 
 /* ---------------- Products ---------------- */
 
+export type AdminProductLink = { label: string; url: string };
+
 export type AdminProduct = {
   id: string;
   slug: string;
@@ -248,12 +250,15 @@ export type AdminProduct = {
   blurb: string;
   description: string;
   details: string[];
+  categories: string[];
+  protocol: string;
+  product_links: AdminProductLink[];
   active: boolean;
   sort_order: number;
 };
 
 const PRODUCT_COLS =
-  "id, slug, name, price, image_url, alt, blurb, description, details, active, sort_order";
+  "id, slug, name, price, image_url, alt, blurb, description, details, categories, protocol, product_links, active, sort_order";
 
 export const adminListProducts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
