@@ -49,6 +49,51 @@ export type Database = {
           },
         ]
       }
+      discount_codes: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          discount_type: Database["public"]["Enums"]["discount_type"]
+          id: string
+          max_uses: number
+          milestone: number | null
+          note: string | null
+          times_used: number
+          updated_at: string
+          user_id: string | null
+          value: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          discount_type?: Database["public"]["Enums"]["discount_type"]
+          id?: string
+          max_uses?: number
+          milestone?: number | null
+          note?: string | null
+          times_used?: number
+          updated_at?: string
+          user_id?: string | null
+          value: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          discount_type?: Database["public"]["Enums"]["discount_type"]
+          id?: string
+          max_uses?: number
+          milestone?: number | null
+          note?: string | null
+          times_used?: number
+          updated_at?: string
+          user_id?: string | null
+          value?: number
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string
@@ -132,6 +177,54 @@ export type Database = {
         }
         Relationships: []
       }
+      products: {
+        Row: {
+          active: boolean
+          alt: string
+          blurb: string
+          created_at: string
+          description: string
+          details: string[]
+          id: string
+          image_url: string
+          name: string
+          price: number
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          alt?: string
+          blurb?: string
+          created_at?: string
+          description?: string
+          details?: string[]
+          id?: string
+          image_url?: string
+          name: string
+          price?: number
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          alt?: string
+          blurb?: string
+          created_at?: string
+          description?: string
+          details?: string[]
+          id?: string
+          image_url?: string
+          name?: string
+          price?: number
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address_line: string | null
@@ -177,6 +270,51 @@ export type Database = {
         }
         Relationships: []
       }
+      site_content: {
+        Row: {
+          body: string
+          key: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string
+          key: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      site_links: {
+        Row: {
+          created_at: string
+          id: string
+          label: string
+          sort_order: number
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label: string
+          sort_order?: number
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string
+          sort_order?: number
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -213,6 +351,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      discount_type: "percent" | "fixed"
       order_status: "processing" | "shipped" | "delivered" | "cancelled"
     }
     CompositeTypes: {
@@ -342,6 +481,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      discount_type: ["percent", "fixed"],
       order_status: ["processing", "shipped", "delivered", "cancelled"],
     },
   },
