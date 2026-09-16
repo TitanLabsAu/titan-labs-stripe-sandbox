@@ -267,7 +267,7 @@ export const adminListProducts = createServerFn({ method: "POST" })
     const { data, error } = await context.supabase
       .from("products")
       .select(PRODUCT_COLS)
-      .order("sort_order", { ascending: true });
+      .order("name", { ascending: true });
     if (error) throw error;
     return (data ?? []) as unknown as AdminProduct[];
   });
@@ -286,6 +286,9 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
       blurb: data.blurb ?? "",
       description: data.description ?? "",
       details: data.details ?? [],
+      categories: data.categories ?? [],
+      protocol: data.protocol ?? "",
+      product_links: (data.product_links ?? []).filter((l) => l && l.url),
       active: data.active ?? true,
       sort_order: Number(data.sort_order ?? 0),
     };
