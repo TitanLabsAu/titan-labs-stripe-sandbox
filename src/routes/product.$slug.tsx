@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/SiteHeader";
+import { ReconstitutionCalculator } from "@/components/ReconstitutionCalculator";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/products";
 import { getProductBySlug } from "@/lib/catalog.functions";
