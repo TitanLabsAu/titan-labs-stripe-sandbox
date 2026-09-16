@@ -203,7 +203,13 @@ export type Database = {
           name: string
           price: number
           product_links: Json
+          promo_label: string
           protocol: string
+          recon_dose_mcg: number | null
+          recon_notes: string
+          recon_vial_mg: number | null
+          recon_water_ml: number | null
+          sale_price: number | null
           slug: string
           sort_order: number
           updated_at: string
@@ -221,7 +227,13 @@ export type Database = {
           name: string
           price?: number
           product_links?: Json
+          promo_label?: string
           protocol?: string
+          recon_dose_mcg?: number | null
+          recon_notes?: string
+          recon_vial_mg?: number | null
+          recon_water_ml?: number | null
+          sale_price?: number | null
           slug: string
           sort_order?: number
           updated_at?: string
@@ -239,7 +251,13 @@ export type Database = {
           name?: string
           price?: number
           product_links?: Json
+          promo_label?: string
           protocol?: string
+          recon_dose_mcg?: number | null
+          recon_notes?: string
+          recon_vial_mg?: number | null
+          recon_water_ml?: number | null
+          sale_price?: number | null
           slug?: string
           sort_order?: number
           updated_at?: string
