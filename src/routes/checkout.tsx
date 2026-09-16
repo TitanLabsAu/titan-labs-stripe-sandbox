@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/SiteHeader";
 import { useCart } from "@/lib/cart";
-import { formatPrice, getProduct } from "@/lib/products";
+import { formatPrice } from "@/lib/products";
+import { useProducts } from "@/lib/useCatalog";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -23,6 +24,7 @@ const SHIPPING = 20;
 
 function CheckoutPage() {
   const { items, subtotal } = useCart();
+  const { getProduct } = useProducts();
   const total = items.length > 0 ? subtotal + SHIPPING : 0;
 
   return (

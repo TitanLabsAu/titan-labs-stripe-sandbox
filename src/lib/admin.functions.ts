@@ -235,3 +235,211 @@ export const adminRefreshTracking = createServerFn({ method: "POST" })
     const { syncAustraliaPostTracking } = await import("@/lib/auspost.server");
     return syncAustraliaPostTracking();
   });
+
+/* ---------------- Products ---------------- */
+
+export type AdminProduct = {
+  id: string;
+  slug: string;
+  name: string;
+  price: number;
+  image_url: string;
+  alt: string;
+  blurb: string;
+  description: string;
+  details: string[];
+  active: boolean;
+  sort_order: number;
+};
+
+const PRODUCT_COLS =
+  "id, slug, name, price, image_url, alt, blurb, description, details, active, sort_order";
+
+export const adminListProducts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<AdminProduct[]> => {
+    await assertAdmin(context as any);
+    const { data, error } = await context.supabase
+      .from("products")
+      .select(PRODUCT_COLS)
+      .order("sort_order", { ascending: true });
+    if (error) throw error;
+    return (data ?? []) as unknown as AdminProduct[];
+  });
+
+export const adminSaveProduct = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: Partial<AdminProduct> & { slug: string; name: string }) => input)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as any);
+    const row = {
+      slug: data.slug.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+      name: data.name.trim(),
+      price: Number(data.price ?? 0),
+      image_url: data.image_url ?? "",
+      alt: data.alt ?? data.name.trim(),
+      blurb: data.blurb ?? "",
+      description: data.description ?? "",
+      details: data.details ?? [],
+      active: data.active ?? true,
+      sort_order: Number(data.sort_order ?? 0),
+    };
+    if (data.id) {
+      const { error } = await context.supabase.from("products").update(row).eq("id", data.id);
+      if (error) throw error;
+    } else {
+      const { error } = await context.supabase.from("products").insert(row);
+      if (error) throw error;
+    }
+    return { ok: true };
+  });
+
+export const adminDeleteProduct = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id: string }) => input)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as any);
+    const { error } = await context.supabase.from("products").delete().eq("id", data.id);
+    if (error) throw error;
+    return { ok: true };
+  });
+
+/* ---------------- Links ---------------- */
+
+export type AdminLink = { id: string; label: string; url: string; sort_order: number };
+
+export const adminListLinks = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<AdminLink[]> => {
+    await assertAdmin(context as any);
+    const { data, error } = await context.supabase
+      .from("site_links")
+      .select("id, label, url, sort_order")
+      .order("sort_order", { ascending: true });
+    if (error) throw error;
+    return (data ?? []) as AdminLink[];
+  });
+
+export const adminSaveLink = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id?: string; label: string; url: string; sort_order?: number }) => input)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as any);
+    const row = {
+      label: data.label.trim(),
+      url: data.url.trim(),
+      sort_order: Number(data.sort_order ?? 0),
+    };
+    if (data.id) {
+      const { error } = await context.supabase.from("site_links").update(row).eq("id", data.id);
+      if (error) throw error;
+    } else {
+      const { error } = await context.supabase.from("site_links").insert(row);
+      if (error) throw error;
+    }
+    return { ok: true };
+  });
+
+export const adminDeleteLink = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id: string }) => input)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as any);
+    const { error } = await context.supabase.from("site_links").delete().eq("id", data.id);
+    if (error) throw error;
+    return { ok: true };
+  });
+
+/* ---------------- Site content ---------------- */
+
+export const adminSaveContent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { key: string; body: string }) => input)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as any);
+    const { error } = await context.supabase
+      .from("site_content")
+      .upsert({ key: data.key, body: data.body }, { onConflict: "key" });
+    if (error) throw error;
+    return { ok: true };
+  });
+
+/* ---------------- Discount codes ---------------- */
+
+export type AdminDiscountCode = {
+  id: string;
+  code: string;
+  discount_type: "percent" | "fixed";
+  value: number;
+  max_uses: number;
+  times_used: number;
+  user_id: string | null;
+  milestone: number | null;
+  note: string | null;
+  active: boolean;
+  created_at: string;
+};
+
+export const adminListDiscountCodes = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<AdminDiscountCode[]> => {
+    await assertAdmin(context as any);
+    const { data, error } = await context.supabase
+      .from("discount_codes")
+      .select("id, code, discount_type, value, max_uses, times_used, user_id, milestone, note, active, created_at")
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return (data ?? []) as unknown as AdminDiscountCode[];
+  });
+
+export const adminCreateDiscountCode = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (input: {
+      code: string;
+      discount_type: "percent" | "fixed";
+      value: number;
+      singleUse: boolean;
+      note?: string;
+      userId?: string | null;
+    }) => input,
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as any);
+    const code = data.code.trim().toUpperCase().replace(/\s+/g, "");
+    if (!code) throw new Error("A code is required");
+    if (!(data.value > 0)) throw new Error("Enter a discount amount greater than zero");
+    const { error } = await context.supabase.from("discount_codes").insert({
+      code,
+      discount_type: data.discount_type,
+      value: data.value,
+      max_uses: data.singleUse ? 1 : 1000000,
+      note: data.note ?? null,
+      user_id: data.userId ?? null,
+    });
+    if (error) throw error;
+    return { ok: true, code };
+  });
+
+export const adminToggleDiscountCode = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id: string; active: boolean }) => input)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as any);
+    const { error } = await context.supabase
+      .from("discount_codes")
+      .update({ active: data.active })
+      .eq("id", data.id);
+    if (error) throw error;
+    return { ok: true };
+  });
+
+export const adminDeleteDiscountCode = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id: string }) => input)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as any);
+    const { error } = await context.supabase.from("discount_codes").delete().eq("id", data.id);
+    if (error) throw error;
+    return { ok: true };
+  });

@@ -11,11 +11,13 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useCart } from "@/lib/cart";
-import { formatPrice, getProduct } from "@/lib/products";
+import { formatPrice } from "@/lib/products";
+import { useProducts } from "@/lib/useCatalog";
 
 export function CartSheet() {
   const [open, setOpen] = useState(false);
   const { items, count, subtotal, setQuantity, removeItem } = useCart();
+  const { getProduct } = useProducts();
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>

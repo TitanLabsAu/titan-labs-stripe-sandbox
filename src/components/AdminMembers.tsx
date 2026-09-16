@@ -25,6 +25,19 @@ function memberName(m: AdminMember) {
   return [m.first_name, m.last_name].filter(Boolean).join(" ") || m.email || "Unnamed member";
 }
 
+function topProducts(orders: AdminOrder[]): { name: string; qty: number }[] {
+  const tally = new Map<string, number>();
+  for (const order of orders) {
+    for (const item of order.order_items) {
+      tally.set(item.product_name, (tally.get(item.product_name) ?? 0) + item.quantity);
+    }
+  }
+  return [...tally.entries()]
+    .map(([name, qty]) => ({ name, qty }))
+    .sort((a, b) => b.qty - a.qty)
+    .slice(0, 3);
+}
+
 function MemberOrderCard({ order }: { order: AdminOrder }) {
   return (
     <article className="rounded-xl border border-border bg-card/80 p-5">
@@ -133,6 +146,47 @@ function MemberDetail({ member, onBack }: { member: AdminMember; onBack: () => v
         <p className="text-sm text-muted-foreground">Loading orders…</p>
       ) : (
         <>
+          <section className="grid gap-4 rounded-xl border border-border bg-card/80 p-6 sm:grid-cols-4">
+            <div>
+              <p className="text-2xl font-extrabold text-accent">{orders.length}</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Purchases</p>
+            </div>
+            <div>
+              <p className="text-2xl font-extrabold text-accent">
+                {formatPrice(orders.reduce((s, o) => s + Number(o.total ?? 0), 0))}
+              </p>
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Spent</p>
+            </div>
+            <div>
+              <p className="text-2xl font-extrabold text-accent">{live.length}</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Live</p>
+            </div>
+            <div>
+              <p className="text-2xl font-extrabold text-accent">
+                {orders.filter((o) => o.status === "delivered").length}
+              </p>
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Delivered</p>
+            </div>
+          </section>
+
+          <section className="rounded-xl border border-border bg-card/80 p-6">
+            <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">
+              Top 3 peptides purchased
+            </h3>
+            {topProducts(orders).length === 0 ? (
+              <p className="mt-3 text-sm text-muted-foreground">No purchases yet.</p>
+            ) : (
+              <ul className="mt-3 space-y-2">
+                {topProducts(orders).map((t) => (
+                  <li key={t.name} className="flex justify-between text-sm">
+                    <span className="font-bold uppercase text-foreground">{t.name}</span>
+                    <span className="font-extrabold text-accent">× {t.qty}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
           <section className="space-y-4">
             <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">
               Live orders ({live.length})

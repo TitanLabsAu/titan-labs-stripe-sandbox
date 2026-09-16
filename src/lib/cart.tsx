@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { getProduct } from "./products";
+import { useProducts } from "./useCatalog";
 
 export type CartItem = { slug: string; quantity: number };
 
@@ -18,13 +18,14 @@ const STORAGE_KEY = "titan-cart-v1";
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const { getProduct } = useProducts();
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) setItems(parsed.filter((i) => getProduct(i?.slug)));
+        if (Array.isArray(parsed)) setItems(parsed.filter((i) => typeof i?.slug === "string"));
       }
     } catch {
       /* ignore malformed storage */
@@ -68,7 +69,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       removeItem: (slug) => setItems((prev) => prev.filter((i) => i.slug !== slug)),
       clear: () => setItems([]),
     };
-  }, [items]);
+  }, [items, getProduct]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

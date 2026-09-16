@@ -9,6 +9,7 @@ export type Product = {
   image: string;
   alt: string;
   blurb: string;
+  description?: string;
   details: string[];
 };
 

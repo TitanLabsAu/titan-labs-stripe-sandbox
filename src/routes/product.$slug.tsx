@@ -5,11 +5,13 @@ import { Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/SiteHeader";
 import { useCart } from "@/lib/cart";
-import { formatPrice, getProduct, products } from "@/lib/products";
+import { formatPrice } from "@/lib/products";
+import { getProductBySlug } from "@/lib/catalog.functions";
+import { useProducts } from "@/lib/useCatalog";
 
 export const Route = createFileRoute("/product/$slug")({
-  loader: ({ params }) => {
-    const product = getProduct(params.slug);
+  loader: async ({ params }) => {
+    const product = await getProductBySlug({ data: { slug: params.slug } });
     if (!product) throw notFound();
     return { product };
   },
@@ -37,6 +39,7 @@ export const Route = createFileRoute("/product/$slug")({
 
 function ProductPage() {
   const { product } = Route.useLoaderData();
+  const { products } = useProducts();
   const { addItem, items } = useCart();
   const carted = items.find((i) => i.slug === product.slug)?.quantity ?? null;
 
@@ -85,6 +88,11 @@ function ProductPage() {
               {formatPrice(product.price)}
             </p>
             <p className="mt-4 text-muted-foreground">{product.blurb}</p>
+            {product.description ? (
+              <p className="mt-3 whitespace-pre-wrap text-sm text-muted-foreground">
+                {product.description}
+              </p>
+            ) : null}
             <ul className="mt-5 space-y-2 text-sm text-muted-foreground">
               {product.details.map((d) => (
                 <li key={d}>★ {d}</li>

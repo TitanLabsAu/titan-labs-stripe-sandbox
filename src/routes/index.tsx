@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/SiteHeader";
-import { products, formatPrice } from "@/lib/products";
+import { formatPrice } from "@/lib/products";
+import { useProducts, useSiteLinks } from "@/lib/useCatalog";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -32,6 +33,9 @@ const pillars = [
 ];
 
 function Index() {
+  const { products } = useProducts();
+  const { data: siteLinks } = useSiteLinks();
+
   return (
     <div className="bg-hero min-h-screen">
       <SiteHeader />
@@ -116,6 +120,26 @@ function Index() {
       </section>
 
       <footer className="border-t border-border px-4 py-8 text-center text-xs text-muted-foreground">
+        <p className="mb-3">
+          <Link to="/protocols" className="font-bold text-accent underline underline-offset-4">
+            Reconstitution &amp; dosage protocols
+          </Link>
+        </p>
+        {siteLinks && siteLinks.length > 0 ? (
+          <p className="mb-3 flex flex-wrap justify-center gap-x-4 gap-y-2">
+            {siteLinks.map((l) => (
+              <a
+                key={l.id}
+                href={l.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold text-accent underline underline-offset-4"
+              >
+                {l.label}
+              </a>
+            ))}
+          </p>
+        ) : null}
         <p>Titan Labs Aus ★ Trusted source ★ Discreet shipping ★ Telegram @Titanlabsau</p>
         <p className="mt-2">Research use only. Not for human consumption.</p>
       </footer>
