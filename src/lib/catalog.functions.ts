@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
-import type { Product } from "@/lib/products";
+import type { Product, ProductLink } from "@/lib/products";
 
 export type SiteLink = { id: string; label: string; url: string; sort_order: number };
 
@@ -23,6 +23,7 @@ function publicClient() {
 }
 
 function toProduct(row: any): Product {
+  const links = Array.isArray(row.product_links) ? (row.product_links as ProductLink[]) : [];
   return {
     slug: row.slug,
     name: row.name,
@@ -32,10 +33,14 @@ function toProduct(row: any): Product {
     blurb: row.blurb ?? "",
     description: row.description ?? "",
     details: (row.details ?? []) as string[],
+    categories: (row.categories ?? []) as string[],
+    protocol: row.protocol ?? "",
+    links: links.filter((l) => l && l.url),
   };
 }
 
-const PRODUCT_COLUMNS = "slug, name, price, image_url, alt, blurb, description, details";
+const PRODUCT_COLUMNS =
+  "slug, name, price, image_url, alt, blurb, description, details, categories, protocol, product_links";
 
 export const listProducts = createServerFn({ method: "GET" }).handler(
   async (): Promise<Product[]> => {
@@ -43,7 +48,7 @@ export const listProducts = createServerFn({ method: "GET" }).handler(
       .from("products")
       .select(PRODUCT_COLUMNS)
       .eq("active", true)
-      .order("sort_order", { ascending: true });
+      .order("name", { ascending: true });
     if (error) throw error;
     return (data ?? []).map(toProduct);
   },

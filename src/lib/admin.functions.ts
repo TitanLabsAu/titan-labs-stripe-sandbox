@@ -153,6 +153,8 @@ export type AdminMember = AdminCustomer & {
   live_count: number;
   delivered_count: number;
   total_spent: number;
+  last_order_at: string | null;
+  top_products: { name: string; qty: number }[];
 };
 
 export const adminListMembers = createServerFn({ method: "POST" })
@@ -170,32 +172,56 @@ export const adminListMembers = createServerFn({ method: "POST" })
 
     const { data: orders } = await context.supabase
       .from("orders")
-      .select("user_id, status, total");
+      .select("user_id, status, total, created_at, order_items(product_name, quantity)");
 
-    const stats = new Map<
-      string,
-      { order_count: number; live_count: number; delivered_count: number; total_spent: number }
-    >();
+    type Stat = {
+      order_count: number;
+      live_count: number;
+      delivered_count: number;
+      total_spent: number;
+      last_order_at: string | null;
+      tally: Map<string, number>;
+    };
+
+    const stats = new Map<string, Stat>();
     for (const o of (orders ?? []) as any[]) {
-      const s =
-        stats.get(o.user_id) ??
-        { order_count: 0, live_count: 0, delivered_count: 0, total_spent: 0 };
+      const s: Stat =
+        stats.get(o.user_id) ?? {
+          order_count: 0,
+          live_count: 0,
+          delivered_count: 0,
+          total_spent: 0,
+          last_order_at: null,
+          tally: new Map<string, number>(),
+        };
       s.order_count += 1;
       if (o.status === "processing" || o.status === "shipped") s.live_count += 1;
       if (o.status === "delivered") s.delivered_count += 1;
       s.total_spent += Number(o.total ?? 0);
+      if (!s.last_order_at || o.created_at > s.last_order_at) s.last_order_at = o.created_at;
+      for (const item of (o.order_items ?? []) as any[]) {
+        s.tally.set(item.product_name, (s.tally.get(item.product_name) ?? 0) + item.quantity);
+      }
       stats.set(o.user_id, s);
     }
 
-    return ((profiles ?? []) as any[]).map((p) => ({
-      ...(p as AdminMember),
-      ...(stats.get(p.id) ?? {
-        order_count: 0,
-        live_count: 0,
-        delivered_count: 0,
-        total_spent: 0,
-      }),
-    }));
+    return ((profiles ?? []) as any[]).map((p) => {
+      const s = stats.get(p.id);
+      return {
+        ...(p as AdminMember),
+        order_count: s?.order_count ?? 0,
+        live_count: s?.live_count ?? 0,
+        delivered_count: s?.delivered_count ?? 0,
+        total_spent: s?.total_spent ?? 0,
+        last_order_at: s?.last_order_at ?? null,
+        top_products: s
+          ? [...s.tally.entries()]
+              .map(([name, qty]) => ({ name, qty }))
+              .sort((a, b) => b.qty - a.qty)
+              .slice(0, 3)
+          : [],
+      };
+    });
   });
 
 export const adminGetMemberOrders = createServerFn({ method: "POST" })
@@ -238,6 +264,8 @@ export const adminRefreshTracking = createServerFn({ method: "POST" })
 
 /* ---------------- Products ---------------- */
 
+export type AdminProductLink = { label: string; url: string };
+
 export type AdminProduct = {
   id: string;
   slug: string;
@@ -248,12 +276,15 @@ export type AdminProduct = {
   blurb: string;
   description: string;
   details: string[];
+  categories: string[];
+  protocol: string;
+  product_links: AdminProductLink[];
   active: boolean;
   sort_order: number;
 };
 
 const PRODUCT_COLS =
-  "id, slug, name, price, image_url, alt, blurb, description, details, active, sort_order";
+  "id, slug, name, price, image_url, alt, blurb, description, details, categories, protocol, product_links, active, sort_order";
 
 export const adminListProducts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -262,7 +293,7 @@ export const adminListProducts = createServerFn({ method: "POST" })
     const { data, error } = await context.supabase
       .from("products")
       .select(PRODUCT_COLS)
-      .order("sort_order", { ascending: true });
+      .order("name", { ascending: true });
     if (error) throw error;
     return (data ?? []) as unknown as AdminProduct[];
   });
@@ -281,6 +312,9 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
       blurb: data.blurb ?? "",
       description: data.description ?? "",
       details: data.details ?? [],
+      categories: data.categories ?? [],
+      protocol: data.protocol ?? "",
+      product_links: (data.product_links ?? []).filter((l) => l && l.url),
       active: data.active ?? true,
       sort_order: Number(data.sort_order ?? 0),
     };
@@ -378,7 +412,11 @@ export type AdminDiscountCode = {
   note: string | null;
   active: boolean;
   created_at: string;
+  expires_at: string | null;
 };
+
+const DISCOUNT_COLS =
+  "id, code, discount_type, value, max_uses, times_used, user_id, milestone, note, active, created_at, expires_at";
 
 export const adminListDiscountCodes = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -386,7 +424,7 @@ export const adminListDiscountCodes = createServerFn({ method: "POST" })
     await assertAdmin(context as any);
     const { data, error } = await context.supabase
       .from("discount_codes")
-      .select("id, code, discount_type, value, max_uses, times_used, user_id, milestone, note, active, created_at")
+      .select(DISCOUNT_COLS)
       .order("created_at", { ascending: false });
     if (error) throw error;
     return (data ?? []) as unknown as AdminDiscountCode[];
@@ -397,9 +435,10 @@ export const adminCreateDiscountCode = createServerFn({ method: "POST" })
   .inputValidator(
     (input: {
       code: string;
-      discount_type: "percent" | "fixed";
+      discount_type: "percent" | "fixed" | "full";
       value: number;
-      singleUse: boolean;
+      maxUses?: number | null;
+      expiresAt?: string | null;
       note?: string;
       userId?: string | null;
     }) => input,
@@ -408,13 +447,21 @@ export const adminCreateDiscountCode = createServerFn({ method: "POST" })
     await assertAdmin(context as any);
     const code = data.code.trim().toUpperCase().replace(/\s+/g, "");
     if (!code) throw new Error("A code is required");
-    if (!(data.value > 0)) throw new Error("Enter a discount amount greater than zero");
+
+    const isFull = data.discount_type === "full";
+    const value = isFull ? 100 : Number(data.value);
+    if (!(value > 0)) throw new Error("Enter a discount amount greater than zero");
+    if (data.discount_type === "percent" && value > 100) {
+      throw new Error("A percentage discount cannot be more than 100%");
+    }
+
     const { error } = await context.supabase.from("discount_codes").insert({
       code,
-      discount_type: data.discount_type,
-      value: data.value,
-      max_uses: data.singleUse ? 1 : 1000000,
-      note: data.note ?? null,
+      discount_type: (isFull ? "percent" : data.discount_type) as "percent" | "fixed",
+      value,
+      max_uses: data.maxUses && data.maxUses > 0 ? data.maxUses : 1000000,
+      expires_at: data.expiresAt ? new Date(data.expiresAt).toISOString() : null,
+      note: data.note?.trim() ? data.note.trim() : null,
       user_id: data.userId ?? null,
     });
     if (error) throw error;

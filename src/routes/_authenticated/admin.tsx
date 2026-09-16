@@ -8,6 +8,7 @@ import { AdminProducts } from "@/components/AdminProducts";
 import { AdminLinks } from "@/components/AdminLinks";
 import { AdminProtocols } from "@/components/AdminProtocols";
 import { AdminDiscounts } from "@/components/AdminDiscounts";
+import { AdminEdits } from "@/components/AdminEdits";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -335,6 +336,9 @@ function AdminPage() {
               <TabsTrigger value="discounts" className="font-bold uppercase">
                 Discounts
               </TabsTrigger>
+              <TabsTrigger value="edits" className="font-bold uppercase">
+                Edits
+              </TabsTrigger>
               <TabsTrigger value="notifications" className="font-bold uppercase">
                 Notifications
               </TabsTrigger>
@@ -388,6 +392,10 @@ function AdminPage() {
 
             <TabsContent value="discounts" className="mt-6">
               <AdminDiscounts />
+            </TabsContent>
+
+            <TabsContent value="edits" className="mt-6">
+              <AdminEdits />
             </TabsContent>
 
             <TabsContent value="notifications" className="mt-6">

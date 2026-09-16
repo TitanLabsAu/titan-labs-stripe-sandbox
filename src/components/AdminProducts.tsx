@@ -1,16 +1,19 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { formatPrice } from "@/lib/products";
+import { CATEGORIES } from "@/lib/categories";
 import {
   adminDeleteProduct,
   adminListProducts,
   adminSaveProduct,
   type AdminProduct,
+  type AdminProductLink,
 } from "@/lib/admin.functions";
 
 type Draft = {
@@ -23,6 +26,9 @@ type Draft = {
   blurb: string;
   description: string;
   details: string;
+  protocol: string;
+  categories: string[];
+  links: AdminProductLink[];
   active: boolean;
   sort_order: string;
 };
@@ -36,6 +42,9 @@ const emptyDraft: Draft = {
   blurb: "",
   description: "",
   details: "",
+  protocol: "",
+  categories: [],
+  links: [],
   active: true,
   sort_order: "0",
 };
@@ -51,6 +60,9 @@ function toDraft(p: AdminProduct): Draft {
     blurb: p.blurb,
     description: p.description,
     details: (p.details ?? []).join("\n"),
+    protocol: p.protocol ?? "",
+    categories: p.categories ?? [],
+    links: p.product_links ?? [],
     active: p.active,
     sort_order: String(p.sort_order),
   };
@@ -86,6 +98,11 @@ export function AdminProducts() {
             .split("\n")
             .map((s) => s.trim())
             .filter(Boolean),
+          protocol: d.protocol,
+          categories: d.categories,
+          product_links: d.links
+            .map((l) => ({ label: l.label.trim(), url: l.url.trim() }))
+            .filter((l) => l.url),
           active: d.active,
           sort_order: Number(d.sort_order) || 0,
         },
@@ -109,6 +126,15 @@ export function AdminProducts() {
 
   if (draft) {
     const set = (patch: Partial<Draft>) => setDraft({ ...draft, ...patch });
+    const toggleCategory = (c: string) =>
+      set({
+        categories: draft.categories.includes(c)
+          ? draft.categories.filter((x) => x !== c)
+          : [...draft.categories, c],
+      });
+    const setLink = (i: number, patch: Partial<AdminProductLink>) =>
+      set({ links: draft.links.map((l, idx) => (idx === i ? { ...l, ...patch } : l)) });
+
     return (
       <div className="space-y-5 rounded-xl border border-border bg-card/80 p-6">
         <h3 className="text-lg font-extrabold uppercase text-foreground">
@@ -138,7 +164,7 @@ export function AdminProducts() {
             />
           </div>
           <div>
-            <Label>Display order</Label>
+            <Label>Display order (products list A–Z on the site)</Label>
             <Input
               type="number"
               value={draft.sort_order}
@@ -180,6 +206,75 @@ export function AdminProducts() {
               value={draft.details}
               onChange={(e) => set({ details: e.target.value })}
             />
+          </div>
+          <div className="sm:col-span-2">
+            <Label>How to use this product (reconstitution &amp; dosage notes)</Label>
+            <Textarea
+              rows={5}
+              value={draft.protocol}
+              placeholder="Mixing, storage and suggested research protocol for this product…"
+              onChange={(e) => set({ protocol: e.target.value })}
+            />
+          </div>
+        </div>
+
+        <div>
+          <Label>Categories (tick as many as apply)</Label>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {CATEGORIES.map((c) => {
+              const on = draft.categories.includes(c);
+              return (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => toggleCategory(c)}
+                  className={`rounded-full border px-4 py-1.5 text-xs font-bold uppercase tracking-wide transition ${
+                    on
+                      ? "border-accent bg-accent text-accent-foreground"
+                      : "border-border text-muted-foreground hover:border-accent/60"
+                  }`}
+                >
+                  {c}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div>
+          <Label>Links for this product (Certificates of Authenticity, guides…)</Label>
+          <div className="mt-2 space-y-2">
+            {draft.links.map((l, i) => (
+              <div key={i} className="flex flex-wrap gap-2">
+                <Input
+                  className="max-w-[220px]"
+                  value={l.label}
+                  placeholder="Certificate of Authenticity"
+                  onChange={(e) => setLink(i, { label: e.target.value })}
+                />
+                <Input
+                  className="flex-1"
+                  value={l.url}
+                  placeholder="https://…"
+                  onChange={(e) => setLink(i, { url: e.target.value })}
+                />
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  aria-label="Remove link"
+                  onClick={() => set({ links: draft.links.filter((_, idx) => idx !== i) })}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              className="font-bold uppercase"
+              onClick={() => set({ links: [...draft.links, { label: "", url: "" }] })}
+            >
+              Add link
+            </Button>
           </div>
         </div>
 
@@ -239,6 +334,11 @@ export function AdminProducts() {
                   {formatPrice(Number(p.price))} · {p.active ? "Visible" : "Hidden"}
                 </p>
                 <p className="max-w-md">{p.blurb}</p>
+                {(p.categories ?? []).length > 0 ? (
+                  <p className="mt-1 text-xs uppercase tracking-[0.2em] text-accent">
+                    {(p.categories ?? []).join(" · ")}
+                  </p>
+                ) : null}
               </div>
             </div>
             <div className="flex gap-2">
