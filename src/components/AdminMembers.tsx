@@ -25,6 +25,19 @@ function memberName(m: AdminMember) {
   return [m.first_name, m.last_name].filter(Boolean).join(" ") || m.email || "Unnamed member";
 }
 
+function topProducts(orders: AdminOrder[]): { name: string; qty: number }[] {
+  const tally = new Map<string, number>();
+  for (const order of orders) {
+    for (const item of order.order_items) {
+      tally.set(item.product_name, (tally.get(item.product_name) ?? 0) + item.quantity);
+    }
+  }
+  return [...tally.entries()]
+    .map(([name, qty]) => ({ name, qty }))
+    .sort((a, b) => b.qty - a.qty)
+    .slice(0, 3);
+}
+
 function MemberOrderCard({ order }: { order: AdminOrder }) {
   return (
     <article className="rounded-xl border border-border bg-card/80 p-5">
