@@ -21,12 +21,18 @@ type Draft = {
   slug: string;
   name: string;
   price: string;
+  sale_price: string;
+  promo_label: string;
   image_url: string;
   alt: string;
   blurb: string;
   description: string;
   details: string;
   protocol: string;
+  recon_vial_mg: string;
+  recon_water_ml: string;
+  recon_dose_mcg: string;
+  recon_notes: string;
   categories: string[];
   links: AdminProductLink[];
   active: boolean;
@@ -37,34 +43,77 @@ const emptyDraft: Draft = {
   slug: "",
   name: "",
   price: "",
+  sale_price: "",
+  promo_label: "",
   image_url: "",
   alt: "",
   blurb: "",
   description: "",
   details: "",
   protocol: "",
+  recon_vial_mg: "",
+  recon_water_ml: "",
+  recon_dose_mcg: "",
+  recon_notes: "",
   categories: [],
   links: [],
   active: true,
   sort_order: "0",
 };
 
-function toDraft(p: AdminProduct): Draft {
+export function toDraft(p: AdminProduct): Draft {
   return {
     id: p.id,
     slug: p.slug,
     name: p.name,
     price: String(p.price),
+    sale_price: p.sale_price == null ? "" : String(p.sale_price),
+    promo_label: p.promo_label ?? "",
     image_url: p.image_url,
     alt: p.alt,
     blurb: p.blurb,
     description: p.description,
     details: (p.details ?? []).join("\n"),
     protocol: p.protocol ?? "",
+    recon_vial_mg: p.recon_vial_mg == null ? "" : String(p.recon_vial_mg),
+    recon_water_ml: p.recon_water_ml == null ? "" : String(p.recon_water_ml),
+    recon_dose_mcg: p.recon_dose_mcg == null ? "" : String(p.recon_dose_mcg),
+    recon_notes: p.recon_notes ?? "",
     categories: p.categories ?? [],
     links: p.product_links ?? [],
     active: p.active,
     sort_order: String(p.sort_order),
+  };
+}
+
+export function draftToPayload(d: Draft) {
+  const num = (v: string) => (v.trim() === "" || Number.isNaN(Number(v)) ? null : Number(v));
+  return {
+    ...(d.id ? { id: d.id } : {}),
+    slug: d.slug || d.name,
+    name: d.name,
+    price: Number(d.price) || 0,
+    sale_price: num(d.sale_price),
+    promo_label: d.promo_label,
+    image_url: d.image_url,
+    alt: d.alt || d.name,
+    blurb: d.blurb,
+    description: d.description,
+    details: d.details
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean),
+    protocol: d.protocol,
+    recon_vial_mg: num(d.recon_vial_mg),
+    recon_water_ml: num(d.recon_water_ml),
+    recon_dose_mcg: num(d.recon_dose_mcg),
+    recon_notes: d.recon_notes,
+    categories: d.categories,
+    product_links: d.links
+      .map((l) => ({ label: l.label.trim(), url: l.url.trim() }))
+      .filter((l) => l.url),
+    active: d.active,
+    sort_order: Number(d.sort_order) || 0,
   };
 }
 
