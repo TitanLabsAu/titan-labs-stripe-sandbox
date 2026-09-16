@@ -13,7 +13,12 @@ type CartContextValue = {
   clear: () => void;
 };
 
-const CartContext = createContext<CartContextValue | null>(null);
+// Keep one context instance even if this module is re-evaluated (hot reload),
+// otherwise the provider and the consumers can end up on different contexts.
+const globalStore = globalThis as unknown as { __titanCartContext?: ReturnType<typeof createContext<CartContextValue | null>> };
+const CartContext =
+  globalStore.__titanCartContext ??
+  (globalStore.__titanCartContext = createContext<CartContextValue | null>(null));
 const STORAGE_KEY = "titan-cart-v1";
 
 export function CartProvider({ children }: { children: ReactNode }) {
