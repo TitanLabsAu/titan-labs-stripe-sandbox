@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as CheckoutRouteImport } from './routes/checkout'
-import { Route as ProtocolsRouteImport } from './routes/protocols'
 import { Route as RangeRouteImport } from './routes/range'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -36,11 +35,6 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const CheckoutRoute = CheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProtocolsRoute = ProtocolsRouteImport.update({
-  id: '/protocols',
-  path: '/protocols',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RangeRoute = RangeRouteImport.update({
@@ -99,7 +93,6 @@ const LovableEmailTransactionalPreviewRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
-  '/protocols': typeof ProtocolsRoute
   '/range': typeof RangeRoute
   '/account': typeof AuthenticatedAccountRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -114,7 +107,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
-  '/protocols': typeof ProtocolsRoute
   '/range': typeof RangeRoute
   '/account': typeof AuthenticatedAccountRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -131,7 +123,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/checkout': typeof CheckoutRoute
-  '/protocols': typeof ProtocolsRoute
   '/range': typeof RangeRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
@@ -148,7 +139,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/checkout'
-    | '/protocols'
     | '/range'
     | '/account'
     | '/admin'
@@ -163,7 +153,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/checkout'
-    | '/protocols'
     | '/range'
     | '/account'
     | '/admin'
@@ -179,7 +168,6 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/checkout'
-    | '/protocols'
     | '/range'
     | '/_authenticated/account'
     | '/_authenticated/admin'
@@ -196,7 +184,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   CheckoutRoute: typeof CheckoutRoute
-  ProtocolsRoute: typeof ProtocolsRoute
   RangeRoute: typeof RangeRoute
   AuthSignupRoute: typeof AuthSignupRoute
   ProductSlugRoute: typeof ProductSlugRoute
@@ -226,13 +213,6 @@ declare module '@tanstack/react-router' {
       path: '/checkout'
       fullPath: '/checkout'
       preLoaderRoute: typeof CheckoutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/protocols': {
-      id: '/protocols'
-      path: '/protocols'
-      fullPath: '/protocols'
-      preLoaderRoute: typeof ProtocolsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/range': {
@@ -329,7 +309,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   CheckoutRoute: CheckoutRoute,
-  ProtocolsRoute: ProtocolsRoute,
   RangeRoute: RangeRoute,
   AuthSignupRoute: AuthSignupRoute,
   ProductSlugRoute: ProductSlugRoute,
