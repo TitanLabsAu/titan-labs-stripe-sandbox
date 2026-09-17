@@ -121,6 +121,12 @@ export const FLEX_ALIGN_CLASS: Record<TextAlign, string> = {
   right: "justify-end",
 };
 
+export const BLOCK_ALIGN_CLASS: Record<TextAlign, string> = {
+  left: "mr-auto ml-0",
+  center: "mx-auto",
+  right: "ml-auto mr-0",
+};
+
 const validAligns: TextAlign[] = ["left", "center", "right"];
 
 function normaliseAlign(value: string | undefined, fallback: TextAlign = "center"): TextAlign {

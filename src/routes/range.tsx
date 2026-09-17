@@ -11,6 +11,7 @@ import { RichText } from "@/components/RichText";
 import { useProducts, useSiteContent } from "@/lib/useCatalog";
 import { CATEGORIES } from "@/lib/categories";
 import {
+  BLOCK_ALIGN_CLASS,
   contentAlign,
   RANGE_IMAGE_SLOTS,
   homeValue,
@@ -79,12 +80,12 @@ function RangePage() {
           <RichText text={homeValue(content, "home_range_title")} />
         </h1>
         {homeValue(content, "range_intro") ? (
-          <p className={cn("mx-auto mt-4 max-w-3xl whitespace-pre-wrap text-base text-muted-foreground sm:text-lg", TEXT_ALIGN_CLASS[contentAlign(content, "range_intro")])}>
+          <p className={cn("mt-4 max-w-3xl whitespace-pre-wrap text-base text-muted-foreground sm:text-lg", BLOCK_ALIGN_CLASS[contentAlign(content, "range_intro")], TEXT_ALIGN_CLASS[contentAlign(content, "range_intro")])}>
             <RichText text={homeValue(content, "range_intro")} />
           </p>
         ) : null}
 
-        <div className="mx-auto mt-6 flex max-w-4xl gap-4 rounded-xl border border-accent/40 bg-card/70 p-5 shadow-gold">
+        <div className={cn("mt-6 flex max-w-4xl gap-4 rounded-xl border border-accent/40 bg-card/70 p-5 shadow-gold", BLOCK_ALIGN_CLASS[contentAlign(content, "range_disclaimer")])}>
           <ShieldCheck className="mt-0.5 h-6 w-6 shrink-0 text-accent" />
           <p className={cn("whitespace-pre-wrap text-sm leading-6 text-muted-foreground", TEXT_ALIGN_CLASS[contentAlign(content, "range_disclaimer")])}>
             <RichText text={homeValue(content, "range_disclaimer")} />

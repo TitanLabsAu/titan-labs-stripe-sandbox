@@ -7,6 +7,7 @@ import { PageImageBoxes } from "@/components/PageImageBoxes";
 import { RichText } from "@/components/RichText";
 import { useProducts, useSiteContent } from "@/lib/useCatalog";
 import {
+  BLOCK_ALIGN_CLASS,
   contentAlign,
   featuredSlugs,
   FLEX_ALIGN_CLASS,
@@ -67,7 +68,7 @@ function Index() {
         <h1 className={cn("text-steel mt-5 text-5xl font-extrabold uppercase leading-[0.95] tracking-tight sm:text-7xl", TEXT_ALIGN_CLASS[contentAlign(content, "home_headline")])}>
           <RichText text={homeValue(content, "home_headline")} />
         </h1>
-        <p className={cn("mx-auto mt-6 max-w-2xl whitespace-pre-wrap text-base text-muted-foreground sm:text-lg", TEXT_ALIGN_CLASS[contentAlign(content, "home_subtext")])}>
+        <p className={cn("mt-6 max-w-2xl whitespace-pre-wrap text-base text-muted-foreground sm:text-lg", BLOCK_ALIGN_CLASS[contentAlign(content, "home_subtext")], TEXT_ALIGN_CLASS[contentAlign(content, "home_subtext")])}>
           <RichText text={homeValue(content, "home_subtext")} />
         </p>
         <div className={cn("mt-8 flex", FLEX_ALIGN_CLASS[contentAlign(content, "home_shipping_banner")])}>
@@ -93,7 +94,7 @@ function Index() {
           <h2 className={cn("text-3xl font-extrabold uppercase tracking-tight text-foreground", TEXT_ALIGN_CLASS[contentAlign(content, "home_featured_title")])}>
             <RichText text={homeValue(content, "home_featured_title")} />
           </h2>
-          <p className={cn("mx-auto mt-3 max-w-2xl whitespace-pre-wrap text-sm text-muted-foreground", TEXT_ALIGN_CLASS[contentAlign(content, "home_featured_note")])}>
+          <p className={cn("mt-3 max-w-2xl whitespace-pre-wrap text-sm text-muted-foreground", BLOCK_ALIGN_CLASS[contentAlign(content, "home_featured_note")], TEXT_ALIGN_CLASS[contentAlign(content, "home_featured_note")])}>
             <RichText text={homeValue(content, "home_featured_note")} />
           </p>
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -124,7 +125,7 @@ function Index() {
           <h2 className={cn("text-steel text-4xl font-extrabold uppercase tracking-tight", TEXT_ALIGN_CLASS[contentAlign(content, "home_cta_title")])}>
             <RichText text={homeValue(content, "home_cta_title")} />
           </h2>
-          <p className={cn("mx-auto mt-4 max-w-xl whitespace-pre-wrap text-muted-foreground", TEXT_ALIGN_CLASS[contentAlign(content, "home_cta_body")])}>
+          <p className={cn("mt-4 max-w-xl whitespace-pre-wrap text-muted-foreground", BLOCK_ALIGN_CLASS[contentAlign(content, "home_cta_body")], TEXT_ALIGN_CLASS[contentAlign(content, "home_cta_body")])}>
             <RichText text={homeValue(content, "home_cta_body")} />
           </p>
           <div className={cn("mt-8 flex", FLEX_ALIGN_CLASS[contentAlign(content, "home_cta_button")])}>
