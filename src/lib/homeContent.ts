@@ -27,13 +27,6 @@ export const HOME_FIELDS: HomeField[] = [
     fallback: "This month's picks and promotions from the Titan Labs range.",
   },
   { key: "home_range_button", label: "Range button text", fallback: "View the full range" },
-  { key: "home_range_title", label: "Range page heading", fallback: "The range" },
-  {
-    key: "home_range_note",
-    label: "Note under the range",
-    multiline: true,
-    fallback: "Full price list, starter packs and bulk discounts available once you're logged in.",
-  },
   { key: "home_pillar1_title", label: "Pillar 1 heading", fallback: "Science Backed" },
   {
     key: "home_pillar1_body",
@@ -72,6 +65,29 @@ export const HOME_FIELDS: HomeField[] = [
   },
 ];
 
+export const RANGE_FIELDS: HomeField[] = [
+  { key: "home_range_title", label: "Range page heading", fallback: "The range" },
+  {
+    key: "range_intro",
+    label: "Text under The Range",
+    multiline: true,
+    fallback: "",
+  },
+  {
+    key: "home_range_note",
+    label: "Note under product range",
+    multiline: true,
+    fallback: "Full price list, starter packs and bulk discounts available once you're logged in.",
+  },
+  {
+    key: "range_disclaimer",
+    label: "Research use disclaimer",
+    multiline: true,
+    fallback:
+      "Research grade peptides supplied for laboratory research use only.\n\nAll products are supplied for laboratory and research use only. They are not for human or animal consumption, and no therapeutic, medical or performance use is described or implied.",
+  },
+];
+
 /** Slugs of the products the owner has pinned to the home page. */
 export function featuredSlugs(content: Record<string, string> | undefined) {
   return (content?.["home_featured"] ?? "")
@@ -81,7 +97,7 @@ export function featuredSlugs(content: Record<string, string> | undefined) {
 }
 
 export function homeValue(content: Record<string, string> | undefined, key: string) {
-  const field = HOME_FIELDS.find((f) => f.key === key);
+  const field = [...HOME_FIELDS, ...RANGE_FIELDS].find((f) => f.key === key);
   const value = content?.[key]?.trim();
   return value || field?.fallback || "";
 }
