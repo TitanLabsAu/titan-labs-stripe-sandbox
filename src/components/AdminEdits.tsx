@@ -76,6 +76,25 @@ export function AdminEdits() {
     onError: (e: any) => toast.error(e?.message ?? "Could not save the product"),
   });
 
+  const removeFeatured = useMutation({
+    mutationFn: async (p: NonNullable<typeof products>[number]) => {
+      const slugs = featured.filter((s) => s !== p.slug);
+      setFeatured(slugs);
+      await adminSaveContent({ data: { key: "home_featured", body: slugs.join(",") } });
+      if (p.sale_price != null || (p.promo_label ?? "") !== "") {
+        await adminSaveProduct({
+          data: draftToPayload({ ...toDraft(p), sale_price: "", promo_label: "" }) as any,
+        });
+      }
+    },
+    onSuccess: () => {
+      toast.success("Removed from the home page and reverted to its normal price");
+      refreshContent();
+      refreshProducts();
+    },
+    onError: () => toast.error("Could not remove that product"),
+  });
+
   const list = products ?? [];
   const featuredProducts = featured
     .map((s) => list.find((p) => p.slug === s))
@@ -180,7 +199,8 @@ export function AdminEdits() {
                   <Button
                     variant="destructive"
                     className="font-bold uppercase"
-                    onClick={() => setFeaturedAndSave(featured.filter((s) => s !== p.slug))}
+                    disabled={removeFeatured.isPending}
+                    onClick={() => removeFeatured.mutate(p)}
                   >
                     Remove
                   </Button>

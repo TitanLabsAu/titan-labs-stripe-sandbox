@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { Input } from "@/components/ui/input";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ProductCard } from "@/components/ProductCard";
@@ -32,10 +33,24 @@ function RangePage() {
   const { products } = useProducts();
   const { data: content } = useSiteContent();
   const [category, setCategory] = useState<string>("All");
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState("name-asc");
 
-  const sorted = [...products].sort((a, b) => a.name.localeCompare(b.name));
-  const visible =
-    category === "All" ? sorted : sorted.filter((p) => (p.categories ?? []).includes(category));
+  const term = search.trim().toLowerCase();
+  const matched = products.filter((p) => {
+    const inCategory = category === "All" || (p.categories ?? []).includes(category);
+    if (!inCategory) return false;
+    if (!term) return true;
+    return [p.name, p.blurb, p.description ?? "", ...(p.categories ?? [])]
+      .join(" ")
+      .toLowerCase()
+      .includes(term);
+  });
+  const visible = [...matched].sort((a, b) => {
+    if (sort === "price-asc") return a.price - b.price;
+    if (sort === "price-desc") return b.price - a.price;
+    return a.name.localeCompare(b.name);
+  });
 
   return (
     <div className="bg-hero min-h-screen">
@@ -63,9 +78,30 @@ function RangePage() {
           ))}
         </div>
 
+        <div className="mx-auto mt-6 flex max-w-3xl flex-col gap-3 sm:flex-row">
+          <Input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search products…"
+            aria-label="Search products"
+            className="sm:flex-1"
+          />
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+            aria-label="Sort products"
+            className="h-10 rounded-md border border-input bg-background px-3 text-sm text-foreground sm:w-56"
+          >
+            <option value="name-asc">Name: A to Z</option>
+            <option value="price-asc">Price: low to high</option>
+            <option value="price-desc">Price: high to low</option>
+          </select>
+        </div>
+
         {visible.length === 0 ? (
           <p className="mt-10 text-center text-sm text-muted-foreground">
-            Nothing in this category yet — try another.
+            No products match your search — try another word or category.
           </p>
         ) : (
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
