@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AlignCenter, AlignLeft, AlignRight, Bold, Italic, Trash2, Underline, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,10 +9,249 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { AdminLinks } from "@/components/AdminLinks";
 import { ProductEditor, draftToPayload, toDraft, type Draft } from "@/components/AdminProducts";
+import { supabase } from "@/integrations/supabase/client";
 import { adminListProducts, adminSaveContent, adminSaveProduct } from "@/lib/admin.functions";
 import { getSiteContent } from "@/lib/catalog.functions";
-import { HOME_FIELDS, RANGE_FIELDS, featuredSlugs } from "@/lib/homeContent";
+import {
+  contentKeysForImages,
+  HOME_FIELDS,
+  HOME_IMAGE_SLOTS,
+  RANGE_FIELDS,
+  RANGE_IMAGE_SLOTS,
+  featuredSlugs,
+  type HomeField,
+  type PageImageSlot,
+  type TextAlign,
+} from "@/lib/homeContent";
 import { formatPrice } from "@/lib/products";
+import { cn } from "@/lib/utils";
+
+const ALIGN_OPTIONS: { value: TextAlign; label: string; Icon: typeof AlignLeft }[] = [
+  { value: "left", label: "Align left", Icon: AlignLeft },
+  { value: "center", label: "Align centre", Icon: AlignCenter },
+  { value: "right", label: "Align right", Icon: AlignRight },
+];
+
+const TEXTAREA_ALIGN_CLASS: Record<TextAlign, string> = {
+  left: "text-left",
+  center: "text-center",
+  right: "text-right",
+};
+
+function imageStoragePath(file: File, slotKey: string) {
+  const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+  return `page-content/${slotKey}/${crypto.randomUUID()}.${ext}`;
+}
+
+function AlignmentButtons({ value, onChange }: { value: TextAlign; onChange: (value: TextAlign) => void }) {
+  return (
+    <div className="flex rounded-md border border-border bg-background/40 p-1">
+      {ALIGN_OPTIONS.map(({ value: option, label, Icon }) => (
+        <Button
+          key={option}
+          type="button"
+          variant={value === option ? "default" : "ghost"}
+          size="icon"
+          className="h-8 w-8"
+          aria-label={label}
+          onClick={() => onChange(option)}
+        >
+          <Icon className="h-4 w-4" />
+        </Button>
+      ))}
+    </div>
+  );
+}
+
+function TextFormatButton({
+  label,
+  marker,
+  textarea,
+  value,
+  onChange,
+  children,
+}: {
+  label: string;
+  marker: "**" | "*" | "__";
+  textarea: React.RefObject<HTMLTextAreaElement | null>;
+  value: string;
+  onChange: (value: string) => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="icon"
+      className="h-8 w-8"
+      aria-label={label}
+      onClick={() => {
+        const el = textarea.current;
+        if (!el) return;
+        const start = el.selectionStart;
+        const end = el.selectionEnd;
+        const selected = value.slice(start, end) || "text";
+        const next = `${value.slice(0, start)}${marker}${selected}${marker}${value.slice(end)}`;
+        onChange(next);
+        window.requestAnimationFrame(() => {
+          el.focus();
+          el.setSelectionRange(start + marker.length, start + marker.length + selected.length);
+        });
+      }}
+    >
+      {children}
+    </Button>
+  );
+}
+
+function ContentFieldEditor({
+  field,
+  value,
+  align,
+  setValue,
+  setAlign,
+}: {
+  field: HomeField;
+  value: string;
+  align: TextAlign;
+  setValue: (value: string) => void;
+  setAlign: (value: TextAlign) => void;
+}) {
+  const textarea = useRef<HTMLTextAreaElement | null>(null);
+  const rows = field.key === "range_disclaimer" ? 5 : field.multiline ? 4 : 2;
+
+  return (
+    <div className={field.multiline ? "sm:col-span-2" : ""}>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <Label>{field.label}</Label>
+        <AlignmentButtons value={align} onChange={setAlign} />
+      </div>
+      {field.multiline ? (
+        <>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <TextFormatButton label="Bold" marker="**" textarea={textarea} value={value} onChange={setValue}>
+              <Bold className="h-4 w-4" />
+            </TextFormatButton>
+            <TextFormatButton label="Italic" marker="*" textarea={textarea} value={value} onChange={setValue}>
+              <Italic className="h-4 w-4" />
+            </TextFormatButton>
+            <TextFormatButton label="Underline" marker="__" textarea={textarea} value={value} onChange={setValue}>
+              <Underline className="h-4 w-4" />
+            </TextFormatButton>
+          </div>
+          <Textarea
+            ref={textarea}
+            rows={rows}
+            className={cn("mt-2 whitespace-pre-wrap", TEXTAREA_ALIGN_CLASS[align])}
+            value={value}
+            placeholder={field.fallback}
+            onChange={(e) => setValue(e.target.value)}
+          />
+        </>
+      ) : (
+        <Input
+          className={cn("mt-2", TEXTAREA_ALIGN_CLASS[align])}
+          value={value}
+          placeholder={field.fallback}
+          onChange={(e) => setValue(e.target.value)}
+        />
+      )}
+    </div>
+  );
+}
+
+function PictureSlotEditor({
+  slot,
+  values,
+  setValue,
+}: {
+  slot: PageImageSlot;
+  values: Record<string, string>;
+  setValue: (key: string, value: string) => void;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const urlKey = `${slot.key}_url`;
+  const altKey = `${slot.key}_alt`;
+  const captionKey = `${slot.key}_caption`;
+  const alignKey = `${slot.key}_align`;
+  const align = (values[alignKey] as TextAlign) || "center";
+  const url = values[urlKey] ?? "";
+
+  async function uploadImage(file: File) {
+    setUploading(true);
+    try {
+      const path = imageStoragePath(file, slot.key);
+      const { error } = await supabase.storage.from("product-images").upload(path, file, {
+        upsert: true,
+        contentType: file.type || "application/octet-stream",
+      });
+      if (error) throw error;
+      setValue(urlKey, `/api/public/product-image?path=${encodeURIComponent(path)}`);
+      if (!(values[altKey] ?? "").trim()) setValue(altKey, slot.label);
+      toast.success("Picture added");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not upload the picture");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <div className="space-y-3 rounded-lg border border-border bg-background/40 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <Label>{slot.label}</Label>
+        <AlignmentButtons value={align} onChange={(value) => setValue(alignKey, value)} />
+      </div>
+      {url ? (
+        <img
+          src={url}
+          alt={values[altKey] || slot.label}
+          className="aspect-video w-full rounded-lg border border-border object-cover"
+          loading="lazy"
+        />
+      ) : (
+        <div className="flex aspect-video items-center justify-center rounded-lg border border-dashed border-border bg-card/60 text-sm text-muted-foreground">
+          Empty picture box
+        </div>
+      )}
+      <Input
+        type="file"
+        accept="image/*"
+        disabled={uploading}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) void uploadImage(file);
+        }}
+      />
+      <Input
+        value={values[altKey] ?? ""}
+        placeholder="Image description"
+        onChange={(e) => setValue(altKey, e.target.value)}
+      />
+      <Textarea
+        rows={2}
+        className={cn("whitespace-pre-wrap", TEXTAREA_ALIGN_CLASS[align])}
+        value={values[captionKey] ?? ""}
+        placeholder="Optional caption"
+        onChange={(e) => setValue(captionKey, e.target.value)}
+      />
+      {url ? (
+        <Button
+          type="button"
+          variant="destructive"
+          className="font-bold uppercase"
+          onClick={() => {
+            setValue(urlKey, "");
+            setValue(captionKey, "");
+          }}
+        >
+          <Trash2 className="mr-2 h-4 w-4" />
+          Remove picture
+        </Button>
+      ) : null}
+    </div>
+  );
+}
 
 export function AdminEdits() {
   const queryClient = useQueryClient();
@@ -29,13 +269,34 @@ export function AdminEdits() {
   useEffect(() => {
     if (data && !loaded) {
       const next: Record<string, string> = {};
-      for (const f of HOME_FIELDS) next[f.key] = data[f.key] ?? f.fallback;
-      for (const f of RANGE_FIELDS) next[f.key] = data[f.key] ?? f.fallback;
+      for (const f of HOME_FIELDS) {
+        next[f.key] = data[f.key] ?? f.fallback;
+        next[`${f.key}_align`] = data[`${f.key}_align`] ?? f.align ?? "center";
+      }
+      for (const f of RANGE_FIELDS) {
+        next[f.key] = data[f.key] ?? f.fallback;
+        next[`${f.key}_align`] = data[`${f.key}_align`] ?? f.align ?? "center";
+      }
+      for (const key of contentKeysForImages([...HOME_IMAGE_SLOTS, ...RANGE_IMAGE_SLOTS])) {
+        next[key] = data[key] ?? (key.endsWith("_align") ? "center" : "");
+      }
       setValues(next);
       setFeatured(featuredSlugs(data));
       setLoaded(true);
     }
   }, [data, loaded]);
+
+  const setValue = (key: string, value: string) => setValues((current) => ({ ...current, [key]: value }));
+
+  const saveContentGroup = async (fields: HomeField[], imageSlots: PageImageSlot[]) => {
+    const keys = [
+      ...fields.flatMap((f) => [f.key, `${f.key}_align`]),
+      ...contentKeysForImages(imageSlots),
+    ];
+    await Promise.all(
+      keys.map((key) => adminSaveContent({ data: { key, body: values[key] ?? "" } })),
+    );
+  };
 
   const refreshContent = () => {
     void queryClient.invalidateQueries({ queryKey: ["site-content"] });
@@ -46,11 +307,7 @@ export function AdminEdits() {
   };
 
   const saveHome = useMutation({
-    mutationFn: async () => {
-      for (const f of HOME_FIELDS) {
-        await adminSaveContent({ data: { key: f.key, body: values[f.key] ?? "" } });
-      }
-    },
+    mutationFn: () => saveContentGroup(HOME_FIELDS, HOME_IMAGE_SLOTS),
     onSuccess: () => {
       toast.success("Home page updated");
       refreshContent();
@@ -59,11 +316,7 @@ export function AdminEdits() {
   });
 
   const saveRange = useMutation({
-    mutationFn: async () => {
-      for (const f of RANGE_FIELDS) {
-        await adminSaveContent({ data: { key: f.key, body: values[f.key] ?? "" } });
-      }
-    },
+    mutationFn: () => saveContentGroup(RANGE_FIELDS, RANGE_IMAGE_SLOTS),
     onSuccess: () => {
       toast.success("View the Range page updated");
       refreshContent();
@@ -256,33 +509,44 @@ export function AdminEdits() {
           </div>
 
           <div className="rounded-xl border border-border bg-card/80 p-6">
-            <h3 className="text-lg font-extrabold uppercase text-foreground">Home page wording</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Change any wording on your home page here. Leave a box empty to use the standard wording.
-            </p>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-extrabold uppercase text-foreground">Home page wording</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Change any wording on your home page here. Leave a box empty to use the standard wording.
+                </p>
+              </div>
+              <Button
+                className="font-bold uppercase"
+                disabled={saveHome.isPending}
+                onClick={() => saveHome.mutate()}
+              >
+                Save home page
+              </Button>
+            </div>
 
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               {HOME_FIELDS.map((f) => (
-                <div key={f.key} className={f.multiline ? "sm:col-span-2" : ""}>
-                  <Label>{f.label}</Label>
-                  {f.multiline ? (
-                    <Textarea
-                      rows={3}
-                      className="mt-2 whitespace-pre-wrap"
-                      value={values[f.key] ?? ""}
-                      placeholder={f.fallback}
-                      onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
-                    />
-                  ) : (
-                    <Input
-                      className="mt-2"
-                      value={values[f.key] ?? ""}
-                      placeholder={f.fallback}
-                      onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
-                    />
-                  )}
-                </div>
+                <ContentFieldEditor
+                  key={f.key}
+                  field={f}
+                  value={values[f.key] ?? ""}
+                  align={(values[`${f.key}_align`] as TextAlign) || f.align || "center"}
+                  setValue={(value) => setValue(f.key, value)}
+                  setAlign={(value) => setValue(`${f.key}_align`, value)}
+                />
               ))}
+            </div>
+
+            <div className="mt-6">
+              <h4 className="text-sm font-extrabold uppercase tracking-[0.15em] text-accent">
+                Home picture boxes
+              </h4>
+              <div className="mt-3 grid gap-4 lg:grid-cols-3">
+                {HOME_IMAGE_SLOTS.map((slot) => (
+                  <PictureSlotEditor key={slot.key} slot={slot} values={values} setValue={setValue} />
+                ))}
+              </div>
             </div>
 
             <Button
@@ -299,35 +563,46 @@ export function AdminEdits() {
 
         <TabsContent value="range" className="mt-6">
           <div className="rounded-xl border border-border bg-card/80 p-6">
-            <h3 className="text-lg font-extrabold uppercase text-foreground">
-              View the Range wording
-            </h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Change the heading, text under The Range, bottom note and research disclaimer.
-            </p>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-extrabold uppercase text-foreground">
+                  View the Range wording
+                </h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Change the heading, text under The Range, bottom note and research disclaimer.
+                </p>
+              </div>
+              <Button
+                className="font-bold uppercase"
+                disabled={saveRange.isPending}
+                onClick={() => saveRange.mutate()}
+              >
+                Save View the Range
+              </Button>
+            </div>
 
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               {RANGE_FIELDS.map((f) => (
-                <div key={f.key} className={f.multiline ? "sm:col-span-2" : ""}>
-                  <Label>{f.label}</Label>
-                  {f.multiline ? (
-                    <Textarea
-                      rows={f.key === "range_disclaimer" ? 5 : 3}
-                      className="mt-2 whitespace-pre-wrap"
-                      value={values[f.key] ?? ""}
-                      placeholder={f.fallback}
-                      onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
-                    />
-                  ) : (
-                    <Input
-                      className="mt-2"
-                      value={values[f.key] ?? ""}
-                      placeholder={f.fallback}
-                      onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
-                    />
-                  )}
-                </div>
+                <ContentFieldEditor
+                  key={f.key}
+                  field={f}
+                  value={values[f.key] ?? ""}
+                  align={(values[`${f.key}_align`] as TextAlign) || f.align || "center"}
+                  setValue={(value) => setValue(f.key, value)}
+                  setAlign={(value) => setValue(`${f.key}_align`, value)}
+                />
               ))}
+            </div>
+
+            <div className="mt-6">
+              <h4 className="text-sm font-extrabold uppercase tracking-[0.15em] text-accent">
+                View the Range picture boxes
+              </h4>
+              <div className="mt-3 grid gap-4 lg:grid-cols-3">
+                {RANGE_IMAGE_SLOTS.map((slot) => (
+                  <PictureSlotEditor key={slot.key} slot={slot} values={values} setValue={setValue} />
+                ))}
+              </div>
             </div>
 
             <Button
