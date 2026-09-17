@@ -265,6 +265,12 @@ export const adminRefreshTracking = createServerFn({ method: "POST" })
 /* ---------------- Products ---------------- */
 
 export type AdminProductLink = { label: string; url: string };
+export type AdminProductVariant = {
+  id: string;
+  label: string;
+  price: number;
+  kitPrice?: number | null;
+};
 
 export type AdminProduct = {
   id: string;
@@ -273,6 +279,8 @@ export type AdminProduct = {
   price: number;
   sale_price: number | null;
   promo_label: string;
+  kit_price: number | null;
+  product_variants: AdminProductVariant[];
   image_url: string;
   alt: string;
   blurb: string;
@@ -290,7 +298,7 @@ export type AdminProduct = {
 };
 
 const PRODUCT_COLS =
-  "id, slug, name, price, sale_price, promo_label, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mcg, recon_notes, product_links, active, sort_order";
+  "id, slug, name, price, sale_price, promo_label, kit_price, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mcg, recon_notes, product_links, active, sort_order";
 
 export const adminListProducts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -318,6 +326,21 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
           ? null
           : Number(data.sale_price),
       promo_label: data.promo_label ?? "",
+      kit_price:
+        data.kit_price === null || data.kit_price === undefined || Number.isNaN(Number(data.kit_price))
+          ? null
+          : Number(data.kit_price),
+      product_variants: (data.product_variants ?? [])
+        .map((v) => ({
+          id: String(v.id || crypto.randomUUID()),
+          label: String(v.label ?? "").trim(),
+          price: Number(v.price ?? 0),
+          kitPrice:
+            v.kitPrice === null || v.kitPrice === undefined || Number.isNaN(Number(v.kitPrice))
+              ? null
+              : Number(v.kitPrice),
+        }))
+        .filter((v) => v.label && v.price > 0),
       recon_vial_mg: data.recon_vial_mg ?? null,
       recon_water_ml: data.recon_water_ml ?? null,
       recon_dose_mcg: data.recon_dose_mcg ?? null,

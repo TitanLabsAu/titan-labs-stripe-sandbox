@@ -16,7 +16,7 @@ import { useProducts } from "@/lib/useCatalog";
 
 export function CartSheet() {
   const [open, setOpen] = useState(false);
-  const { items, count, subtotal, setQuantity, removeItem } = useCart();
+  const { items, count, subtotal, setQuantity, removeItem, getLinePrice, getLineLabel } = useCart();
   const { getProduct } = useProducts();
 
   return (
@@ -45,9 +45,10 @@ export function CartSheet() {
               {items.map((item) => {
                 const product = getProduct(item.slug);
                 if (!product) return null;
+                const linePrice = getLinePrice(item);
                 return (
                   <li
-                    key={item.slug}
+                    key={item.key}
                     className="flex gap-3 rounded-lg border border-border bg-card/60 p-3"
                   >
                     <img
@@ -57,19 +58,24 @@ export function CartSheet() {
                     />
                     <div className="flex-1">
                       <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm font-bold uppercase text-foreground">
-                          {product.name}
-                        </p>
-                        <button
-                          onClick={() => removeItem(item.slug)}
+                        <div>
+                          <p className="text-sm font-bold uppercase text-foreground">
+                            {product.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground">{getLineLabel(item, product)}</p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeItem(item.key)}
                           aria-label={`Remove ${product.name}`}
-                          className="text-muted-foreground hover:text-destructive"
+                          className="h-7 w-7 text-muted-foreground hover:text-destructive"
                         >
                           <Trash2 className="h-4 w-4" />
-                        </button>
+                        </Button>
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        {formatPrice(product.price)} each
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {formatPrice(linePrice)} each
                       </p>
                       <div className="mt-2 flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -78,7 +84,7 @@ export function CartSheet() {
                             size="icon"
                             className="h-7 w-7"
                             aria-label="Decrease quantity"
-                            onClick={() => setQuantity(item.slug, item.quantity - 1)}
+                            onClick={() => setQuantity(item.key, item.quantity - 1)}
                           >
                             <Minus className="h-3 w-3" />
                           </Button>
@@ -90,13 +96,13 @@ export function CartSheet() {
                             size="icon"
                             className="h-7 w-7"
                             aria-label="Increase quantity"
-                            onClick={() => setQuantity(item.slug, item.quantity + 1)}
+                            onClick={() => setQuantity(item.key, item.quantity + 1)}
                           >
                             <Plus className="h-3 w-3" />
                           </Button>
                         </div>
                         <span className="text-sm font-extrabold text-accent">
-                          {formatPrice(product.price * item.quantity)}
+                          {formatPrice(linePrice * item.quantity)}
                         </span>
                       </div>
                     </div>

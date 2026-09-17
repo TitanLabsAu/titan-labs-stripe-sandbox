@@ -1,7 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { formatPrice, type Product } from "@/lib/products";
+import { formatPrice, hasVariantPricing, productBasePrice, type Product } from "@/lib/products";
 
 export function ProductCard({ product: p }: { product: Product }) {
+  const fromPrice = productBasePrice(p);
+  const hasSizes = hasVariantPricing(p);
   return (
     <Link
       to="/product/$slug"
@@ -24,7 +26,9 @@ export function ProductCard({ product: p }: { product: Product }) {
               {formatPrice(p.wasPrice)}
             </span>
           ) : null}
-          <span className="text-lg font-extrabold text-accent">{formatPrice(p.price)}</span>
+          <span className="text-lg font-extrabold text-accent">
+            {hasSizes ? `From ${formatPrice(fromPrice)}` : formatPrice(p.price)}
+          </span>
         </span>
       </div>
       {(p.categories ?? []).length > 0 ? (

@@ -83,7 +83,7 @@ export function AdminEdits() {
       await adminSaveContent({ data: { key: "home_featured", body: slugs.join(",") } });
       if (p.sale_price != null || (p.promo_label ?? "") !== "") {
         await adminSaveProduct({
-          data: draftToPayload({ ...toDraft(p), sale_price: "", promo_label: "" }) as any,
+          data: draftToPayload({ ...toDraft(p), sale_price: "", promo_label: "", active: true }) as any,
         });
       }
     },

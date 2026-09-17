@@ -200,9 +200,11 @@ export type Database = {
           details: string[]
           id: string
           image_url: string
+          kit_price: number | null
           name: string
           price: number
           product_links: Json
+          product_variants: Json
           promo_label: string
           protocol: string
           recon_dose_mcg: number | null
@@ -224,9 +226,11 @@ export type Database = {
           details?: string[]
           id?: string
           image_url?: string
+          kit_price?: number | null
           name: string
           price?: number
           product_links?: Json
+          product_variants?: Json
           promo_label?: string
           protocol?: string
           recon_dose_mcg?: number | null
@@ -248,9 +252,11 @@ export type Database = {
           details?: string[]
           id?: string
           image_url?: string
+          kit_price?: number | null
           name?: string
           price?: number
           product_links?: Json
+          product_variants?: Json
           promo_label?: string
           protocol?: string
           recon_dose_mcg?: number | null

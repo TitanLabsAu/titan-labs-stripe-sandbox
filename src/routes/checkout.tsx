@@ -22,7 +22,7 @@ export const Route = createFileRoute("/checkout")({
 });
 
 function CheckoutPage() {
-  const { items, subtotal } = useCart();
+  const { items, subtotal, getLinePrice, getLineLabel } = useCart();
   const { getProduct } = useProducts();
   const shipping = shippingFor(subtotal);
   const freeShipping = items.length > 0 && shipping === 0;
@@ -41,7 +41,7 @@ function CheckoutPage() {
           <div className="mt-8 rounded-xl border border-border bg-card/70 p-8 text-center">
             <p className="text-muted-foreground">Your cart is empty.</p>
             <Button asChild className="mt-6 font-bold uppercase">
-              <Link to="/">Browse the range</Link>
+              <Link to="/range">Browse the range</Link>
             </Button>
           </div>
         ) : (
@@ -53,8 +53,9 @@ function CheckoutPage() {
               {items.map((item) => {
                 const product = getProduct(item.slug);
                 if (!product) return null;
+                const linePrice = getLinePrice(item);
                 return (
-                  <li key={item.slug} className="flex items-center gap-4 py-4">
+                  <li key={item.key} className="flex items-center gap-4 py-4">
                     <img
                       src={product.image}
                       alt={product.alt}
@@ -62,12 +63,13 @@ function CheckoutPage() {
                     />
                     <div className="flex-1">
                       <p className="font-bold uppercase text-foreground">{product.name}</p>
+                      <p className="text-xs text-muted-foreground">{getLineLabel(item, product)}</p>
                       <p className="text-xs text-muted-foreground">
-                        {item.quantity} × {formatPrice(product.price)}
+                        {item.quantity} × {formatPrice(linePrice)}
                       </p>
                     </div>
                     <span className="font-extrabold text-accent">
-                      {formatPrice(product.price * item.quantity)}
+                      {formatPrice(linePrice * item.quantity)}
                     </span>
                   </li>
                 );
@@ -89,8 +91,7 @@ function CheckoutPage() {
               </div>
               {freeShipping ? (
                 <p className="text-xs font-bold uppercase tracking-wide text-accent">
-                  Free express shipping applied — order over{" "}
-                  {formatPrice(FREE_SHIPPING_THRESHOLD)}
+                  Free express shipping applied — order over {formatPrice(FREE_SHIPPING_THRESHOLD)}
                 </p>
               ) : (
                 <p className="text-xs text-muted-foreground">

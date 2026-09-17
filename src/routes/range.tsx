@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -7,6 +8,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { useProducts, useSiteContent } from "@/lib/useCatalog";
 import { CATEGORIES } from "@/lib/categories";
 import { homeValue } from "@/lib/homeContent";
+import { productBasePrice } from "@/lib/products";
 
 export const Route = createFileRoute("/range")({
   head: () => ({
@@ -32,13 +34,18 @@ export const Route = createFileRoute("/range")({
 function RangePage() {
   const { products } = useProducts();
   const { data: content } = useSiteContent();
+  const [mounted, setMounted] = useState(false);
   const [category, setCategory] = useState<string>("All");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("name-asc");
 
-  const term = search.trim().toLowerCase();
+  useEffect(() => setMounted(true), []);
+
+  const term = mounted ? search.trim().toLowerCase() : "";
+  const activeCategory = mounted ? category : "All";
+  const activeSort = mounted ? sort : "name-asc";
   const matched = products.filter((p) => {
-    const inCategory = category === "All" || (p.categories ?? []).includes(category);
+    const inCategory = activeCategory === "All" || (p.categories ?? []).includes(activeCategory);
     if (!inCategory) return false;
     if (!term) return true;
     return [p.name, p.blurb, p.description ?? "", ...(p.categories ?? [])]
@@ -47,8 +54,8 @@ function RangePage() {
       .includes(term);
   });
   const visible = [...matched].sort((a, b) => {
-    if (sort === "price-asc") return a.price - b.price;
-    if (sort === "price-desc") return b.price - a.price;
+    if (activeSort === "price-asc") return productBasePrice(a) - productBasePrice(b);
+    if (activeSort === "price-desc") return productBasePrice(b) - productBasePrice(a);
     return a.name.localeCompare(b.name);
   });
 
@@ -63,18 +70,15 @@ function RangePage() {
 
         <div className="mt-8 flex flex-wrap justify-center gap-2">
           {["All", ...CATEGORIES].map((c) => (
-            <button
+            <Button
               key={c}
               type="button"
+              variant={activeCategory === c ? "default" : "outline"}
               onClick={() => setCategory(c)}
-              className={`rounded-full border px-5 py-2 text-xs font-bold uppercase tracking-[0.15em] transition ${
-                category === c
-                  ? "border-accent bg-accent text-accent-foreground"
-                  : "border-border text-muted-foreground hover:border-accent/60"
-              }`}
+              className="rounded-full px-5 text-xs font-bold uppercase tracking-[0.15em]"
             >
               {c}
-            </button>
+            </Button>
           ))}
         </div>
 
