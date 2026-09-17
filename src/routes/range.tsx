@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -69,18 +70,15 @@ function RangePage() {
 
         <div className="mt-8 flex flex-wrap justify-center gap-2">
           {["All", ...CATEGORIES].map((c) => (
-            <button
+            <Button
               key={c}
               type="button"
+              variant={activeCategory === c ? "default" : "outline"}
               onClick={() => setCategory(c)}
-              className={`rounded-full border px-5 py-2 text-xs font-bold uppercase tracking-[0.15em] transition ${
-                activeCategory === c
-                  ? "border-accent bg-accent text-accent-foreground"
-                  : "border-border text-muted-foreground hover:border-accent/60"
-              }`}
+              className="rounded-full px-5 text-xs font-bold uppercase tracking-[0.15em]"
             >
               {c}
-            </button>
+            </Button>
           ))}
         </div>
 
