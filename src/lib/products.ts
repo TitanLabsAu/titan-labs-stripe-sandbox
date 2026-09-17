@@ -3,7 +3,16 @@ import wolverine from "@/assets/wolverine.asset.json";
 import nad1000 from "@/assets/nad1000.asset.json";
 
 export type ProductLink = { label: string; url: string };
-export type ProductVariant = { id: string; label: string; price: number; kitPrice?: number | null };
+export type ProductVariant = {
+  id: string;
+  label: string;
+  price: number;
+  kitPrice?: number | null;
+  reconVialMg?: number | null;
+  reconWaterMl?: number | null;
+  reconDoseMcg?: number | null;
+  reconNotes?: string;
+};
 export type ProductPack = "single" | "kit";
 
 export type Product = {
@@ -104,4 +113,17 @@ export function productBasePrice(product: Product) {
 
 export function hasVariantPricing(product: Product) {
   return (product.variants ?? []).length > 0;
+}
+
+/** Reconstitution numbers for the selected vial size, falling back to the product defaults. */
+export function getReconFor(product: Product, variantId?: string | null) {
+  const variant = (product.variants ?? []).find((v) => v.id === variantId) ?? null;
+  const pick = (a: number | null | undefined, b: number | null | undefined) =>
+    a != null && !Number.isNaN(Number(a)) ? Number(a) : b != null ? Number(b) : null;
+  return {
+    vialMg: pick(variant?.reconVialMg, product.reconVialMg),
+    waterMl: pick(variant?.reconWaterMl, product.reconWaterMl),
+    doseMcg: pick(variant?.reconDoseMcg, product.reconDoseMcg),
+    notes: (variant?.reconNotes || product.reconNotes || "").trim(),
+  };
 }

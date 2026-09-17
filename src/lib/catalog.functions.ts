@@ -25,15 +25,20 @@ function publicClient() {
 function toProduct(row: any): Product {
   const links = Array.isArray(row.product_links) ? (row.product_links as ProductLink[]) : [];
   const rawVariants = Array.isArray(row.product_variants) ? row.product_variants : [];
+  const optNum = (value: any) =>
+    value === null || value === undefined || value === "" || Number.isNaN(Number(value))
+      ? null
+      : Number(value);
   const variants = rawVariants
     .map((v: any, index: number) => ({
       id: String(v?.id || `size-${index}`),
       label: String(v?.label || "").trim(),
       price: Number(v?.price ?? 0),
-      kitPrice:
-        v?.kitPrice === null || v?.kitPrice === undefined || Number.isNaN(Number(v.kitPrice))
-          ? null
-          : Number(v.kitPrice),
+      kitPrice: optNum(v?.kitPrice),
+      reconVialMg: optNum(v?.reconVialMg),
+      reconWaterMl: optNum(v?.reconWaterMl),
+      reconDoseMcg: optNum(v?.reconDoseMcg),
+      reconNotes: String(v?.reconNotes ?? ""),
     }))
     .filter((v: ProductVariant) => v.label && v.price > 0);
   const listPrice = Number(row.price);

@@ -270,6 +270,10 @@ export type AdminProductVariant = {
   label: string;
   price: number;
   kitPrice?: number | null;
+  reconVialMg?: number | null;
+  reconWaterMl?: number | null;
+  reconDoseMcg?: number | null;
+  reconNotes?: string;
 };
 
 export type AdminProduct = {
