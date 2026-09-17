@@ -7,6 +7,7 @@ export type HomeField = {
   align?: TextAlign;
 };
 export type PageImageSlot = { key: string; label: string; page: "home" | "range" };
+export type PageSection = { key: string; label: string };
 
 export const HOME_FIELDS: HomeField[] = [
   {
@@ -108,6 +109,41 @@ export const RANGE_IMAGE_SLOTS: PageImageSlot[] = [
   { key: "range_picture_2", label: "View the Range picture box 2", page: "range" },
   { key: "range_picture_3", label: "View the Range picture box 3", page: "range" },
 ];
+
+export const HOME_SECTIONS: PageSection[] = [
+  { key: "tagline", label: "Top tagline" },
+  { key: "headline", label: "Main headline" },
+  { key: "intro", label: "Intro paragraph" },
+  { key: "shipping", label: "Free shipping banner" },
+  { key: "range-button", label: "View the Range button" },
+  { key: "pictures", label: "Picture boxes" },
+  { key: "featured", label: "Hot products" },
+  { key: "pillars", label: "Information boxes" },
+  { key: "signup", label: "Sign-up box" },
+];
+
+export const RANGE_SECTIONS: PageSection[] = [
+  { key: "title", label: "The Range heading" },
+  { key: "intro", label: "Intro paragraph" },
+  { key: "disclaimer", label: "Research disclaimer" },
+  { key: "pictures", label: "Picture boxes" },
+  { key: "products", label: "Categories, search and products" },
+  { key: "note", label: "Bottom note" },
+];
+
+export function pageSectionOrder(
+  content: Record<string, string> | undefined,
+  storageKey: string,
+  sections: PageSection[],
+) {
+  const available = new Set(sections.map((section) => section.key));
+  const saved = (content?.[storageKey] ?? "")
+    .split(",")
+    .map((key) => key.trim())
+    .filter((key) => available.has(key));
+  const missing = sections.map((section) => section.key).filter((key) => !saved.includes(key));
+  return [...saved, ...missing];
+}
 
 export const TEXT_ALIGN_CLASS: Record<TextAlign, string> = {
   left: "text-left",
