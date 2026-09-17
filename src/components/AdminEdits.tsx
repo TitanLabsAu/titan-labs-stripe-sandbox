@@ -199,7 +199,8 @@ export function AdminEdits() {
                   <Button
                     variant="destructive"
                     className="font-bold uppercase"
-                    onClick={() => setFeaturedAndSave(featured.filter((s) => s !== p.slug))}
+                    disabled={removeFeatured.isPending}
+                    onClick={() => removeFeatured.mutate(p)}
                   >
                     Remove
                   </Button>
