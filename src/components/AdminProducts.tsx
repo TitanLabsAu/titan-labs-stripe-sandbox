@@ -23,6 +23,10 @@ export type DraftVariant = {
   label: string;
   price: string;
   kitPrice: string;
+  reconVialMg: string;
+  reconWaterMl: string;
+  reconDoseMcg: string;
+  reconNotes: string;
 };
 
 export type Draft = {
@@ -103,6 +107,10 @@ export function toDraft(p: AdminProduct): Draft {
       label: v.label,
       price: String(v.price),
       kitPrice: v.kitPrice == null ? "" : String(v.kitPrice),
+      reconVialMg: v.reconVialMg == null ? "" : String(v.reconVialMg),
+      reconWaterMl: v.reconWaterMl == null ? "" : String(v.reconWaterMl),
+      reconDoseMcg: v.reconDoseMcg == null ? "" : String(v.reconDoseMcg),
+      reconNotes: v.reconNotes ?? "",
     })),
     image_url: p.image_url,
     alt: p.alt,
@@ -137,6 +145,10 @@ export function draftToPayload(d: Draft) {
         label: v.label.trim(),
         price: Number(v.price) || 0,
         kitPrice: num(v.kitPrice),
+        reconVialMg: num(v.reconVialMg),
+        reconWaterMl: num(v.reconWaterMl),
+        reconDoseMcg: num(v.reconDoseMcg),
+        reconNotes: v.reconNotes,
       }))
       .filter((v) => v.label && v.price > 0),
     image_url: d.image_url,
