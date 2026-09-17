@@ -176,14 +176,6 @@ function ProductPage() {
                 </div>
               </div>
 
-              <div className="mt-5 flex gap-3 rounded-lg border border-accent/60 bg-background/40 p-4">
-                <ShieldCheck className="mt-0.5 h-6 w-6 shrink-0 text-accent" />
-                <p className="text-sm font-bold uppercase leading-6 tracking-wide text-foreground">
-                  Delivered Australia wide or your money back. Every order is covered by our 100%
-                  delivery guarantee.
-                </p>
-              </div>
-
               <label className="mt-6 block text-xs font-bold uppercase tracking-[0.2em] text-accent">
                 Quantity
               </label>
@@ -235,6 +227,14 @@ function ProductPage() {
               >
                 Add to cart
               </Button>
+            </div>
+
+            <div className="mt-5 flex gap-3 rounded-xl border border-accent/60 bg-card/70 p-4">
+              <ShieldCheck className="mt-0.5 h-6 w-6 shrink-0 text-accent" />
+              <p className="text-sm font-bold uppercase leading-6 tracking-wide text-foreground">
+                Delivered Australia wide or your money back. Every order is covered by our 100%
+                delivery guarantee.
+              </p>
             </div>
 
             {product.description ? (
