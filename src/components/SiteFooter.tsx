@@ -22,7 +22,7 @@ export function SiteFooter() {
           ))}
         </p>
       ) : null}
-      <p>{homeValue(content, "home_footer_text")}</p>
+      <p className="whitespace-pre-wrap">{homeValue(content, "home_footer_text")}</p>
       <p className="mt-2">Research use only. Not for human consumption.</p>
     </footer>
   );

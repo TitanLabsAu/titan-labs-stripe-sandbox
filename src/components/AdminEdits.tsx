@@ -268,7 +268,7 @@ export function AdminEdits() {
                   {f.multiline ? (
                     <Textarea
                       rows={3}
-                      className="mt-2"
+                      className="mt-2 whitespace-pre-wrap"
                       value={values[f.key] ?? ""}
                       placeholder={f.fallback}
                       onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
@@ -313,7 +313,7 @@ export function AdminEdits() {
                   {f.multiline ? (
                     <Textarea
                       rows={f.key === "range_disclaimer" ? 5 : 3}
-                      className="mt-2"
+                      className="mt-2 whitespace-pre-wrap"
                       value={values[f.key] ?? ""}
                       placeholder={f.fallback}
                       onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
