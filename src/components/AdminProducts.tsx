@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Trash2 } from "lucide-react";
+import { Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ReconstitutionCalculator } from "@/components/ReconstitutionCalculator";
-import { formatPrice } from "@/lib/products";
+import { supabase } from "@/integrations/supabase/client";
 import { CATEGORIES } from "@/lib/categories";
+import { formatPrice, kitPriceFor } from "@/lib/products";
 import {
   adminDeleteProduct,
   adminListProducts,
@@ -17,6 +18,13 @@ import {
   type AdminProductLink,
 } from "@/lib/admin.functions";
 
+export type DraftVariant = {
+  id: string;
+  label: string;
+  price: string;
+  kitPrice: string;
+};
+
 export type Draft = {
   id?: string;
   slug: string;
@@ -24,6 +32,8 @@ export type Draft = {
   price: string;
   sale_price: string;
   promo_label: string;
+  kit_price: string;
+  variants: DraftVariant[];
   image_url: string;
   alt: string;
   blurb: string;
@@ -46,6 +56,8 @@ const emptyDraft: Draft = {
   price: "",
   sale_price: "",
   promo_label: "",
+  kit_price: "",
+  variants: [],
   image_url: "",
   alt: "",
   blurb: "",
@@ -62,6 +74,21 @@ const emptyDraft: Draft = {
   sort_order: "0",
 };
 
+function safeVariantId(label: string) {
+  const base = label.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  return base || crypto.randomUUID();
+}
+
+function storagePathFor(file: File, draft: Draft) {
+  const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+  const base = (draft.slug || draft.name || "product")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "") || "product";
+  return `${base}/${crypto.randomUUID()}.${ext}`;
+}
+
 export function toDraft(p: AdminProduct): Draft {
   return {
     id: p.id,
@@ -70,6 +97,13 @@ export function toDraft(p: AdminProduct): Draft {
     price: String(p.price),
     sale_price: p.sale_price == null ? "" : String(p.sale_price),
     promo_label: p.promo_label ?? "",
+    kit_price: p.kit_price == null ? "" : String(p.kit_price),
+    variants: (p.product_variants ?? []).map((v) => ({
+      id: v.id,
+      label: v.label,
+      price: String(v.price),
+      kitPrice: v.kitPrice == null ? "" : String(v.kitPrice),
+    })),
     image_url: p.image_url,
     alt: p.alt,
     blurb: p.blurb,
@@ -96,6 +130,15 @@ export function draftToPayload(d: Draft) {
     price: Number(d.price) || 0,
     sale_price: num(d.sale_price),
     promo_label: d.promo_label,
+    kit_price: num(d.kit_price),
+    product_variants: d.variants
+      .map((v) => ({
+        id: v.id || safeVariantId(v.label),
+        label: v.label.trim(),
+        price: Number(v.price) || 0,
+        kitPrice: num(v.kitPrice),
+      }))
+      .filter((v) => v.label && v.price > 0),
     image_url: d.image_url,
     alt: d.alt || d.name,
     blurb: d.blurb,
@@ -133,6 +176,7 @@ export function ProductEditor({
   saving: boolean;
   title?: string;
 }) {
+  const [uploading, setUploading] = useState(false);
   const set = (patch: Partial<Draft>) => setDraft({ ...draft, ...patch });
   const toggleCategory = (c: string) =>
     set({
@@ -142,6 +186,26 @@ export function ProductEditor({
     });
   const setLink = (i: number, patch: Partial<AdminProductLink>) =>
     set({ links: draft.links.map((l, idx) => (idx === i ? { ...l, ...patch } : l)) });
+  const setVariant = (i: number, patch: Partial<DraftVariant>) =>
+    set({ variants: draft.variants.map((v, idx) => (idx === i ? { ...v, ...patch } : v)) });
+
+  async function uploadImage(file: File) {
+    setUploading(true);
+    try {
+      const path = storagePathFor(file, draft);
+      const { error } = await supabase.storage.from("product-images").upload(path, file, {
+        upsert: true,
+        contentType: file.type || "application/octet-stream",
+      });
+      if (error) throw error;
+      set({ image_url: `/api/public/product-image?path=${encodeURIComponent(path)}` });
+      toast.success("Product image uploaded");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not upload the image");
+    } finally {
+      setUploading(false);
+    }
+  }
 
   return (
     <div className="space-y-5 rounded-xl border border-border bg-card/80 p-6">
@@ -155,7 +219,7 @@ export function ProductEditor({
           <Input value={draft.name} onChange={(e) => set({ name: e.target.value })} />
         </div>
         <div>
-          <Label>Price (AUD)</Label>
+          <Label>Single vial price (AUD)</Label>
           <Input
             type="number"
             min={0}
@@ -182,6 +246,16 @@ export function ProductEditor({
           />
         </div>
         <div>
+          <Label>Kit price (10x Kit) — blank uses 20% off</Label>
+          <Input
+            type="number"
+            min={0}
+            value={draft.kit_price}
+            placeholder={draft.price ? formatPrice(kitPriceFor(Number(draft.price) || 0)) : "Auto 20% off"}
+            onChange={(e) => set({ kit_price: e.target.value })}
+          />
+        </div>
+        <div>
           <Label>Web address name (slug)</Label>
           <Input
             value={draft.slug}
@@ -197,26 +271,35 @@ export function ProductEditor({
             onChange={(e) => set({ sort_order: e.target.value })}
           />
         </div>
-        <div className="sm:col-span-2">
-          <Label>Image link</Label>
+        <div>
+          <Label>Product picture</Label>
           <Input
-            value={draft.image_url}
-            placeholder="https://…"
-            onChange={(e) => set({ image_url: e.target.value })}
+            type="file"
+            accept="image/*"
+            disabled={uploading}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) void uploadImage(file);
+            }}
           />
         </div>
+        {draft.image_url ? (
+          <div className="sm:col-span-2">
+            <img
+              src={draft.image_url}
+              alt={draft.alt || draft.name || "Product preview"}
+              className="h-28 w-28 rounded-lg border border-border object-cover"
+            />
+          </div>
+        ) : null}
         <div className="sm:col-span-2">
           <Label>Image description (for accessibility)</Label>
           <Input value={draft.alt} onChange={(e) => set({ alt: e.target.value })} />
         </div>
         <div className="sm:col-span-2">
-          <Label>Short blurb</Label>
-          <Textarea rows={2} value={draft.blurb} onChange={(e) => set({ blurb: e.target.value })} />
-        </div>
-        <div className="sm:col-span-2">
           <Label>Full description</Label>
           <Textarea
-            rows={5}
+            rows={6}
             value={draft.description}
             onChange={(e) => set({ description: e.target.value })}
           />
@@ -238,6 +321,78 @@ export function ProductEditor({
             onChange={(e) => set({ protocol: e.target.value })}
           />
         </div>
+      </div>
+
+      <div className="space-y-3 rounded-lg border border-border bg-background/40 p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <Label>Vial sizes and prices</Label>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Add every vial size you sell. Leave kit price blank to advertise the automatic 20% discount.
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            className="font-bold uppercase"
+            onClick={() =>
+              set({
+                variants: [
+                  ...draft.variants,
+                  { id: crypto.randomUUID(), label: "", price: "", kitPrice: "" },
+                ],
+              })
+            }
+          >
+            Add size
+          </Button>
+        </div>
+        {draft.variants.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No extra sizes yet — customers will see the single vial price and 10x kit option.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {draft.variants.map((variant, i) => (
+              <div key={variant.id} className="grid gap-2 md:grid-cols-[1.3fr_1fr_1fr_auto]">
+                <Input
+                  value={variant.label}
+                  placeholder="5mg, 10mg, 20mg…"
+                  aria-label="Vial size"
+                  onChange={(e) =>
+                    setVariant(i, {
+                      label: e.target.value,
+                      id: variant.id || safeVariantId(e.target.value),
+                    })
+                  }
+                />
+                <Input
+                  type="number"
+                  min={0}
+                  value={variant.price}
+                  placeholder="Single price"
+                  aria-label="Single vial price"
+                  onChange={(e) => setVariant(i, { price: e.target.value })}
+                />
+                <Input
+                  type="number"
+                  min={0}
+                  value={variant.kitPrice}
+                  placeholder={variant.price ? formatPrice(kitPriceFor(Number(variant.price) || 0)) : "Kit price"}
+                  aria-label="10x Kit price"
+                  onChange={(e) => setVariant(i, { kitPrice: e.target.value })}
+                />
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  aria-label="Remove size"
+                  onClick={() => set({ variants: draft.variants.filter((_, idx) => idx !== i) })}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="space-y-3">
@@ -278,18 +433,15 @@ export function ProductEditor({
           {CATEGORIES.map((c) => {
             const on = draft.categories.includes(c);
             return (
-              <button
+              <Button
                 key={c}
                 type="button"
+                variant={on ? "default" : "outline"}
+                className="font-bold uppercase tracking-wide"
                 onClick={() => toggleCategory(c)}
-                className={`rounded-full border px-4 py-1.5 text-xs font-bold uppercase tracking-wide transition ${
-                  on
-                    ? "border-accent bg-accent text-accent-foreground"
-                    : "border-border text-muted-foreground hover:border-accent/60"
-                }`}
               >
                 {c}
-              </button>
+              </Button>
             );
           })}
         </div>
@@ -344,10 +496,16 @@ export function ProductEditor({
       <div className="flex gap-3">
         <Button
           className="font-bold uppercase"
-          disabled={saving || !draft.name.trim()}
+          disabled={saving || uploading || !draft.name.trim()}
           onClick={onSave}
         >
-          Save product
+          {uploading ? (
+            <>
+              <Upload className="mr-2 h-4 w-4" /> Uploading
+            </>
+          ) : (
+            "Save product"
+          )}
         </Button>
         {onCancel ? (
           <Button variant="outline" className="font-bold uppercase" onClick={onCancel}>
@@ -445,7 +603,12 @@ export function AdminProducts() {
                   · {p.active ? "Visible" : "Hidden"}
                   {p.promo_label ? ` · ${p.promo_label}` : ""}
                 </p>
-                <p className="max-w-md">{p.blurb}</p>
+                <p className="max-w-md">
+                  {(p.product_variants ?? []).length > 0
+                    ? `${p.product_variants.length} size options`
+                    : "Single size product"}
+                  {p.kit_price ? ` · 10x Kit ${formatPrice(Number(p.kit_price))}` : " · 10x Kit auto 20% off"}
+                </p>
                 {(p.categories ?? []).length > 0 ? (
                   <p className="mt-1 text-xs uppercase tracking-[0.2em] text-accent">
                     {(p.categories ?? []).join(" · ")}

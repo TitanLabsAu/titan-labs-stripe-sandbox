@@ -21,6 +21,7 @@ import { Route as AuthIndexRouteImport } from './routes/auth.index'
 import { Route as AuthSignupRouteImport } from './routes/auth.signup'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as ApiPublicAuspostPollRouteImport } from './routes/api/public/auspost-poll'
+import { Route as ApiPublicProductImageRouteImport } from './routes/api/public/product-image'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
 const IndexRoute = IndexRouteImport.update({
@@ -83,6 +84,11 @@ const ApiPublicAuspostPollRoute = ApiPublicAuspostPollRouteImport.update({
   path: '/api/public/auspost-poll',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicProductImageRoute = ApiPublicProductImageRouteImport.update({
+  id: '/api/public/product-image',
+  path: '/api/public/product-image',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailTransactionalPreviewRoute =
   LovableEmailTransactionalPreviewRouteImport.update({
     id: '/lovable/email/transactional/preview',
@@ -102,6 +108,7 @@ export interface FileRoutesByFullPath {
   '/product/$slug': typeof ProductSlugRoute
   '/auth/': typeof AuthIndexRoute
   '/api/public/auspost-poll': typeof ApiPublicAuspostPollRoute
+  '/api/public/product-image': typeof ApiPublicProductImageRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesByTo {
@@ -116,6 +123,7 @@ export interface FileRoutesByTo {
   '/product/$slug': typeof ProductSlugRoute
   '/auth': typeof AuthIndexRoute
   '/api/public/auspost-poll': typeof ApiPublicAuspostPollRoute
+  '/api/public/product-image': typeof ApiPublicProductImageRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesById {
@@ -132,6 +140,7 @@ export interface FileRoutesById {
   '/product/$slug': typeof ProductSlugRoute
   '/auth/': typeof AuthIndexRoute
   '/api/public/auspost-poll': typeof ApiPublicAuspostPollRoute
+  '/api/public/product-image': typeof ApiPublicProductImageRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRouteTypes {
@@ -148,6 +157,7 @@ export interface FileRouteTypes {
     | '/product/$slug'
     | '/auth/'
     | '/api/public/auspost-poll'
+    | '/api/public/product-image'
     | '/lovable/email/transactional/preview'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -162,6 +172,7 @@ export interface FileRouteTypes {
     | '/product/$slug'
     | '/auth'
     | '/api/public/auspost-poll'
+    | '/api/public/product-image'
     | '/lovable/email/transactional/preview'
   id:
     | '__root__'
@@ -177,6 +188,7 @@ export interface FileRouteTypes {
     | '/product/$slug'
     | '/auth/'
     | '/api/public/auspost-poll'
+    | '/api/public/product-image'
     | '/lovable/email/transactional/preview'
   fileRoutesById: FileRoutesById
 }
@@ -189,6 +201,7 @@ export interface RootRouteChildren {
   ProductSlugRoute: typeof ProductSlugRoute
   AuthIndexRoute: typeof AuthIndexRoute
   ApiPublicAuspostPollRoute: typeof ApiPublicAuspostPollRoute
+  ApiPublicProductImageRoute: typeof ApiPublicProductImageRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
 
@@ -278,6 +291,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAuspostPollRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/product-image': {
+      id: '/api/public/product-image'
+      path: '/api/public/product-image'
+      fullPath: '/api/public/product-image'
+      preLoaderRoute: typeof ApiPublicProductImageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/transactional/preview': {
       id: '/lovable/email/transactional/preview'
       path: '/lovable/email/transactional/preview'
@@ -314,6 +334,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProductSlugRoute: ProductSlugRoute,
   AuthIndexRoute: AuthIndexRoute,
   ApiPublicAuspostPollRoute: ApiPublicAuspostPollRoute,
+  ApiPublicProductImageRoute: ApiPublicProductImageRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport

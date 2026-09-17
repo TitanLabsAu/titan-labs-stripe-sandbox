@@ -1,0 +1,6 @@
+- Fix the range page loading mismatch.
+- Finish product image uploads for Admin product editing.
+- Add product sizes, single-vial/kit pricing choices, and cart support.
+- Move the product calculator under the picture and add the delivery guarantee.
+- Remove short blurb from product editing and make full descriptions more prominent.
+- Verify the updated shop flow.

@@ -3,6 +3,8 @@ import wolverine from "@/assets/wolverine.asset.json";
 import nad1000 from "@/assets/nad1000.asset.json";
 
 export type ProductLink = { label: string; url: string };
+export type ProductVariant = { id: string; label: string; price: number; kitPrice?: number | null };
+export type ProductPack = "single" | "kit";
 
 export type Product = {
   slug: string;
@@ -12,6 +14,8 @@ export type Product = {
   /** Original price, present only when the product is on sale. */
   wasPrice?: number | null;
   promoLabel?: string;
+  kitPrice?: number | null;
+  variants?: ProductVariant[];
   image: string;
   alt: string;
   blurb: string;
@@ -63,4 +67,41 @@ export function getProduct(slug: string) {
 
 export function formatPrice(amount: number) {
   return new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD" }).format(amount);
+}
+
+export function kitPriceFor(singlePrice: number, explicitKitPrice?: number | null) {
+  if (explicitKitPrice != null && explicitKitPrice > 0) return explicitKitPrice;
+  return singlePrice * 10 * 0.8;
+}
+
+export function cartLineKey(slug: string, variantId?: string | null, pack: ProductPack = "single") {
+  return [slug, variantId || "base", pack].join("::");
+}
+
+export function getProductOption(
+  product: Product,
+  variantId?: string | null,
+  pack: ProductPack = "single",
+) {
+  const variant = (product.variants ?? []).find((v) => v.id === variantId) ?? null;
+  const singlePrice = variant ? variant.price : product.price;
+  const unitPrice = pack === "kit" ? kitPriceFor(singlePrice, variant?.kitPrice ?? product.kitPrice) : singlePrice;
+  const variantLabel = variant?.label ?? "Single vial";
+  return {
+    key: cartLineKey(product.slug, variant?.id ?? null, pack),
+    variantId: variant?.id ?? null,
+    variantLabel,
+    pack,
+    unitPrice,
+    label: pack === "kit" ? `${variantLabel} · 10x Kit` : variantLabel,
+  };
+}
+
+export function productBasePrice(product: Product) {
+  const variantPrices = (product.variants ?? []).map((v) => v.price).filter((price) => price > 0);
+  return variantPrices.length > 0 ? Math.min(...variantPrices) : product.price;
+}
+
+export function hasVariantPricing(product: Product) {
+  return (product.variants ?? []).length > 0;
 }
