@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode, RefObject } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlignCenter, AlignLeft, AlignRight, Bold, Italic, Trash2, Underline } from "lucide-react";
+import { AlignCenter, AlignLeft, AlignRight, ArrowDown, ArrowUp, Bold, GripVertical, Italic, Trash2, Underline } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,11 +17,14 @@ import {
   contentKeysForImages,
   HOME_FIELDS,
   HOME_IMAGE_SLOTS,
+  HOME_SECTIONS,
   RANGE_FIELDS,
   RANGE_IMAGE_SLOTS,
+  RANGE_SECTIONS,
   featuredSlugs,
   type HomeField,
   type PageImageSlot,
+  type PageSection,
   type TextAlign,
 } from "@/lib/homeContent";
 import { formatPrice } from "@/lib/products";
@@ -254,6 +257,70 @@ function PictureSlotEditor({
   );
 }
 
+function SectionOrderEditor({
+  sections,
+  order,
+  onChange,
+}: {
+  sections: PageSection[];
+  order: string[];
+  onChange: (order: string[]) => void;
+}) {
+  const [dragged, setDragged] = useState<string | null>(null);
+  const labels = new Map(sections.map((section) => [section.key, section.label]));
+  const move = (index: number, direction: -1 | 1) => {
+    const target = index + direction;
+    if (target < 0 || target >= order.length) return;
+    const next = [...order];
+    const current = next[index];
+    const replacement = next[target];
+    if (!current || !replacement) return;
+    next[index] = replacement;
+    next[target] = current;
+    onChange(next);
+  };
+
+  return (
+    <div className="mt-5 rounded-lg border border-border bg-background/40 p-4">
+      <h4 className="text-sm font-extrabold uppercase tracking-[0.15em] text-accent">Page layout</h4>
+      <p className="mt-1 text-sm text-muted-foreground">Drag sections into position, or use the arrow buttons.</p>
+      <div className="mt-3 space-y-2">
+        {order.map((key, index) => (
+          <div
+            key={key}
+            draggable
+            onDragStart={() => setDragged(key)}
+            onDragEnd={() => setDragged(null)}
+            onDragOver={(event) => event.preventDefault()}
+            onDrop={() => {
+              if (!dragged || dragged === key) return;
+              const next = order.filter((item) => item !== dragged);
+              next.splice(next.indexOf(key), 0, dragged);
+              onChange(next);
+              setDragged(null);
+            }}
+            className={cn(
+              "grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-md border border-border bg-card px-3 py-2",
+              dragged === key && "opacity-50",
+            )}
+          >
+            <GripVertical className="h-5 w-5 shrink-0 cursor-grab text-muted-foreground" />
+            <span className="min-w-0 truncate text-sm font-bold text-foreground">{labels.get(key) ?? key}</span>
+            <div className="flex shrink-0 gap-1">
+              <Button type="button" variant="ghost" size="icon" className="h-8 w-8" disabled={index === 0} aria-label={`Move ${labels.get(key)} up`} onClick={() => move(index, -1)}>
+                <ArrowUp className="h-4 w-4" />
+              </Button>
+              <Button type="button" variant="ghost" size="icon" className="h-8 w-8" disabled={index === order.length - 1} aria-label={`Move ${labels.get(key)} down`} onClick={() => move(index, 1)}>
+                <ArrowDown className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function AdminEdits() {
   const queryClient = useQueryClient();
   const { data } = useQuery({ queryKey: ["site-content"], queryFn: () => getSiteContent() });
@@ -266,6 +333,8 @@ export function AdminEdits() {
   const [featured, setFeatured] = useState<string[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [draft, setDraft] = useState<Draft | null>(null);
+  const [homeOrder, setHomeOrder] = useState(HOME_SECTIONS.map((section) => section.key));
+  const [rangeOrder, setRangeOrder] = useState(RANGE_SECTIONS.map((section) => section.key));
 
   useEffect(() => {
     if (data && !loaded) {
@@ -283,19 +352,23 @@ export function AdminEdits() {
       }
       setValues(next);
       setFeatured(featuredSlugs(data));
+      const savedHomeOrder = (data.home_layout_order ?? "").split(",").filter(Boolean);
+      setHomeOrder([...savedHomeOrder.filter((key) => HOME_SECTIONS.some((section) => section.key === key)), ...HOME_SECTIONS.map((section) => section.key).filter((key) => !savedHomeOrder.includes(key))]);
+      const savedRangeOrder = (data.range_layout_order ?? "").split(",").filter(Boolean);
+      setRangeOrder([...savedRangeOrder.filter((key) => RANGE_SECTIONS.some((section) => section.key === key)), ...RANGE_SECTIONS.map((section) => section.key).filter((key) => !savedRangeOrder.includes(key))]);
       setLoaded(true);
     }
   }, [data, loaded]);
 
   const setValue = (key: string, value: string) => setValues((current) => ({ ...current, [key]: value }));
 
-  const saveContentGroup = async (fields: HomeField[], imageSlots: PageImageSlot[]) => {
+  const saveContentGroup = async (fields: HomeField[], imageSlots: PageImageSlot[], layoutKey: string, order: string[]) => {
     const keys = [
       ...fields.flatMap((f) => [f.key, `${f.key}_align`]),
-      ...contentKeysForImages(imageSlots),
+      ...contentKeysForImages(imageSlots), layoutKey,
     ];
     await Promise.all(
-      keys.map((key) => adminSaveContent({ data: { key, body: values[key] ?? "" } })),
+      keys.map((key) => adminSaveContent({ data: { key, body: key === layoutKey ? order.join(",") : values[key] ?? "" } })),
     );
   };
 
@@ -308,7 +381,7 @@ export function AdminEdits() {
   };
 
   const saveHome = useMutation({
-    mutationFn: () => saveContentGroup(HOME_FIELDS, HOME_IMAGE_SLOTS),
+    mutationFn: () => saveContentGroup(HOME_FIELDS, HOME_IMAGE_SLOTS, "home_layout_order", homeOrder),
     onSuccess: () => {
       toast.success("Home page updated");
       refreshContent();
@@ -317,7 +390,7 @@ export function AdminEdits() {
   });
 
   const saveRange = useMutation({
-    mutationFn: () => saveContentGroup(RANGE_FIELDS, RANGE_IMAGE_SLOTS),
+    mutationFn: () => saveContentGroup(RANGE_FIELDS, RANGE_IMAGE_SLOTS, "range_layout_order", rangeOrder),
     onSuccess: () => {
       toast.success("View the Range page updated");
       refreshContent();
@@ -539,6 +612,8 @@ export function AdminEdits() {
               ))}
             </div>
 
+            <SectionOrderEditor sections={HOME_SECTIONS} order={homeOrder} onChange={setHomeOrder} />
+
             <div className="mt-6">
               <h4 className="text-sm font-extrabold uppercase tracking-[0.15em] text-accent">
                 Home picture boxes
@@ -594,6 +669,8 @@ export function AdminEdits() {
                 />
               ))}
             </div>
+
+            <SectionOrderEditor sections={RANGE_SECTIONS} order={rangeOrder} onChange={setRangeOrder} />
 
             <div className="mt-6">
               <h4 className="text-sm font-extrabold uppercase tracking-[0.15em] text-accent">
