@@ -10,6 +10,7 @@ import {
   cartLineKey,
   formatPrice,
   getProductOption,
+  getReconFor,
   kitPriceFor,
   type ProductPack,
 } from "@/lib/products";
@@ -79,6 +80,7 @@ function ProductPage() {
     setSynced({ key: selectedKey, carted });
   }
 
+  const recon = useMemo(() => getReconFor(product, variantId), [product, variantId]);
   const singleOption = getProductOption(product, variantId, "single");
   const kitOption = getProductOption(product, variantId, "kit");
   const total = selected.unitPrice * qty;
@@ -100,16 +102,19 @@ function ProductPage() {
               className="w-full rounded-xl border border-border object-cover"
             />
             <div>
-              {product.reconNotes ? (
+              {recon.notes ? (
                 <p className="mb-3 whitespace-pre-wrap text-sm text-muted-foreground">
-                  {product.reconNotes}
+                  {recon.notes}
                 </p>
               ) : null}
               <ReconstitutionCalculator
-                title={`Recommended Reconstitution for ${product.name}`}
-                vialMg={product.reconVialMg ?? null}
-                waterMl={product.reconWaterMl ?? null}
-                doseMcg={product.reconDoseMcg ?? null}
+                key={selected.variantId ?? "base"}
+                title={`Recommended Reconstitution for ${product.name}${
+                  selected.variantId ? ` · ${selected.variantLabel}` : ""
+                }`}
+                vialMg={recon.vialMg}
+                waterMl={recon.waterMl}
+                doseMcg={recon.doseMcg}
               />
             </div>
           </div>

@@ -23,6 +23,10 @@ export type DraftVariant = {
   label: string;
   price: string;
   kitPrice: string;
+  reconVialMg: string;
+  reconWaterMl: string;
+  reconDoseMcg: string;
+  reconNotes: string;
 };
 
 export type Draft = {
@@ -103,6 +107,10 @@ export function toDraft(p: AdminProduct): Draft {
       label: v.label,
       price: String(v.price),
       kitPrice: v.kitPrice == null ? "" : String(v.kitPrice),
+      reconVialMg: v.reconVialMg == null ? "" : String(v.reconVialMg),
+      reconWaterMl: v.reconWaterMl == null ? "" : String(v.reconWaterMl),
+      reconDoseMcg: v.reconDoseMcg == null ? "" : String(v.reconDoseMcg),
+      reconNotes: v.reconNotes ?? "",
     })),
     image_url: p.image_url,
     alt: p.alt,
@@ -137,6 +145,10 @@ export function draftToPayload(d: Draft) {
         label: v.label.trim(),
         price: Number(v.price) || 0,
         kitPrice: num(v.kitPrice),
+        reconVialMg: num(v.reconVialMg),
+        reconWaterMl: num(v.reconWaterMl),
+        reconDoseMcg: num(v.reconDoseMcg),
+        reconNotes: v.reconNotes,
       }))
       .filter((v) => v.label && v.price > 0),
     image_url: d.image_url,
@@ -209,9 +221,26 @@ export function ProductEditor({
 
   return (
     <div className="space-y-5 rounded-xl border border-border bg-card/80 p-6">
-      <h3 className="text-lg font-extrabold uppercase text-foreground">
-        {title ?? (draft.id ? "Edit product" : "New product")}
-      </h3>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h3 className="text-lg font-extrabold uppercase text-foreground">
+          {title ?? (draft.id ? "Edit product" : "New product")}
+        </h3>
+        <div className="flex gap-3">
+          <Button
+            className="font-bold uppercase"
+            disabled={saving || uploading || !draft.name.trim()}
+            onClick={onSave}
+          >
+            {uploading ? "Uploading" : "Save product"}
+          </Button>
+          {onCancel ? (
+            <Button variant="outline" className="font-bold uppercase" onClick={onCancel}>
+              Cancel
+            </Button>
+          ) : null}
+        </div>
+      </div>
+
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
@@ -338,7 +367,16 @@ export function ProductEditor({
               set({
                 variants: [
                   ...draft.variants,
-                  { id: crypto.randomUUID(), label: "", price: "", kitPrice: "" },
+                  {
+                    id: crypto.randomUUID(),
+                    label: "",
+                    price: "",
+                    kitPrice: "",
+                    reconVialMg: "",
+                    reconWaterMl: "",
+                    reconDoseMcg: "",
+                    reconNotes: "",
+                  },
                 ],
               })
             }
@@ -353,42 +391,72 @@ export function ProductEditor({
         ) : (
           <div className="space-y-2">
             {draft.variants.map((variant, i) => (
-              <div key={variant.id} className="grid gap-2 md:grid-cols-[1.3fr_1fr_1fr_auto]">
-                <Input
-                  value={variant.label}
-                  placeholder="5mg, 10mg, 20mg…"
-                  aria-label="Vial size"
-                  onChange={(e) =>
+              <div
+                key={variant.id}
+                className="space-y-3 rounded-lg border border-border bg-card/60 p-3"
+              >
+                <div className="grid gap-2 md:grid-cols-[1.3fr_1fr_1fr_auto]">
+                  <Input
+                    value={variant.label}
+                    placeholder="5mg, 10mg, 20mg…"
+                    aria-label="Vial size"
+                    onChange={(e) =>
+                      setVariant(i, {
+                        label: e.target.value,
+                        id: variant.id || safeVariantId(e.target.value),
+                      })
+                    }
+                  />
+                  <Input
+                    type="number"
+                    min={0}
+                    value={variant.price}
+                    placeholder="Single price"
+                    aria-label="Single vial price"
+                    onChange={(e) => setVariant(i, { price: e.target.value })}
+                  />
+                  <Input
+                    type="number"
+                    min={0}
+                    value={variant.kitPrice}
+                    placeholder={variant.price ? formatPrice(kitPriceFor(Number(variant.price) || 0)) : "Kit price"}
+                    aria-label="10x Kit price"
+                    onChange={(e) => setVariant(i, { kitPrice: e.target.value })}
+                  />
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    aria-label="Remove size"
+                    onClick={() => set({ variants: draft.variants.filter((_, idx) => idx !== i) })}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Recommended Reconstitution for {variant.label || "this size"} — customers see these
+                  numbers as soon as they pick this size. Leave blank to use the product defaults below.
+                </p>
+                <ReconstitutionCalculator
+                  key={`${variant.id}-recon`}
+                  title={`Recommended Reconstitution — ${variant.label || "this size"}`}
+                  vialMg={variant.reconVialMg ? Number(variant.reconVialMg) : null}
+                  waterMl={variant.reconWaterMl ? Number(variant.reconWaterMl) : null}
+                  doseMcg={variant.reconDoseMcg ? Number(variant.reconDoseMcg) : null}
+                  onChange={(v) =>
                     setVariant(i, {
-                      label: e.target.value,
-                      id: variant.id || safeVariantId(e.target.value),
+                      reconVialMg: v.vialMg,
+                      reconWaterMl: v.waterMl,
+                      reconDoseMcg: v.doseMcg,
                     })
                   }
                 />
-                <Input
-                  type="number"
-                  min={0}
-                  value={variant.price}
-                  placeholder="Single price"
-                  aria-label="Single vial price"
-                  onChange={(e) => setVariant(i, { price: e.target.value })}
+                <Textarea
+                  rows={3}
+                  value={variant.reconNotes}
+                  placeholder="Mixing notes shown for this size…"
+                  aria-label="Reconstitution notes for this size"
+                  onChange={(e) => setVariant(i, { reconNotes: e.target.value })}
                 />
-                <Input
-                  type="number"
-                  min={0}
-                  value={variant.kitPrice}
-                  placeholder={variant.price ? formatPrice(kitPriceFor(Number(variant.price) || 0)) : "Kit price"}
-                  aria-label="10x Kit price"
-                  onChange={(e) => setVariant(i, { kitPrice: e.target.value })}
-                />
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  aria-label="Remove size"
-                  onClick={() => set({ variants: draft.variants.filter((_, idx) => idx !== i) })}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
               </div>
             ))}
           </div>

@@ -270,6 +270,10 @@ export type AdminProductVariant = {
   label: string;
   price: number;
   kitPrice?: number | null;
+  reconVialMg?: number | null;
+  reconWaterMl?: number | null;
+  reconDoseMcg?: number | null;
+  reconNotes?: string;
 };
 
 export type AdminProduct = {
@@ -331,15 +335,22 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
           ? null
           : Number(data.kit_price),
       product_variants: (data.product_variants ?? [])
-        .map((v) => ({
-          id: String(v.id || crypto.randomUUID()),
-          label: String(v.label ?? "").trim(),
-          price: Number(v.price ?? 0),
-          kitPrice:
-            v.kitPrice === null || v.kitPrice === undefined || Number.isNaN(Number(v.kitPrice))
+        .map((v) => {
+          const optNum = (value: unknown) =>
+            value === null || value === undefined || value === "" || Number.isNaN(Number(value))
               ? null
-              : Number(v.kitPrice),
-        }))
+              : Number(value);
+          return {
+            id: String(v.id || crypto.randomUUID()),
+            label: String(v.label ?? "").trim(),
+            price: Number(v.price ?? 0),
+            kitPrice: optNum(v.kitPrice),
+            reconVialMg: optNum(v.reconVialMg),
+            reconWaterMl: optNum(v.reconWaterMl),
+            reconDoseMcg: optNum(v.reconDoseMcg),
+            reconNotes: String(v.reconNotes ?? ""),
+          };
+        })
         .filter((v) => v.label && v.price > 0),
       recon_vial_mg: data.recon_vial_mg ?? null,
       recon_water_ml: data.recon_water_ml ?? null,
