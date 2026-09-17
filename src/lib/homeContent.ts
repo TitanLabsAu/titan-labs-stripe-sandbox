@@ -135,6 +135,11 @@ export function fieldAlign(
   return normaliseAlign(content?.[`${field.key}_align`], fallback);
 }
 
+export function contentAlign(content: Record<string, string> | undefined, key: string) {
+  const field = [...HOME_FIELDS, ...RANGE_FIELDS].find((f) => f.key === key);
+  return normaliseAlign(content?.[`${key}_align`], field?.align ?? "center");
+}
+
 export function imageAlign(content: Record<string, string> | undefined, key: string) {
   return normaliseAlign(content?.[`${key}_align`], "center");
 }
