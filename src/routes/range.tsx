@@ -32,10 +32,24 @@ function RangePage() {
   const { products } = useProducts();
   const { data: content } = useSiteContent();
   const [category, setCategory] = useState<string>("All");
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState("name-asc");
 
-  const sorted = [...products].sort((a, b) => a.name.localeCompare(b.name));
-  const visible =
-    category === "All" ? sorted : sorted.filter((p) => (p.categories ?? []).includes(category));
+  const term = search.trim().toLowerCase();
+  const matched = products.filter((p) => {
+    const inCategory = category === "All" || (p.categories ?? []).includes(category);
+    if (!inCategory) return false;
+    if (!term) return true;
+    return [p.name, p.blurb, p.description ?? "", ...(p.categories ?? [])]
+      .join(" ")
+      .toLowerCase()
+      .includes(term);
+  });
+  const visible = [...matched].sort((a, b) => {
+    if (sort === "price-asc") return a.price - b.price;
+    if (sort === "price-desc") return b.price - a.price;
+    return a.name.localeCompare(b.name);
+  });
 
   return (
     <div className="bg-hero min-h-screen">
