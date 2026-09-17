@@ -396,14 +396,14 @@ export function ProductEditor({
       </div>
 
       <div className="space-y-3">
-        <Label>Reconstitution for this product</Label>
+        <Label>Recommended Reconstitution</Label>
         <p className="text-xs text-muted-foreground">
           Set the numbers you recommend for this product. Customers see the calculator on the
           product page already filled in with these.
         </p>
         <ReconstitutionCalculator
           key={draft.id ?? "new"}
-          title="Recommended mix for this product"
+          title="Recommended Reconstitution for this product"
           vialMg={draft.recon_vial_mg ? Number(draft.recon_vial_mg) : null}
           waterMl={draft.recon_water_ml ? Number(draft.recon_water_ml) : null}
           doseMcg={draft.recon_dose_mcg ? Number(draft.recon_dose_mcg) : null}
@@ -416,7 +416,7 @@ export function ProductEditor({
           }
         />
         <div>
-          <Label>Reconstitution notes for this product</Label>
+          <Label>Recommended Reconstitution notes</Label>
           <Textarea
             rows={4}
             className="mt-2"
@@ -520,6 +520,9 @@ export function ProductEditor({
 export function AdminProducts() {
   const queryClient = useQueryClient();
   const [draft, setDraft] = useState<Draft | null>(null);
+  const [category, setCategory] = useState("All");
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState("name-asc");
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-products"],
@@ -562,6 +565,32 @@ export function AdminProducts() {
     );
   }
 
+  const term = search.trim().toLowerCase();
+  const visibleProducts = (data ?? [])
+    .filter((product) => {
+      const inCategory = category === "All" || (product.categories ?? []).includes(category);
+      if (!inCategory) return false;
+      if (!term) return true;
+      return [product.name, product.description, ...(product.categories ?? [])]
+        .join(" ")
+        .toLowerCase()
+        .includes(term);
+    })
+    .sort((a, b) => {
+      const basePrice = (product: AdminProduct) => {
+        const variantPrices = (product.product_variants ?? [])
+          .map((variant) => Number(variant.price))
+          .filter((price) => price > 0);
+        if (variantPrices.length > 0) return Math.min(...variantPrices);
+        return product.sale_price != null && Number(product.sale_price) > 0
+          ? Number(product.sale_price)
+          : Number(product.price);
+      };
+      if (sort === "price-asc") return basePrice(a) - basePrice(b);
+      if (sort === "price-desc") return basePrice(b) - basePrice(a);
+      return a.name.localeCompare(b.name);
+    });
+
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
@@ -570,10 +599,49 @@ export function AdminProducts() {
         </Button>
       </div>
 
+      <div className="flex flex-wrap gap-2">
+        {["All", ...CATEGORIES].map((item) => (
+          <Button
+            key={item}
+            type="button"
+            variant={category === item ? "default" : "outline"}
+            className="rounded-full px-5 text-xs font-bold uppercase tracking-[0.15em]"
+            onClick={() => setCategory(item)}
+          >
+            {item}
+          </Button>
+        ))}
+      </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <Input
+          type="search"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Search products…"
+          aria-label="Search products"
+          className="sm:flex-1"
+        />
+        <select
+          value={sort}
+          onChange={(event) => setSort(event.target.value)}
+          aria-label="Sort products"
+          className="h-10 rounded-md border border-input bg-background px-3 text-sm text-foreground sm:w-56"
+        >
+          <option value="name-asc">Name: A to Z</option>
+          <option value="price-asc">Price: low to high</option>
+          <option value="price-desc">Price: high to low</option>
+        </select>
+      </div>
+
       {isLoading ? (
         <p className="text-sm text-muted-foreground">Loading products…</p>
+      ) : visibleProducts.length === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          No products match your search — try another word or category.
+        </p>
       ) : (
-        (data ?? []).map((p) => (
+        visibleProducts.map((p) => (
           <article
             key={p.id}
             className="flex flex-wrap items-start justify-between gap-4 rounded-xl border border-border bg-card/80 p-5"
