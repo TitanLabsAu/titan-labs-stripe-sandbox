@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -67,6 +68,11 @@ function RangePage() {
         <h1 className="text-center text-4xl font-extrabold uppercase tracking-tight text-foreground">
           {homeValue(content, "home_range_title")}
         </h1>
+        {homeValue(content, "range_intro") ? (
+          <p className="mx-auto mt-4 max-w-3xl whitespace-pre-line text-center text-base text-muted-foreground sm:text-lg">
+            {homeValue(content, "range_intro")}
+          </p>
+        ) : null}
 
         <div className="mt-8 flex flex-wrap justify-center gap-2">
           {["All", ...CATEGORIES].map((c) => (
@@ -101,6 +107,13 @@ function RangePage() {
             <option value="price-asc">Price: low to high</option>
             <option value="price-desc">Price: high to low</option>
           </select>
+        </div>
+
+        <div className="mx-auto mt-8 flex max-w-4xl gap-4 rounded-xl border border-accent/40 bg-card/70 p-5 text-left shadow-gold">
+          <ShieldCheck className="mt-0.5 h-6 w-6 shrink-0 text-accent" />
+          <p className="whitespace-pre-line text-sm leading-6 text-muted-foreground">
+            {homeValue(content, "range_disclaimer")}
+          </p>
         </div>
 
         {visible.length === 0 ? (
