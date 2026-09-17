@@ -69,10 +69,17 @@ function RangePage() {
           {homeValue(content, "home_range_title")}
         </h1>
         {homeValue(content, "range_intro") ? (
-          <p className="mx-auto mt-4 max-w-3xl whitespace-pre-line text-center text-base text-muted-foreground sm:text-lg">
+          <p className="mx-auto mt-4 max-w-3xl whitespace-pre-wrap text-center text-base text-muted-foreground sm:text-lg">
             {homeValue(content, "range_intro")}
           </p>
         ) : null}
+
+        <div className="mx-auto mt-6 flex max-w-4xl gap-4 rounded-xl border border-accent/40 bg-card/70 p-5 text-left shadow-gold">
+          <ShieldCheck className="mt-0.5 h-6 w-6 shrink-0 text-accent" />
+          <p className="whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
+            {homeValue(content, "range_disclaimer")}
+          </p>
+        </div>
 
         <div className="mt-8 flex flex-wrap justify-center gap-2">
           {["All", ...CATEGORIES].map((c) => (
@@ -109,13 +116,6 @@ function RangePage() {
           </select>
         </div>
 
-        <div className="mx-auto mt-8 flex max-w-4xl gap-4 rounded-xl border border-accent/40 bg-card/70 p-5 text-left shadow-gold">
-          <ShieldCheck className="mt-0.5 h-6 w-6 shrink-0 text-accent" />
-          <p className="whitespace-pre-line text-sm leading-6 text-muted-foreground">
-            {homeValue(content, "range_disclaimer")}
-          </p>
-        </div>
-
         {visible.length === 0 ? (
           <p className="mt-10 text-center text-sm text-muted-foreground">
             No products match your search — try another word or category.
@@ -128,7 +128,7 @@ function RangePage() {
           </div>
         )}
 
-        <p className="mt-8 text-center text-sm text-muted-foreground">
+        <p className="mt-8 whitespace-pre-wrap text-center text-sm text-muted-foreground">
           {homeValue(content, "home_range_note")}
         </p>
       </main>

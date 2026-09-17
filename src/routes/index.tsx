@@ -53,7 +53,7 @@ function Index() {
         <h1 className="text-steel mt-5 text-5xl font-extrabold uppercase leading-[0.95] tracking-tight sm:text-7xl">
           {homeValue(content, "home_headline")}
         </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-base text-muted-foreground sm:text-lg">
+        <p className="mx-auto mt-6 max-w-2xl whitespace-pre-wrap text-base text-muted-foreground sm:text-lg">
           {homeValue(content, "home_subtext")}
         </p>
         <p className="mx-auto mt-8 inline-block rounded-full border border-accent bg-accent/10 px-6 py-2 text-sm font-extrabold uppercase tracking-[0.15em] text-accent">
@@ -71,7 +71,7 @@ function Index() {
           <h2 className="text-center text-3xl font-extrabold uppercase tracking-tight text-foreground">
             {homeValue(content, "home_featured_title")}
           </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-center text-sm text-muted-foreground">
+          <p className="mx-auto mt-3 max-w-2xl whitespace-pre-wrap text-center text-sm text-muted-foreground">
             {homeValue(content, "home_featured_note")}
           </p>
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -89,7 +89,7 @@ function Index() {
               <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-accent">
                 {p.title}
               </h3>
-              <p className="mt-3 text-sm text-muted-foreground">{p.body}</p>
+              <p className="mt-3 whitespace-pre-wrap text-sm text-muted-foreground">{p.body}</p>
             </div>
           ))}
         </div>
@@ -100,7 +100,7 @@ function Index() {
           <h2 className="text-steel text-4xl font-extrabold uppercase tracking-tight">
             {homeValue(content, "home_cta_title")}
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
+          <p className="mx-auto mt-4 max-w-xl whitespace-pre-wrap text-muted-foreground">
             {homeValue(content, "home_cta_body")}
           </p>
           <Button asChild size="lg" className="mt-8 font-bold uppercase tracking-wide">
