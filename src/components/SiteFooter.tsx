@@ -1,5 +1,7 @@
 import { useSiteContent, useSiteLinks } from "@/lib/useCatalog";
-import { homeValue } from "@/lib/homeContent";
+import { RichText } from "@/components/RichText";
+import { contentAlign, homeValue, TEXT_ALIGN_CLASS } from "@/lib/homeContent";
+import { cn } from "@/lib/utils";
 
 export function SiteFooter() {
   const { data: siteLinks } = useSiteLinks();
@@ -22,7 +24,9 @@ export function SiteFooter() {
           ))}
         </p>
       ) : null}
-      <p className="whitespace-pre-wrap">{homeValue(content, "home_footer_text")}</p>
+      <p className={cn("whitespace-pre-wrap", TEXT_ALIGN_CLASS[contentAlign(content, "home_footer_text")])}>
+        <RichText text={homeValue(content, "home_footer_text")} />
+      </p>
       <p className="mt-2">Research use only. Not for human consumption.</p>
     </footer>
   );

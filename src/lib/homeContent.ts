@@ -178,6 +178,6 @@ export function featuredSlugs(content: Record<string, string> | undefined) {
 
 export function homeValue(content: Record<string, string> | undefined, key: string) {
   const field = [...HOME_FIELDS, ...RANGE_FIELDS].find((f) => f.key === key);
-  const value = content?.[key]?.trim();
-  return value || field?.fallback || "";
+  const value = content?.[key];
+  return value && value.trim() ? value : field?.fallback || "";
 }
