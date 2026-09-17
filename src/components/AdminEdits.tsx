@@ -352,9 +352,9 @@ export function AdminEdits() {
       }
       setValues(next);
       setFeatured(featuredSlugs(data));
-      const savedHomeOrder = (data.home_layout_order ?? "").split(",").filter(Boolean);
+      const savedHomeOrder = (data["home_layout_order"] ?? "").split(",").filter(Boolean);
       setHomeOrder([...savedHomeOrder.filter((key) => HOME_SECTIONS.some((section) => section.key === key)), ...HOME_SECTIONS.map((section) => section.key).filter((key) => !savedHomeOrder.includes(key))]);
-      const savedRangeOrder = (data.range_layout_order ?? "").split(",").filter(Boolean);
+      const savedRangeOrder = (data["range_layout_order"] ?? "").split(",").filter(Boolean);
       setRangeOrder([...savedRangeOrder.filter((key) => RANGE_SECTIONS.some((section) => section.key === key)), ...RANGE_SECTIONS.map((section) => section.key).filter((key) => !savedRangeOrder.includes(key))]);
       setLoaded(true);
     }
