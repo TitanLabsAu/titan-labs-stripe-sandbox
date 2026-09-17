@@ -6,10 +6,19 @@ import { Input } from "@/components/ui/input";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ProductCard } from "@/components/ProductCard";
+import { PageImageBoxes } from "@/components/PageImageBoxes";
+import { RichText } from "@/components/RichText";
 import { useProducts, useSiteContent } from "@/lib/useCatalog";
 import { CATEGORIES } from "@/lib/categories";
-import { homeValue } from "@/lib/homeContent";
+import {
+  contentAlign,
+  RANGE_IMAGE_SLOTS,
+  homeValue,
+  pageImageSlots,
+  TEXT_ALIGN_CLASS,
+} from "@/lib/homeContent";
 import { productBasePrice } from "@/lib/products";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/range")({
   head: () => ({
@@ -39,6 +48,7 @@ function RangePage() {
   const [category, setCategory] = useState<string>("All");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("name-asc");
+  const pictures = pageImageSlots(content, RANGE_IMAGE_SLOTS);
 
   useEffect(() => setMounted(true), []);
 
@@ -65,21 +75,27 @@ function RangePage() {
       <SiteHeader />
 
       <main id="range" className="mx-auto max-w-6xl px-4 pb-20 pt-6">
-        <h1 className="text-center text-4xl font-extrabold uppercase tracking-tight text-foreground">
-          {homeValue(content, "home_range_title")}
+        <h1 className={cn("text-4xl font-extrabold uppercase tracking-tight text-foreground", TEXT_ALIGN_CLASS[contentAlign(content, "home_range_title")])}>
+          <RichText text={homeValue(content, "home_range_title")} />
         </h1>
         {homeValue(content, "range_intro") ? (
-          <p className="mx-auto mt-4 max-w-3xl whitespace-pre-wrap text-center text-base text-muted-foreground sm:text-lg">
-            {homeValue(content, "range_intro")}
+          <p className={cn("mx-auto mt-4 max-w-3xl whitespace-pre-wrap text-base text-muted-foreground sm:text-lg", TEXT_ALIGN_CLASS[contentAlign(content, "range_intro")])}>
+            <RichText text={homeValue(content, "range_intro")} />
           </p>
         ) : null}
 
-        <div className="mx-auto mt-6 flex max-w-4xl gap-4 rounded-xl border border-accent/40 bg-card/70 p-5 text-left shadow-gold">
+        <div className="mx-auto mt-6 flex max-w-4xl gap-4 rounded-xl border border-accent/40 bg-card/70 p-5 shadow-gold">
           <ShieldCheck className="mt-0.5 h-6 w-6 shrink-0 text-accent" />
-          <p className="whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
-            {homeValue(content, "range_disclaimer")}
+          <p className={cn("whitespace-pre-wrap text-sm leading-6 text-muted-foreground", TEXT_ALIGN_CLASS[contentAlign(content, "range_disclaimer")])}>
+            <RichText text={homeValue(content, "range_disclaimer")} />
           </p>
         </div>
+
+        {pictures.length > 0 ? (
+          <div className="mt-8">
+            <PageImageBoxes images={pictures} />
+          </div>
+        ) : null}
 
         <div className="mt-8 flex flex-wrap justify-center gap-2">
           {["All", ...CATEGORIES].map((c) => (
@@ -128,8 +144,8 @@ function RangePage() {
           </div>
         )}
 
-        <p className="mt-8 whitespace-pre-wrap text-center text-sm text-muted-foreground">
-          {homeValue(content, "home_range_note")}
+        <p className={cn("mt-8 whitespace-pre-wrap text-sm text-muted-foreground", TEXT_ALIGN_CLASS[contentAlign(content, "home_range_note")])}>
+          <RichText text={homeValue(content, "home_range_note")} />
         </p>
       </main>
 
