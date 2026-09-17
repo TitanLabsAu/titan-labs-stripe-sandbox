@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import type { ReactNode, RefObject } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlignCenter, AlignLeft, AlignRight, Bold, Italic, Trash2, Underline, Upload } from "lucide-react";
+import { AlignCenter, AlignLeft, AlignRight, Bold, Italic, Trash2, Underline } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -73,10 +74,10 @@ function TextFormatButton({
 }: {
   label: string;
   marker: "**" | "*" | "__";
-  textarea: React.RefObject<HTMLTextAreaElement | null>;
+  textarea: RefObject<HTMLTextAreaElement | null>;
   value: string;
   onChange: (value: string) => void;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <Button
