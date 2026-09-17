@@ -77,9 +77,30 @@ function RangePage() {
           ))}
         </div>
 
+        <div className="mx-auto mt-6 flex max-w-3xl flex-col gap-3 sm:flex-row">
+          <Input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search products…"
+            aria-label="Search products"
+            className="sm:flex-1"
+          />
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+            aria-label="Sort products"
+            className="h-10 rounded-md border border-input bg-background px-3 text-sm text-foreground sm:w-56"
+          >
+            <option value="name-asc">Name: A to Z</option>
+            <option value="price-asc">Price: low to high</option>
+            <option value="price-desc">Price: high to low</option>
+          </select>
+        </div>
+
         {visible.length === 0 ? (
           <p className="mt-10 text-center text-sm text-muted-foreground">
-            Nothing in this category yet — try another.
+            No products match your search — try another word or category.
           </p>
         ) : (
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
