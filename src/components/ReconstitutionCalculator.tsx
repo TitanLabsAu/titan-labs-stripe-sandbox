@@ -37,7 +37,7 @@ export function ReconstitutionCalculator({ title, vialMg, waterMl, doseMcg, onCh
   return (
     <div className="rounded-xl border border-border bg-card/80 p-6">
       <h3 className="text-lg font-extrabold uppercase text-foreground">
-        {title ?? "Reconstitution calculator"}
+        {title ?? "Recommended Reconstitution"}
       </h3>
       <div className="mt-4 grid gap-4 sm:grid-cols-3">
         <div>

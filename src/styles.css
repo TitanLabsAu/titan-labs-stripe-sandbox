@@ -148,3 +148,13 @@
     color: var(--color-foreground);
   }
 }
+
+@utility quantity-input {
+  appearance: textfield;
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    margin: 0;
+    appearance: none;
+  }
+}

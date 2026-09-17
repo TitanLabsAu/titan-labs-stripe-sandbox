@@ -106,7 +106,7 @@ function ProductPage() {
                 </p>
               ) : null}
               <ReconstitutionCalculator
-                title={`Reconstitution for ${product.name}`}
+                title={`Recommended Reconstitution for ${product.name}`}
                 vialMg={product.reconVialMg ?? null}
                 waterMl={product.reconWaterMl ?? null}
                 doseMcg={product.reconDoseMcg ?? null}
@@ -133,14 +133,6 @@ function ProductPage() {
                 </span>
               ) : null}
             </p>
-
-            <div className="mt-5 flex gap-3 rounded-xl border border-accent/60 bg-card/70 p-4">
-              <ShieldCheck className="mt-0.5 h-6 w-6 shrink-0 text-accent" />
-              <p className="text-sm font-bold uppercase leading-6 tracking-wide text-foreground">
-                Delivered Australia wide or your money back. Every order is covered by our 100%
-                delivery guarantee.
-              </p>
-            </div>
 
             <div className="mt-6 rounded-xl border border-border bg-card/70 p-5">
               {variants.length > 0 ? (
@@ -202,7 +194,7 @@ function ProductPage() {
                   max={99}
                   value={qty}
                   onChange={(e) => setQty(Math.min(99, Math.max(1, Number(e.target.value) || 1)))}
-                  className="h-10 w-20 rounded-md border border-input bg-background text-center text-lg font-bold text-foreground"
+                  className="quantity-input h-10 w-20 rounded-md border border-input bg-background text-center text-lg font-bold text-foreground"
                   aria-label="Quantity"
                 />
                 <Button
@@ -235,6 +227,14 @@ function ProductPage() {
               >
                 Add to cart
               </Button>
+            </div>
+
+            <div className="mt-5 flex gap-3 rounded-xl border border-accent/60 bg-card/70 p-4">
+              <ShieldCheck className="mt-0.5 h-6 w-6 shrink-0 text-accent" />
+              <p className="text-sm font-bold uppercase leading-6 tracking-wide text-foreground">
+                Delivered Australia wide or your money back. Every order is covered by our 100%
+                delivery guarantee.
+              </p>
             </div>
 
             {product.description ? (

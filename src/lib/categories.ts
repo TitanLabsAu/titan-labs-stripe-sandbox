@@ -1,5 +1,5 @@
 export const CATEGORIES = [
-  "Recover",
+  "Recovery",
   "Metabolic",
   "Regenerative",
   "Cognitive",
