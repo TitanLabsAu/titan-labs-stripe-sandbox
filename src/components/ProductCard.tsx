@@ -11,32 +11,32 @@ export function ProductCard({ product: p }: { product: Product }) {
       className="block overflow-hidden rounded-xl border border-border bg-card/70 transition-transform hover:-translate-y-1"
     >
       <div className="relative">
-        <img src={p.image} alt={p.alt} loading="lazy" className="aspect-[4/3] w-full object-cover" />
+        <img src={p.image} alt={p.alt} loading="lazy" className="aspect-square w-full object-cover" />
         {p.promoLabel ? (
-          <span className="absolute left-3 top-3 rounded-full bg-accent px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent-foreground">
+          <span className="absolute left-1.5 top-1.5 rounded-full bg-accent px-2 py-0.5 text-[8px] font-extrabold uppercase tracking-[0.15em] text-accent-foreground sm:left-2 sm:top-2 sm:text-[9px]">
             {p.promoLabel}
           </span>
         ) : null}
       </div>
-      <div className="flex items-center justify-between gap-3 p-5">
-        <h3 className="text-lg font-bold uppercase tracking-tight text-foreground">{p.name}</h3>
-        <span className="text-right">
+      <div className="flex items-center justify-between gap-2 p-2 sm:p-3">
+        <h3 className="min-w-0 text-[11px] font-bold uppercase leading-tight tracking-tight text-foreground sm:text-xs">{p.name}</h3>
+        <span className="shrink-0 text-right">
           {p.wasPrice ? (
-            <span className="mr-2 text-sm text-muted-foreground line-through">
+            <span className="mr-1 text-[10px] text-muted-foreground line-through sm:text-xs">
               {formatPrice(p.wasPrice)}
             </span>
           ) : null}
-          <span className="text-lg font-extrabold text-accent">
+          <span className="text-xs font-extrabold text-accent sm:text-sm">
             {hasSizes ? `From ${formatPrice(fromPrice)}` : formatPrice(p.price)}
           </span>
         </span>
       </div>
       {(p.categories ?? []).length > 0 ? (
-        <p className="px-5 pb-2 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+        <p className="px-2 pb-1 text-[8px] uppercase tracking-[0.15em] text-muted-foreground sm:px-3 sm:text-[9px]">
           {(p.categories ?? []).join(" · ")}
         </p>
       ) : null}
-      <p className="px-5 pb-5 text-xs uppercase tracking-[0.2em] text-accent">View &amp; buy →</p>
+      <p className="px-2 pb-2 text-[9px] uppercase tracking-[0.15em] text-accent sm:px-3 sm:pb-3 sm:text-[10px]">View &amp; buy →</p>
     </Link>
   );
 }

@@ -78,7 +78,7 @@ function RangePage() {
     <div className="bg-hero min-h-screen">
       <SiteHeader />
 
-      <main id="range" className="mx-auto max-w-6xl px-4 pb-20 pt-6">
+      <main id="range" className="mx-auto max-w-7xl px-2 pb-20 pt-6 sm:px-4">
         {sectionOrder.map((section) => {
           if (section === "title") return <section key={section} className="pb-4"><h1 className={cn("text-4xl font-extrabold uppercase tracking-tight text-foreground", TEXT_ALIGN_CLASS[contentAlign(content, "home_range_title")])}><RichText text={homeValue(content, "home_range_title")} /></h1></section>;
           if (section === "intro") return homeValue(content, "range_intro") ? <section key={section} className="pb-6"><p className={cn("max-w-3xl whitespace-pre-wrap text-base text-muted-foreground sm:text-lg", BLOCK_ALIGN_CLASS[contentAlign(content, "range_intro")], TEXT_ALIGN_CLASS[contentAlign(content, "range_intro")])}><RichText text={homeValue(content, "range_intro")} /></p></section> : null;
