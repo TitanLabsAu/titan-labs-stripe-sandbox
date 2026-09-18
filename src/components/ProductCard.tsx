@@ -18,18 +18,18 @@ export function ProductCard({ product: p }: { product: Product }) {
           </span>
         ) : null}
       </div>
-      <div className="flex items-center justify-between gap-2 p-2 sm:p-3">
-        <h3 className="min-w-0 text-xs font-bold uppercase leading-tight tracking-tight text-foreground sm:text-xs">{p.name}</h3>
-        <span className="shrink-0 text-right">
+      <div className="p-2 sm:p-3">
+        <h3 className="text-xs font-bold uppercase leading-tight tracking-tight text-foreground">{p.name}</h3>
+        <div className="mt-0.5 flex items-baseline gap-1">
           {p.wasPrice ? (
-            <span className="mr-1 text-[11px] text-muted-foreground line-through sm:text-xs">
+            <span className="text-[11px] text-muted-foreground line-through sm:text-xs">
               {formatPrice(p.wasPrice)}
             </span>
           ) : null}
-          <span className="text-sm font-extrabold text-accent sm:text-sm">
+          <span className="text-sm font-extrabold text-accent">
             {hasSizes ? `From ${formatPrice(fromPrice)}` : formatPrice(p.price)}
           </span>
-        </span>
+        </div>
       </div>
       {(p.categories ?? []).length > 0 ? (
         <p className="px-2 pb-1 text-[9px] uppercase tracking-[0.15em] text-muted-foreground sm:px-3 sm:text-[9px]">
