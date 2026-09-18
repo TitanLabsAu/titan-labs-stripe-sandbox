@@ -19,24 +19,24 @@ export function ProductCard({ product: p }: { product: Product }) {
         ) : null}
       </div>
       <div className="flex items-center justify-between gap-2 p-2 sm:p-3">
-        <h3 className="min-w-0 text-[11px] font-bold uppercase leading-tight tracking-tight text-foreground sm:text-xs">{p.name}</h3>
+        <h3 className="min-w-0 text-xs font-bold uppercase leading-tight tracking-tight text-foreground sm:text-xs">{p.name}</h3>
         <span className="shrink-0 text-right">
           {p.wasPrice ? (
-            <span className="mr-1 text-[10px] text-muted-foreground line-through sm:text-xs">
+            <span className="mr-1 text-[11px] text-muted-foreground line-through sm:text-xs">
               {formatPrice(p.wasPrice)}
             </span>
           ) : null}
-          <span className="text-xs font-extrabold text-accent sm:text-sm">
+          <span className="text-sm font-extrabold text-accent sm:text-sm">
             {hasSizes ? `From ${formatPrice(fromPrice)}` : formatPrice(p.price)}
           </span>
         </span>
       </div>
       {(p.categories ?? []).length > 0 ? (
-        <p className="px-2 pb-1 text-[8px] uppercase tracking-[0.15em] text-muted-foreground sm:px-3 sm:text-[9px]">
+        <p className="px-2 pb-1 text-[9px] uppercase tracking-[0.15em] text-muted-foreground sm:px-3 sm:text-[9px]">
           {(p.categories ?? []).join(" · ")}
         </p>
       ) : null}
-      <p className="px-2 pb-2 text-[9px] uppercase tracking-[0.15em] text-accent sm:px-3 sm:pb-3 sm:text-[10px]">View &amp; buy →</p>
+      <p className="px-2 pb-2 text-[10px] uppercase tracking-[0.15em] text-accent sm:px-3 sm:pb-3 sm:text-[10px]">View &amp; buy →</p>
     </Link>
   );
 }
