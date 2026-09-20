@@ -21,7 +21,7 @@ export function PageImageBoxes({ images }: { images: PageImage[] }) {
             <img
               src={image.url}
               alt={image.alt}
-              className="aspect-video w-full max-w-3xl rounded-xl border border-border object-cover shadow-gold"
+              className="brand-cut aspect-video w-full max-w-3xl border border-border object-cover shadow-gold"
               loading="lazy"
             />
           </div>

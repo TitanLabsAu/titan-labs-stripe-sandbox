@@ -35,8 +35,8 @@ export function ReconstitutionCalculator({ title, vialMg, waterMl, doseMcg, onCh
   const dosesPerVial = valid && doseNum > 0 ? (mg * 1000) / doseNum : 0;
 
   return (
-    <div className="rounded-xl border border-border bg-card/80 p-6">
-      <h3 className="text-lg font-extrabold uppercase text-foreground">
+    <div className="industrial-panel border-l-2 border-l-primary p-6">
+      <h3 className="font-display text-lg font-extrabold uppercase text-foreground">
         {title ?? "Recommended Reconstitution"}
       </h3>
       <div className="mt-4 grid gap-4 sm:grid-cols-3">

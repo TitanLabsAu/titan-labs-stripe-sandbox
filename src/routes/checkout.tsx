@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/products";
 import { useProducts } from "@/lib/useCatalog";
@@ -38,14 +39,14 @@ function CheckoutPage() {
         </h1>
 
         {items.length === 0 ? (
-          <div className="mt-8 rounded-xl border border-border bg-card/70 p-8 text-center">
+          <div className="industrial-panel mt-8 p-8 text-center">
             <p className="text-muted-foreground">Your cart is empty.</p>
             <Button asChild className="mt-6 font-bold uppercase">
               <Link to="/range">Browse the range</Link>
             </Button>
           </div>
         ) : (
-          <div className="mt-8 rounded-xl border border-border bg-card/70 p-6">
+          <div className="industrial-panel mt-8 border-t-2 border-t-primary p-6">
             <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-accent">
               Order summary
             </h2>
@@ -113,6 +114,7 @@ function CheckoutPage() {
           </div>
         )}
       </main>
+      <SiteFooter />
     </div>
   );
 }

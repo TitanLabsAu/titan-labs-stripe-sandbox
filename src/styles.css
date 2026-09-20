@@ -59,29 +59,31 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
-  --radius: 0.5rem;
-  --background: oklch(0.14 0.035 265);
-  --foreground: oklch(0.97 0.008 250);
-  --card: oklch(0.19 0.045 264);
-  --card-foreground: oklch(0.97 0.008 250);
-  --popover: oklch(0.17 0.04 264);
-  --popover-foreground: oklch(0.97 0.008 250);
-  --primary: oklch(0.58 0.24 262);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.26 0.05 264);
-  --secondary-foreground: oklch(0.97 0.008 250);
-  --muted: oklch(0.24 0.04 264);
-  --muted-foreground: oklch(0.72 0.03 255);
-  --accent: oklch(0.78 0.15 85);
-  --accent-foreground: oklch(0.16 0.03 265);
+  --radius: 0.15rem;
+  --background: oklch(0.105 0.008 255);
+  --foreground: oklch(0.94 0.012 240);
+  --card: oklch(0.145 0.014 253);
+  --card-foreground: oklch(0.94 0.012 240);
+  --popover: oklch(0.13 0.012 253);
+  --popover-foreground: oklch(0.94 0.012 240);
+  --primary: oklch(0.72 0.155 221);
+  --primary-foreground: oklch(0.10 0.01 250);
+  --secondary: oklch(0.22 0.018 250);
+  --secondary-foreground: oklch(0.94 0.012 240);
+  --muted: oklch(0.19 0.014 250);
+  --muted-foreground: oklch(0.68 0.018 245);
+  --accent: oklch(0.72 0.14 80);
+  --accent-foreground: oklch(0.11 0.01 250);
   --destructive: oklch(0.6 0.23 27);
   --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.32 0.06 263);
-  --input: oklch(0.28 0.05 264);
-  --ring: oklch(0.58 0.24 262);
+  --border: oklch(0.34 0.022 245);
+  --input: oklch(0.38 0.022 245);
+  --ring: oklch(0.72 0.155 221);
   --chart-1: oklch(0.58 0.24 262);
   --chart-2: oklch(0.78 0.15 85);
   --chart-3: oklch(0.7 0.16 200);
@@ -96,22 +98,10 @@
   --sidebar-border: oklch(0.32 0.06 263);
   --sidebar-ring: oklch(0.58 0.24 262);
 
-  --gradient-steel: linear-gradient(
-    100deg,
-    oklch(0.98 0.005 250) 0%,
-    oklch(0.72 0.02 255) 38%,
-    oklch(0.99 0.005 250) 52%,
-    oklch(0.8 0.13 88) 100%
-  );
-  --gradient-hero: radial-gradient(
-      120% 90% at 15% 10%,
-      oklch(0.4 0.19 262 / 0.5) 0%,
-      transparent 60%
-    ),
-    radial-gradient(100% 80% at 95% 90%, oklch(0.55 0.14 70 / 0.28) 0%, transparent 55%),
-    linear-gradient(180deg, oklch(0.12 0.03 265) 0%, oklch(0.16 0.04 264) 100%);
-  --shadow-glow: 0 0 0 1px oklch(0.58 0.24 262 / 0.35), 0 18px 50px -18px oklch(0.58 0.24 262 / 0.65);
-  --shadow-gold: 0 0 0 1px oklch(0.78 0.15 85 / 0.4), 0 18px 50px -20px oklch(0.78 0.15 85 / 0.5);
+  --gradient-steel: linear-gradient(105deg, oklch(0.99 0 0), oklch(0.69 0.025 242) 38%, oklch(0.96 0.012 228) 55%, oklch(0.78 0.12 80));
+  --gradient-hero: linear-gradient(180deg, oklch(0.10 0.008 255), oklch(0.14 0.012 252) 46%, oklch(0.085 0.006 255));
+  --shadow-glow: 0 0 0 1px oklch(0.72 0.155 221 / 0.45), 0 22px 60px -25px oklch(0.72 0.155 221 / 0.6);
+  --shadow-gold: 0 0 0 1px oklch(0.72 0.14 80 / 0.42), 0 22px 60px -28px oklch(0.72 0.14 80 / 0.55);
 }
 
 .dark {
@@ -146,7 +136,34 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
+    letter-spacing: 0;
+    background-image: repeating-linear-gradient(135deg, transparent 0, transparent 24px, color-mix(in oklab, var(--border) 12%, transparent) 25px);
   }
+
+  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: 0; }
+}
+
+@utility brand-cut {
+  clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+}
+
+@utility logo-cutout {
+  clip-path: polygon(12% 0, 100% 0, 100% 88%, 88% 100%, 0 100%, 0 12%);
+}
+
+@utility brand-image-shade {
+  background: linear-gradient(90deg, var(--background) 0%, color-mix(in oklab, var(--background) 72%, transparent) 45%, color-mix(in oklab, var(--background) 42%, transparent) 100%);
+}
+
+@utility brand-footer-shade {
+  background: linear-gradient(180deg, color-mix(in oklab, var(--background) 46%, transparent), var(--background) 92%);
+}
+
+@utility industrial-panel {
+  background: linear-gradient(145deg, color-mix(in oklab, var(--card) 92%, var(--foreground) 8%), var(--card));
+  border: 1px solid var(--border);
+  clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
 }
 
 @utility quantity-input {

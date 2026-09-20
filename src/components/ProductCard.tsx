@@ -8,18 +8,18 @@ export function ProductCard({ product: p }: { product: Product }) {
     <Link
       to="/product/$slug"
       params={{ slug: p.slug }}
-      className="block overflow-hidden rounded-xl border border-border bg-card/70 transition-transform hover:-translate-y-1"
+      className="industrial-panel group block overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-glow"
     >
       <div className="relative">
-        <img src={p.image} alt={p.alt} loading="lazy" className="aspect-square w-full object-cover" />
+        <img src={p.image} alt={p.alt} loading="lazy" className="aspect-square w-full object-cover grayscale-[12%] transition duration-300 group-hover:grayscale-0 group-hover:scale-[1.02]" />
         {p.promoLabel ? (
-          <span className="absolute left-1.5 top-1.5 rounded-full bg-accent px-2 py-0.5 text-[8px] font-extrabold uppercase tracking-[0.15em] text-accent-foreground sm:left-2 sm:top-2 sm:text-[9px]">
+          <span className="brand-cut absolute left-1.5 top-1.5 border border-accent bg-accent px-2 py-0.5 text-[8px] font-extrabold uppercase text-accent-foreground sm:left-2 sm:top-2 sm:text-[9px]">
             {p.promoLabel}
           </span>
         ) : null}
       </div>
       <div className="p-2 sm:p-3">
-        <h3 className="text-xs font-bold uppercase leading-tight tracking-tight text-foreground">{p.name}</h3>
+        <h3 className="font-display text-xs font-bold uppercase leading-tight text-foreground">{p.name}</h3>
         <div className="mt-0.5 flex items-baseline gap-1">
           {p.wasPrice ? (
             <span className="text-[11px] text-muted-foreground line-through sm:text-xs">
@@ -32,11 +32,11 @@ export function ProductCard({ product: p }: { product: Product }) {
         </div>
       </div>
       {(p.categories ?? []).length > 0 ? (
-        <p className="px-2 pb-1 text-[9px] uppercase tracking-[0.15em] text-muted-foreground sm:px-3 sm:text-[9px]">
+        <p className="px-2 pb-1 text-[9px] uppercase text-muted-foreground sm:px-3 sm:text-[9px]">
           {(p.categories ?? []).join(" · ")}
         </p>
       ) : null}
-      <p className="px-2 pb-2 text-[10px] uppercase tracking-[0.15em] text-accent sm:px-3 sm:pb-3 sm:text-[10px]">View &amp; buy →</p>
+      <p className="border-t border-border px-2 py-2 text-[10px] font-bold uppercase text-primary sm:px-3 sm:text-[10px]">View product →</p>
     </Link>
   );
 }

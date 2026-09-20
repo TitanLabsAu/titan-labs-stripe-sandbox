@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Minus, Plus, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { ReconstitutionCalculator } from "@/components/ReconstitutionCalculator";
 import { useCart } from "@/lib/cart";
 import {
@@ -99,7 +100,7 @@ function ProductPage() {
             <img
               src={product.image}
               alt={product.alt}
-              className="w-full rounded-xl border border-border object-cover"
+              className="brand-cut w-full border border-border object-cover shadow-glow"
             />
             <div>
               {recon.notes ? (
@@ -133,13 +134,13 @@ function ProductPage() {
                 {variants.length > 0 ? `From ${formatPrice(singleOption.unitPrice)}` : formatPrice(product.price)}
               </span>
               {product.promoLabel ? (
-                <span className="rounded-full bg-accent px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent-foreground">
+                  <span className="brand-cut bg-accent px-3 py-1 text-[10px] font-extrabold uppercase text-accent-foreground">
                   {product.promoLabel}
                 </span>
               ) : null}
             </p>
 
-            <div className="mt-6 rounded-xl border border-border bg-card/70 p-5">
+            <div className="industrial-panel mt-6 border-t-2 border-t-primary p-5">
               {variants.length > 0 ? (
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">Vial size</p>
@@ -234,7 +235,7 @@ function ProductPage() {
               </Button>
             </div>
 
-            <div className="mt-5 flex gap-3 rounded-xl border border-accent/60 bg-card/70 p-4">
+            <div className="industrial-panel mt-5 flex gap-3 border-l-2 border-l-accent p-4">
               <ShieldCheck className="mt-0.5 h-6 w-6 shrink-0 text-accent" />
               <p className="text-sm font-bold uppercase leading-6 tracking-wide text-foreground">
                 Delivered Australia wide or your money back. Every order is covered by our 100%
@@ -256,10 +257,7 @@ function ProductPage() {
             {(product.categories ?? []).length > 0 ? (
               <p className="mt-5 flex flex-wrap gap-2">
                 {(product.categories ?? []).map((c) => (
-                  <span
-                    key={c}
-                    className="rounded-full border border-accent/50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-accent"
-                  >
+                  <span key={c} className="brand-cut border border-accent/50 px-3 py-1 text-[10px] font-bold uppercase text-accent">
                     {c}
                   </span>
                 ))}
@@ -267,7 +265,7 @@ function ProductPage() {
             ) : null}
 
             {product.protocol ? (
-              <div className="mt-6 rounded-xl border border-border bg-card/70 p-5">
+              <div className="industrial-panel mt-6 p-5">
                 <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
                   How to use this product
                 </h2>
@@ -285,7 +283,7 @@ function ProductPage() {
                     href={l.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="rounded-md border border-accent px-4 py-2 text-xs font-bold uppercase tracking-[0.15em] text-accent hover:bg-accent/10"
+                    className="brand-cut border border-accent px-4 py-2 text-xs font-bold uppercase text-accent hover:bg-accent/10"
                   >
                     {l.label || "View link"}
                   </a>
@@ -307,13 +305,13 @@ function ProductPage() {
                   key={p.slug}
                   to="/product/$slug"
                   params={{ slug: p.slug }}
-                  className="overflow-hidden rounded-xl border border-border bg-card/70 transition-transform hover:-translate-y-1"
+                    className="industrial-panel group overflow-hidden transition-all hover:-translate-y-1 hover:border-primary"
                 >
                   <img
                     src={p.image}
                     alt={p.alt}
                     loading="lazy"
-                    className="aspect-[4/3] w-full object-cover"
+                    className="aspect-[4/3] w-full object-cover transition-transform group-hover:scale-[1.02]"
                   />
                   <div className="flex items-center justify-between gap-3 p-5">
                     <h3 className="text-lg font-bold uppercase text-foreground">{p.name}</h3>
@@ -324,6 +322,7 @@ function ProductPage() {
           </div>
         </section>
       </main>
+      <SiteFooter />
     </div>
   );
 }
