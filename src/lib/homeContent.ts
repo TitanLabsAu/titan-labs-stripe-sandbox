@@ -143,6 +143,32 @@ export const HEADER_TABS: PageSection[] = [
   { key: "cart", label: "Cart" },
 ];
 
+export type HeaderDisplayMode = "text" | "icon";
+export type HeaderDisplayOption = {
+  key: string;
+  label: string;
+  contentKey: string;
+  fallback: HeaderDisplayMode;
+};
+
+/** Header items whose visible treatment can be changed in Admin Edits. */
+export const HEADER_DISPLAY_OPTIONS: HeaderDisplayOption[] = [
+  { key: "home", label: "Home", contentKey: "header_display_home", fallback: "text" },
+  { key: "calculator", label: "Calculator", contentKey: "header_display_calculator", fallback: "icon" },
+  { key: "admin", label: "Admin", contentKey: "header_display_admin", fallback: "text" },
+  { key: "account", label: "My profile", contentKey: "header_display_account", fallback: "icon" },
+  { key: "login", label: "Log in", contentKey: "header_display_login", fallback: "text" },
+  { key: "signup", label: "Join / sign up", contentKey: "header_display_signup", fallback: "text" },
+];
+
+export function headerDisplayMode(
+  content: Record<string, string> | undefined,
+  key: string,
+): HeaderDisplayMode {
+  const option = HEADER_DISPLAY_OPTIONS.find((item) => item.key === key);
+  return content?.[option?.contentKey ?? ""] === "icon" ? "icon" : option?.fallback ?? "text";
+}
+
 export const FOOTER_TABS: PageSection[] = [
   { key: "home", label: "Home" },
   { key: "range", label: "The range" },

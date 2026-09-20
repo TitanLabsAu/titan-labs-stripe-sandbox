@@ -1,13 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Calculator, FlaskConical, Shield, UserRound } from "lucide-react";
+import { Calculator, FlaskConical, Home, LogIn, Shield, UserPlus, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CartSheet } from "@/components/CartSheet";
 import { TitanLogo } from "@/components/TitanLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useSiteContent } from "@/lib/useCatalog";
-import { HEADER_TABS, headerLayout, headerNavAlign, homeValue, pageSectionOrder } from "@/lib/homeContent";
+import { HEADER_TABS, headerDisplayMode, headerLayout, headerNavAlign, homeValue, pageSectionOrder } from "@/lib/homeContent";
 import { cn } from "@/lib/utils";
 import headerImage from "@/assets/titan-light-header.jpg";
 
@@ -20,6 +20,29 @@ export function SiteHeader() {
   const navAlign = headerNavAlign(content);
   const label = (key: string) => homeValue(content, key);
   const tabOrder = pageSectionOrder(content, "header_layout_order", HEADER_TABS);
+  const display = (key: string) => headerDisplayMode(content, key);
+
+  const navButton = (
+    key: string,
+    to: "/" | "/calculator" | "/admin" | "/account" | "/auth" | "/auth/signup",
+    labelKey: string,
+    Icon: typeof Home,
+    variant: "ghost" | "outline" = "ghost",
+  ) => {
+    const text = label(labelKey);
+    if (display(key) === "icon") {
+      return (
+        <Button key={key} asChild variant="outline" size="icon">
+          <Link to={to} aria-label={text} title={text}><Icon /></Link>
+        </Button>
+      );
+    }
+    return (
+      <Button key={key} asChild variant={variant} className="font-bold uppercase">
+        <Link to={to}>{text}</Link>
+      </Button>
+    );
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSignedIn(Boolean(data.session)));
@@ -39,13 +62,13 @@ export function SiteHeader() {
       )}
     >
       {tabOrder.map((tab) => {
-        if (tab === "home") return <Button key={tab} asChild variant="ghost" className="hidden font-bold uppercase sm:inline-flex"><Link to="/">{label("header_nav_home")}</Link></Button>;
-        if (tab === "range") return <span key={tab} className="contents"><Button asChild variant="outline" size="icon" className="md:hidden"><Link to="/range" aria-label={label("header_nav_range")}><FlaskConical /></Link></Button><Button asChild variant="ghost" className="hidden font-bold uppercase md:inline-flex"><Link to="/range">{label("header_nav_range")}</Link></Button></span>;
-        if (tab === "calculator") return <Button key={tab} asChild variant="outline" size="icon"><Link to="/calculator" aria-label={label("header_nav_calculator")} title={label("header_nav_calculator")}><Calculator /></Link></Button>;
-        if (tab === "admin" && signedIn && isAdmin) return <span key={tab} className="contents"><Button asChild variant="outline" size="icon" className="sm:hidden"><Link to="/admin" aria-label={label("header_nav_admin")}><Shield /></Link></Button><Button asChild variant="outline" className="hidden font-bold uppercase sm:inline-flex"><Link to="/admin">{label("header_nav_admin")}</Link></Button></span>;
-        if (tab === "account" && signedIn) return <Button key={tab} asChild variant="outline" size="icon"><Link to="/account" aria-label={label("header_nav_account")}><UserRound /></Link></Button>;
-        if (tab === "login" && !signedIn) return <Button key={tab} asChild variant="outline" className="font-bold uppercase"><Link to="/auth">{label("header_nav_login")}</Link></Button>;
-        if (tab === "signup" && !signedIn) return <Button key={tab} asChild variant="outline" className="hidden font-bold uppercase lg:inline-flex"><Link to="/auth/signup">{label("header_nav_signup")}</Link></Button>;
+        if (tab === "home") return navButton(tab, "/", "header_nav_home", Home);
+        if (tab === "range") return <Button key={tab} asChild variant="outline" size="icon"><Link to="/range" aria-label={label("header_nav_range")} title={label("header_nav_range")}><FlaskConical /></Link></Button>;
+        if (tab === "calculator") return navButton(tab, "/calculator", "header_nav_calculator", Calculator, "outline");
+        if (tab === "admin" && signedIn && isAdmin) return navButton(tab, "/admin", "header_nav_admin", Shield, "outline");
+        if (tab === "account" && signedIn) return navButton(tab, "/account", "header_nav_account", UserRound, "outline");
+        if (tab === "login" && !signedIn) return navButton(tab, "/auth", "header_nav_login", LogIn, "outline");
+        if (tab === "signup" && !signedIn) return navButton(tab, "/auth/signup", "header_nav_signup", UserPlus, "outline");
         if (tab === "cart") return <CartSheet key={tab} />;
         return null;
       })}
