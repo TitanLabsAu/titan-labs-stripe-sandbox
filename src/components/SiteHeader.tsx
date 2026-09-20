@@ -40,13 +40,10 @@ export function SiteHeader() {
 
   return (
     <header className="border-b border-border bg-background shadow-sm">
-      <div className="bg-foreground px-4 py-2 text-center text-[9px] font-bold uppercase text-background sm:text-[10px]">
-        Australian owned <span className="mx-2 opacity-50">//</span> Free express shipping over $200
-      </div>
       <div className="relative overflow-hidden">
         <img src={headerImage} alt="" width={1920} height={768} className="absolute inset-0 h-full w-full object-cover object-center opacity-48" />
         <div className="brand-image-shade absolute inset-0" />
-        <div className="relative mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 py-4 sm:px-6 sm:py-5">
+        <div className="relative mx-auto grid min-h-28 max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 py-4 sm:px-6">
           <Link to="/" aria-label="Titan Labs Australia home" className="min-w-0">
             <TitanLogo size={54} />
           </Link>
@@ -54,10 +51,10 @@ export function SiteHeader() {
             <Button asChild variant="outline" size="icon" className="md:hidden">
               <Link to="/range" aria-label="The range"><FlaskConical /></Link>
             </Button>
-            <Button asChild variant="outline" className="hidden font-bold uppercase sm:inline-flex">
+            <Button asChild variant="ghost" className="hidden font-bold uppercase sm:inline-flex">
               <Link to="/">Home</Link>
             </Button>
-            <Button asChild className="hidden font-bold uppercase md:inline-flex">
+            <Button asChild variant="ghost" className="hidden font-bold uppercase md:inline-flex">
               <Link to="/range">The range</Link>
             </Button>
             {signedIn && isAdmin ? (
@@ -73,7 +70,7 @@ export function SiteHeader() {
             {signedIn ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button className="font-bold uppercase" size="icon">
+               <Button variant="outline" className="font-bold uppercase" size="icon">
                     <UserRound />
                     <span className="sr-only">My account</span>
                     <ChevronDown className="hidden h-4 w-4 sm:block" />
@@ -89,7 +86,7 @@ export function SiteHeader() {
               </DropdownMenu>
             ) : (
               <>
-                <Button asChild className="font-bold uppercase"><Link to="/auth">Log in</Link></Button>
+                 <Button asChild variant="outline" className="font-bold uppercase"><Link to="/auth">Log in</Link></Button>
                 <Button asChild variant="outline" className="hidden font-bold uppercase lg:inline-flex"><Link to="/auth/signup">Join Titan</Link></Button>
               </>
             )}
