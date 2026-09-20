@@ -488,7 +488,109 @@ export function AdminEdits() {
           <TabsTrigger value="range" className="font-bold uppercase">
             View the Range
           </TabsTrigger>
+          <TabsTrigger value="header" className="font-bold uppercase">
+            Header
+          </TabsTrigger>
+          <TabsTrigger value="footer" className="font-bold uppercase">
+            Footer
+          </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="header" className="mt-6 space-y-6">
+          <div className="rounded-xl border border-border bg-card/80 p-6">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-extrabold uppercase text-foreground">Header</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Rename the tabs at the top of every page and choose where they sit.
+                </p>
+              </div>
+              <Button className="font-bold uppercase" disabled={saveChrome.isPending} onClick={() => saveChrome.mutate()}>
+                Save header
+              </Button>
+            </div>
+
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label>Tab position</Label>
+                <select
+                  className="mt-2 h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"
+                  value={values[HEADER_ALIGN_KEY] ?? "right"}
+                  onChange={(e) => setValue(HEADER_ALIGN_KEY, e.target.value)}
+                >
+                  <option value="left">Left</option>
+                  <option value="center">Centre</option>
+                  <option value="right">Right</option>
+                </select>
+              </div>
+              <div>
+                <Label>Header arrangement</Label>
+                <select
+                  className="mt-2 h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"
+                  value={values[HEADER_LAYOUT_KEY] ?? "inline"}
+                  onChange={(e) => setValue(HEADER_LAYOUT_KEY, e.target.value)}
+                >
+                  <option value="inline">Logo left, tabs beside it</option>
+                  <option value="stacked">Logo on top, tabs underneath</option>
+                  <option value="centred">Everything centred</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              {HEADER_FIELDS.map((f) => (
+                <ContentFieldEditor
+                  key={f.key}
+                  field={f}
+                  value={values[f.key] ?? ""}
+                  align={(values[`${f.key}_align`] as TextAlign) || f.align || "center"}
+                  setValue={(value) => setValue(f.key, value)}
+                  setAlign={(value) => setValue(`${f.key}_align`, value)}
+                />
+              ))}
+            </div>
+
+            <Button className="mt-5 font-bold uppercase" disabled={saveChrome.isPending} onClick={() => saveChrome.mutate()}>
+              Save header
+            </Button>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="footer" className="mt-6 space-y-6">
+          <div className="rounded-xl border border-border bg-card/80 p-6">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-extrabold uppercase text-foreground">Footer</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Change every line in the footer. The link names come from the Header tab.
+                </p>
+              </div>
+              <Button className="font-bold uppercase" disabled={saveChrome.isPending} onClick={() => saveChrome.mutate()}>
+                Save footer
+              </Button>
+            </div>
+
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              {FOOTER_FIELDS.map((f) => (
+                <ContentFieldEditor
+                  key={f.key}
+                  field={f}
+                  value={values[f.key] ?? ""}
+                  align={(values[`${f.key}_align`] as TextAlign) || f.align || "center"}
+                  setValue={(value) => setValue(f.key, value)}
+                  setAlign={(value) => setValue(`${f.key}_align`, value)}
+                />
+              ))}
+            </div>
+
+            <Button className="mt-5 font-bold uppercase" disabled={saveChrome.isPending} onClick={() => saveChrome.mutate()}>
+              Save footer
+            </Button>
+          </div>
+
+          <AdminLinks />
+        </TabsContent>
+
 
         <TabsContent value="home" className="mt-6 space-y-6">
           <div className="rounded-xl border border-border bg-card/80 p-6">
