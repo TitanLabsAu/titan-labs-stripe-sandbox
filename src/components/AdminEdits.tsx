@@ -15,6 +15,10 @@ import { adminListProducts, adminSaveContent, adminSaveProduct } from "@/lib/adm
 import { getSiteContent } from "@/lib/catalog.functions";
 import {
   contentKeysForImages,
+  FOOTER_FIELDS,
+  HEADER_ALIGN_KEY,
+  HEADER_FIELDS,
+  HEADER_LAYOUT_KEY,
   HOME_FIELDS,
   HOME_IMAGE_SLOTS,
   HOME_SECTIONS,
@@ -27,6 +31,7 @@ import {
   type PageSection,
   type TextAlign,
 } from "@/lib/homeContent";
+
 import { formatPrice } from "@/lib/products";
 import { cn } from "@/lib/utils";
 
@@ -347,13 +352,16 @@ export function AdminEdits() {
         next[f.key] = data[f.key] ?? f.fallback;
         next[`${f.key}_align`] = data[`${f.key}_align`] ?? f.align ?? "center";
       }
-      for (const f of RANGE_FIELDS) {
+      for (const f of [...RANGE_FIELDS, ...HEADER_FIELDS, ...FOOTER_FIELDS]) {
         next[f.key] = data[f.key] ?? f.fallback;
         next[`${f.key}_align`] = data[`${f.key}_align`] ?? f.align ?? "center";
       }
+      next[HEADER_ALIGN_KEY] = data[HEADER_ALIGN_KEY] ?? "right";
+      next[HEADER_LAYOUT_KEY] = data[HEADER_LAYOUT_KEY] ?? "inline";
       for (const key of contentKeysForImages([...HOME_IMAGE_SLOTS, ...RANGE_IMAGE_SLOTS])) {
         next[key] = data[key] ?? (key.endsWith("_align") ? "center" : "");
       }
+
       setValues(next);
       setFeatured(featuredSlugs(data));
       const savedHomeOrder = (data["home_layout_order"] ?? "").split(",").filter(Boolean);
@@ -401,6 +409,24 @@ export function AdminEdits() {
     },
     onError: () => toast.error("Could not save your range page changes"),
   });
+  const saveChrome = useMutation({
+    mutationFn: async () => {
+      const keys = [
+        ...[...HEADER_FIELDS, ...FOOTER_FIELDS].flatMap((f) => [f.key, `${f.key}_align`]),
+        HEADER_ALIGN_KEY,
+        HEADER_LAYOUT_KEY,
+      ];
+      await Promise.all(
+        keys.map((key) => adminSaveContent({ data: { key, body: values[key] ?? "" } })),
+      );
+    },
+    onSuccess: () => {
+      toast.success("Header and footer updated");
+      refreshContent();
+    },
+    onError: () => toast.error("Could not save the header and footer"),
+  });
+
 
   const saveFeatured = useMutation({
     mutationFn: (slugs: string[]) =>
@@ -462,7 +488,109 @@ export function AdminEdits() {
           <TabsTrigger value="range" className="font-bold uppercase">
             View the Range
           </TabsTrigger>
+          <TabsTrigger value="header" className="font-bold uppercase">
+            Header
+          </TabsTrigger>
+          <TabsTrigger value="footer" className="font-bold uppercase">
+            Footer
+          </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="header" className="mt-6 space-y-6">
+          <div className="rounded-xl border border-border bg-card/80 p-6">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-extrabold uppercase text-foreground">Header</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Rename the tabs at the top of every page and choose where they sit.
+                </p>
+              </div>
+              <Button className="font-bold uppercase" disabled={saveChrome.isPending} onClick={() => saveChrome.mutate()}>
+                Save header
+              </Button>
+            </div>
+
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label>Tab position</Label>
+                <select
+                  className="mt-2 h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"
+                  value={values[HEADER_ALIGN_KEY] ?? "right"}
+                  onChange={(e) => setValue(HEADER_ALIGN_KEY, e.target.value)}
+                >
+                  <option value="left">Left</option>
+                  <option value="center">Centre</option>
+                  <option value="right">Right</option>
+                </select>
+              </div>
+              <div>
+                <Label>Header arrangement</Label>
+                <select
+                  className="mt-2 h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"
+                  value={values[HEADER_LAYOUT_KEY] ?? "inline"}
+                  onChange={(e) => setValue(HEADER_LAYOUT_KEY, e.target.value)}
+                >
+                  <option value="inline">Logo left, tabs beside it</option>
+                  <option value="stacked">Logo on top, tabs underneath</option>
+                  <option value="centred">Everything centred</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              {HEADER_FIELDS.map((f) => (
+                <ContentFieldEditor
+                  key={f.key}
+                  field={f}
+                  value={values[f.key] ?? ""}
+                  align={(values[`${f.key}_align`] as TextAlign) || f.align || "center"}
+                  setValue={(value) => setValue(f.key, value)}
+                  setAlign={(value) => setValue(`${f.key}_align`, value)}
+                />
+              ))}
+            </div>
+
+            <Button className="mt-5 font-bold uppercase" disabled={saveChrome.isPending} onClick={() => saveChrome.mutate()}>
+              Save header
+            </Button>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="footer" className="mt-6 space-y-6">
+          <div className="rounded-xl border border-border bg-card/80 p-6">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-extrabold uppercase text-foreground">Footer</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Change every line in the footer. The link names come from the Header tab.
+                </p>
+              </div>
+              <Button className="font-bold uppercase" disabled={saveChrome.isPending} onClick={() => saveChrome.mutate()}>
+                Save footer
+              </Button>
+            </div>
+
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              {FOOTER_FIELDS.map((f) => (
+                <ContentFieldEditor
+                  key={f.key}
+                  field={f}
+                  value={values[f.key] ?? ""}
+                  align={(values[`${f.key}_align`] as TextAlign) || f.align || "center"}
+                  setValue={(value) => setValue(f.key, value)}
+                  setAlign={(value) => setValue(`${f.key}_align`, value)}
+                />
+              ))}
+            </div>
+
+            <Button className="mt-5 font-bold uppercase" disabled={saveChrome.isPending} onClick={() => saveChrome.mutate()}>
+              Save footer
+            </Button>
+          </div>
+
+          <AdminLinks />
+        </TabsContent>
+
 
         <TabsContent value="home" className="mt-6 space-y-6">
           <div className="rounded-xl border border-border bg-card/80 p-6">

@@ -98,7 +98,54 @@ export const RANGE_FIELDS: HomeField[] = [
   },
 ];
 
+export const HEADER_FIELDS: HomeField[] = [
+  { key: "header_tagline", label: "Small line under the site name", fallback: "Australia // Research Supply" },
+  { key: "header_nav_home", label: "Tab name: Home", fallback: "Home" },
+  { key: "header_nav_range", label: "Tab name: The range", fallback: "The range" },
+  { key: "header_nav_admin", label: "Tab name: Admin", fallback: "Admin" },
+  { key: "header_nav_login", label: "Tab name: Log in", fallback: "Log in" },
+  { key: "header_nav_signup", label: "Tab name: Join / sign up", fallback: "Join Titan" },
+  { key: "header_nav_account", label: "Tab name: My profile", fallback: "My profile" },
+];
+
+export const FOOTER_FIELDS: HomeField[] = [
+  {
+    key: "footer_about",
+    label: "About paragraph",
+    multiline: true,
+    align: "left",
+    fallback:
+      "Australian owned, driven and different. Precision research products backed by uncompromising standards.",
+  },
+  { key: "footer_nav_title", label: "Links column heading", align: "left", fallback: "Navigate" },
+  { key: "footer_standard_title", label: "Right column heading", align: "left", fallback: "Titan Labs Australia standard" },
+  { key: "footer_point_1", label: "Right column line 1", align: "left", fallback: "Australia-wide delivery" },
+  { key: "footer_point_2", label: "Right column line 2", align: "left", fallback: "100% delivery guarantee" },
+  { key: "footer_point_3", label: "Right column line 3", align: "left", fallback: "Laboratory research use only" },
+  {
+    key: "footer_notice",
+    label: "Bottom notice",
+    multiline: true,
+    align: "right",
+    fallback: "Research use only. Not for human or animal consumption.",
+  },
+];
+
+/** Header layout / tab orientation options. */
+export const HEADER_ALIGN_KEY = "header_nav_position";
+export const HEADER_LAYOUT_KEY = "header_layout";
+
+export function headerNavAlign(content: Record<string, string> | undefined): TextAlign {
+  return normaliseAlign(content?.[HEADER_ALIGN_KEY], "right");
+}
+
+export function headerLayout(content: Record<string, string> | undefined) {
+  const value = content?.[HEADER_LAYOUT_KEY];
+  return value === "stacked" || value === "centred" ? value : "inline";
+}
+
 export const HOME_IMAGE_SLOTS: PageImageSlot[] = [
+
   { key: "home_picture_1", label: "Home picture box 1", page: "home" },
   { key: "home_picture_2", label: "Home picture box 2", page: "home" },
   { key: "home_picture_3", label: "Home picture box 3", page: "home" },
@@ -178,7 +225,7 @@ export function fieldAlign(
 }
 
 export function contentAlign(content: Record<string, string> | undefined, key: string) {
-  const field = [...HOME_FIELDS, ...RANGE_FIELDS].find((f) => f.key === key);
+  const field = [...HOME_FIELDS, ...RANGE_FIELDS, ...HEADER_FIELDS, ...FOOTER_FIELDS].find((f) => f.key === key);
   return normaliseAlign(content?.[`${key}_align`], field?.align ?? "center");
 }
 
@@ -219,7 +266,7 @@ export function featuredSlugs(content: Record<string, string> | undefined) {
 }
 
 export function homeValue(content: Record<string, string> | undefined, key: string) {
-  const field = [...HOME_FIELDS, ...RANGE_FIELDS].find((f) => f.key === key);
+  const field = [...HOME_FIELDS, ...RANGE_FIELDS, ...HEADER_FIELDS, ...FOOTER_FIELDS].find((f) => f.key === key);
   const value = content?.[key];
   return value && value.trim() ? value : field?.fallback || "";
 }
