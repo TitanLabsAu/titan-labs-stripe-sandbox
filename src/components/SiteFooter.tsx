@@ -4,7 +4,7 @@ import { contentAlign, homeValue, TEXT_ALIGN_CLASS } from "@/lib/homeContent";
 import { cn } from "@/lib/utils";
 import { Link } from "@tanstack/react-router";
 import { FlaskConical, MapPin, ShieldCheck } from "lucide-react";
-import footerImage from "@/assets/titan-footer-forge.jpg";
+import footerImage from "@/assets/titan-light-footer.jpg";
 import { TitanLogo } from "@/components/TitanLogo";
 
 export function SiteFooter() {
@@ -12,8 +12,8 @@ export function SiteFooter() {
   const { data: content } = useSiteContent();
 
   return (
-    <footer className="relative overflow-hidden border-t border-border bg-background text-xs text-muted-foreground">
-      <img src={footerImage} alt="" width={1920} height={640} loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-35" />
+    <footer className="relative overflow-hidden border-t border-border bg-secondary text-xs text-muted-foreground">
+      <img src={footerImage} alt="" width={1920} height={768} loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-50" />
       <div className="brand-footer-shade absolute inset-0" />
       <div className="relative mx-auto max-w-7xl px-5 py-12 sm:px-6 sm:py-16">
         <div className="grid gap-10 border-b border-border pb-10 md:grid-cols-[1.15fr_0.85fr_1fr]">

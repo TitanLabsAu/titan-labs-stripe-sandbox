@@ -78,9 +78,9 @@ function RangePage() {
     <div className="bg-hero min-h-screen">
       <SiteHeader />
 
-      <main id="range" className="mx-auto max-w-7xl px-2 pb-20 pt-10 sm:px-6">
+      <main id="range" className="mx-auto max-w-7xl px-2 pb-20 pt-12 sm:px-6">
         {sectionOrder.map((section) => {
-          if (section === "title") return <section key={section} className="border-b border-border pb-5"><p className="mb-2 text-[10px] font-black uppercase text-primary">Titan // Catalogue</p><h1 className={cn("text-steel text-4xl font-extrabold uppercase sm:text-6xl", TEXT_ALIGN_CLASS[contentAlign(content, "home_range_title")])}><RichText text={homeValue(content, "home_range_title")} /></h1></section>;
+          if (section === "title") return <section key={section} className="border-b border-border pb-7"><p className="mb-3 text-[10px] font-bold uppercase text-primary">Titan // Catalogue</p><h1 className={cn("text-steel text-4xl font-semibold uppercase sm:text-6xl", TEXT_ALIGN_CLASS[contentAlign(content, "home_range_title")])}><RichText text={homeValue(content, "home_range_title")} /></h1></section>;
           if (section === "intro") return homeValue(content, "range_intro") ? <section key={section} className="pb-6"><p className={cn("max-w-3xl whitespace-pre-wrap text-base text-muted-foreground sm:text-lg", BLOCK_ALIGN_CLASS[contentAlign(content, "range_intro")], TEXT_ALIGN_CLASS[contentAlign(content, "range_intro")])}><RichText text={homeValue(content, "range_intro")} /></p></section> : null;
           if (section === "disclaimer") return <section key={section} className="pb-8"><div className={cn("industrial-panel flex max-w-4xl gap-4 border-l-2 border-l-accent p-5", BLOCK_ALIGN_CLASS[contentAlign(content, "range_disclaimer")])}><ShieldCheck className="mt-0.5 h-6 w-6 shrink-0 text-accent" /><p className={cn("whitespace-pre-wrap text-sm leading-6 text-muted-foreground", TEXT_ALIGN_CLASS[contentAlign(content, "range_disclaimer")])}><RichText text={homeValue(content, "range_disclaimer")} /></p></div></section>;
           if (section === "pictures") return pictures.length ? <section key={section} className="pb-8"><PageImageBoxes images={pictures} /></section> : null;

@@ -14,7 +14,7 @@ import { CartSheet } from "@/components/CartSheet";
 import { TitanLogo } from "@/components/TitanLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
-import headerImage from "@/assets/titan-header-forge.jpg";
+import headerImage from "@/assets/titan-light-header.jpg";
 
 export function SiteHeader() {
   const navigate = useNavigate();
@@ -39,16 +39,16 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="border-b border-border bg-background">
-      <div className="bg-accent px-4 py-2 text-center text-[9px] font-black uppercase text-accent-foreground sm:text-[10px]">
+    <header className="border-b border-border bg-background shadow-sm">
+      <div className="bg-foreground px-4 py-2 text-center text-[9px] font-bold uppercase text-background sm:text-[10px]">
         Australian owned <span className="mx-2 opacity-50">//</span> Free express shipping over $200
       </div>
-      <div className="relative overflow-hidden border-b border-border">
-        <img src={headerImage} alt="" width={1920} height={768} className="absolute inset-0 h-full w-full object-cover object-center opacity-65" />
+      <div className="relative overflow-hidden">
+        <img src={headerImage} alt="" width={1920} height={768} className="absolute inset-0 h-full w-full object-cover object-center opacity-48" />
         <div className="brand-image-shade absolute inset-0" />
-        <div className="relative mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 py-4 sm:px-6 sm:py-6">
+        <div className="relative mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 py-4 sm:px-6 sm:py-5">
           <Link to="/" aria-label="Titan Labs Australia home" className="min-w-0">
-            <TitanLogo size={58} />
+            <TitanLogo size={54} />
           </Link>
           <nav className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             <Button asChild variant="outline" size="icon" className="md:hidden">
