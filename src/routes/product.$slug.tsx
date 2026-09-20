@@ -13,6 +13,7 @@ import {
   getProductOption,
   getReconFor,
   kitPriceFor,
+  productBasePrice,
   type ProductPack,
 } from "@/lib/products";
 import { getProductBySlug } from "@/lib/catalog.functions";
