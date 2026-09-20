@@ -562,8 +562,6 @@ export function AdminEdits() {
               ))}
             </div>
 
-            <SectionOrderEditor sections={FOOTER_TABS} order={footerOrder} onChange={setFooterOrder} />
-
             <Button className="mt-5 font-bold uppercase" disabled={saveChrome.isPending} onClick={() => saveChrome.mutate()}>
               Save header
             </Button>
@@ -596,6 +594,8 @@ export function AdminEdits() {
                 />
               ))}
             </div>
+
+            <SectionOrderEditor sections={FOOTER_TABS} order={footerOrder} onChange={setFooterOrder} />
 
             <Button className="mt-5 font-bold uppercase" disabled={saveChrome.isPending} onClick={() => saveChrome.mutate()}>
               Save footer
