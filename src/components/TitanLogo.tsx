@@ -38,8 +38,9 @@ export function TitanLogo({ className, size = 56, showWordmark = true }: Props) 
             {pageName}
           </div>
           <div className="mt-1 text-[0.5rem] font-bold uppercase text-accent">
-            Australia // Research Supply
+            {homeValue(content, "header_tagline")}
           </div>
+
         </div>
       ) : null}
     </div>
