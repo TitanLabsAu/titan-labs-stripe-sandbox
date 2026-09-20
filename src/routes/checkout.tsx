@@ -4,7 +4,8 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/products";
-import { useProducts } from "@/lib/useCatalog";
+import { useProducts, useSiteContent } from "@/lib/useCatalog";
+import { catalogueName } from "@/lib/homeContent";
 import { FREE_SHIPPING_THRESHOLD, shippingFor } from "@/lib/categories";
 
 export const Route = createFileRoute("/checkout")({
@@ -25,6 +26,7 @@ export const Route = createFileRoute("/checkout")({
 function CheckoutPage() {
   const { items, subtotal, getLinePrice, getLineLabel } = useCart();
   const { getProduct } = useProducts();
+  const { data: content } = useSiteContent();
   const shipping = shippingFor(subtotal);
   const freeShipping = items.length > 0 && shipping === 0;
   const total = items.length > 0 ? subtotal + shipping : 0;
@@ -41,7 +43,7 @@ function CheckoutPage() {
           <div className="mt-8 border border-border bg-card p-8 text-center">
             <p className="text-muted-foreground">Your cart is empty.</p>
             <Button asChild className="mt-6 font-bold uppercase">
-              <Link to="/range">Browse the range</Link>
+              <Link to="/range">Browse {catalogueName(content)}</Link>
             </Button>
           </div>
         ) : (

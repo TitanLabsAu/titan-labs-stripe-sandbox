@@ -7,7 +7,7 @@ import { TitanLogo } from "@/components/TitanLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useSiteContent } from "@/lib/useCatalog";
-import { HEADER_TABS, headerDisplayMode, headerLayout, headerNavAlign, homeValue, pageSectionOrder } from "@/lib/homeContent";
+import { catalogueName, HEADER_TABS, headerDisplayMode, headerLayout, headerNavAlign, homeValue, pageSectionOrder } from "@/lib/homeContent";
 import { cn } from "@/lib/utils";
 import headerImage from "@/assets/titan-light-header.jpg";
 
@@ -63,7 +63,7 @@ export function SiteHeader() {
     >
       {tabOrder.map((tab) => {
         if (tab === "home") return navButton(tab, "/", "header_nav_home", Home);
-        if (tab === "range") return <Button key={tab} asChild variant="outline" size="icon"><Link to="/range" aria-label={label("header_nav_range")} title={label("header_nav_range")}><FlaskConical /></Link></Button>;
+        if (tab === "range") return <Button key={tab} asChild variant="outline" size="icon"><Link to="/range" aria-label={catalogueName(content)} title={catalogueName(content)}><FlaskConical /></Link></Button>;
         if (tab === "calculator") return navButton(tab, "/calculator", "header_nav_calculator", Calculator, "outline");
         if (tab === "admin" && signedIn && isAdmin) return navButton(tab, "/admin", "header_nav_admin", Shield, "outline");
         if (tab === "account" && signedIn) return navButton(tab, "/account", "header_nav_account", UserRound, "outline");
