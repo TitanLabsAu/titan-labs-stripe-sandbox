@@ -33,6 +33,7 @@ export const Route = createFileRoute("/_authenticated/account")({
 });
 
 const profileSchema = z.object({
+  email: z.string().trim().email("Enter a valid email address").max(254),
   first_name: z.string().trim().min(1, "First name is required").max(60),
   last_name: z.string().trim().min(1, "Last name is required").max(60),
   address_line: z.string().trim().min(3, "Address is required").max(200),
@@ -52,6 +53,7 @@ function AccountPage() {
   const queryClient = useQueryClient();
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
+    email: "",
     first_name: "",
     last_name: "",
     address_line: "",
@@ -73,13 +75,14 @@ function AccountPage() {
         .eq("id", userId)
         .maybeSingle();
       if (error) throw error;
-      return data;
+      return data ? { ...data, email: userData.user?.email ?? data.email } : null;
     },
   });
 
   useEffect(() => {
     if (profile) {
       setForm({
+        email: profile.email ?? "",
         first_name: profile.first_name ?? "",
         last_name: profile.last_name ?? "",
         address_line: profile.address_line ?? "",
@@ -113,17 +116,26 @@ function AccountPage() {
       const { data: userData } = await supabase.auth.getUser();
       const user = userData.user;
       if (!user) throw new Error("Your session expired. Please log in again.");
+      const emailChanged = parsed.data.email.toLowerCase() !== (user.email ?? "").toLowerCase();
+      if (emailChanged) {
+        const { error: emailError } = await supabase.auth.updateUser(
+          { email: parsed.data.email },
+          { emailRedirectTo: `${window.location.origin}/account` },
+        );
+        if (emailError) throw emailError;
+      }
+      const { email: _requestedEmail, ...profileDetails } = parsed.data;
       const { error } = await supabase
         .from("profiles")
         .upsert({
           id: user.id,
           email: user.email ?? null,
-          ...parsed.data,
-          postal_address: combineAddress(parsed.data),
+          ...profileDetails,
+          postal_address: combineAddress(profileDetails),
         });
       if (error) throw error;
       await queryClient.invalidateQueries({ queryKey: ["profile"] });
-      toast.success("Profile saved.");
+      toast.success(emailChanged ? "Details saved. Check your new email address to confirm the change." : "Profile saved.");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not save your profile.");
     } finally {
@@ -145,6 +157,19 @@ function AccountPage() {
             <p className="mt-8 text-sm text-muted-foreground">Loading your details…</p>
           ) : (
              <form onSubmit={handleSave} className="mt-7 space-y-6">
+               <div className="space-y-2">
+                 <Label htmlFor="email">Email address</Label>
+                 <Input
+                   id="email"
+                   type="email"
+                   autoComplete="email"
+                   value={form.email}
+                   maxLength={254}
+                   onChange={(e) => setForm({ ...form, email: e.target.value })}
+                   required
+                 />
+                 <p className="text-xs text-muted-foreground">Changing your email requires confirmation from the new address.</p>
+               </div>
               <div className="grid gap-5 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="first_name">First name</Label>

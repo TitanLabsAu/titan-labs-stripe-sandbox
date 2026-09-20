@@ -1,15 +1,7 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { ChevronDown, FlaskConical, Shield, UserRound } from "lucide-react";
+import { FlaskConical, Shield, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { CartSheet } from "@/components/CartSheet";
 import { TitanLogo } from "@/components/TitanLogo";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,8 +9,6 @@ import { useIsAdmin } from "@/hooks/useIsAdmin";
 import headerImage from "@/assets/titan-light-header.jpg";
 
 export function SiteHeader() {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [signedIn, setSignedIn] = useState(false);
   const { isAdmin } = useIsAdmin();
 
@@ -30,13 +20,6 @@ export function SiteHeader() {
     );
     return () => sub.subscription.unsubscribe();
   }, []);
-
-  async function handleSignOut() {
-    await queryClient.cancelQueries();
-    queryClient.clear();
-    await supabase.auth.signOut();
-    navigate({ to: "/auth", replace: true });
-  }
 
   return (
     <header className="border-b border-border bg-background shadow-sm">
@@ -68,22 +51,9 @@ export function SiteHeader() {
               </Button>
             ) : null}
             {signedIn ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-               <Button variant="outline" className="font-bold uppercase" size="icon">
-                    <UserRound />
-                    <span className="sr-only">My account</span>
-                    <ChevronDown className="hidden h-4 w-4 sm:block" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-52">
-                  <DropdownMenuItem asChild><Link to="/account">Profile</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link to="/orders">Current orders</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link to="/order-history">Order history</Link></DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onSelect={() => void handleSignOut()}>Sign out</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <Button asChild variant="outline" size="icon">
+                <Link to="/account" aria-label="My profile"><UserRound /></Link>
+              </Button>
             ) : (
               <>
                  <Button asChild variant="outline" className="font-bold uppercase"><Link to="/auth">Log in</Link></Button>
