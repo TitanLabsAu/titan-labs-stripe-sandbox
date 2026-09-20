@@ -5,13 +5,11 @@ import { Minus, Plus, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-import { ReconstitutionCalculator } from "@/components/ReconstitutionCalculator";
 import { useCart } from "@/lib/cart";
 import {
   cartLineKey,
   formatPrice,
   getProductOption,
-  getReconFor,
   kitPriceFor,
   productBasePrice,
   sortedProductVariants,
@@ -83,7 +81,6 @@ function ProductPage() {
     setSynced({ key: selectedKey, carted });
   }
 
-  const recon = useMemo(() => getReconFor(product, variantId), [product, variantId]);
   const singleOption = getProductOption(product, variantId, "single");
   const kitOption = getProductOption(product, variantId, "kit");
   const total = selected.unitPrice * qty;
@@ -98,29 +95,12 @@ function ProductPage() {
         </Link>
 
         <div className="mt-6 grid gap-8 border-t border-border pt-8 lg:grid-cols-[1fr_0.95fr]">
-          <div className="space-y-6">
+          <div>
             <img
               src={product.image}
               alt={product.alt}
               className="w-full border border-border object-cover shadow-sm"
             />
-            <div className="hidden lg:block">
-              {recon.notes ? (
-                <p className="mb-3 whitespace-pre-wrap text-sm text-muted-foreground">
-                  {recon.notes}
-                </p>
-              ) : null}
-              <ReconstitutionCalculator
-                key={selected.variantId ?? "base"}
-                title={`Recommended Reconstitution for ${product.name}${
-                  selected.variantId ? ` · ${selected.variantLabel}` : ""
-                }`}
-                vialMg={recon.vialMg}
-                waterMl={recon.waterMl}
-                doseMg={recon.doseMg}
-                readOnly
-              />
-            </div>
           </div>
 
           <div>
@@ -255,18 +235,6 @@ function ProductPage() {
                 <li key={d}>★ {d}</li>
               ))}
             </ul>
-
-            <div className="mt-6 lg:hidden">
-              {recon.notes ? <p className="mb-3 whitespace-pre-wrap text-sm text-muted-foreground">{recon.notes}</p> : null}
-              <ReconstitutionCalculator
-                key={`mobile-${selected.variantId ?? "base"}`}
-                title={`Recommended Reconstitution for ${product.name}${selected.variantId ? ` · ${selected.variantLabel}` : ""}`}
-                vialMg={recon.vialMg}
-                waterMl={recon.waterMl}
-                doseMg={recon.doseMg}
-                readOnly
-              />
-            </div>
 
             {(product.categories ?? []).length > 0 ? (
               <p className="mt-5 flex flex-wrap gap-2">
