@@ -16,8 +16,10 @@ import { getSiteContent } from "@/lib/catalog.functions";
 import {
   contentKeysForImages,
   FOOTER_FIELDS,
+  FOOTER_TABS,
   HEADER_ALIGN_KEY,
   HEADER_FIELDS,
+  HEADER_TABS,
   HEADER_LAYOUT_KEY,
   HOME_FIELDS,
   HOME_IMAGE_SLOTS,
@@ -344,6 +346,8 @@ export function AdminEdits() {
   const [draft, setDraft] = useState<Draft | null>(null);
   const [homeOrder, setHomeOrder] = useState(HOME_SECTIONS.map((section) => section.key));
   const [rangeOrder, setRangeOrder] = useState(RANGE_SECTIONS.map((section) => section.key));
+  const [headerOrder, setHeaderOrder] = useState(HEADER_TABS.map((section) => section.key));
+  const [footerOrder, setFooterOrder] = useState(FOOTER_TABS.map((section) => section.key));
 
   useEffect(() => {
     if (data && !loaded) {
@@ -368,6 +372,10 @@ export function AdminEdits() {
       setHomeOrder([...savedHomeOrder.filter((key) => HOME_SECTIONS.some((section) => section.key === key)), ...HOME_SECTIONS.map((section) => section.key).filter((key) => !savedHomeOrder.includes(key))]);
       const savedRangeOrder = (data["range_layout_order"] ?? "").split(",").filter(Boolean);
       setRangeOrder([...savedRangeOrder.filter((key) => RANGE_SECTIONS.some((section) => section.key === key)), ...RANGE_SECTIONS.map((section) => section.key).filter((key) => !savedRangeOrder.includes(key))]);
+      const savedHeaderOrder = (data["header_layout_order"] ?? "").split(",").filter(Boolean);
+      setHeaderOrder([...savedHeaderOrder.filter((key) => HEADER_TABS.some((section) => section.key === key)), ...HEADER_TABS.map((section) => section.key).filter((key) => !savedHeaderOrder.includes(key))]);
+      const savedFooterOrder = (data["footer_layout_order"] ?? "").split(",").filter(Boolean);
+      setFooterOrder([...savedFooterOrder.filter((key) => FOOTER_TABS.some((section) => section.key === key)), ...FOOTER_TABS.map((section) => section.key).filter((key) => !savedFooterOrder.includes(key))]);
       setLoaded(true);
     }
   }, [data, loaded]);
@@ -415,9 +423,11 @@ export function AdminEdits() {
         ...[...HEADER_FIELDS, ...FOOTER_FIELDS].flatMap((f) => [f.key, `${f.key}_align`]),
         HEADER_ALIGN_KEY,
         HEADER_LAYOUT_KEY,
+        "header_layout_order",
+        "footer_layout_order",
       ];
       await Promise.all(
-        keys.map((key) => adminSaveContent({ data: { key, body: values[key] ?? "" } })),
+        keys.map((key) => adminSaveContent({ data: { key, body: key === "header_layout_order" ? headerOrder.join(",") : key === "footer_layout_order" ? footerOrder.join(",") : values[key] ?? "" } })),
       );
     },
     onSuccess: () => {
@@ -537,6 +547,8 @@ export function AdminEdits() {
               </div>
             </div>
 
+            <SectionOrderEditor sections={HEADER_TABS} order={headerOrder} onChange={setHeaderOrder} />
+
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               {HEADER_FIELDS.map((f) => (
                 <ContentFieldEditor
@@ -549,6 +561,8 @@ export function AdminEdits() {
                 />
               ))}
             </div>
+
+            <SectionOrderEditor sections={FOOTER_TABS} order={footerOrder} onChange={setFooterOrder} />
 
             <Button className="mt-5 font-bold uppercase" disabled={saveChrome.isPending} onClick={() => saveChrome.mutate()}>
               Save header

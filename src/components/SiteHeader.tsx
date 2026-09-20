@@ -7,7 +7,7 @@ import { TitanLogo } from "@/components/TitanLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useSiteContent } from "@/lib/useCatalog";
-import { headerLayout, headerNavAlign, homeValue } from "@/lib/homeContent";
+import { HEADER_TABS, headerLayout, headerNavAlign, homeValue, pageSectionOrder } from "@/lib/homeContent";
 import { cn } from "@/lib/utils";
 import headerImage from "@/assets/titan-light-header.jpg";
 
@@ -19,6 +19,7 @@ export function SiteHeader() {
   const layout = headerLayout(content);
   const navAlign = headerNavAlign(content);
   const label = (key: string) => homeValue(content, key);
+  const tabOrder = pageSectionOrder(content, "header_layout_order", HEADER_TABS);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSignedIn(Boolean(data.session)));
@@ -37,43 +38,17 @@ export function SiteHeader() {
         navAlign === "right" && "justify-end",
       )}
     >
-      <Button asChild variant="outline" size="icon" className="md:hidden">
-        <Link to="/range" aria-label={label("header_nav_range")}><FlaskConical /></Link>
-      </Button>
-      <Button asChild variant="ghost" className="hidden font-bold uppercase sm:inline-flex">
-        <Link to="/">{label("header_nav_home")}</Link>
-      </Button>
-      <Button asChild variant="ghost" className="hidden font-bold uppercase md:inline-flex">
-        <Link to="/range">{label("header_nav_range")}</Link>
-      </Button>
-      <Button asChild variant="outline" size="icon">
-        <Link to="/calculator" aria-label={label("header_nav_calculator")} title={label("header_nav_calculator")}><Calculator /></Link>
-      </Button>
-      {signedIn && isAdmin ? (
-        <Button asChild variant="outline" size="icon" className="sm:hidden">
-          <Link to="/admin" aria-label={label("header_nav_admin")}><Shield /></Link>
-        </Button>
-      ) : null}
-      {signedIn && isAdmin ? (
-        <Button asChild variant="outline" className="hidden font-bold uppercase sm:inline-flex">
-          <Link to="/admin">{label("header_nav_admin")}</Link>
-        </Button>
-      ) : null}
-      {signedIn ? (
-        <Button asChild variant="outline" size="icon">
-          <Link to="/account" aria-label={label("header_nav_account")}><UserRound /></Link>
-        </Button>
-      ) : (
-        <>
-          <Button asChild variant="outline" className="font-bold uppercase">
-            <Link to="/auth">{label("header_nav_login")}</Link>
-          </Button>
-          <Button asChild variant="outline" className="hidden font-bold uppercase lg:inline-flex">
-            <Link to="/auth/signup">{label("header_nav_signup")}</Link>
-          </Button>
-        </>
-      )}
-      <CartSheet />
+      {tabOrder.map((tab) => {
+        if (tab === "home") return <Button key={tab} asChild variant="ghost" className="hidden font-bold uppercase sm:inline-flex"><Link to="/">{label("header_nav_home")}</Link></Button>;
+        if (tab === "range") return <span key={tab} className="contents"><Button asChild variant="outline" size="icon" className="md:hidden"><Link to="/range" aria-label={label("header_nav_range")}><FlaskConical /></Link></Button><Button asChild variant="ghost" className="hidden font-bold uppercase md:inline-flex"><Link to="/range">{label("header_nav_range")}</Link></Button></span>;
+        if (tab === "calculator") return <Button key={tab} asChild variant="outline" size="icon"><Link to="/calculator" aria-label={label("header_nav_calculator")} title={label("header_nav_calculator")}><Calculator /></Link></Button>;
+        if (tab === "admin" && signedIn && isAdmin) return <span key={tab} className="contents"><Button asChild variant="outline" size="icon" className="sm:hidden"><Link to="/admin" aria-label={label("header_nav_admin")}><Shield /></Link></Button><Button asChild variant="outline" className="hidden font-bold uppercase sm:inline-flex"><Link to="/admin">{label("header_nav_admin")}</Link></Button></span>;
+        if (tab === "account" && signedIn) return <Button key={tab} asChild variant="outline" size="icon"><Link to="/account" aria-label={label("header_nav_account")}><UserRound /></Link></Button>;
+        if (tab === "login" && !signedIn) return <Button key={tab} asChild variant="outline" className="font-bold uppercase"><Link to="/auth">{label("header_nav_login")}</Link></Button>;
+        if (tab === "signup" && !signedIn) return <Button key={tab} asChild variant="outline" className="hidden font-bold uppercase lg:inline-flex"><Link to="/auth/signup">{label("header_nav_signup")}</Link></Button>;
+        if (tab === "cart") return <CartSheet key={tab} />;
+        return null;
+      })}
     </nav>
   );
 
