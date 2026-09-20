@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { ChevronDown, Home, Shield, UserRound } from "lucide-react";
+import { ChevronDown, FlaskConical, Shield, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -51,8 +51,8 @@ export function SiteHeader() {
             <TitanLogo size={58} />
           </Link>
           <nav className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-            <Button asChild variant="outline" size="icon" className="sm:hidden">
-              <Link to="/" aria-label="Home"><Home /></Link>
+            <Button asChild variant="outline" size="icon" className="md:hidden">
+              <Link to="/range" aria-label="The range"><FlaskConical /></Link>
             </Button>
             <Button asChild variant="outline" className="hidden font-bold uppercase sm:inline-flex">
               <Link to="/">Home</Link>
