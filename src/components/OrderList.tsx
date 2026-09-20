@@ -42,7 +42,7 @@ function formatDate(value: string) {
 export function OrderList({ orders, emptyMessage }: { orders: OrderRow[]; emptyMessage: string }) {
   if (orders.length === 0) {
     return (
-      <div className="industrial-panel p-8 text-center">
+      <div className="border border-border bg-background p-8 text-center">
         <p className="text-sm text-muted-foreground">{emptyMessage}</p>
       </div>
     );
@@ -51,8 +51,8 @@ export function OrderList({ orders, emptyMessage }: { orders: OrderRow[]; emptyM
   return (
     <div className="space-y-6">
       {orders.map((order) => (
-        <article key={order.id} className="industrial-panel p-6">
-          <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
+        <article key={order.id} className="border border-border bg-background p-6">
+          <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border pb-4">
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
                 Order #{order.id.slice(0, 8)}

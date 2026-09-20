@@ -4,6 +4,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { OrderList } from "@/components/OrderList";
 import { fetchOrders } from "@/lib/orders";
+import { ProfileMenu } from "@/components/ProfileMenu";
 
 export const Route = createFileRoute("/_authenticated/orders")({
   head: () => ({
@@ -36,15 +37,12 @@ function CurrentOrdersPage() {
   return (
     <div className="bg-hero min-h-screen">
       <SiteHeader />
-      <main className="mx-auto max-w-3xl px-4 pb-24">
-        <h1 className="text-4xl font-extrabold uppercase tracking-tight text-foreground">
-          Current orders
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Orders that are being packed or on their way to you.
-        </p>
-
-        <div className="mt-8">
+      <main className="page-shell py-10 sm:py-12">
+        <ProfileMenu />
+        <section className="border border-border bg-card p-6 shadow-sm sm:p-8">
+          <h2 className="technical-label text-foreground">Current orders</h2>
+          <p className="mt-2 text-sm text-muted-foreground">Orders that are being packed or on their way to you.</p>
+        <div className="mt-6">
           {isLoading ? (
             <p className="text-sm text-muted-foreground">Loading your orders…</p>
           ) : (
@@ -54,6 +52,7 @@ function CurrentOrdersPage() {
             />
           )}
         </div>
+        </section>
       </main>
       <SiteFooter />
     </div>
