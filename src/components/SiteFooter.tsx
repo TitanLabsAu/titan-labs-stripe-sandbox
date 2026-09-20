@@ -1,6 +1,6 @@
 import { useSiteContent, useSiteLinks } from "@/lib/useCatalog";
 import { RichText } from "@/components/RichText";
-import { contentAlign, FOOTER_TABS, homeValue, pageSectionOrder, TEXT_ALIGN_CLASS } from "@/lib/homeContent";
+import { catalogueName, contentAlign, FOOTER_TABS, homeValue, pageSectionOrder, TEXT_ALIGN_CLASS } from "@/lib/homeContent";
 import { cn } from "@/lib/utils";
 import { Link } from "@tanstack/react-router";
 import { FlaskConical, MapPin, ShieldCheck } from "lucide-react";
@@ -32,7 +32,7 @@ export function SiteFooter() {
             <div className="mt-4 grid gap-3 font-bold uppercase">
                {tabOrder.map((tab) => {
                  if (tab === "home") return <Link key={tab} to="/">{label("header_nav_home")}</Link>;
-                 if (tab === "range") return <Link key={tab} to="/range">{label("header_nav_range")}</Link>;
+                  if (tab === "range") return <Link key={tab} to="/range">{catalogueName(content)}</Link>;
                  if (tab === "calculator") return <Link key={tab} to="/calculator">{label("header_nav_calculator")}</Link>;
                  return <Link key={tab} to="/auth">{label("header_nav_login")}</Link>;
                })}

@@ -35,7 +35,6 @@ export const HOME_FIELDS: HomeField[] = [
     multiline: true,
     fallback: "This month's picks and promotions from the Titan Labs range.",
   },
-  { key: "home_range_button", label: "Range button text", fallback: "View the full range" },
   { key: "home_pillar1_title", label: "Pillar 1 heading", fallback: "Science Backed" },
   {
     key: "home_pillar1_body",
@@ -75,16 +74,16 @@ export const HOME_FIELDS: HomeField[] = [
 ];
 
 export const RANGE_FIELDS: HomeField[] = [
-  { key: "home_range_title", label: "Range page heading", fallback: "The range" },
+  { key: "home_range_title", label: "Catalogue name", fallback: "Catalogue" },
   {
     key: "range_intro",
-    label: "Text under The Range",
+    label: "Text under Catalogue",
     multiline: true,
     fallback: "",
   },
   {
     key: "home_range_note",
-    label: "Note under product range",
+    label: "Note under Catalogue",
     multiline: true,
     fallback: "Full price list, starter packs and bulk discounts available once you're logged in.",
   },
@@ -101,7 +100,6 @@ export const RANGE_FIELDS: HomeField[] = [
 export const HEADER_FIELDS: HomeField[] = [
   { key: "header_tagline", label: "Small line under the site name", fallback: "Australia // Research Supply" },
   { key: "header_nav_home", label: "Tab name: Home", fallback: "Home" },
-  { key: "header_nav_range", label: "Tab name: The range", fallback: "The range" },
   { key: "header_nav_calculator", label: "Tab name: Calculator", fallback: "Calculator" },
   { key: "header_nav_admin", label: "Tab name: Admin", fallback: "Admin" },
   { key: "header_nav_login", label: "Tab name: Log in", fallback: "Log in" },
@@ -134,7 +132,7 @@ export const FOOTER_FIELDS: HomeField[] = [
 
 export const HEADER_TABS: PageSection[] = [
   { key: "home", label: "Home" },
-  { key: "range", label: "The range" },
+  { key: "range", label: "Catalogue" },
   { key: "calculator", label: "Calculator" },
   { key: "admin", label: "Admin" },
   { key: "account", label: "My profile" },
@@ -171,7 +169,7 @@ export function headerDisplayMode(
 
 export const FOOTER_TABS: PageSection[] = [
   { key: "home", label: "Home" },
-  { key: "range", label: "The range" },
+  { key: "range", label: "Catalogue" },
   { key: "calculator", label: "Calculator" },
   { key: "login", label: "Log in" },
 ];
@@ -197,9 +195,9 @@ export const HOME_IMAGE_SLOTS: PageImageSlot[] = [
 ];
 
 export const RANGE_IMAGE_SLOTS: PageImageSlot[] = [
-  { key: "range_picture_1", label: "View the Range picture box 1", page: "range" },
-  { key: "range_picture_2", label: "View the Range picture box 2", page: "range" },
-  { key: "range_picture_3", label: "View the Range picture box 3", page: "range" },
+  { key: "range_picture_1", label: "Catalogue picture box 1", page: "range" },
+  { key: "range_picture_2", label: "Catalogue picture box 2", page: "range" },
+  { key: "range_picture_3", label: "Catalogue picture box 3", page: "range" },
 ];
 
 export const HOME_SECTIONS: PageSection[] = [
@@ -207,7 +205,7 @@ export const HOME_SECTIONS: PageSection[] = [
   { key: "headline", label: "Main headline" },
   { key: "intro", label: "Intro paragraph" },
   { key: "shipping", label: "Free shipping banner" },
-  { key: "range-button", label: "View the Range button" },
+  { key: "range-button", label: "Catalogue button" },
   { key: "pictures", label: "Picture boxes" },
   { key: "featured", label: "Hot products" },
   { key: "pillars", label: "Information boxes" },
@@ -215,7 +213,7 @@ export const HOME_SECTIONS: PageSection[] = [
 ];
 
 export const RANGE_SECTIONS: PageSection[] = [
-  { key: "title", label: "The Range heading" },
+  { key: "title", label: "Catalogue heading" },
   { key: "intro", label: "Intro paragraph" },
   { key: "disclaimer", label: "Research disclaimer" },
   { key: "pictures", label: "Picture boxes" },
@@ -314,4 +312,9 @@ export function homeValue(content: Record<string, string> | undefined, key: stri
   const field = [...HOME_FIELDS, ...RANGE_FIELDS, ...HEADER_FIELDS, ...FOOTER_FIELDS].find((f) => f.key === key);
   const value = content?.[key];
   return value && value.trim() ? value : field?.fallback || "";
+}
+
+/** The single editable name used for the product listing everywhere. */
+export function catalogueName(content: Record<string, string> | undefined) {
+  return homeValue(content, "home_range_title");
 }

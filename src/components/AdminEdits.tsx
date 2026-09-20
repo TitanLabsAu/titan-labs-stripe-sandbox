@@ -416,7 +416,7 @@ export function AdminEdits() {
   const saveRange = useMutation({
     mutationFn: () => saveContentGroup(RANGE_FIELDS, RANGE_IMAGE_SLOTS, "range_layout_order", rangeOrder),
     onSuccess: () => {
-      toast.success("View the Range page updated");
+      toast.success("Catalogue page updated");
       refreshContent();
     },
     onError: () => toast.error("Could not save your range page changes"),
@@ -501,7 +501,7 @@ export function AdminEdits() {
             Home
           </TabsTrigger>
           <TabsTrigger value="range" className="font-bold uppercase">
-            View the Range
+            Catalogue
           </TabsTrigger>
           <TabsTrigger value="header" className="font-bold uppercase">
             Header
@@ -699,8 +699,7 @@ export function AdminEdits() {
             <div className="mt-4 space-y-3">
               {featuredProducts.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  No products on the home page yet — customers still see everything under View the
-                  Range.
+                  No products on the home page yet — customers still see everything in the Catalogue.
                 </p>
               ) : (
                 featuredProducts.map((p, i) => (
@@ -848,10 +847,10 @@ export function AdminEdits() {
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h3 className="text-lg font-extrabold uppercase text-foreground">
-                  View the Range wording
+                   Catalogue wording
                 </h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Change the heading, text under The Range, bottom note and research disclaimer.
+                   Change the Catalogue name, introductory text, bottom note and research disclaimer. The name updates throughout the website.
                 </p>
               </div>
               <Button
@@ -859,7 +858,7 @@ export function AdminEdits() {
                 disabled={saveRange.isPending}
                 onClick={() => saveRange.mutate()}
               >
-                Save View the Range
+                 Save Catalogue
               </Button>
             </div>
 
@@ -880,7 +879,7 @@ export function AdminEdits() {
 
             <div className="mt-6">
               <h4 className="text-sm font-extrabold uppercase tracking-[0.15em] text-accent">
-                View the Range picture boxes
+                 Catalogue picture boxes
               </h4>
               <div className="mt-3 grid gap-4 lg:grid-cols-3">
                 {RANGE_IMAGE_SLOTS.map((slot) => (
@@ -894,7 +893,7 @@ export function AdminEdits() {
               disabled={saveRange.isPending}
               onClick={() => saveRange.mutate()}
             >
-              Save View the Range
+               Save Catalogue
             </Button>
           </div>
         </TabsContent>

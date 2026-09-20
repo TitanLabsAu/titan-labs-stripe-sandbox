@@ -16,7 +16,8 @@ import {
   type ProductPack,
 } from "@/lib/products";
 import { getProductBySlug } from "@/lib/catalog.functions";
-import { useProducts } from "@/lib/useCatalog";
+import { useProducts, useSiteContent } from "@/lib/useCatalog";
+import { catalogueName } from "@/lib/homeContent";
 
 export const Route = createFileRoute("/product/$slug")({
   loader: async ({ params }) => {
@@ -53,6 +54,7 @@ export const Route = createFileRoute("/product/$slug")({
 function ProductPage() {
   const { product } = Route.useLoaderData();
   const { products } = useProducts();
+  const { data: content } = useSiteContent();
   const { addItem, items } = useCart();
   const variants = sortedProductVariants(product);
   const [variantId, setVariantId] = useState<string | null>(variants[0]?.id ?? null);
@@ -91,7 +93,7 @@ function ProductPage() {
 
       <main className="page-shell py-10 sm:py-12">
         <Link to="/range" className="text-sm text-muted-foreground hover:text-accent">
-          ← Back to the range
+          ← Back to {catalogueName(content)}
         </Link>
 
         <div className="mt-6 grid gap-8 border-t border-border pt-8 lg:grid-cols-[1fr_0.95fr]">
@@ -277,7 +279,7 @@ function ProductPage() {
 
         <section className="mt-16">
           <h2 className="text-2xl font-extrabold uppercase tracking-tight text-foreground">
-            More from the range
+             More from {catalogueName(content)}
           </h2>
           <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {products
