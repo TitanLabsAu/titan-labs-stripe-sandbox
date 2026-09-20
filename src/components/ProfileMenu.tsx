@@ -7,7 +7,7 @@ const tabs = [
   { to: "/order-history" as const, label: "Order history" },
 ];
 
-export function ProfileMenu({ email }: { email?: string | null }) {
+export function ProfileMenu({ email }: { email?: string | null | undefined }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   return (
     <div className="mb-7">
