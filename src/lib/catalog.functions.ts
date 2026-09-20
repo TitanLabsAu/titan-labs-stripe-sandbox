@@ -37,10 +37,16 @@ function toProduct(row: any): Product {
       kitPrice: optNum(v?.kitPrice),
       reconVialMg: optNum(v?.reconVialMg),
       reconWaterMl: optNum(v?.reconWaterMl),
-      reconDoseMcg: optNum(v?.reconDoseMcg),
+      reconDoseMg: optNum(v?.reconDoseMg),
       reconNotes: String(v?.reconNotes ?? ""),
     }))
-    .filter((v: ProductVariant) => v.label && v.price > 0);
+    .filter((v: ProductVariant) => v.label && v.price > 0)
+    .sort((a: ProductVariant, b: ProductVariant) => {
+      const aSize = Number.parseFloat(a.label.replace(/[^0-9.]/g, ""));
+      const bSize = Number.parseFloat(b.label.replace(/[^0-9.]/g, ""));
+      if (Number.isFinite(aSize) && Number.isFinite(bSize) && aSize !== bSize) return aSize - bSize;
+      return a.price - b.price || a.label.localeCompare(b.label);
+    });
   const listPrice = Number(row.price);
   const sale =
     row.sale_price === null || row.sale_price === undefined ? null : Number(row.sale_price);
@@ -62,14 +68,14 @@ function toProduct(row: any): Product {
     protocol: row.protocol ?? "",
     reconVialMg: row.recon_vial_mg === null || row.recon_vial_mg === undefined ? null : Number(row.recon_vial_mg),
     reconWaterMl: row.recon_water_ml === null || row.recon_water_ml === undefined ? null : Number(row.recon_water_ml),
-    reconDoseMcg: row.recon_dose_mcg === null || row.recon_dose_mcg === undefined ? null : Number(row.recon_dose_mcg),
+    reconDoseMg: row.recon_dose_mg === null || row.recon_dose_mg === undefined ? null : Number(row.recon_dose_mg),
     reconNotes: row.recon_notes ?? "",
     links: links.filter((l) => l && l.url),
   };
 }
 
 const PRODUCT_COLUMNS =
-  "slug, name, price, sale_price, promo_label, kit_price, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mcg, recon_notes, product_links";
+  "slug, name, price, sale_price, promo_label, kit_price, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links";
 
 export const listProducts = createServerFn({ method: "GET" }).handler(
   async (): Promise<Product[]> => {

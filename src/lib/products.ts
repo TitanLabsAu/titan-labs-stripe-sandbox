@@ -10,7 +10,7 @@ export type ProductVariant = {
   kitPrice?: number | null;
   reconVialMg?: number | null;
   reconWaterMl?: number | null;
-  reconDoseMcg?: number | null;
+  reconDoseMg?: number | null;
   reconNotes?: string;
 };
 export type ProductPack = "single" | "kit";
@@ -34,7 +34,7 @@ export type Product = {
   protocol?: string;
   reconVialMg?: number | null;
   reconWaterMl?: number | null;
-  reconDoseMcg?: number | null;
+  reconDoseMg?: number | null;
   reconNotes?: string;
   links?: ProductLink[];
 };
@@ -106,6 +106,16 @@ export function getProductOption(
   };
 }
 
+export function sortedProductVariants(product: Product) {
+  const size = (label: string) => Number.parseFloat(label.replace(/[^0-9.]/g, ""));
+  return [...(product.variants ?? [])].sort((a, b) => {
+    const aSize = size(a.label);
+    const bSize = size(b.label);
+    if (Number.isFinite(aSize) && Number.isFinite(bSize) && aSize !== bSize) return aSize - bSize;
+    return a.price - b.price || a.label.localeCompare(b.label);
+  });
+}
+
 export function productBasePrice(product: Product) {
   const variantPrices = (product.variants ?? []).map((v) => v.price).filter((price) => price > 0);
   return variantPrices.length > 0 ? Math.min(...variantPrices) : product.price;
@@ -123,7 +133,7 @@ export function getReconFor(product: Product, variantId?: string | null) {
   return {
     vialMg: pick(variant?.reconVialMg, product.reconVialMg),
     waterMl: pick(variant?.reconWaterMl, product.reconWaterMl),
-    doseMcg: pick(variant?.reconDoseMcg, product.reconDoseMcg),
+    doseMg: pick(variant?.reconDoseMg, product.reconDoseMg),
     notes: (variant?.reconNotes || product.reconNotes || "").trim(),
   };
 }

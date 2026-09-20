@@ -272,7 +272,7 @@ export type AdminProductVariant = {
   kitPrice?: number | null;
   reconVialMg?: number | null;
   reconWaterMl?: number | null;
-  reconDoseMcg?: number | null;
+  reconDoseMg?: number | null;
   reconNotes?: string;
 };
 
@@ -294,7 +294,7 @@ export type AdminProduct = {
   protocol: string;
   recon_vial_mg: number | null;
   recon_water_ml: number | null;
-  recon_dose_mcg: number | null;
+  recon_dose_mg: number | null;
   recon_notes: string;
   product_links: AdminProductLink[];
   active: boolean;
@@ -302,7 +302,7 @@ export type AdminProduct = {
 };
 
 const PRODUCT_COLS =
-  "id, slug, name, price, sale_price, promo_label, kit_price, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mcg, recon_notes, product_links, active, sort_order";
+  "id, slug, name, price, sale_price, promo_label, kit_price, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, active, sort_order";
 
 export const adminListProducts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -347,14 +347,14 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
             kitPrice: optNum(v.kitPrice),
             reconVialMg: optNum(v.reconVialMg),
             reconWaterMl: optNum(v.reconWaterMl),
-            reconDoseMcg: optNum(v.reconDoseMcg),
+            reconDoseMg: optNum(v.reconDoseMg),
             reconNotes: String(v.reconNotes ?? ""),
           };
         })
         .filter((v) => v.label && v.price > 0),
       recon_vial_mg: data.recon_vial_mg ?? null,
       recon_water_ml: data.recon_water_ml ?? null,
-      recon_dose_mcg: data.recon_dose_mcg ?? null,
+      recon_dose_mg: data.recon_dose_mg ?? null,
       recon_notes: data.recon_notes ?? "",
       image_url: data.image_url ?? "",
       alt: data.alt ?? data.name.trim(),

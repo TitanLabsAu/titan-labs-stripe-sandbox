@@ -1,14 +1,14 @@
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
-import { formatPrice, getProductOption, hasVariantPricing, productBasePrice, type Product } from "@/lib/products";
+import { formatPrice, getProductOption, sortedProductVariants, type Product } from "@/lib/products";
 
 export function ProductCard({ product: p }: { product: Product }) {
   const { addItem } = useCart();
-  const fromPrice = productBasePrice(p);
-  const hasSizes = hasVariantPricing(p);
-  const firstVariant = p.variants?.[0] ?? null;
-  const option = getProductOption(p, firstVariant?.id ?? null, "single");
+  const variants = sortedProductVariants(p);
+  const [variantId, setVariantId] = useState<string | null>(variants[0]?.id ?? null);
+  const option = getProductOption(p, variantId, "single");
   return (
     <article className="grid min-h-48 grid-cols-[7rem_minmax(0,1fr)] border border-border bg-card shadow-sm sm:min-h-40 sm:grid-cols-[8rem_minmax(0,1fr)]">
       <Link to="/product/$slug" params={{ slug: p.slug }} className="relative overflow-hidden border-r border-border">
@@ -24,7 +24,15 @@ export function ProductCard({ product: p }: { product: Product }) {
           <Link to="/product/$slug" params={{ slug: p.slug }} className="min-w-0 text-sm font-semibold text-foreground hover:text-primary">{p.name}</Link>
           {(p.categories ?? []).length ? <span className="self-start border border-border px-2 py-1 text-[8px] text-primary">{p.categories?.[0]}</span> : null}
         </div>
-        <p className="mt-2 text-[10px] font-semibold text-muted-foreground">{firstVariant?.label ?? "Single vial"}</p>
+        {variants.length > 0 ? (
+          <div className="mt-2 flex flex-wrap gap-1" aria-label="Vial size">
+            {variants.map((variant) => (
+              <Button key={variant.id} type="button" size="sm" variant={variantId === variant.id ? "default" : "outline"} className="h-7 min-w-0 px-2 text-[9px]" onClick={() => setVariantId(variant.id)}>
+                {variant.label}
+              </Button>
+            ))}
+          </div>
+        ) : <p className="mt-2 text-[10px] font-semibold text-muted-foreground">Single vial</p>}
         <div className="mt-4 flex items-baseline gap-1">
           {p.wasPrice ? (
             <span className="text-xs text-muted-foreground line-through">
@@ -32,7 +40,7 @@ export function ProductCard({ product: p }: { product: Product }) {
             </span>
           ) : null}
           <span className="text-lg font-semibold text-foreground">
-            {hasSizes ? `From ${formatPrice(fromPrice)}` : formatPrice(p.price)}
+            {formatPrice(option.unitPrice)}
           </span>
         </div>
         <Button className="mt-auto w-full" onClick={() => addItem(p.slug, 1, { variantId: option.variantId, variantLabel: option.variantLabel, pack: option.pack })}>Add to order</Button>

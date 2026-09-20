@@ -208,6 +208,7 @@ export type Database = {
           promo_label: string
           protocol: string
           recon_dose_mcg: number | null
+          recon_dose_mg: number | null
           recon_notes: string
           recon_vial_mg: number | null
           recon_water_ml: number | null
@@ -234,6 +235,7 @@ export type Database = {
           promo_label?: string
           protocol?: string
           recon_dose_mcg?: number | null
+          recon_dose_mg?: number | null
           recon_notes?: string
           recon_vial_mg?: number | null
           recon_water_ml?: number | null
@@ -260,6 +262,7 @@ export type Database = {
           promo_label?: string
           protocol?: string
           recon_dose_mcg?: number | null
+          recon_dose_mg?: number | null
           recon_notes?: string
           recon_vial_mg?: number | null
           recon_water_ml?: number | null

@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as RangeRouteImport } from './routes/range'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
@@ -31,6 +32,11 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalculatorRoute = CalculatorRouteImport.update({
+  id: '/calculator',
+  path: '/calculator',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutRoute = CheckoutRouteImport.update({
@@ -98,6 +104,7 @@ const LovableEmailTransactionalPreviewRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/calculator': typeof CalculatorRoute
   '/checkout': typeof CheckoutRoute
   '/range': typeof RangeRoute
   '/account': typeof AuthenticatedAccountRoute
@@ -113,6 +120,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/calculator': typeof CalculatorRoute
   '/checkout': typeof CheckoutRoute
   '/range': typeof RangeRoute
   '/account': typeof AuthenticatedAccountRoute
@@ -130,6 +138,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/calculator': typeof CalculatorRoute
   '/checkout': typeof CheckoutRoute
   '/range': typeof RangeRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
@@ -147,6 +156,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/calculator'
     | '/checkout'
     | '/range'
     | '/account'
@@ -162,6 +172,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/calculator'
     | '/checkout'
     | '/range'
     | '/account'
@@ -178,6 +189,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/calculator'
     | '/checkout'
     | '/range'
     | '/_authenticated/account'
@@ -195,6 +207,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  CalculatorRoute: typeof CalculatorRoute
   CheckoutRoute: typeof CheckoutRoute
   RangeRoute: typeof RangeRoute
   AuthSignupRoute: typeof AuthSignupRoute
@@ -219,6 +232,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calculator': {
+      id: '/calculator'
+      path: '/calculator'
+      fullPath: '/calculator'
+      preLoaderRoute: typeof CalculatorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout': {
@@ -328,6 +348,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  CalculatorRoute: CalculatorRoute,
   CheckoutRoute: CheckoutRoute,
   RangeRoute: RangeRoute,
   AuthSignupRoute: AuthSignupRoute,
