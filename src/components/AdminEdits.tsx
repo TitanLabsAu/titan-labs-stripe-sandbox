@@ -352,13 +352,16 @@ export function AdminEdits() {
         next[f.key] = data[f.key] ?? f.fallback;
         next[`${f.key}_align`] = data[`${f.key}_align`] ?? f.align ?? "center";
       }
-      for (const f of RANGE_FIELDS) {
+      for (const f of [...RANGE_FIELDS, ...HEADER_FIELDS, ...FOOTER_FIELDS]) {
         next[f.key] = data[f.key] ?? f.fallback;
         next[`${f.key}_align`] = data[`${f.key}_align`] ?? f.align ?? "center";
       }
+      next[HEADER_ALIGN_KEY] = data[HEADER_ALIGN_KEY] ?? "right";
+      next[HEADER_LAYOUT_KEY] = data[HEADER_LAYOUT_KEY] ?? "inline";
       for (const key of contentKeysForImages([...HOME_IMAGE_SLOTS, ...RANGE_IMAGE_SLOTS])) {
         next[key] = data[key] ?? (key.endsWith("_align") ? "center" : "");
       }
+
       setValues(next);
       setFeatured(featuredSlugs(data));
       const savedHomeOrder = (data["home_layout_order"] ?? "").split(",").filter(Boolean);
