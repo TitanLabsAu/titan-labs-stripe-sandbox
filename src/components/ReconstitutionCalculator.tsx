@@ -6,22 +6,23 @@ type Props = {
   title?: string;
   vialMg?: number | null;
   waterMl?: number | null;
-  doseMcg?: number | null;
+  doseMg?: number | null;
+  readOnly?: boolean;
   /** Called whenever the numbers change (used by the admin product editor). */
-  onChange?: (v: { vialMg: string; waterMl: string; doseMcg: string }) => void;
+  onChange?: (v: { vialMg: string; waterMl: string; doseMg: string }) => void;
 };
 
-export function ReconstitutionCalculator({ title, vialMg, waterMl, doseMcg, onChange }: Props) {
+export function ReconstitutionCalculator({ title, vialMg, waterMl, doseMg, readOnly = false, onChange }: Props) {
   const [vial, setVial] = useState(vialMg != null ? String(vialMg) : "10");
   const [water, setWater] = useState(waterMl != null ? String(waterMl) : "2");
-  const [dose, setDose] = useState(doseMcg != null ? String(doseMcg) : "250");
+  const [dose, setDose] = useState(doseMg != null ? String(doseMg) : "0.25");
 
   const update = (patch: Partial<{ vial: string; water: string; dose: string }>) => {
     const next = { vial, water, dose, ...patch };
     setVial(next.vial);
     setWater(next.water);
     setDose(next.dose);
-    onChange?.({ vialMg: next.vial, waterMl: next.water, doseMcg: next.dose });
+    onChange?.({ vialMg: next.vial, waterMl: next.water, doseMg: next.dose });
   };
 
   const mg = Number(vial);
@@ -30,9 +31,9 @@ export function ReconstitutionCalculator({ title, vialMg, waterMl, doseMcg, onCh
   const valid = mg > 0 && ml > 0;
 
   const mgPerMl = valid ? mg / ml : 0;
-  const mcgPerUnit = mgPerMl * 10; // 1 insulin unit = 0.01 mL
-  const unitsForDose = valid && doseNum > 0 ? doseNum / mcgPerUnit : 0;
-  const dosesPerVial = valid && doseNum > 0 ? (mg * 1000) / doseNum : 0;
+  const mgPerUnit = mgPerMl / 100; // 1 insulin unit = 0.01 mL
+  const unitsForDose = valid && doseNum > 0 ? doseNum / mgPerUnit : 0;
+  const dosesPerVial = valid && doseNum > 0 ? mg / doseNum : 0;
 
   return (
     <div className="industrial-panel border-l-2 border-l-primary p-6">
@@ -47,26 +48,35 @@ export function ReconstitutionCalculator({ title, vialMg, waterMl, doseMcg, onCh
             min={0}
             step="any"
             value={vial}
+            readOnly={readOnly}
+            aria-readonly={readOnly}
+            className={readOnly ? "cursor-default bg-muted" : undefined}
             onChange={(e) => update({ vial: e.target.value })}
           />
         </div>
         <div>
-          <Label>Bacteriostatic water (mL)</Label>
+          <Label>Mixing Water (mL)</Label>
           <Input
             type="number"
             min={0}
             step="any"
             value={water}
+            readOnly={readOnly}
+            aria-readonly={readOnly}
+            className={readOnly ? "cursor-default bg-muted" : undefined}
             onChange={(e) => update({ water: e.target.value })}
           />
         </div>
         <div>
-          <Label>Desired dose (mcg)</Label>
+          <Label>Desired Dose (mg)</Label>
           <Input
             type="number"
             min={0}
             step="any"
             value={dose}
+            readOnly={readOnly}
+            aria-readonly={readOnly}
+            className={readOnly ? "cursor-default bg-muted" : undefined}
             onChange={(e) => update({ dose: e.target.value })}
           />
         </div>
@@ -77,7 +87,7 @@ export function ReconstitutionCalculator({ title, vialMg, waterMl, doseMcg, onCh
           <div className="flex justify-between gap-4">
             <dt className="text-muted-foreground">Concentration</dt>
             <dd className="font-extrabold text-accent">
-              {mgPerMl.toFixed(2)} mg/mL ({Math.round(mcgPerUnit)} mcg per unit)
+              {mgPerMl.toFixed(2)} mg/mL ({mgPerUnit.toFixed(3)} mg per unit)
             </dd>
           </div>
           <div className="flex justify-between gap-4">

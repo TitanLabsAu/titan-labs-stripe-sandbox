@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { FlaskConical, Shield, UserRound } from "lucide-react";
+import { Calculator, FlaskConical, Shield, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CartSheet } from "@/components/CartSheet";
 import { TitanLogo } from "@/components/TitanLogo";
@@ -45,6 +45,9 @@ export function SiteHeader() {
       </Button>
       <Button asChild variant="ghost" className="hidden font-bold uppercase md:inline-flex">
         <Link to="/range">{label("header_nav_range")}</Link>
+      </Button>
+      <Button asChild variant="outline" size="icon">
+        <Link to="/calculator" aria-label={label("header_nav_calculator")} title={label("header_nav_calculator")}><Calculator /></Link>
       </Button>
       {signedIn && isAdmin ? (
         <Button asChild variant="outline" size="icon" className="sm:hidden">

@@ -102,6 +102,7 @@ export const HEADER_FIELDS: HomeField[] = [
   { key: "header_tagline", label: "Small line under the site name", fallback: "Australia // Research Supply" },
   { key: "header_nav_home", label: "Tab name: Home", fallback: "Home" },
   { key: "header_nav_range", label: "Tab name: The range", fallback: "The range" },
+  { key: "header_nav_calculator", label: "Tab name: Calculator", fallback: "Calculator" },
   { key: "header_nav_admin", label: "Tab name: Admin", fallback: "Admin" },
   { key: "header_nav_login", label: "Tab name: Log in", fallback: "Log in" },
   { key: "header_nav_signup", label: "Tab name: Join / sign up", fallback: "Join Titan" },

@@ -31,6 +31,7 @@ export function SiteFooter() {
             <div className="mt-4 grid gap-3 font-bold uppercase">
               <Link to="/">{label("header_nav_home")}</Link>
               <Link to="/range">{label("header_nav_range")}</Link>
+              <Link to="/calculator">{label("header_nav_calculator")}</Link>
               <Link to="/auth">{label("header_nav_login")}</Link>
             </div>
           </div>
