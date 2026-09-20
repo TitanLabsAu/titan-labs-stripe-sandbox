@@ -14,6 +14,7 @@ import {
   getReconFor,
   kitPriceFor,
   productBasePrice,
+  sortedProductVariants,
   type ProductPack,
 } from "@/lib/products";
 import { getProductBySlug } from "@/lib/catalog.functions";
@@ -55,7 +56,7 @@ function ProductPage() {
   const { product } = Route.useLoaderData();
   const { products } = useProducts();
   const { addItem, items } = useCart();
-  const variants = product.variants ?? [];
+  const variants = sortedProductVariants(product);
   const [variantId, setVariantId] = useState<string | null>(variants[0]?.id ?? null);
   const [pack, setPack] = useState<ProductPack>("single");
   const selected = useMemo(
@@ -103,7 +104,7 @@ function ProductPage() {
               alt={product.alt}
               className="w-full border border-border object-cover shadow-sm"
             />
-            <div>
+            <div className="hidden lg:block">
               {recon.notes ? (
                 <p className="mb-3 whitespace-pre-wrap text-sm text-muted-foreground">
                   {recon.notes}
@@ -116,7 +117,8 @@ function ProductPage() {
                 }`}
                 vialMg={recon.vialMg}
                 waterMl={recon.waterMl}
-                doseMcg={recon.doseMcg}
+                doseMg={recon.doseMg}
+                readOnly
               />
             </div>
           </div>
@@ -132,7 +134,7 @@ function ProductPage() {
                 </span>
               ) : null}
               <span className="text-2xl font-extrabold text-accent">
-                {variants.length > 0 ? `From ${formatPrice(singleOption.unitPrice)}` : formatPrice(product.price)}
+                 {variants.length > 0 ? formatPrice(singleOption.unitPrice) : formatPrice(product.price)}
               </span>
               {product.promoLabel ? (
                   <span className="brand-cut bg-accent px-3 py-1 text-[10px] font-extrabold uppercase text-accent-foreground">
@@ -145,16 +147,15 @@ function ProductPage() {
               {variants.length > 0 ? (
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">Vial size</p>
-                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                   <div className="mt-3 flex flex-wrap gap-2">
                     {variants.map((variant) => (
                       <Button
                         key={variant.id}
                         variant={selected.variantId === variant.id ? "default" : "outline"}
-                        className="h-auto justify-between gap-3 px-4 py-3 font-bold uppercase"
+                         className="h-9 min-w-16 px-3 font-bold uppercase"
                         onClick={() => setVariantId(variant.id)}
                       >
                         <span>{variant.label}</span>
-                        <span>{formatPrice(variant.price)}</span>
                       </Button>
                     ))}
                   </div>
@@ -254,6 +255,18 @@ function ProductPage() {
                 <li key={d}>★ {d}</li>
               ))}
             </ul>
+
+            <div className="mt-6 lg:hidden">
+              {recon.notes ? <p className="mb-3 whitespace-pre-wrap text-sm text-muted-foreground">{recon.notes}</p> : null}
+              <ReconstitutionCalculator
+                key={`mobile-${selected.variantId ?? "base"}`}
+                title={`Recommended Reconstitution for ${product.name}${selected.variantId ? ` · ${selected.variantLabel}` : ""}`}
+                vialMg={recon.vialMg}
+                waterMl={recon.waterMl}
+                doseMg={recon.doseMg}
+                readOnly
+              />
+            </div>
 
             {(product.categories ?? []).length > 0 ? (
               <p className="mt-5 flex flex-wrap gap-2">

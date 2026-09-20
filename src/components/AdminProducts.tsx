@@ -25,7 +25,7 @@ export type DraftVariant = {
   kitPrice: string;
   reconVialMg: string;
   reconWaterMl: string;
-  reconDoseMcg: string;
+  reconDoseMg: string;
   reconNotes: string;
 };
 
@@ -46,7 +46,7 @@ export type Draft = {
   protocol: string;
   recon_vial_mg: string;
   recon_water_ml: string;
-  recon_dose_mcg: string;
+  recon_dose_mg: string;
   recon_notes: string;
   categories: string[];
   links: AdminProductLink[];
@@ -70,7 +70,7 @@ const emptyDraft: Draft = {
   protocol: "",
   recon_vial_mg: "",
   recon_water_ml: "",
-  recon_dose_mcg: "",
+  recon_dose_mg: "",
   recon_notes: "",
   categories: [],
   links: [],
@@ -109,7 +109,7 @@ export function toDraft(p: AdminProduct): Draft {
       kitPrice: v.kitPrice == null ? "" : String(v.kitPrice),
       reconVialMg: v.reconVialMg == null ? "" : String(v.reconVialMg),
       reconWaterMl: v.reconWaterMl == null ? "" : String(v.reconWaterMl),
-      reconDoseMcg: v.reconDoseMcg == null ? "" : String(v.reconDoseMcg),
+      reconDoseMg: v.reconDoseMg == null ? "" : String(v.reconDoseMg),
       reconNotes: v.reconNotes ?? "",
     })),
     image_url: p.image_url,
@@ -120,7 +120,7 @@ export function toDraft(p: AdminProduct): Draft {
     protocol: p.protocol ?? "",
     recon_vial_mg: p.recon_vial_mg == null ? "" : String(p.recon_vial_mg),
     recon_water_ml: p.recon_water_ml == null ? "" : String(p.recon_water_ml),
-    recon_dose_mcg: p.recon_dose_mcg == null ? "" : String(p.recon_dose_mcg),
+    recon_dose_mg: p.recon_dose_mg == null ? "" : String(p.recon_dose_mg),
     recon_notes: p.recon_notes ?? "",
     categories: p.categories ?? [],
     links: p.product_links ?? [],
@@ -147,7 +147,7 @@ export function draftToPayload(d: Draft) {
         kitPrice: num(v.kitPrice),
         reconVialMg: num(v.reconVialMg),
         reconWaterMl: num(v.reconWaterMl),
-        reconDoseMcg: num(v.reconDoseMcg),
+        reconDoseMg: num(v.reconDoseMg),
         reconNotes: v.reconNotes,
       }))
       .filter((v) => v.label && v.price > 0),
@@ -162,7 +162,7 @@ export function draftToPayload(d: Draft) {
     protocol: d.protocol,
     recon_vial_mg: num(d.recon_vial_mg),
     recon_water_ml: num(d.recon_water_ml),
-    recon_dose_mcg: num(d.recon_dose_mcg),
+    recon_dose_mg: num(d.recon_dose_mg),
     recon_notes: d.recon_notes,
     categories: d.categories,
     product_links: d.links
@@ -374,7 +374,7 @@ export function ProductEditor({
                     kitPrice: "",
                     reconVialMg: "",
                     reconWaterMl: "",
-                    reconDoseMcg: "",
+                    reconDoseMg: "",
                     reconNotes: "",
                   },
                 ],
@@ -441,12 +441,12 @@ export function ProductEditor({
                   title={`Recommended Reconstitution — ${variant.label || "this size"}`}
                   vialMg={variant.reconVialMg ? Number(variant.reconVialMg) : null}
                   waterMl={variant.reconWaterMl ? Number(variant.reconWaterMl) : null}
-                  doseMcg={variant.reconDoseMcg ? Number(variant.reconDoseMcg) : null}
+                  doseMg={variant.reconDoseMg ? Number(variant.reconDoseMg) : null}
                   onChange={(v) =>
                     setVariant(i, {
                       reconVialMg: v.vialMg,
                       reconWaterMl: v.waterMl,
-                      reconDoseMcg: v.doseMcg,
+                      reconDoseMg: v.doseMg,
                     })
                   }
                 />
@@ -474,12 +474,12 @@ export function ProductEditor({
           title="Recommended Reconstitution for this product"
           vialMg={draft.recon_vial_mg ? Number(draft.recon_vial_mg) : null}
           waterMl={draft.recon_water_ml ? Number(draft.recon_water_ml) : null}
-          doseMcg={draft.recon_dose_mcg ? Number(draft.recon_dose_mcg) : null}
+          doseMg={draft.recon_dose_mg ? Number(draft.recon_dose_mg) : null}
           onChange={(v) =>
             set({
               recon_vial_mg: v.vialMg,
               recon_water_ml: v.waterMl,
-              recon_dose_mcg: v.doseMcg,
+              recon_dose_mg: v.doseMg,
             })
           }
         />
