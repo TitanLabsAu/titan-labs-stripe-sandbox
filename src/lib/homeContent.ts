@@ -12,10 +12,10 @@ export type PageSection = { key: string; label: string };
 export const HOME_FIELDS: HomeField[] = [
   {
     key: "home_tagline",
-    label: "Top tagline",
+    label: "Subheading",
     fallback: "Premium quality ★ Pure form ★ Research use only",
   },
-  { key: "home_headline", label: "Main headline", fallback: "How far can you go with Titan Labs?" },
+  { key: "home_headline", label: "Page name", fallback: "Titan Labs Australia" },
   {
     key: "home_subtext",
     label: "Intro paragraph",

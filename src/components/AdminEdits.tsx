@@ -42,6 +42,10 @@ const TEXTAREA_ALIGN_CLASS: Record<TextAlign, string> = {
   right: "text-right",
 };
 
+const HOME_IDENTITY_KEYS = new Set(["home_tagline", "home_headline"]);
+const HOME_IDENTITY_FIELDS = HOME_FIELDS.filter((field) => HOME_IDENTITY_KEYS.has(field.key));
+const HOME_WORDING_FIELDS = HOME_FIELDS.filter((field) => !HOME_IDENTITY_KEYS.has(field.key));
+
 function imageStoragePath(file: File, slotKey: string) {
   const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
   return `page-content/${slotKey}/${crypto.randomUUID()}.${ext}`;
@@ -462,6 +466,36 @@ export function AdminEdits() {
 
         <TabsContent value="home" className="mt-6 space-y-6">
           <div className="rounded-xl border border-border bg-card/80 p-6">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-extrabold uppercase text-foreground">Home page name and subheading</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Change the two main lines shown over the faded Titan logo.
+                </p>
+              </div>
+              <Button
+                className="font-bold uppercase"
+                disabled={saveHome.isPending}
+                onClick={() => saveHome.mutate()}
+              >
+                Save page heading
+              </Button>
+            </div>
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              {HOME_IDENTITY_FIELDS.map((f) => (
+                <ContentFieldEditor
+                  key={f.key}
+                  field={f}
+                  value={values[f.key] ?? ""}
+                  align={(values[`${f.key}_align`] as TextAlign) || f.align || "center"}
+                  setValue={(value) => setValue(f.key, value)}
+                  setAlign={(value) => setValue(`${f.key}_align`, value)}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-border bg-card/80 p-6">
             <h3 className="text-lg font-extrabold uppercase text-foreground">
               Hot products on the home page
             </h3>
@@ -600,7 +634,7 @@ export function AdminEdits() {
             </div>
 
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              {HOME_FIELDS.map((f) => (
+              {HOME_WORDING_FIELDS.map((f) => (
                 <ContentFieldEditor
                   key={f.key}
                   field={f}
