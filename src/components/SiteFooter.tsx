@@ -1,6 +1,6 @@
 import { useSiteContent, useSiteLinks } from "@/lib/useCatalog";
 import { RichText } from "@/components/RichText";
-import { contentAlign, homeValue, TEXT_ALIGN_CLASS } from "@/lib/homeContent";
+import { contentAlign, FOOTER_TABS, homeValue, pageSectionOrder, TEXT_ALIGN_CLASS } from "@/lib/homeContent";
 import { cn } from "@/lib/utils";
 import { Link } from "@tanstack/react-router";
 import { FlaskConical, MapPin, ShieldCheck } from "lucide-react";
@@ -13,6 +13,7 @@ export function SiteFooter() {
   const pageName = homeValue(content, "home_headline");
   const standardTitle = content?.["footer_standard_title"]?.trim() || `${pageName} standard`;
   const label = (key: string) => homeValue(content, key);
+  const tabOrder = pageSectionOrder(content, "footer_layout_order", FOOTER_TABS);
 
   return (
     <footer className="relative overflow-hidden border-t border-border bg-secondary text-xs text-muted-foreground">
@@ -29,10 +30,12 @@ export function SiteFooter() {
           <div>
             <p className="font-display text-xs font-black uppercase text-foreground">{label("footer_nav_title")}</p>
             <div className="mt-4 grid gap-3 font-bold uppercase">
-              <Link to="/">{label("header_nav_home")}</Link>
-              <Link to="/range">{label("header_nav_range")}</Link>
-              <Link to="/calculator">{label("header_nav_calculator")}</Link>
-              <Link to="/auth">{label("header_nav_login")}</Link>
+               {tabOrder.map((tab) => {
+                 if (tab === "home") return <Link key={tab} to="/">{label("header_nav_home")}</Link>;
+                 if (tab === "range") return <Link key={tab} to="/range">{label("header_nav_range")}</Link>;
+                 if (tab === "calculator") return <Link key={tab} to="/calculator">{label("header_nav_calculator")}</Link>;
+                 return <Link key={tab} to="/auth">{label("header_nav_login")}</Link>;
+               })}
             </div>
           </div>
           <div className="space-y-3">

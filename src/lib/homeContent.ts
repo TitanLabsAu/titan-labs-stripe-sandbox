@@ -132,6 +132,24 @@ export const FOOTER_FIELDS: HomeField[] = [
   },
 ];
 
+export const HEADER_TABS: PageSection[] = [
+  { key: "home", label: "Home" },
+  { key: "range", label: "The range" },
+  { key: "calculator", label: "Calculator" },
+  { key: "admin", label: "Admin" },
+  { key: "account", label: "My profile" },
+  { key: "login", label: "Log in" },
+  { key: "signup", label: "Join / sign up" },
+  { key: "cart", label: "Cart" },
+];
+
+export const FOOTER_TABS: PageSection[] = [
+  { key: "home", label: "Home" },
+  { key: "range", label: "The range" },
+  { key: "calculator", label: "Calculator" },
+  { key: "login", label: "Log in" },
+];
+
 /** Header layout / tab orientation options. */
 export const HEADER_ALIGN_KEY = "header_nav_position";
 export const HEADER_LAYOUT_KEY = "header_layout";
