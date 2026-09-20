@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { TitanLogo } from "@/components/TitanLogo";
+import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 
 export const Route = createFileRoute("/auth/")({
   head: () => ({
@@ -73,17 +74,15 @@ function AuthPage() {
   }
 
   return (
-    <main className="bg-hero flex min-h-screen items-center justify-center px-4 py-16">
+    <div className="bg-hero min-h-screen">
+      <SiteHeader />
+      <main className="page-shell py-12">
       <div className="w-full max-w-md">
-        <Link to="/" className="mb-8 flex justify-center">
-          <TitanLogo size={72} />
-        </Link>
-
-        <div className="industrial-panel border-t-2 border-t-primary p-8 shadow-glow">
-          <h1 className="text-center text-3xl font-extrabold uppercase tracking-tight text-steel">
+        <div className="border border-border bg-card p-8 shadow-sm">
+           <h1 className="text-left text-3xl font-medium uppercase text-foreground">
             Member Log In
           </h1>
-          <p className="mt-2 text-center text-sm text-muted-foreground">
+           <p className="mt-2 text-left text-sm text-muted-foreground">
             Welcome back to Titan Labs Aus.
           </p>
 
@@ -132,10 +131,9 @@ function AuthPage() {
           ← Back to home
         </Link>
 
-        <p className="mt-4 text-center text-xs text-muted-foreground">
-          Research use only. Not for human consumption.
-        </p>
       </div>
-    </main>
+      </main>
+      <SiteFooter />
+    </div>
   );
 }

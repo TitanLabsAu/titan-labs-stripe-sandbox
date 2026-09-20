@@ -33,21 +33,20 @@ function CheckoutPage() {
   return (
     <div className="bg-hero min-h-screen">
       <SiteHeader />
-      <main className="mx-auto max-w-3xl px-4 pb-24">
-        <h1 className="text-4xl font-extrabold uppercase tracking-tight text-foreground">
-          Checkout
-        </h1>
+      <main className="page-shell py-10 sm:py-12">
+        <h1 className="text-3xl font-medium uppercase sm:text-4xl">Checkout</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Review your order before payment.</p>
 
         {items.length === 0 ? (
-          <div className="industrial-panel mt-8 p-8 text-center">
+          <div className="mt-8 border border-border bg-card p-8 text-center">
             <p className="text-muted-foreground">Your cart is empty.</p>
             <Button asChild className="mt-6 font-bold uppercase">
               <Link to="/range">Browse the range</Link>
             </Button>
           </div>
         ) : (
-          <div className="industrial-panel mt-8 border-t-2 border-t-primary p-6">
-            <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-accent">
+          <div className="mt-8 border border-border bg-card p-6 shadow-sm sm:p-8">
+            <h2 className="technical-label text-foreground">
               Order summary
             </h2>
             <ul className="mt-5 divide-y divide-border">

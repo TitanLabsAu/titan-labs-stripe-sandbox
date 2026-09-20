@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { TitanLogo } from "@/components/TitanLogo";
 import { AddressFields, combineAddress } from "@/components/AddressFields";
+import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 
 export const Route = createFileRoute("/auth/signup")({
   head: () => ({
@@ -98,13 +99,11 @@ function SignupPage() {
   }
 
   return (
-    <main className="bg-hero flex min-h-screen items-center justify-center px-4 py-16">
-      <div className="w-full max-w-md">
-        <Link to="/" className="mb-8 flex justify-center">
-          <TitanLogo size={72} />
-        </Link>
-
-        <div className="industrial-panel border-t-2 border-t-primary p-8 shadow-glow">
+    <div className="bg-hero min-h-screen">
+      <SiteHeader />
+      <main className="page-shell py-12">
+      <div className="w-full max-w-3xl">
+        <div className="border border-border bg-card p-8 shadow-sm">
           {sent ? (
             <div className="space-y-4 text-center">
               <h1 className="text-2xl font-extrabold tracking-tight text-steel">Check your email</h1>
@@ -119,10 +118,10 @@ function SignupPage() {
             </div>
           ) : (
             <>
-              <h1 className="text-center text-3xl font-extrabold uppercase tracking-tight text-steel">
+               <h1 className="text-left text-3xl font-medium uppercase text-foreground">
                 Create Account
               </h1>
-              <p className="mt-2 text-center text-sm text-muted-foreground">
+               <p className="mt-2 text-left text-sm text-muted-foreground">
                 Enter your details, then confirm your email to unlock ordering.
               </p>
 
@@ -210,10 +209,9 @@ function SignupPage() {
           ← Back to home
         </Link>
 
-        <p className="mt-4 text-center text-xs text-muted-foreground">
-          Research use only. Not for human consumption.
-        </p>
       </div>
-    </main>
+      </main>
+      <SiteFooter />
+    </div>
   );
 }

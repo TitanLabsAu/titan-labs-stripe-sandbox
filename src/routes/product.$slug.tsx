@@ -91,17 +91,17 @@ function ProductPage() {
     <div className="bg-hero min-h-screen">
       <SiteHeader />
 
-      <main className="mx-auto max-w-6xl px-4 pb-20">
+      <main className="page-shell py-10 sm:py-12">
         <Link to="/range" className="text-sm text-muted-foreground hover:text-accent">
           ← Back to the range
         </Link>
 
-        <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_0.95fr]">
+        <div className="mt-6 grid gap-8 border-t border-border pt-8 lg:grid-cols-[1fr_0.95fr]">
           <div className="space-y-6">
             <img
               src={product.image}
               alt={product.alt}
-              className="brand-cut w-full border border-border object-cover shadow-glow"
+              className="w-full border border-border object-cover shadow-sm"
             />
             <div>
               {recon.notes ? (
@@ -122,7 +122,7 @@ function ProductPage() {
           </div>
 
           <div>
-            <h1 className="text-4xl font-extrabold uppercase tracking-tight text-foreground">
+            <h1 className="text-4xl font-medium uppercase text-foreground sm:text-5xl">
               {product.name}
             </h1>
             <p className="mt-3 flex flex-wrap items-baseline gap-3">
@@ -141,7 +141,7 @@ function ProductPage() {
               ) : null}
             </p>
 
-            <div className="industrial-panel mt-6 border-t-2 border-t-primary p-5">
+            <div className="mt-6 border border-border bg-card p-5 shadow-sm">
               {variants.length > 0 ? (
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">Vial size</p>
@@ -236,7 +236,7 @@ function ProductPage() {
               </Button>
             </div>
 
-            <div className="industrial-panel mt-5 flex gap-3 border-l-2 border-l-accent p-4">
+            <div className="mt-5 flex gap-3 border border-border bg-card p-4">
               <ShieldCheck className="mt-0.5 h-6 w-6 shrink-0 text-accent" />
               <p className="text-sm font-bold uppercase leading-6 tracking-wide text-foreground">
                 Delivered Australia wide or your money back. Every order is covered by our 100%
@@ -266,7 +266,7 @@ function ProductPage() {
             ) : null}
 
             {product.protocol ? (
-              <div className="industrial-panel mt-6 p-5">
+               <div className="mt-6 border border-border bg-card p-5">
                 <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
                   How to use this product
                 </h2>
@@ -306,7 +306,7 @@ function ProductPage() {
                   key={p.slug}
                   to="/product/$slug"
                   params={{ slug: p.slug }}
-                    className="industrial-panel group overflow-hidden transition-all hover:-translate-y-1 hover:border-primary"
+                    className="group overflow-hidden border border-border bg-card transition-all hover:border-primary"
                 >
                   <img
                     src={p.image}

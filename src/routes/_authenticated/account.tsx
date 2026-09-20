@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { AddressFields, combineAddress } from "@/components/AddressFields";
+import { ProfileMenu } from "@/components/ProfileMenu";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({
@@ -133,28 +134,17 @@ function AccountPage() {
   return (
     <div className="bg-hero min-h-screen">
       <SiteHeader />
-      <main className="px-4 pb-16">
-        <div className="mx-auto max-w-2xl">
-        <div className="industrial-panel border-t-2 border-t-primary p-8 shadow-glow">
-          <h1 className="text-3xl font-extrabold uppercase tracking-tight text-steel">
-            Your profile
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {complete
-              ? "Your details are on file. Update them any time."
-              : "Complete your details so we can process and ship your orders."}
-          </p>
-          {profile?.email && (
-            <p className="mt-3 text-sm text-muted-foreground">
-              Signed in as <span className="text-foreground">{profile.email}</span>
-            </p>
-          )}
-
-
+      <main className="page-shell py-10 sm:py-12">
+        <ProfileMenu email={profile?.email} />
+        <div className="border border-border bg-card p-6 shadow-sm sm:p-8">
+          <div className="border-b border-border pb-5">
+            <h2 className="technical-label text-foreground">My details</h2>
+            <p className="mt-2 text-sm text-muted-foreground">{complete ? "Your details are on file. Update them any time." : "Complete your details so we can process and ship your orders."}</p>
+          </div>
           {isLoading ? (
             <p className="mt-8 text-sm text-muted-foreground">Loading your details…</p>
           ) : (
-            <form onSubmit={handleSave} className="mt-8 space-y-5">
+             <form onSubmit={handleSave} className="mt-7 space-y-6">
               <div className="grid gap-5 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="first_name">First name</Label>
@@ -200,16 +190,11 @@ function AccountPage() {
                 />
               </div>
 
-              <Button type="submit" className="w-full font-bold uppercase" disabled={saving}>
+               <Button type="submit" className="sm:w-auto" disabled={saving}>
                 {saving ? "Saving…" : "Update details"}
               </Button>
             </form>
           )}
-        </div>
-
-          <p className="mt-6 text-center text-xs text-muted-foreground">
-            Research use only. Not for human consumption.
-          </p>
         </div>
       </main>
       <SiteFooter />

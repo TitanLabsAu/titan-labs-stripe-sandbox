@@ -14,8 +14,8 @@ export function SiteFooter() {
   return (
     <footer className="relative overflow-hidden border-t border-border bg-secondary text-xs text-muted-foreground">
       <img src={footerImage} alt="" width={1920} height={768} loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-50" />
-      <div className="brand-footer-shade absolute inset-0" />
-      <div className="relative mx-auto max-w-7xl px-5 py-12 sm:px-6 sm:py-16">
+       <div className="brand-footer-shade absolute inset-0" />
+       <div className="relative mx-auto max-w-7xl px-5 py-20 sm:px-6 sm:py-24">
         <div className="grid gap-10 border-b border-border pb-10 md:grid-cols-[1.15fr_0.85fr_1fr]">
           <div>
             <TitanLogo size={72} />
