@@ -15,6 +15,10 @@ import { adminListProducts, adminSaveContent, adminSaveProduct } from "@/lib/adm
 import { getSiteContent } from "@/lib/catalog.functions";
 import {
   contentKeysForImages,
+  FOOTER_FIELDS,
+  HEADER_ALIGN_KEY,
+  HEADER_FIELDS,
+  HEADER_LAYOUT_KEY,
   HOME_FIELDS,
   HOME_IMAGE_SLOTS,
   HOME_SECTIONS,
@@ -27,6 +31,7 @@ import {
   type PageSection,
   type TextAlign,
 } from "@/lib/homeContent";
+
 import { formatPrice } from "@/lib/products";
 import { cn } from "@/lib/utils";
 
