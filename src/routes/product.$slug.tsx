@@ -13,6 +13,7 @@ import {
   getProductOption,
   getReconFor,
   kitPriceFor,
+  productBasePrice,
   type ProductPack,
 } from "@/lib/products";
 import { getProductBySlug } from "@/lib/catalog.functions";
@@ -315,7 +316,7 @@ function ProductPage() {
                   />
                   <div className="flex items-center justify-between gap-3 p-5">
                     <h3 className="text-lg font-bold uppercase text-foreground">{p.name}</h3>
-                    <span className="text-lg font-extrabold text-accent">{formatPrice(p.price)}</span>
+                    <span className="text-lg font-extrabold text-accent">{formatPrice(productBasePrice(p))}</span>
                   </div>
                 </Link>
               ))}

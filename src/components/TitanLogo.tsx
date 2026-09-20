@@ -15,7 +15,7 @@ export function TitanLogo({ className, size = 56, showWordmark = true }: Props) 
   return (
     <div className={cn("flex min-w-0 items-center gap-3", className)}>
       <span
-        className="logo-cutout relative shrink-0 overflow-hidden border border-border bg-foreground shadow-glow"
+        className="logo-cutout relative shrink-0 overflow-hidden border border-border bg-card shadow-glow"
         style={{ width: size, height: size }}
       >
         <img
@@ -29,11 +29,11 @@ export function TitanLogo({ className, size = 56, showWordmark = true }: Props) 
 
       {showWordmark ? (
         <div className="min-w-0 leading-none">
-          <div className="truncate font-display text-base font-black uppercase text-foreground sm:text-xl">
+          <div className="truncate font-display text-sm font-bold uppercase text-foreground sm:text-lg">
             Titan Labs
           </div>
-          <div className="mt-1 text-[0.55rem] font-bold uppercase text-accent">
-            Australia
+          <div className="mt-1 text-[0.5rem] font-bold uppercase text-accent">
+            Australia // Research Supply
           </div>
         </div>
       ) : null}
