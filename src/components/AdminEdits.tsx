@@ -18,6 +18,7 @@ import {
   FOOTER_FIELDS,
   FOOTER_TABS,
   HEADER_ALIGN_KEY,
+  HEADER_DISPLAY_OPTIONS,
   HEADER_FIELDS,
   HEADER_TABS,
   HEADER_LAYOUT_KEY,
@@ -362,6 +363,9 @@ export function AdminEdits() {
       }
       next[HEADER_ALIGN_KEY] = data[HEADER_ALIGN_KEY] ?? "right";
       next[HEADER_LAYOUT_KEY] = data[HEADER_LAYOUT_KEY] ?? "inline";
+      for (const option of HEADER_DISPLAY_OPTIONS) {
+        next[option.contentKey] = data[option.contentKey] ?? option.fallback;
+      }
       for (const key of contentKeysForImages([...HOME_IMAGE_SLOTS, ...RANGE_IMAGE_SLOTS])) {
         next[key] = data[key] ?? (key.endsWith("_align") ? "center" : "");
       }
@@ -423,6 +427,7 @@ export function AdminEdits() {
         ...[...HEADER_FIELDS, ...FOOTER_FIELDS].flatMap((f) => [f.key, `${f.key}_align`]),
         HEADER_ALIGN_KEY,
         HEADER_LAYOUT_KEY,
+        ...HEADER_DISPLAY_OPTIONS.map((option) => option.contentKey),
         "header_layout_order",
         "footer_layout_order",
       ];
@@ -548,6 +553,31 @@ export function AdminEdits() {
             </div>
 
             <SectionOrderEditor sections={HEADER_TABS} order={headerOrder} onChange={setHeaderOrder} />
+
+            <div className="mt-5">
+              <h4 className="text-sm font-extrabold uppercase tracking-[0.15em] text-accent">
+                Tab appearance
+              </h4>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Choose an icon or its editable tab name. The Catalogue always uses the test beaker.
+              </p>
+              <div className="mt-3 grid gap-4 sm:grid-cols-2">
+                {HEADER_DISPLAY_OPTIONS.map((option) => (
+                  <div key={option.key}>
+                    <Label htmlFor={option.contentKey}>{option.label}</Label>
+                    <select
+                      id={option.contentKey}
+                      className="mt-2 h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"
+                      value={values[option.contentKey] ?? option.fallback}
+                      onChange={(event) => setValue(option.contentKey, event.target.value)}
+                    >
+                      <option value="text">Text</option>
+                      <option value="icon">Icon</option>
+                    </select>
+                  </div>
+                ))}
+              </div>
+            </div>
 
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               {HEADER_FIELDS.map((f) => (
