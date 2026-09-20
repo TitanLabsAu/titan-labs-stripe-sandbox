@@ -10,6 +10,7 @@ import { TitanLogo } from "@/components/TitanLogo";
 export function SiteFooter() {
   const { data: siteLinks } = useSiteLinks();
   const { data: content } = useSiteContent();
+  const pageName = homeValue(content, "home_headline");
 
   return (
     <footer className="relative overflow-hidden border-t border-border bg-secondary text-xs text-muted-foreground">
@@ -28,7 +29,7 @@ export function SiteFooter() {
             </div>
           </div>
           <div className="space-y-3">
-            <p className="font-display text-xs font-black uppercase text-foreground">Titan standard</p>
+            <p className="font-display text-xs font-black uppercase text-foreground">{pageName} standard</p>
             <p className="flex items-center gap-3"><MapPin className="h-4 w-4 text-accent" /> Australia-wide delivery</p>
             <p className="flex items-center gap-3"><ShieldCheck className="h-4 w-4 text-primary" /> 100% delivery guarantee</p>
             <p className="flex items-center gap-3"><FlaskConical className="h-4 w-4 text-accent" /> Laboratory research use only</p>

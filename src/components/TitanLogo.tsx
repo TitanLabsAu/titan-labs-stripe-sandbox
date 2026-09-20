@@ -1,5 +1,7 @@
 import { cn } from "@/lib/utils";
 import logoAsset from "@/assets/titan-labs-new-logo.png.asset.json";
+import { homeValue } from "@/lib/homeContent";
+import { useSiteContent } from "@/lib/useCatalog";
 
 type Props = {
   className?: string;
@@ -12,6 +14,9 @@ type Props = {
  * Titan Labs Australia metallic Spartan identity.
  */
 export function TitanLogo({ className, size = 56, showWordmark = true }: Props) {
+  const { data: content } = useSiteContent();
+  const pageName = homeValue(content, "home_headline");
+
   return (
     <div className={cn("flex min-w-0 items-center gap-3", className)}>
       <span
@@ -20,7 +25,7 @@ export function TitanLogo({ className, size = 56, showWordmark = true }: Props) 
       >
         <img
           src={logoAsset.url}
-          alt="Titan Labs Australia"
+          alt={pageName}
           width={768}
           height={768}
           className="h-full w-full object-cover"
@@ -30,7 +35,7 @@ export function TitanLogo({ className, size = 56, showWordmark = true }: Props) 
       {showWordmark ? (
         <div className="min-w-0 leading-none">
           <div className="truncate font-display text-sm font-bold uppercase text-foreground sm:text-lg">
-            Titan Labs
+            {pageName}
           </div>
           <div className="mt-1 text-[0.5rem] font-bold uppercase text-accent">
             Australia // Research Supply
