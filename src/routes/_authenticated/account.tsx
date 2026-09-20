@@ -134,7 +134,7 @@ function AccountPage() {
       <SiteHeader />
       <main className="px-4 pb-16">
         <div className="mx-auto max-w-2xl">
-        <div className="shadow-glow rounded-xl border border-border bg-card/80 p-8 backdrop-blur">
+        <div className="industrial-panel border-t-2 border-t-primary p-8 shadow-glow">
           <h1 className="text-3xl font-extrabold uppercase tracking-tight text-steel">
             Your profile
           </h1>
