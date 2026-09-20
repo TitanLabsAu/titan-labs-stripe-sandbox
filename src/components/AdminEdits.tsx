@@ -409,6 +409,24 @@ export function AdminEdits() {
     },
     onError: () => toast.error("Could not save your range page changes"),
   });
+  const saveChrome = useMutation({
+    mutationFn: async () => {
+      const keys = [
+        ...[...HEADER_FIELDS, ...FOOTER_FIELDS].flatMap((f) => [f.key, `${f.key}_align`]),
+        HEADER_ALIGN_KEY,
+        HEADER_LAYOUT_KEY,
+      ];
+      await Promise.all(
+        keys.map((key) => adminSaveContent({ data: { key, body: values[key] ?? "" } })),
+      );
+    },
+    onSuccess: () => {
+      toast.success("Header and footer updated");
+      refreshContent();
+    },
+    onError: () => toast.error("Could not save the header and footer"),
+  });
+
 
   const saveFeatured = useMutation({
     mutationFn: (slugs: string[]) =>
