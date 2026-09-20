@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { AddressFields, combineAddress } from "@/components/AddressFields";
 
 export const Route = createFileRoute("/_authenticated/account")({
@@ -211,6 +212,7 @@ function AccountPage() {
           </p>
         </div>
       </main>
+      <SiteFooter />
     </div>
   );
 }

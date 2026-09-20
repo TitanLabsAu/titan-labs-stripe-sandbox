@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { OrderList } from "@/components/OrderList";
 import { fetchOrders } from "@/lib/orders";
 
@@ -54,6 +55,7 @@ function CurrentOrdersPage() {
           )}
         </div>
       </main>
+      <SiteFooter />
     </div>
   );
 }

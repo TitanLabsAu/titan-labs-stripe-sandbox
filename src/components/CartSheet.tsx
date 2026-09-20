@@ -31,7 +31,7 @@ export function CartSheet() {
           )}
         </Button>
       </SheetTrigger>
-      <SheetContent className="flex w-full flex-col sm:max-w-md">
+      <SheetContent className="flex w-full flex-col border-l-primary bg-background/95 sm:max-w-md">
         <SheetHeader>
           <SheetTitle className="uppercase tracking-wide">Your cart</SheetTitle>
           <SheetDescription>Review your items before checkout.</SheetDescription>
@@ -49,12 +49,12 @@ export function CartSheet() {
                 return (
                   <li
                     key={item.key}
-                    className="flex gap-3 rounded-lg border border-border bg-card/60 p-3"
+                    className="industrial-panel flex gap-3 p-3"
                   >
                     <img
                       src={product.image}
                       alt={product.alt}
-                      className="h-16 w-16 rounded object-cover"
+                       className="brand-cut h-16 w-16 object-cover"
                     />
                     <div className="flex-1">
                       <div className="flex items-start justify-between gap-2">

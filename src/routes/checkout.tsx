@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/products";
 import { useProducts } from "@/lib/useCatalog";
@@ -113,6 +114,7 @@ function CheckoutPage() {
           </div>
         )}
       </main>
+      <SiteFooter />
     </div>
   );
 }
