@@ -19,7 +19,7 @@ import {
   TEXT_ALIGN_CLASS,
 } from "@/lib/homeContent";
 import { cn } from "@/lib/utils";
-import heroImage from "@/assets/titan-light-header.jpg";
+import logoAsset from "@/assets/titan-labs-new-logo.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -66,8 +66,10 @@ function Index() {
       <SiteHeader />
 
       <main className="relative">
-        <img src={heroImage} alt="" width={1920} height={768} className="pointer-events-none absolute inset-x-0 top-0 h-[34rem] w-full object-cover opacity-70" />
-        <div className="brand-image-shade pointer-events-none absolute inset-x-0 top-0 h-[34rem]" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 flex h-[34rem] items-center justify-center overflow-hidden" aria-hidden="true">
+          <img src={logoAsset.url} alt="" width={768} height={768} className="h-full w-full scale-110 object-contain opacity-15 sm:scale-125" />
+          <div className="absolute inset-0 bg-background/35" />
+        </div>
         <div className="h-20 sm:h-28" />
         {sectionOrder.map((section) => {
             if (section === "tagline") return <section key={section} className="relative page-shell pb-6"><p className={cn("technical-label text-muted-foreground", TEXT_ALIGN_CLASS[contentAlign(content, "home_tagline")])}><RichText text={homeValue(content, "home_tagline")} /></p></section>;
