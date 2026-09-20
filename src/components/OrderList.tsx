@@ -42,7 +42,7 @@ function formatDate(value: string) {
 export function OrderList({ orders, emptyMessage }: { orders: OrderRow[]; emptyMessage: string }) {
   if (orders.length === 0) {
     return (
-      <div className="rounded-xl border border-border bg-card/70 p-8 text-center">
+      <div className="industrial-panel p-8 text-center">
         <p className="text-sm text-muted-foreground">{emptyMessage}</p>
       </div>
     );
@@ -51,7 +51,7 @@ export function OrderList({ orders, emptyMessage }: { orders: OrderRow[]; emptyM
   return (
     <div className="space-y-6">
       {orders.map((order) => (
-        <article key={order.id} className="rounded-xl border border-border bg-card/80 p-6">
+        <article key={order.id} className="industrial-panel p-6">
           <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
@@ -62,7 +62,7 @@ export function OrderList({ orders, emptyMessage }: { orders: OrderRow[]; emptyM
                 {order.delivered_at ? ` · Delivered ${formatDate(order.delivered_at)}` : ""}
               </p>
             </div>
-            <span className="rounded-full border border-accent/50 px-3 py-1 text-xs font-bold uppercase tracking-wide text-accent">
+            <span className="brand-cut border border-accent/50 px-3 py-1 text-xs font-bold uppercase text-accent">
               {STATUS_LABEL[order.status]}
             </span>
           </header>
@@ -100,7 +100,7 @@ export function OrderList({ orders, emptyMessage }: { orders: OrderRow[]; emptyM
             </div>
           </div>
 
-          <div className="mt-4 rounded-lg border border-border bg-background/40 p-4">
+          <div className="mt-4 border border-border bg-background/40 p-4">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
               Australia Post Express tracking
             </p>
