@@ -136,7 +136,7 @@ function ProductPage() {
               </p>
             ) : stock === "low" ? (
               <p className="mt-4 inline-flex items-center border border-accent bg-accent/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-accent-foreground">
-                Low stock — only {product.stock} left
+                Low stock — only {stockCount} left
               </p>
             ) : null}
 
