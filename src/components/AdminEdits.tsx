@@ -989,6 +989,7 @@ export function AdminEdits() {
                   draft={draft}
                   setDraft={setDraft}
                   saving={saveProduct.isPending}
+                  showPromo
                   title={`Edit ${draft.name}`}
                   onSave={() => saveProduct.mutate(draft)}
                   onCancel={() => setDraft(null)}
