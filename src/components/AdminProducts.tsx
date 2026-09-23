@@ -275,18 +275,6 @@ export function ProductEditor({
           />
         </div>
         <div>
-          <Label>Stock on hand (units)</Label>
-          <Input
-            type="number"
-            min={0}
-            value={draft.stock_quantity}
-            onChange={(e) => set({ stock_quantity: e.target.value })}
-          />
-          <p className="mt-1 text-xs text-muted-foreground">
-            Under {LOW_STOCK_THRESHOLD} shows a low stock warning. 0 shows out of stock and blocks ordering.
-          </p>
-        </div>
-        <div>
           <Label>Product picture</Label>
           <Input
             type="file"
