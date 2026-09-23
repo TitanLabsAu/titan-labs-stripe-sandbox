@@ -624,6 +624,7 @@ function AdminPage() {
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="members">Members</TabsTrigger>
             <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="finance">Sales &amp; profit</TabsTrigger>
             <TabsTrigger value="discounts">Discounts</TabsTrigger>
             <TabsTrigger value="edits">Website editor</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
