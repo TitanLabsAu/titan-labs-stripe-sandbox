@@ -29,6 +29,13 @@
       "when": 1790167435010,
       "tag": "0003_add_product_stock_quantity",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790167662206,
+      "tag": "0004_product_stock_default_zero",
+      "breakpoints": true
     }
   ]
 }
