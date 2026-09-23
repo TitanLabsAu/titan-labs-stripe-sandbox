@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ReconstitutionCalculator } from "@/components/ReconstitutionCalculator";
 import { supabase } from "@/integrations/supabase/client";
 import { CATEGORIES } from "@/lib/categories";
 import { formatPrice, kitPriceFor } from "@/lib/products";
@@ -432,67 +431,10 @@ export function ProductEditor({
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Recommended Reconstitution for {variant.label || "this size"} — customers see these
-                  numbers as soon as they pick this size. Leave blank to use the product defaults below.
-                </p>
-                <ReconstitutionCalculator
-                  key={`${variant.id}-recon`}
-                  title={`Recommended Reconstitution — ${variant.label || "this size"}`}
-                  vialMg={variant.reconVialMg ? Number(variant.reconVialMg) : null}
-                  waterMl={variant.reconWaterMl ? Number(variant.reconWaterMl) : null}
-                  doseMg={variant.reconDoseMg ? Number(variant.reconDoseMg) : null}
-                  onChange={(v) =>
-                    setVariant(i, {
-                      reconVialMg: v.vialMg,
-                      reconWaterMl: v.waterMl,
-                      reconDoseMg: v.doseMg,
-                    })
-                  }
-                />
-                <Textarea
-                  rows={3}
-                  value={variant.reconNotes}
-                  placeholder="Mixing notes shown for this size…"
-                  aria-label="Reconstitution notes for this size"
-                  onChange={(e) => setVariant(i, { reconNotes: e.target.value })}
-                />
               </div>
             ))}
           </div>
         )}
-      </div>
-
-      <div className="space-y-3">
-        <Label>Recommended Reconstitution</Label>
-        <p className="text-xs text-muted-foreground">
-          Set the numbers you recommend for this product. Customers see the calculator on the
-          product page already filled in with these.
-        </p>
-        <ReconstitutionCalculator
-          key={draft.id ?? "new"}
-          title="Recommended Reconstitution for this product"
-          vialMg={draft.recon_vial_mg ? Number(draft.recon_vial_mg) : null}
-          waterMl={draft.recon_water_ml ? Number(draft.recon_water_ml) : null}
-          doseMg={draft.recon_dose_mg ? Number(draft.recon_dose_mg) : null}
-          onChange={(v) =>
-            set({
-              recon_vial_mg: v.vialMg,
-              recon_water_ml: v.waterMl,
-              recon_dose_mg: v.doseMg,
-            })
-          }
-        />
-        <div>
-          <Label>Recommended Reconstitution notes</Label>
-          <Textarea
-            rows={4}
-            className="mt-2"
-            value={draft.recon_notes}
-            placeholder="Mixing and storage advice shown with the calculator…"
-            onChange={(e) => set({ recon_notes: e.target.value })}
-          />
-        </div>
       </div>
 
       <div>
