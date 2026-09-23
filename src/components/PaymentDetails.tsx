@@ -235,8 +235,13 @@ export function PaymentMethodPicker({
             onChange={() => onChange(option.key)}
           />
           <span className="min-w-0">
-            <span className="block font-bold uppercase tracking-wide text-foreground">
+            <span className="flex flex-wrap items-center gap-2 font-bold uppercase tracking-wide text-foreground">
               {option.label}
+              {option.badge ? (
+                <span className="border border-accent bg-accent/10 px-1.5 py-0.5 text-[10px] font-extrabold tracking-[0.14em] text-accent">
+                  {option.badge}
+                </span>
+              ) : null}
             </span>
             <span className="block text-xs text-muted-foreground">{option.hint}</span>
           </span>
