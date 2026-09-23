@@ -37,6 +37,8 @@ export type Product = {
   reconDoseMg?: number | null;
   reconNotes?: string;
   links?: ProductLink[];
+  /** Units on hand. null = not tracked. */
+  stock?: number | null;
 };
 
 export const products: Product[] = [

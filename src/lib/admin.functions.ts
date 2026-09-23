@@ -367,10 +367,11 @@ export type AdminProduct = {
   product_links: AdminProductLink[];
   active: boolean;
   sort_order: number;
+  stock_quantity: number;
 };
 
 const PRODUCT_COLS =
-  "id, slug, name, price, sale_price, promo_label, kit_price, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, active, sort_order";
+  "id, slug, name, price, sale_price, promo_label, kit_price, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, active, sort_order, stock_quantity";
 
 export const adminListProducts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -434,6 +435,7 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
       product_links: (data.product_links ?? []).filter((l) => l && l.url),
       active: data.active ?? true,
       sort_order: Number(data.sort_order ?? 0),
+      stock_quantity: Math.max(0, Math.trunc(Number(data.stock_quantity ?? 0)) || 0),
     };
     if (data.id) {
       const { error } = await context.supabase.from("products").update(row).eq("id", data.id);
@@ -480,6 +482,7 @@ export const adminSaveLink = createServerFn({ method: "POST" })
       label: data.label.trim(),
       url: data.url.trim(),
       sort_order: Number(data.sort_order ?? 0),
+      stock_quantity: Math.max(0, Math.trunc(Number(data.stock_quantity ?? 0)) || 0),
     };
     if (data.id) {
       const { error } = await context.supabase.from("site_links").update(row).eq("id", data.id);

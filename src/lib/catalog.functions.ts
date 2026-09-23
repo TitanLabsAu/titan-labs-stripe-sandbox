@@ -70,12 +70,13 @@ function toProduct(row: any): Product {
     reconWaterMl: row.recon_water_ml === null || row.recon_water_ml === undefined ? null : Number(row.recon_water_ml),
     reconDoseMg: row.recon_dose_mg === null || row.recon_dose_mg === undefined ? null : Number(row.recon_dose_mg),
     reconNotes: row.recon_notes ?? "",
+    stock: row.stock_quantity === null || row.stock_quantity === undefined ? null : Number(row.stock_quantity),
     links: links.filter((l) => l && l.url),
   };
 }
 
 const PRODUCT_COLUMNS =
-  "slug, name, price, sale_price, promo_label, kit_price, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links";
+  "slug, name, price, sale_price, promo_label, kit_price, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, stock_quantity";
 
 export const listProducts = createServerFn({ method: "GET" }).handler(
   async (): Promise<Product[]> => {
