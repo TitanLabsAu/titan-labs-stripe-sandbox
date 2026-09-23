@@ -22,6 +22,7 @@ export type DraftVariant = {
   label: string;
   price: string;
   kitPrice: string;
+  stock: string;
   reconVialMg: string;
   reconWaterMl: string;
   reconDoseMg: string;
