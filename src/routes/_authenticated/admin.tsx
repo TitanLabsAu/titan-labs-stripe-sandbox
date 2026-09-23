@@ -18,6 +18,7 @@ import {
   adminListOrders,
   adminMarkNotificationsRead,
   adminRefreshTracking,
+  adminSetPaymentConfirmed,
   adminSetTracking,
   adminUpdateStatus,
   type AdminOrder,
@@ -128,12 +129,24 @@ function OrderCard({ order, live }: { order: AdminOrder; live: boolean }) {
     onError: () => toast.error("Could not update the order"),
   });
 
+  const setPaid = useMutation({
+    mutationFn: (confirmed: boolean) =>
+      adminSetPaymentConfirmed({ data: { orderId: order.id, confirmed } }),
+    onSuccess: () => {
+      toast.success("Payment status updated");
+      invalidate();
+    },
+    onError: () => toast.error("Could not update the payment status"),
+  });
+
+  const methodName = order.payment_method === "crypto" ? "Cryptocurrency (USDC)" : "PayID / Bank transfer";
+
   return (
     <article className="rounded-xl border border-border bg-card/80 p-6">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
         <div>
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-            Order #{order.id.slice(0, 8)}
+            Order {order.order_number ? `#TL-${order.order_number}` : `#${order.id.slice(0, 8)}`}
           </p>
           <p className="mt-1 text-sm text-muted-foreground">
             Placed {formatDate(order.created_at)}
@@ -182,6 +195,44 @@ function OrderCard({ order, live }: { order: AdminOrder; live: boolean }) {
                 {formatPrice(Number(order.total))}
               </span>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-lg border border-border bg-background/40 p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
+              Payment
+            </p>
+            <p className="mt-1 text-sm text-foreground">{methodName}</p>
+            {order.payment_reference ? (
+              <p className="mt-1 break-all font-mono text-xs text-muted-foreground">
+                Reference: {order.payment_reference}
+              </p>
+            ) : null}
+            {order.notes ? (
+              <p className="mt-1 text-xs text-muted-foreground">Notes: {order.notes}</p>
+            ) : null}
+          </div>
+          <div className="flex items-center gap-2">
+            <span
+              className={`rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wide ${
+                order.payment_confirmed
+                  ? "border-accent/50 text-accent"
+                  : "border-border text-muted-foreground"
+              }`}
+            >
+              {order.payment_confirmed ? "Paid" : "Awaiting payment"}
+            </span>
+            <Button
+              variant="outline"
+              className="font-bold uppercase"
+              disabled={setPaid.isPending}
+              onClick={() => setPaid.mutate(!order.payment_confirmed)}
+            >
+              {order.payment_confirmed ? "Mark unpaid" : "Mark as paid"}
+            </Button>
           </div>
         </div>
       </div>

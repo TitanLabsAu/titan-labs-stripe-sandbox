@@ -25,6 +25,7 @@ import {
   HOME_FIELDS,
   HOME_IMAGE_SLOTS,
   HOME_SECTIONS,
+  PAYMENT_FIELDS,
   RANGE_FIELDS,
   RANGE_IMAGE_SLOTS,
   RANGE_SECTIONS,
@@ -357,7 +358,7 @@ export function AdminEdits() {
         next[f.key] = data[f.key] ?? f.fallback;
         next[`${f.key}_align`] = data[`${f.key}_align`] ?? f.align ?? "center";
       }
-      for (const f of [...RANGE_FIELDS, ...HEADER_FIELDS, ...FOOTER_FIELDS]) {
+      for (const f of [...RANGE_FIELDS, ...HEADER_FIELDS, ...FOOTER_FIELDS, ...PAYMENT_FIELDS]) {
         next[f.key] = data[f.key] ?? f.fallback;
         next[`${f.key}_align`] = data[`${f.key}_align`] ?? f.align ?? "center";
       }
@@ -443,6 +444,20 @@ export function AdminEdits() {
   });
 
 
+  const savePayments = useMutation({
+    mutationFn: async () => {
+      const keys = PAYMENT_FIELDS.flatMap((f) => [f.key, `${f.key}_align`]);
+      await Promise.all(
+        keys.map((key) => adminSaveContent({ data: { key, body: values[key] ?? "" } })),
+      );
+    },
+    onSuccess: () => {
+      toast.success("Payment details updated");
+      refreshContent();
+    },
+    onError: () => toast.error("Could not save the payment details"),
+  });
+
   const saveFeatured = useMutation({
     mutationFn: (slugs: string[]) =>
       adminSaveContent({ data: { key: "home_featured", body: slugs.join(",") } }),
@@ -509,7 +524,52 @@ export function AdminEdits() {
           <TabsTrigger value="footer" className="font-bold uppercase">
             Footer
           </TabsTrigger>
+          <TabsTrigger value="payments" className="font-bold uppercase">
+            Payments
+          </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="payments" className="mt-6 space-y-6">
+          <div className="rounded-xl border border-border bg-card/80 p-6">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-extrabold uppercase text-foreground">Payment details</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  These are shown to the customer after they choose a payment option at checkout.
+                  Leave a field blank to hide it.
+                </p>
+              </div>
+              <Button
+                className="font-bold uppercase"
+                disabled={savePayments.isPending}
+                onClick={() => savePayments.mutate()}
+              >
+                Save payment details
+              </Button>
+            </div>
+
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              {PAYMENT_FIELDS.map((f) => (
+                <ContentFieldEditor
+                  key={f.key}
+                  field={f}
+                  value={values[f.key] ?? ""}
+                  align={(values[`${f.key}_align`] as TextAlign) || f.align || "left"}
+                  setValue={(value) => setValue(f.key, value)}
+                  setAlign={(value) => setValue(`${f.key}_align`, value)}
+                />
+              ))}
+            </div>
+
+            <Button
+              className="mt-5 font-bold uppercase"
+              disabled={savePayments.isPending}
+              onClick={() => savePayments.mutate()}
+            >
+              Save payment details
+            </Button>
+          </div>
+        </TabsContent>
 
         <TabsContent value="header" className="mt-6 space-y-6">
           <div className="rounded-xl border border-border bg-card/80 p-6">

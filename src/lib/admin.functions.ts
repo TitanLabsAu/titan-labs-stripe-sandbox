@@ -32,6 +32,15 @@ export type AdminOrder = {
   total: number;
   created_at: string;
   delivered_at: string | null;
+  order_number: number | null;
+  payment_method: string | null;
+  payment_reference: string | null;
+  payment_confirmed: boolean | null;
+  contact_name: string | null;
+  contact_email: string | null;
+  contact_phone: string | null;
+  shipping_address: string | null;
+  notes: string | null;
   order_items: AdminOrderItem[];
   customer: AdminCustomer | null;
 };
@@ -57,7 +66,7 @@ export const adminListOrders = createServerFn({ method: "POST" })
     const { data: orders, error } = await context.supabase
       .from("orders")
       .select(
-        "id, user_id, status, tracking_number, tracking_status, subtotal, shipping, total, created_at, delivered_at, order_items(id, product_name, product_slug, unit_price, quantity)",
+        "id, user_id, status, tracking_number, tracking_status, subtotal, shipping, total, created_at, delivered_at, order_number, payment_method, payment_reference, payment_confirmed, contact_name, contact_email, contact_phone, shipping_address, notes, order_items(id, product_name, product_slug, unit_price, quantity)",
       )
       .in("status", statuses)
       .order("created_at", { ascending: false });
@@ -96,6 +105,19 @@ export const adminSetTracking = createServerFn({ method: "POST" })
         tracking_number: tracking === "" ? null : tracking,
         status: tracking === "" ? "processing" : "shipped",
       })
+      .eq("id", data.orderId);
+    if (error) throw error;
+    return { ok: true };
+  });
+
+export const adminSetPaymentConfirmed = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { orderId: string; confirmed: boolean }) => input)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as any);
+    const { error } = await context.supabase
+      .from("orders")
+      .update({ payment_confirmed: data.confirmed })
       .eq("id", data.orderId);
     if (error) throw error;
     return { ok: true };

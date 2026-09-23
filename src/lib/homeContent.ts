@@ -130,6 +130,59 @@ export const FOOTER_FIELDS: HomeField[] = [
   },
 ];
 
+/** Checkout payment wording and details, editable in Admin Edits. */
+export const PAYMENT_FIELDS: HomeField[] = [
+  {
+    key: "payment_intro",
+    label: "Text above the payment choices",
+    multiline: true,
+    align: "left",
+    fallback:
+      "Payment is made outside the website. Choose how you would like to pay and we will confirm your order once the funds arrive.",
+  },
+  { key: "payment_payid_label", label: "PayID option name", align: "left", fallback: "PayID / Bank transfer" },
+  { key: "payment_payid_id", label: "Your PayID", align: "left", fallback: "" },
+  { key: "payment_payid_account", label: "Account name", align: "left", fallback: "Titan Labs Australia" },
+  { key: "payment_payid_bsb", label: "BSB (optional)", align: "left", fallback: "" },
+  { key: "payment_payid_account_number", label: "Account number (optional)", align: "left", fallback: "" },
+  {
+    key: "payment_payid_instructions",
+    label: "PayID instructions",
+    multiline: true,
+    align: "left",
+    fallback:
+      "Transfer the order total from your banking app using your order number as the payment description. Payments clear instantly with Osko.",
+  },
+  { key: "payment_crypto_label", label: "Crypto option name", align: "left", fallback: "Cryptocurrency (USDC)" },
+  { key: "payment_crypto_network", label: "Network", align: "left", fallback: "Ethereum (ERC-20)" },
+  { key: "payment_crypto_wallet", label: "Wallet address", align: "left", fallback: "" },
+  {
+    key: "payment_crypto_instructions",
+    label: "Crypto instructions",
+    multiline: true,
+    align: "left",
+    fallback:
+      "Send the order total in USDC to the wallet address above, then paste your transaction hash so we can match your payment.",
+  },
+  {
+    key: "payment_confirmation_note",
+    label: "Text on the order received screen",
+    multiline: true,
+    align: "left",
+    fallback:
+      "Your order is confirmed. Complete your payment using the details above and we will dispatch as soon as it clears.",
+  },
+];
+
+export type PaymentMethodKey = "payid" | "crypto";
+
+export function paymentMethodName(
+  content: Record<string, string> | undefined,
+  method: PaymentMethodKey,
+) {
+  return homeValue(content, method === "payid" ? "payment_payid_label" : "payment_crypto_label");
+}
+
 export const HEADER_TABS: PageSection[] = [
   { key: "home", label: "Home" },
   { key: "range", label: "Catalogue" },
@@ -268,7 +321,7 @@ export function fieldAlign(
 }
 
 export function contentAlign(content: Record<string, string> | undefined, key: string) {
-  const field = [...HOME_FIELDS, ...RANGE_FIELDS, ...HEADER_FIELDS, ...FOOTER_FIELDS].find((f) => f.key === key);
+  const field = [...HOME_FIELDS, ...RANGE_FIELDS, ...HEADER_FIELDS, ...FOOTER_FIELDS, ...PAYMENT_FIELDS].find((f) => f.key === key);
   return normaliseAlign(content?.[`${key}_align`], field?.align ?? "center");
 }
 
@@ -309,7 +362,7 @@ export function featuredSlugs(content: Record<string, string> | undefined) {
 }
 
 export function homeValue(content: Record<string, string> | undefined, key: string) {
-  const field = [...HOME_FIELDS, ...RANGE_FIELDS, ...HEADER_FIELDS, ...FOOTER_FIELDS].find((f) => f.key === key);
+  const field = [...HOME_FIELDS, ...RANGE_FIELDS, ...HEADER_FIELDS, ...FOOTER_FIELDS, ...PAYMENT_FIELDS].find((f) => f.key === key);
   const value = content?.[key];
   return value && value.trim() ? value : field?.fallback || "";
 }
