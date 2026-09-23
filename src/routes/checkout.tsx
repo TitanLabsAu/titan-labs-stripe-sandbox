@@ -309,6 +309,15 @@ function CheckoutPage() {
                 />
               </div>
 
+              <h2 className="technical-label mt-8 text-foreground">Shipping method</h2>
+              <div className="mt-4">
+                <ShippingPicker
+                  value={shippingMethod}
+                  onChange={setShippingMethod}
+                  freeShipping={freeShipping}
+                />
+              </div>
+
               <h2 className="technical-label mt-8 text-foreground">Payment method</h2>
               <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">
                 {homeValue(content, "payment_intro")}
@@ -316,7 +325,12 @@ function CheckoutPage() {
               <div className="mt-4">
                 <PaymentMethodPicker value={method} onChange={setMethod} content={content} />
               </div>
-              <PaymentDetails method={method} content={content} className="mt-4" />
+              <PaymentDetails
+                method={method}
+                content={content}
+                amountAud={totals.total}
+                className="mt-4"
+              />
             </section>
 
             {/* Right: order breakdown */}
