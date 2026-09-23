@@ -153,16 +153,30 @@ export const PAYMENT_FIELDS: HomeField[] = [
     fallback:
       "Transfer the order total from your banking app using your order number as the payment description. Payments clear instantly with Osko.",
   },
-  { key: "payment_crypto_label", label: "Crypto option name", align: "left", fallback: "Cryptocurrency (USDC)" },
+  { key: "payment_crypto_label", label: "Crypto option name", align: "left", fallback: "Cryptocurrency (10% off)" },
   { key: "payment_crypto_network", label: "Network", align: "left", fallback: "Ethereum (ERC-20)" },
   { key: "payment_crypto_wallet", label: "Wallet address", align: "left", fallback: "" },
+  {
+    key: "payment_crypto_rate",
+    label: "How many AUD 1 coin is worth (e.g. 1.52)",
+    align: "left",
+    fallback: "1.52",
+  },
+  {
+    key: "payment_crypto_options",
+    label:
+      "Coins you accept — one per line: Coin | Network | Wallet address | AUD per coin",
+    multiline: true,
+    align: "left",
+    fallback: "",
+  },
   {
     key: "payment_crypto_instructions",
     label: "Crypto instructions",
     multiline: true,
     align: "left",
     fallback:
-      "Send the order total in USDC to the wallet address above, then paste your transaction hash so we can match your payment.",
+      "Send the exact coin amount shown above to the wallet address, then paste your transaction hash so we can match your payment.",
   },
   { key: "payment_wise_label", label: "Wise option name", align: "left", fallback: "Wise transfer" },
   { key: "payment_wise_link", label: "Your Wise payment link", align: "left", fallback: "" },
