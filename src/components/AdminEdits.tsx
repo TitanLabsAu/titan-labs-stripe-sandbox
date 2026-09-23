@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode, RefObject } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlignCenter, AlignLeft, AlignRight, ArrowDown, ArrowUp, Bold, GripVertical, Italic, Trash2, Underline } from "lucide-react";
+import { AlignCenter, AlignLeft, AlignRight, ArrowDown, ArrowUp, Bold, GripVertical, Italic, Plus, Trash2, Underline } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,7 +37,9 @@ import {
 } from "@/lib/homeContent";
 
 import { formatPrice } from "@/lib/products";
+import { DEFAULT_CRYPTO_LINES, serialiseCryptoOptions } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
+
 
 const ALIGN_OPTIONS: { value: TextAlign; label: string; Icon: typeof AlignLeft }[] = [
   { value: "left", label: "Align left", Icon: AlignLeft },
