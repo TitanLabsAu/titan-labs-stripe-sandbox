@@ -694,7 +694,7 @@ export function AdminEdits() {
             </div>
 
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              {PAYMENT_FIELDS.map((f) => (
+              {PAYMENT_FIELDS.filter((f) => f.key !== "payment_crypto_options").map((f) => (
                 <ContentFieldEditor
                   key={f.key}
                   field={f}
@@ -704,6 +704,11 @@ export function AdminEdits() {
                   setAlign={(value) => setValue(`${f.key}_align`, value)}
                 />
               ))}
+              <CryptoOptionsEditor
+                value={values["payment_crypto_options"] ?? ""}
+                onChange={(next) => setValue("payment_crypto_options", next)}
+              />
+
             </div>
 
             <Button
