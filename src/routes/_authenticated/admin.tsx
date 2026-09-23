@@ -139,7 +139,12 @@ function OrderCard({ order, live }: { order: AdminOrder; live: boolean }) {
     onError: () => toast.error("Could not update the payment status"),
   });
 
-  const methodName = order.payment_method === "crypto" ? "Cryptocurrency (USDC)" : "PayID / Bank transfer";
+  const methodName =
+    order.payment_method === "crypto"
+      ? "Cryptocurrency (USDC)"
+      : order.payment_method === "wise"
+        ? "Wise transfer"
+        : "PayID / Bank transfer";
 
   return (
     <article className="rounded-xl border border-border bg-card/80 p-6">
