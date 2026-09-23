@@ -110,7 +110,8 @@ export const submitOrder = createServerFn({ method: "POST" })
     subtotal = Math.round(subtotal * 100) / 100;
     const shipping = shippingFor(subtotal);
     const total = Math.round((subtotal + shipping) * 100) / 100;
-    const paymentMethod = data.paymentMethod === "crypto" ? "crypto" : "payid";
+    const paymentMethod =
+      data.paymentMethod === "crypto" ? "crypto" : data.paymentMethod === "wise" ? "wise" : "payid";
     const shippingAddress = [addressLine, city, `${state} ${postcode}`.trim()]
       .filter(Boolean)
       .join(", ");
