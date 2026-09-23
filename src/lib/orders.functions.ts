@@ -31,7 +31,7 @@ export type SubmittedOrder = {
   subtotal: number;
   shipping: number;
   total: number;
-  paymentMethod: "payid" | "crypto";
+  paymentMethod: "payid" | "crypto" | "wise";
 };
 
 function clean(value: string | undefined, max: number) {
