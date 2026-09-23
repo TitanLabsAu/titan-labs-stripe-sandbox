@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { RefreshCw, Search } from "lucide-react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/SiteHeader";
 import { AdminMembers } from "@/components/AdminMembers";
@@ -39,6 +40,8 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
 });
 
+const STATUSES: AdminOrder["status"][] = ["processing", "shipped", "delivered", "cancelled"];
+
 function trackingUrl(tracking: string) {
   return `https://auspost.com.au/mypost/track/details/${encodeURIComponent(tracking)}`;
 }
@@ -51,60 +54,282 @@ function formatDate(value: string) {
   });
 }
 
-function CustomerBlock({ order }: { order: AdminOrder }) {
+function orderRef(order: AdminOrder) {
+  return order.order_number ? `TL-${order.order_number}` : order.id.slice(0, 8).toUpperCase();
+}
+
+function customerName(order: AdminOrder) {
   const c = order.customer;
   return (
-    <div className="rounded-lg border border-border bg-background/40 p-4 text-sm">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">Customer</p>
-      {c ? (
-        (() => {
-          const name = [c.first_name, c.last_name].filter(Boolean).join(" ");
-          const address =
-            [c.address_line, c.city, c.state, c.postcode].filter(Boolean).join(", ") ||
-            c.postal_address ||
-            "";
-          return (
-            <div className="mt-2 space-y-1 text-muted-foreground">
-              <p className="font-bold text-foreground">{name || "—"}</p>
-              <p className="flex items-center gap-2">
-                {c.email ?? "—"}
-                {c.email ? <CopyButton value={c.email} label="Email" /> : null}
-              </p>
-              <p className="flex items-center gap-2">
-                {c.phone_number ?? "No phone number"}
-                {c.phone_number ? <CopyButton value={c.phone_number} label="Phone number" /> : null}
-              </p>
-              <p className="flex items-start gap-2">
-                <span>{address || "No address on file"}</span>
-                {address ? <CopyButton value={address} label="Address" /> : null}
-              </p>
-              {address ? (
-                <button
-                  type="button"
-                  onClick={() =>
-                    copyText(
-                      [name, address, c.phone_number ?? ""].filter(Boolean).join("\n"),
-                      "Shipping label",
-                    )
-                  }
-                  className="pt-1 text-xs font-bold uppercase tracking-wide text-accent underline underline-offset-4"
-                >
-                  Copy full shipping details
-                </button>
-              ) : null}
-            </div>
-          );
-        })()
-      ) : (
-        <p className="mt-2 text-muted-foreground">No profile details saved.</p>
-      )}
+    [c?.first_name, c?.last_name].filter(Boolean).join(" ") || order.contact_name || "Unnamed"
+  );
+}
+
+function customerAddress(order: AdminOrder) {
+  const c = order.customer;
+  return (
+    [c?.address_line, c?.city, c?.state, c?.postcode].filter(Boolean).join(", ") ||
+    c?.postal_address ||
+    order.shipping_address ||
+    ""
+  );
+}
+
+/* ---------------------------------------------------------------- ORDERS */
+
+type Period = "all" | "day" | "month" | "year";
+type View = "active" | "closed";
+
+function OrdersTab() {
+  const queryClient = useQueryClient();
+  const [view, setView] = useState<View>("active");
+  const [statusFilter, setStatusFilter] = useState<"all" | AdminOrder["status"]>("all");
+  const [period, setPeriod] = useState<Period>("all");
+  const [search, setSearch] = useState("");
+  const [openId, setOpenId] = useState<string | null>(null);
+
+  const liveQuery = useQuery({
+    queryKey: ["admin-orders", "live"],
+    queryFn: () => adminListOrders({ data: { scope: "live" } }),
+  });
+  const closedQuery = useQuery({
+    queryKey: ["admin-orders", "closed"],
+    queryFn: () => adminListOrders({ data: { scope: "closed" } }),
+  });
+
+  const refresh = useMutation({
+    mutationFn: () => adminRefreshTracking({}),
+    onSuccess: (summary) => {
+      toast.success(`Checked ${summary.checked} order(s); ${summary.delivered} marked delivered.`);
+      void queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin-notifications"] });
+    },
+    onError: () => toast.error("Australia Post check failed. Check the API details."),
+  });
+
+  const active = liveQuery.data ?? [];
+  const closed = closedQuery.data ?? [];
+  const source = view === "active" ? active : closed;
+  const statusOptions: AdminOrder["status"][] =
+    view === "active" ? ["processing", "shipped"] : ["delivered", "cancelled"];
+
+  const rows = useMemo(() => {
+    const now = new Date();
+    const q = search.trim().toLowerCase();
+    return source.filter((o) => {
+      if (statusFilter !== "all" && o.status !== statusFilter) return false;
+      const created = new Date(o.created_at);
+      const inPeriod =
+        period === "all" ||
+        (period === "day" && created.toDateString() === now.toDateString()) ||
+        (period === "month" &&
+          created.getMonth() === now.getMonth() &&
+          created.getFullYear() === now.getFullYear()) ||
+        (period === "year" && created.getFullYear() === now.getFullYear());
+      if (!inPeriod) return false;
+      if (!q) return true;
+      return (
+        orderRef(o).toLowerCase().includes(q) ||
+        customerName(o).toLowerCase().includes(q) ||
+        (o.customer?.email ?? o.contact_email ?? "").toLowerCase().includes(q) ||
+        o.status.includes(q)
+      );
+    });
+  }, [source, statusFilter, period, search]);
+
+  const isLoading = liveQuery.isLoading || closedQuery.isLoading;
+
+  return (
+    <div className="industrial-panel p-5">
+      <div className="mb-4 flex gap-1 border border-border p-1 md:w-fit">
+        {(
+          [
+            ["active", `Active (${active.length})`],
+            ["closed", `Closed (${closed.length})`],
+          ] as const
+        ).map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            onClick={() => {
+              setView(value);
+              setStatusFilter("all");
+              setOpenId(null);
+            }}
+            className={`flex-1 px-4 py-1.5 text-[11px] uppercase tracking-[0.16em] md:flex-none ${
+              view === value
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      <div className="mb-3 flex flex-wrap gap-1">
+        {(["all", ...statusOptions] as const).map((s) => (
+          <button
+            key={s}
+            type="button"
+            onClick={() => setStatusFilter(s as typeof statusFilter)}
+            className={`border px-3 py-1 text-[11px] uppercase tracking-[0.16em] ${
+              statusFilter === s
+                ? "border-accent bg-accent/10 text-foreground"
+                : "border-border text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {s}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex flex-col gap-3 md:flex-row md:items-center">
+        <div className="flex gap-1 border border-border p-1">
+          {(["all", "day", "month", "year"] as Period[]).map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => setPeriod(p)}
+              className={`px-3 py-1.5 text-[11px] uppercase tracking-[0.16em] ${
+                period === p
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {p === "day" ? "Today" : p}
+            </button>
+          ))}
+        </div>
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={search}
+            maxLength={80}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search order number, customer name, email or status…"
+            className="pl-9"
+          />
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          className="text-xs uppercase tracking-[0.16em]"
+          onClick={() => queryClient.invalidateQueries({ queryKey: ["admin-orders"] })}
+        >
+          <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Refresh
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="text-xs uppercase tracking-[0.16em]"
+          disabled={refresh.isPending}
+          onClick={() => refresh.mutate()}
+        >
+          {refresh.isPending ? "Checking…" : "Check Aus Post"}
+        </Button>
+      </div>
+
+      <div className="mt-5 overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border text-left text-[11px] tracking-[0.18em] text-muted-foreground">
+              <th className="py-2 pr-4">ORDER</th>
+              <th className="py-2 pr-4">CUSTOMER</th>
+              <th className="py-2 pr-4">DATE</th>
+              <th className="py-2 pr-4">TOTAL (AUD)</th>
+              <th className="py-2 pr-4">PAYMENT</th>
+              <th className="py-2 pr-4">STATUS</th>
+              <th className="py-2" />
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((order) => (
+              <Fragment key={order.id}>
+                <tr className="border-b border-border/50">
+                  <td className="py-3 pr-4 font-display tracking-wide">{orderRef(order)}</td>
+                  <td className="py-3 pr-4">
+                    {customerName(order)}
+                    <span className="block text-[11px] text-muted-foreground">
+                      {order.customer?.email ?? order.contact_email ?? "—"}
+                    </span>
+                  </td>
+                  <td className="py-3 pr-4 text-muted-foreground">{formatDate(order.created_at)}</td>
+                  <td className="py-3 pr-4">{formatPrice(Number(order.total))}</td>
+                  <td className="py-3 pr-4 text-[11px] uppercase tracking-[0.16em]">
+                    {order.payment_confirmed ? (
+                      <span className="text-accent">Paid</span>
+                    ) : (
+                      <span className="text-muted-foreground">Awaiting</span>
+                    )}
+                  </td>
+                  <td className="py-3 pr-4">
+                    <StatusSelect order={order} />
+                  </td>
+                  <td className="py-3 text-right">
+                    <button
+                      type="button"
+                      className="text-xs uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground"
+                      onClick={() => setOpenId(openId === order.id ? null : order.id)}
+                    >
+                      {openId === order.id ? "Hide" : "View"}
+                    </button>
+                  </td>
+                </tr>
+                {openId === order.id ? (
+                  <tr className="border-b border-border/50 bg-secondary/40">
+                    <td colSpan={7} className="p-4">
+                      <OrderDetail order={order} live={view === "active"} />
+                    </td>
+                  </tr>
+                ) : null}
+              </Fragment>
+            ))}
+          </tbody>
+        </table>
+        {isLoading ? (
+          <p className="py-10 text-center text-sm text-muted-foreground">Loading orders…</p>
+        ) : rows.length === 0 ? (
+          <p className="py-10 text-center text-sm text-muted-foreground">No orders found.</p>
+        ) : null}
+      </div>
     </div>
   );
 }
 
-function OrderCard({ order, live }: { order: AdminOrder; live: boolean }) {
+function StatusSelect({ order }: { order: AdminOrder }) {
+  const queryClient = useQueryClient();
+  const update = useMutation({
+    mutationFn: (status: AdminOrder["status"]) =>
+      adminUpdateStatus({ data: { orderId: order.id, status } }),
+    onSuccess: () => {
+      toast.success("Order updated.");
+      void queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+    },
+    onError: () => toast.error("Could not update the order"),
+  });
+
+  return (
+    <select
+      value={order.status}
+      disabled={update.isPending}
+      onChange={(e) => update.mutate(e.target.value as AdminOrder["status"])}
+      className="border border-border bg-secondary px-2 py-1 text-xs uppercase tracking-[0.12em]"
+    >
+      {STATUSES.map((s) => (
+        <option key={s} value={s}>
+          {s}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+function OrderDetail({ order, live }: { order: AdminOrder; live: boolean }) {
   const queryClient = useQueryClient();
   const [tracking, setTracking] = useState(order.tracking_number ?? "");
+  const address = customerAddress(order);
+  const phone = order.customer?.phone_number ?? order.contact_phone ?? "";
 
   const invalidate = () => {
     void queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
@@ -139,75 +364,90 @@ function OrderCard({ order, live }: { order: AdminOrder; live: boolean }) {
     onError: () => toast.error("Could not update the payment status"),
   });
 
-  const methodName =
-    order.payment_method === "crypto" ? "Cryptocurrency" : "PayID / Bank transfer";
-
-
   return (
-    <article className="rounded-xl border border-border bg-card/80 p-6">
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
-        <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-            Order {order.order_number ? `#TL-${order.order_number}` : `#${order.id.slice(0, 8)}`}
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Placed {formatDate(order.created_at)}
-            {order.delivered_at ? ` · Delivered ${formatDate(order.delivered_at)}` : ""}
-          </p>
-        </div>
-        <span className="rounded-full border border-accent/50 px-3 py-1 text-xs font-bold uppercase tracking-wide text-accent">
-          {order.status}
-        </span>
-      </header>
+    <div className="space-y-4">
+      <p className="text-[11px] tracking-[0.16em] text-muted-foreground">
+        SHIP TO: {address || "No address on file"}
+      </p>
+      <p className="text-xs text-muted-foreground">
+        Email: {order.customer?.email ?? order.contact_email ?? "—"}
+        {order.customer?.email ? (
+          <span className="ml-2 inline-flex align-middle">
+            <CopyButton value={order.customer.email} label="Email" />
+          </span>
+        ) : null}
+        <span className="mx-2">·</span>
+        Phone: {phone || "—"}
+        {phone ? (
+          <span className="ml-2 inline-flex align-middle">
+            <CopyButton value={phone} label="Phone number" />
+          </span>
+        ) : null}
+      </p>
 
-      <div className="mt-4 grid gap-4 md:grid-cols-2">
-        <CustomerBlock order={order} />
-
-        <div className="rounded-lg border border-border bg-background/40 p-4">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
-            Products
-          </p>
-          <ul className="mt-2 divide-y divide-border">
-            {order.order_items.map((item) => (
-              <li key={item.id} className="flex items-center justify-between gap-4 py-2 text-sm">
-                <div>
-                  <p className="font-bold uppercase text-foreground">{item.product_name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {item.quantity} × {formatPrice(Number(item.unit_price))}
-                  </p>
-                </div>
-                <span className="font-extrabold text-accent">
-                  {formatPrice(Number(item.unit_price) * item.quantity)}
-                </span>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-3 space-y-1 border-t border-border pt-3 text-sm text-muted-foreground">
-            <div className="flex justify-between">
-              <span>Subtotal</span>
-              <span>{formatPrice(Number(order.subtotal))}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Express shipping</span>
-              <span>{formatPrice(Number(order.shipping))}</span>
-            </div>
-            <div className="flex items-center justify-between pt-1">
-              <span className="font-bold uppercase text-foreground">Total</span>
-              <span className="text-xl font-extrabold text-accent">
-                {formatPrice(Number(order.total))}
-              </span>
-            </div>
-          </div>
-        </div>
+      <div className="flex flex-wrap gap-2">
+        <Button
+          size="sm"
+          variant="outline"
+          className="text-[11px] uppercase tracking-[0.12em]"
+          onClick={() =>
+            copyText(
+              [customerName(order), address, phone].filter(Boolean).join("\n"),
+              "Shipping label",
+            )
+          }
+        >
+          Copy shipping details
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          className="text-[11px] uppercase tracking-[0.12em]"
+          onClick={() =>
+            copyText(
+              [
+                `Order ${orderRef(order)}`,
+                customerName(order),
+                address,
+                "",
+                ...order.order_items.map((i) => `${i.quantity} × ${i.product_name}`),
+                "",
+                `Total ${formatPrice(Number(order.total))}`,
+              ]
+                .filter((line) => line !== undefined)
+                .join("\n"),
+              "Order",
+            )
+          }
+        >
+          Copy order
+        </Button>
       </div>
 
-      <div className="mt-4 rounded-lg border border-border bg-background/40 p-4">
+      <ul className="space-y-1 text-xs">
+        {order.order_items.map((item) => (
+          <li key={item.id} className="flex justify-between">
+            <span>
+              {item.quantity} × {item.product_name}
+            </span>
+            <span>{formatPrice(Number(item.unit_price) * item.quantity)}</span>
+          </li>
+        ))}
+      </ul>
+
+      <p className="text-xs text-muted-foreground">
+        Subtotal {formatPrice(Number(order.subtotal))} + express shipping{" "}
+        {formatPrice(Number(order.shipping))} ={" "}
+        <span className="font-bold text-foreground">{formatPrice(Number(order.total))}</span>
+      </p>
+
+      <div className="border border-border bg-background/40 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
-              Payment
+            <p className="text-[11px] tracking-[0.18em] text-muted-foreground">PAYMENT</p>
+            <p className="mt-1 text-sm text-foreground">
+              {order.payment_method === "crypto" ? "Cryptocurrency" : "PayID / Bank transfer"}
             </p>
-            <p className="mt-1 text-sm text-foreground">{methodName}</p>
             {order.payment_reference ? (
               <p className="mt-1 break-all font-mono text-xs text-muted-foreground">
                 Reference: {order.payment_reference}
@@ -217,31 +457,21 @@ function OrderCard({ order, live }: { order: AdminOrder; live: boolean }) {
               <p className="mt-1 text-xs text-muted-foreground">Notes: {order.notes}</p>
             ) : null}
           </div>
-          <div className="flex items-center gap-2">
-            <span
-              className={`rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wide ${
-                order.payment_confirmed
-                  ? "border-accent/50 text-accent"
-                  : "border-border text-muted-foreground"
-              }`}
-            >
-              {order.payment_confirmed ? "Paid" : "Awaiting payment"}
-            </span>
-            <Button
-              variant="outline"
-              className="font-bold uppercase"
-              disabled={setPaid.isPending}
-              onClick={() => setPaid.mutate(!order.payment_confirmed)}
-            >
-              {order.payment_confirmed ? "Mark unpaid" : "Mark as paid"}
-            </Button>
-          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-[11px] uppercase tracking-[0.12em]"
+            disabled={setPaid.isPending}
+            onClick={() => setPaid.mutate(!order.payment_confirmed)}
+          >
+            {order.payment_confirmed ? "Mark unpaid" : "Mark as paid"}
+          </Button>
         </div>
       </div>
 
-      <div className="mt-4 rounded-lg border border-border bg-background/40 p-4">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
-          Australia Post Express tracking
+      <div className="border border-border bg-background/40 p-4">
+        <p className="text-[11px] tracking-[0.18em] text-muted-foreground">
+          AUSTRALIA POST EXPRESS TRACKING
         </p>
         {live ? (
           <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -252,15 +482,17 @@ function OrderCard({ order, live }: { order: AdminOrder; live: boolean }) {
               className="max-w-xs"
             />
             <Button
-              className="font-bold uppercase"
+              size="sm"
+              className="text-[11px] uppercase tracking-[0.12em]"
               disabled={saveTracking.isPending}
               onClick={() => saveTracking.mutate()}
             >
               Save
             </Button>
             <Button
+              size="sm"
               variant="outline"
-              className="font-bold uppercase"
+              className="text-[11px] uppercase tracking-[0.12em]"
               disabled={updateStatus.isPending}
               onClick={() => updateStatus.mutate("delivered")}
             >
@@ -288,36 +520,11 @@ function OrderCard({ order, live }: { order: AdminOrder; live: boolean }) {
       </div>
 
       <AdminOrderActions order={order} />
-    </article>
-  );
-}
-
-function OrdersPanel({ scope }: { scope: "live" | "closed" }) {
-  const { data, isLoading } = useQuery({
-    queryKey: ["admin-orders", scope],
-    queryFn: () => adminListOrders({ data: { scope } }),
-  });
-
-  if (isLoading) return <p className="text-sm text-muted-foreground">Loading orders…</p>;
-  const orders = data ?? [];
-  if (orders.length === 0) {
-    return (
-      <div className="rounded-xl border border-border bg-card/70 p-8 text-center">
-        <p className="text-sm text-muted-foreground">
-          {scope === "live" ? "No live orders right now." : "No closed orders yet."}
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      {orders.map((order) => (
-        <OrderCard key={order.id} order={order} live={scope === "live"} />
-      ))}
     </div>
   );
 }
+
+/* --------------------------------------------------------- NOTIFICATIONS */
 
 function NotificationsPanel() {
   const queryClient = useQueryClient();
@@ -334,11 +541,13 @@ function NotificationsPanel() {
   const items = data ?? [];
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-end">
+    <div className="industrial-panel p-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-xs tracking-[0.2em] text-steel">NOTIFICATIONS</h2>
         <Button
           variant="outline"
-          className="font-bold uppercase"
+          size="sm"
+          className="text-xs uppercase tracking-[0.16em]"
           onClick={() => markRead.mutate()}
           disabled={markRead.isPending || items.every((n) => n.read)}
         >
@@ -346,19 +555,21 @@ function NotificationsPanel() {
         </Button>
       </div>
       {items.length === 0 ? (
-        <div className="rounded-xl border border-border bg-card/70 p-8 text-center">
-          <p className="text-sm text-muted-foreground">No notifications yet.</p>
-        </div>
+        <p className="py-10 text-center text-sm text-muted-foreground">No notifications yet.</p>
       ) : (
-        <ul className="space-y-3">
+        <ul className="mt-5 space-y-3">
           {items.map((n) => (
             <li
               key={n.id}
-              className={`rounded-lg border p-4 ${n.read ? "border-border bg-card/60" : "border-accent/50 bg-card"}`}
+              className={`border p-4 ${n.read ? "border-border bg-card/60" : "border-accent/50 bg-card"}`}
             >
-              <p className="font-bold uppercase text-foreground">{n.title}</p>
+              <p className="text-sm font-bold uppercase tracking-[0.12em] text-foreground">
+                {n.title}
+              </p>
               {n.body ? <p className="mt-1 text-sm text-muted-foreground">{n.body}</p> : null}
-              <p className="mt-2 text-xs text-muted-foreground">{formatDate(n.created_at)}</p>
+              <p className="mt-2 text-[11px] tracking-[0.16em] text-muted-foreground">
+                {formatDate(n.created_at)}
+              </p>
             </li>
           ))}
         </ul>
@@ -367,109 +578,75 @@ function NotificationsPanel() {
   );
 }
 
+/* ------------------------------------------------------------------ PAGE */
+
+function Shell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="bg-hero flex min-h-screen flex-col">
+      <SiteHeader />
+      <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col items-center justify-center px-4 py-20 text-center">
+        <h1 className="text-xl tracking-[0.2em] text-steel">ADMIN</h1>
+        <div className="mt-4">{children}</div>
+      </main>
+    </div>
+  );
+}
+
 function AdminPage() {
   const { isAdmin, isLoading } = useIsAdmin();
-  const queryClient = useQueryClient();
 
-  const refresh = useMutation({
-    mutationFn: () => adminRefreshTracking({}),
-    onSuccess: (summary) => {
-      toast.success(
-        `Checked ${summary.checked} order(s); ${summary.delivered} marked delivered.`,
-      );
-      void queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
-      void queryClient.invalidateQueries({ queryKey: ["admin-notifications"] });
-    },
-    onError: () => toast.error("Australia Post check failed. Check the API details."),
-  });
+  if (isLoading) {
+    return (
+      <Shell>
+        <p className="text-sm text-muted-foreground">Checking access…</p>
+      </Shell>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <Shell>
+        <p className="text-sm text-muted-foreground">
+          This area is restricted to the store owner.
+        </p>
+      </Shell>
+    );
+  }
 
   return (
-    <div className="bg-hero min-h-screen">
+    <div className="bg-hero flex min-h-screen flex-col">
       <SiteHeader />
-      <main className="mx-auto max-w-5xl px-4 pb-24">
-        <h1 className="text-4xl font-extrabold uppercase tracking-tight text-foreground">Admin</h1>
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 pb-24 sm:px-6">
+        <h1 className="text-2xl tracking-[0.2em] text-steel">ADMIN</h1>
+        <Tabs defaultValue="orders" className="mt-6">
+          <TabsList className="flex-wrap">
+            <TabsTrigger value="orders">Orders</TabsTrigger>
+            <TabsTrigger value="members">Members</TabsTrigger>
+            <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="discounts">Discounts</TabsTrigger>
+            <TabsTrigger value="edits">Website editor</TabsTrigger>
+            <TabsTrigger value="notifications">Notifications</TabsTrigger>
+          </TabsList>
 
-        {isLoading ? (
-          <p className="mt-4 text-sm text-muted-foreground">Checking access…</p>
-        ) : !isAdmin ? (
-          <p className="mt-4 text-sm text-muted-foreground">
-            This area is restricted to the store owner.
-          </p>
-        ) : (
-          <Tabs defaultValue="orders" className="mt-8">
-            <TabsList className="flex flex-wrap">
-              <TabsTrigger value="orders" className="font-bold uppercase">
-                Orders
-              </TabsTrigger>
-              <TabsTrigger value="members" className="font-bold uppercase">
-                Members
-              </TabsTrigger>
-              <TabsTrigger value="products" className="font-bold uppercase">
-                Products
-              </TabsTrigger>
-              <TabsTrigger value="discounts" className="font-bold uppercase">
-                Discounts
-              </TabsTrigger>
-              <TabsTrigger value="edits" className="font-bold uppercase">
-                Edits
-              </TabsTrigger>
-              <TabsTrigger value="notifications" className="font-bold uppercase">
-                Notifications
-              </TabsTrigger>
-            </TabsList>
-
-
-            <TabsContent value="orders" className="mt-6">
-              <div className="mb-4 flex justify-end">
-                <Button
-                  variant="outline"
-                  className="font-bold uppercase"
-                  disabled={refresh.isPending}
-                  onClick={() => refresh.mutate()}
-                >
-                  {refresh.isPending ? "Checking…" : "Check Aus Post now"}
-                </Button>
-              </div>
-              <Tabs defaultValue="live">
-                <TabsList>
-                  <TabsTrigger value="live" className="font-bold uppercase">
-                    Live orders
-                  </TabsTrigger>
-                  <TabsTrigger value="closed" className="font-bold uppercase">
-                    Closed orders
-                  </TabsTrigger>
-                </TabsList>
-                <TabsContent value="live" className="mt-6">
-                  <OrdersPanel scope="live" />
-                </TabsContent>
-                <TabsContent value="closed" className="mt-6">
-                  <OrdersPanel scope="closed" />
-                </TabsContent>
-              </Tabs>
-            </TabsContent>
-
-            <TabsContent value="members" className="mt-6">
-              <AdminMembers />
-            </TabsContent>
-
-            <TabsContent value="products" className="mt-6">
-              <AdminProducts />
-            </TabsContent>
-
-
-            <TabsContent value="discounts" className="mt-6">
-              <AdminDiscounts />
-            </TabsContent>
-
-            <TabsContent value="edits" className="mt-6">
-              <AdminEdits />
-            </TabsContent>
-
-            <TabsContent value="notifications" className="mt-6">
-              <NotificationsPanel />
-            </TabsContent>
-          </Tabs>
-        )}
+          <TabsContent value="orders" className="mt-6">
+            <OrdersTab />
+          </TabsContent>
+          <TabsContent value="members" className="mt-6">
+            <AdminMembers />
+          </TabsContent>
+          <TabsContent value="products" className="mt-6">
+            <AdminProducts />
+          </TabsContent>
+          <TabsContent value="discounts" className="mt-6">
+            <AdminDiscounts />
+          </TabsContent>
+          <TabsContent value="edits" className="mt-6">
+            <AdminEdits />
+          </TabsContent>
+          <TabsContent value="notifications" className="mt-6">
+            <NotificationsPanel />
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   );
