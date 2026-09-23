@@ -338,6 +338,7 @@ export type AdminProductVariant = {
   label: string;
   price: number;
   kitPrice?: number | null;
+  stock?: number | null;
   reconVialMg?: number | null;
   reconWaterMl?: number | null;
   reconDoseMg?: number | null;
