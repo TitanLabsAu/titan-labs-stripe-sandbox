@@ -185,13 +185,19 @@ export const PAYMENT_FIELDS: HomeField[] = [
   },
 ];
 
-export type PaymentMethodKey = "payid" | "crypto";
+export type PaymentMethodKey = "payid" | "crypto" | "wise";
 
 export function paymentMethodName(
   content: Record<string, string> | undefined,
   method: PaymentMethodKey,
 ) {
-  return homeValue(content, method === "payid" ? "payment_payid_label" : "payment_crypto_label");
+  const key =
+    method === "payid"
+      ? "payment_payid_label"
+      : method === "wise"
+        ? "payment_wise_label"
+        : "payment_crypto_label";
+  return homeValue(content, key);
 }
 
 export const HEADER_TABS: PageSection[] = [
