@@ -117,6 +117,52 @@ export const adminUpdateStatus = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const adminSendOrderEmail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (input: { orderId: string; template: "order-confirmation" | "order-dispatched" }) => input,
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as any);
+
+    const { data: order, error } = await context.supabase
+      .from("orders")
+      .select(
+        "id, user_id, total, tracking_number, order_items(product_name, quantity, unit_price)",
+      )
+      .eq("id", data.orderId)
+      .maybeSingle();
+    if (error) throw error;
+    if (!order) throw new Error("Order not found");
+
+    const { data: profile } = await context.supabase
+      .from("profiles")
+      .select("email, first_name")
+      .eq("id", (order as any).user_id)
+      .maybeSingle();
+
+    const email = (profile as any)?.email as string | undefined;
+    if (!email) throw new Error("This customer has no email address on file.");
+
+    const money = (cents: number) => `$${(Number(cents) / 100).toFixed(2)}`;
+    const templateData: Record<string, any> = {
+      orderNumber: String((order as any).id).slice(0, 8),
+      customerName: (profile as any)?.first_name ?? "there",
+      total: money((order as any).total),
+      trackingNumber: (order as any).tracking_number ?? "",
+      items: ((order as any).order_items ?? []).map(
+        (i: any) => `${i.quantity} × ${i.product_name} — ${money(i.unit_price * i.quantity)}`,
+      ),
+    };
+
+    const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
+    const result = await sendTemplateEmail(data.template, email, {
+      templateData,
+      idempotencyKey: `${data.template}-${(order as any).id}-${(order as any).tracking_number ?? "none"}`,
+    });
+    return { ...result, email };
+  });
+
 export type AdminNotification = {
   id: string;
   title: string;
