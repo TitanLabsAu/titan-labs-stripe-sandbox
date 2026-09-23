@@ -11,6 +11,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { FreeShippingMeter, TitanStackBanner, TitanTrustStrip } from "@/components/CartExtras";
+import { CryptoEstimate } from "@/components/CryptoEstimate";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/products";
 import { computeTotals } from "@/lib/pricing";
@@ -150,6 +151,7 @@ export function CartSheet() {
             <p className="text-xs text-muted-foreground">
               Shipping chosen at checkout. Pay with crypto for another 10% off.
             </p>
+            <CryptoEstimate amountAud={totals.itemsTotal} className="mt-3" />
           </div>
           <Button
             asChild={items.length > 0}

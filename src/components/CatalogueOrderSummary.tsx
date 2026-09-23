@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Minus, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CryptoEstimate } from "@/components/CryptoEstimate";
 import { useCart } from "@/lib/cart";
 import { FREE_SHIPPING_THRESHOLD, shippingFor } from "@/lib/categories";
 import { formatPrice } from "@/lib/products";
@@ -51,6 +52,7 @@ export function CatalogueOrderSummary() {
         <div className="flex justify-between border-t border-border pt-3 text-base font-semibold"><dt>Total</dt><dd>{formatPrice(total)}</dd></div>
       </dl>
       {subtotal > 0 && subtotal < FREE_SHIPPING_THRESHOLD ? <p className="mt-3 text-xs text-muted-foreground">Spend {formatPrice(FREE_SHIPPING_THRESHOLD - subtotal)} more for free express shipping.</p> : null}
+      <CryptoEstimate amountAud={subtotal} className="mt-4" />
       <Button asChild={items.length > 0} disabled={!items.length} className="mt-6 w-full">
         {items.length ? <Link to="/checkout">Go to checkout</Link> : <span>Go to checkout</span>}
       </Button>
