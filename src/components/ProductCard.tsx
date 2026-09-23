@@ -42,8 +42,22 @@ export function ProductCard({ product: p }: { product: Product }) {
             ))}
           </div>
         ) : <p className="mt-2 text-[10px] font-semibold text-muted-foreground">Single vial</p>}
-        <div className="mt-4 flex items-baseline gap-1">
-          {p.wasPrice ? (
+        <div className="mt-3 grid grid-cols-2 overflow-hidden border border-input divide-x divide-input" aria-label="Buy option">
+          {([["single", "Single vial", singleOption.unitPrice], ["kit", "10x Kit · 20% off", kitOption.unitPrice]] as const).map(([key, label, price]) => (
+            <button
+              key={key}
+              type="button"
+              aria-pressed={pack === key}
+              onClick={() => setPack(key)}
+              className={`flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 text-[9px] font-semibold uppercase tracking-[0.08em] transition-colors ${pack === key ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+            >
+              <span className="truncate">{label}</span>
+              <span className="text-[10px] font-bold">{formatPrice(price)}</span>
+            </button>
+          ))}
+        </div>
+        <div className="mt-3 flex items-baseline gap-1">
+          {p.wasPrice && pack === "single" ? (
             <span className="text-xs text-muted-foreground line-through">
               {formatPrice(p.wasPrice)}
             </span>
@@ -52,7 +66,7 @@ export function ProductCard({ product: p }: { product: Product }) {
             {formatPrice(option.unitPrice)}
           </span>
         </div>
-        <Button className="mt-auto w-full" disabled={stock === "out"} onClick={() => addItem(p.slug, 1, { variantId: option.variantId, variantLabel: option.variantLabel, pack: option.pack })}>{stock === "out" ? "Out of stock" : "Add to order"}</Button>
+        <Button className="mt-auto w-full" disabled={stock === "out"} onClick={() => addItem(p.slug, 1, { variantId: option.variantId, variantLabel: option.variantLabel, pack: option.pack })}>{stock === "out" ? "Out of stock" : pack === "kit" ? "Add kit to order" : "Add to order"}</Button>
       </div>
     </article>
   );
