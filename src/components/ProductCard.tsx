@@ -33,15 +33,18 @@ export function ProductCard({ product: p }: { product: Product }) {
         {stock === "out" ? (
           <span className="mt-2 inline-flex w-fit items-center border border-destructive bg-destructive/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-destructive">Out of stock</span>
         ) : stock === "low" ? (
-          <span className="mt-2 inline-flex w-fit items-center border border-accent bg-accent/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-accent-foreground">Low stock — only {p.stock} left</span>
+          <span className="mt-2 inline-flex w-fit items-center border border-accent bg-accent/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-accent-foreground">Low stock — only {stockCount} left</span>
         ) : null}
         {variants.length > 0 ? (
           <div className="mt-2 flex flex-wrap gap-1" aria-label="Vial size">
-            {variants.map((variant) => (
-              <Button key={variant.id} type="button" size="sm" variant={variantId === variant.id ? "default" : "outline"} className="h-7 min-w-0 px-2 text-[9px]" onClick={() => setVariantId(variant.id)}>
-                {variant.label}
-              </Button>
-            ))}
+            {variants.map((variant) => {
+              const soldOut = stockState(variant.stock ?? 0) === "out";
+              return (
+                <Button key={variant.id} type="button" size="sm" variant={variantId === variant.id ? "default" : "outline"} className={`h-7 min-w-0 px-2 text-[9px] ${soldOut ? "opacity-60" : ""}`} onClick={() => setVariantId(variant.id)}>
+                  {variant.label}{soldOut ? " · Sold out" : ""}
+                </Button>
+              );
+            })}
           </div>
         ) : <p className="mt-2 text-[10px] font-semibold text-muted-foreground">Single vial</p>}
         <div className="mt-3 grid grid-cols-2 overflow-hidden border border-input divide-x divide-input" aria-label="Buy option">
