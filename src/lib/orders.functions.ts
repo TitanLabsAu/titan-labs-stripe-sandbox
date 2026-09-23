@@ -20,7 +20,7 @@ export type SubmitOrderInput = {
   state: string;
   postcode: string;
   notes?: string;
-  paymentMethod: "payid" | "crypto";
+  paymentMethod: "payid" | "crypto" | "wise";
   items: SubmitOrderItem[];
 };
 
@@ -31,7 +31,7 @@ export type SubmittedOrder = {
   subtotal: number;
   shipping: number;
   total: number;
-  paymentMethod: "payid" | "crypto";
+  paymentMethod: "payid" | "crypto" | "wise";
 };
 
 function clean(value: string | undefined, max: number) {
@@ -110,7 +110,8 @@ export const submitOrder = createServerFn({ method: "POST" })
     subtotal = Math.round(subtotal * 100) / 100;
     const shipping = shippingFor(subtotal);
     const total = Math.round((subtotal + shipping) * 100) / 100;
-    const paymentMethod = data.paymentMethod === "crypto" ? "crypto" : "payid";
+    const paymentMethod =
+      data.paymentMethod === "crypto" ? "crypto" : data.paymentMethod === "wise" ? "wise" : "payid";
     const shippingAddress = [addressLine, city, `${state} ${postcode}`.trim()]
       .filter(Boolean)
       .join(", ");

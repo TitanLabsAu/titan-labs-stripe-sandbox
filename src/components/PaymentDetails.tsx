@@ -76,6 +76,37 @@ export function PaymentDetails({
     );
   }
 
+  if (method === "wise") {
+    const link = value("payment_wise_link");
+    const account = value("payment_wise_account");
+    return (
+      <div className={cn("border border-border bg-muted/20 p-4", className)}>
+        {link ? (
+          <div>
+            <CopyLine label="Account name" value={account} />
+            <CopyLine label="Wise link" value={link} />
+            {reference ? <CopyLine label="Payment reference" value={reference} /> : null}
+            <a
+              href={link}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-3 inline-flex items-center border border-accent bg-accent/10 px-4 py-2 text-xs font-bold uppercase tracking-wide text-foreground hover:bg-accent/20"
+            >
+              Open Wise to pay
+            </a>
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            Wise payment details will be sent to you with your order confirmation.
+          </p>
+        )}
+        <p className="mt-3 whitespace-pre-line text-xs text-muted-foreground">
+          {value("payment_wise_instructions")}
+        </p>
+      </div>
+    );
+  }
+
   const wallet = value("payment_crypto_wallet");
   const network = value("payment_crypto_network");
   return (
@@ -113,6 +144,11 @@ export function PaymentMethodPicker({
       key: "payid",
       label: homeValue(content, "payment_payid_label"),
       hint: "Instant transfer from your Australian banking app.",
+    },
+    {
+      key: "wise",
+      label: homeValue(content, "payment_wise_label"),
+      hint: "Pay through the Wise app or website.",
     },
     {
       key: "crypto",

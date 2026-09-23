@@ -164,6 +164,17 @@ export const PAYMENT_FIELDS: HomeField[] = [
     fallback:
       "Send the order total in USDC to the wallet address above, then paste your transaction hash so we can match your payment.",
   },
+  { key: "payment_wise_label", label: "Wise option name", align: "left", fallback: "Wise transfer" },
+  { key: "payment_wise_link", label: "Your Wise payment link", align: "left", fallback: "" },
+  { key: "payment_wise_account", label: "Wise account name (optional)", align: "left", fallback: "" },
+  {
+    key: "payment_wise_instructions",
+    label: "Wise instructions",
+    multiline: true,
+    align: "left",
+    fallback:
+      "Open the Wise link above and send the order total, using your order number as the payment reference.",
+  },
   {
     key: "payment_confirmation_note",
     label: "Text on the order received screen",
@@ -174,13 +185,19 @@ export const PAYMENT_FIELDS: HomeField[] = [
   },
 ];
 
-export type PaymentMethodKey = "payid" | "crypto";
+export type PaymentMethodKey = "payid" | "crypto" | "wise";
 
 export function paymentMethodName(
   content: Record<string, string> | undefined,
   method: PaymentMethodKey,
 ) {
-  return homeValue(content, method === "payid" ? "payment_payid_label" : "payment_crypto_label");
+  const key =
+    method === "payid"
+      ? "payment_payid_label"
+      : method === "wise"
+        ? "payment_wise_label"
+        : "payment_crypto_label";
+  return homeValue(content, key);
 }
 
 export const HEADER_TABS: PageSection[] = [
