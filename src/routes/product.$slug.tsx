@@ -14,6 +14,7 @@ import {
   productBasePrice,
   sortedProductVariants,
   stockState,
+  variantStockFor,
   type ProductPack,
 } from "@/lib/products";
 import { getProductBySlug } from "@/lib/catalog.functions";
