@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
 import { toast } from "sonner";
+import { CryptoQr } from "@/components/CryptoQr";
 import { homeValue, type PaymentMethodKey } from "@/lib/homeContent";
+import { cryptoAmountFor, parseCryptoOptions, CRYPTO_DISCOUNT_PERCENT } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
 
 export function CopyLine({ label, value }: { label: string; value: string }) {
