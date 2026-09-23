@@ -447,6 +447,19 @@ export function ProductEditor({
                     </div>
                     <div>
                       <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                        Cost each
+                      </span>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={variant.cost}
+                        placeholder="What you pay"
+                        aria-label="Cost price for this size"
+                        onChange={(e) => setVariant(i, { cost: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
                         Stock
                       </span>
                       <Input
