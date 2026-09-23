@@ -70,7 +70,7 @@ export function computeTotals({
   const cryptoDiscount = round((afterStack * cryptoPercent) / 100);
   const itemsTotal = round(afterStack - cryptoDiscount);
 
-  const option = SHIPPING_OPTIONS.find((o) => o.key === shippingMethod) ?? SHIPPING_OPTIONS[1];
+  const option = SHIPPING_OPTIONS.find((o) => o.key === shippingMethod) ?? SHIPPING_OPTIONS[1]!;
   const qualifies = itemsTotal >= FREE_SHIPPING_THRESHOLD;
   const shipping = subtotal <= 0 || qualifies ? 0 : option.price;
 
