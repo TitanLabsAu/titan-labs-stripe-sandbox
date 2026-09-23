@@ -109,6 +109,7 @@ export function toDraft(p: AdminProduct): Draft {
       label: v.label,
       price: String(v.price),
       kitPrice: v.kitPrice == null ? "" : String(v.kitPrice),
+      stock: String(v.stock ?? 0),
       reconVialMg: v.reconVialMg == null ? "" : String(v.reconVialMg),
       reconWaterMl: v.reconWaterMl == null ? "" : String(v.reconWaterMl),
       reconDoseMg: v.reconDoseMg == null ? "" : String(v.reconDoseMg),
