@@ -198,7 +198,7 @@ export function PaymentMethodPicker({
   onChange: (next: PaymentMethodKey) => void;
   content: Record<string, string> | undefined;
 }) {
-  const options: { key: PaymentMethodKey; label: string; hint: string }[] = [
+  const options: { key: PaymentMethodKey; label: string; hint: string; badge?: string }[] = [
     {
       key: "payid",
       label: homeValue(content, "payment_payid_label"),
