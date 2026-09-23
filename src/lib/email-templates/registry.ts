@@ -15,8 +15,12 @@ export interface TemplateEntry {
  */
 import { template as orderDeliveredTemplate } from './order-delivered'
 import { template as adminMilestoneTemplate } from './admin-milestone'
+import { template as orderConfirmationTemplate } from './order-confirmation'
+import { template as orderDispatchedTemplate } from './order-dispatched'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'order-delivered': orderDeliveredTemplate,
   'admin-milestone': adminMilestoneTemplate,
+  'order-confirmation': orderConfirmationTemplate,
+  'order-dispatched': orderDispatchedTemplate,
 }
