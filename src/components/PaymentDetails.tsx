@@ -146,6 +146,11 @@ export function PaymentMethodPicker({
       hint: "Instant transfer from your Australian banking app.",
     },
     {
+      key: "wise",
+      label: homeValue(content, "payment_wise_label"),
+      hint: "Pay through the Wise app or website.",
+    },
+    {
       key: "crypto",
       label: homeValue(content, "payment_crypto_label"),
       hint: "Send USDC from your own wallet.",
