@@ -135,26 +135,29 @@ export function toDraft(p: AdminProduct): Draft {
 
 export function draftToPayload(d: Draft) {
   const num = (v: string) => (v.trim() === "" || Number.isNaN(Number(v)) ? null : Number(v));
+  const variants = d.variants
+    .map((v) => ({
+      id: v.id || safeVariantId(v.label),
+      label: v.label.trim(),
+      price: Number(v.price) || 0,
+      kitPrice: num(v.kitPrice),
+      stock: Math.max(0, Math.trunc(Number(v.stock)) || 0),
+      reconVialMg: num(v.reconVialMg),
+      reconWaterMl: num(v.reconWaterMl),
+      reconDoseMg: num(v.reconDoseMg),
+      reconNotes: v.reconNotes,
+    }))
+    .filter((v) => v.label && v.price > 0);
+  const variantPrices = variants.map((v) => v.price).filter((p) => p > 0);
   return {
     ...(d.id ? { id: d.id } : {}),
     slug: d.slug || d.name,
     name: d.name,
-    price: Number(d.price) || 0,
+    price: variantPrices.length > 0 ? Math.min(...variantPrices) : Number(d.price) || 0,
     sale_price: num(d.sale_price),
     promo_label: d.promo_label,
     kit_price: num(d.kit_price),
-    product_variants: d.variants
-      .map((v) => ({
-        id: v.id || safeVariantId(v.label),
-        label: v.label.trim(),
-        price: Number(v.price) || 0,
-        kitPrice: num(v.kitPrice),
-        reconVialMg: num(v.reconVialMg),
-        reconWaterMl: num(v.reconWaterMl),
-        reconDoseMg: num(v.reconDoseMg),
-        reconNotes: v.reconNotes,
-      }))
-      .filter((v) => v.label && v.price > 0),
+    product_variants: variants,
     image_url: d.image_url,
     alt: d.alt || d.name,
     blurb: d.blurb,
