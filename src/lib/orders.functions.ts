@@ -20,7 +20,7 @@ export type SubmitOrderInput = {
   state: string;
   postcode: string;
   notes?: string;
-  paymentMethod: "payid" | "crypto" | "wise";
+  paymentMethod: "payid" | "crypto";
   shippingMethod?: ShippingMethodKey;
   items: SubmitOrderItem[];
 };
@@ -33,7 +33,7 @@ export type SubmittedOrder = {
   discount: number;
   shipping: number;
   total: number;
-  paymentMethod: "payid" | "crypto" | "wise";
+  paymentMethod: "payid" | "crypto";
   shippingMethod: ShippingMethodKey;
 };
 
