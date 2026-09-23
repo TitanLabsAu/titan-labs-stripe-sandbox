@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatPrice } from "@/lib/products";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { AdminOrderActions, CopyButton, copyText } from "@/components/AdminOrderActions";
 import {
   adminListNotifications,
   adminListOrders,
