@@ -76,7 +76,7 @@ const emptyDraft: Draft = {
   links: [],
   active: true,
   sort_order: "0",
-  stock_quantity: "25",
+  stock_quantity: "0",
 };
 
 function safeVariantId(label: string) {
