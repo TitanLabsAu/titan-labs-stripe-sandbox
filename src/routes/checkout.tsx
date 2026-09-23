@@ -132,6 +132,7 @@ function CheckoutPage() {
           postcode: address.postcode,
           notes,
           paymentMethod: method,
+          shippingMethod,
           items: items.map((i) => ({
             slug: i.slug,
             variantId: i.variantId ?? null,
@@ -185,6 +186,7 @@ function CheckoutPage() {
               method={confirmed.paymentMethod}
               content={content}
               reference={confirmed.reference}
+              amountAud={confirmed.total}
               className="mt-3"
             />
 
