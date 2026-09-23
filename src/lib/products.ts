@@ -8,6 +8,8 @@ export type ProductVariant = {
   label: string;
   price: number;
   kitPrice?: number | null;
+  /** Units on hand for this vial size. null = not tracked. */
+  stock?: number | null;
   reconVialMg?: number | null;
   reconWaterMl?: number | null;
   reconDoseMg?: number | null;
