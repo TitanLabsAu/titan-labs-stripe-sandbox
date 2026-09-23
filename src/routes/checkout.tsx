@@ -47,7 +47,7 @@ export const Route = createFileRoute("/checkout")({
 });
 
 function CheckoutPage() {
-  const { items, subtotal, getLinePrice, getLineLabel, clear } = useCart();
+  const { items, count, subtotal, getLinePrice, getLineLabel, clear } = useCart();
   const { getProduct } = useProducts();
   const { data: content } = useSiteContent();
   const submit = useServerFn(submitOrder);
@@ -67,6 +67,7 @@ function CheckoutPage() {
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
   const [method, setMethod] = useState<PaymentMethodKey>("payid");
+  const [shippingMethod, setShippingMethod] = useState<ShippingMethodKey>("express");
   const [address, setAddress] = useState<AddressValue>({
     address_line: "",
     city: "",
