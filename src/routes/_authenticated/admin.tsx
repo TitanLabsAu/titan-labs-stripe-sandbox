@@ -639,6 +639,9 @@ function AdminPage() {
           <TabsContent value="products" className="mt-6">
             <AdminProducts />
           </TabsContent>
+          <TabsContent value="finance" className="mt-6">
+            <AdminFinance />
+          </TabsContent>
           <TabsContent value="discounts" className="mt-6">
             <AdminDiscounts />
           </TabsContent>
