@@ -14,6 +14,7 @@ import {
   productBasePrice,
   sortedProductVariants,
   stockState,
+  variantStockFor,
   type ProductPack,
 } from "@/lib/products";
 import { getProductBySlug } from "@/lib/catalog.functions";
@@ -87,8 +88,9 @@ function ProductPage() {
   const singleOption = getProductOption(product, variantId, "single");
   const kitOption = getProductOption(product, variantId, "kit");
   const total = selected.unitPrice * qty;
-  const stock = stockState(product.stock);
-  const maxQty = stock === "out" ? 1 : Math.min(99, product.stock ?? 99);
+  const stockCount = variantStockFor(product, variantId);
+  const stock = stockState(stockCount);
+  const maxQty = stock === "out" ? 1 : Math.min(99, stockCount ?? 99);
 
   return (
     <div className="bg-hero min-h-screen">
@@ -134,7 +136,7 @@ function ProductPage() {
               </p>
             ) : stock === "low" ? (
               <p className="mt-4 inline-flex items-center border border-accent bg-accent/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-accent-foreground">
-                Low stock — only {product.stock} left
+                Low stock — only {stockCount} left
               </p>
             ) : null}
 
@@ -143,16 +145,19 @@ function ProductPage() {
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">Vial size</p>
                    <div className="mt-3 flex flex-wrap gap-2">
-                    {variants.map((variant) => (
-                      <Button
-                        key={variant.id}
-                        variant={selected.variantId === variant.id ? "default" : "outline"}
-                         className="h-9 min-w-16 px-3 font-bold uppercase"
-                        onClick={() => setVariantId(variant.id)}
-                      >
-                        <span>{variant.label}</span>
-                      </Button>
-                    ))}
+                    {variants.map((variant) => {
+                      const soldOut = stockState(variant.stock ?? 0) === "out";
+                      return (
+                        <Button
+                          key={variant.id}
+                          variant={selected.variantId === variant.id ? "default" : "outline"}
+                          className={`h-9 min-w-16 px-3 font-bold uppercase ${soldOut ? "opacity-60" : ""}`}
+                          onClick={() => setVariantId(variant.id)}
+                        >
+                          <span>{variant.label}{soldOut ? " · Sold out" : ""}</span>
+                        </Button>
+                      );
+                    })}
                   </div>
                 </div>
               ) : null}

@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
-import { formatPrice, getProductOption, sortedProductVariants, stockState, type Product, type ProductPack } from "@/lib/products";
+import { formatPrice, getProductOption, sortedProductVariants, stockState, totalStockFor, variantStockFor, type Product, type ProductPack } from "@/lib/products";
 
 export function ProductCard({ product: p }: { product: Product }) {
   const { addItem } = useCart();
@@ -12,11 +12,13 @@ export function ProductCard({ product: p }: { product: Product }) {
   const singleOption = getProductOption(p, variantId, "single");
   const kitOption = getProductOption(p, variantId, "kit");
   const option = pack === "kit" ? kitOption : singleOption;
-  const stock = stockState(p.stock);
+  const stockCount = variantStockFor(p, variantId);
+  const stock = stockState(stockCount);
+  const allOut = stockState(totalStockFor(p)) === "out";
   return (
     <article className="grid min-h-48 grid-cols-[7rem_minmax(0,1fr)] border border-border bg-card shadow-sm sm:min-h-40 sm:grid-cols-[8rem_minmax(0,1fr)]">
       <Link to="/product/$slug" params={{ slug: p.slug }} className="relative overflow-hidden border-r border-border">
-        <img src={p.image} alt={p.alt} loading="lazy" className={`h-full w-full object-cover transition duration-300 hover:scale-[1.02] ${stock === "out" ? "opacity-40 grayscale" : ""}`} />
+        <img src={p.image} alt={p.alt} loading="lazy" className={`h-full w-full object-cover transition duration-300 hover:scale-[1.02] ${allOut ? "opacity-40 grayscale" : ""}`} />
         {p.promoLabel ? (
           <span className="absolute left-2 top-2 border border-accent bg-accent px-2 py-0.5 text-[8px] font-bold uppercase text-accent-foreground">
             {p.promoLabel}
@@ -31,15 +33,18 @@ export function ProductCard({ product: p }: { product: Product }) {
         {stock === "out" ? (
           <span className="mt-2 inline-flex w-fit items-center border border-destructive bg-destructive/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-destructive">Out of stock</span>
         ) : stock === "low" ? (
-          <span className="mt-2 inline-flex w-fit items-center border border-accent bg-accent/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-accent-foreground">Low stock — only {p.stock} left</span>
+          <span className="mt-2 inline-flex w-fit items-center border border-accent bg-accent/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-accent-foreground">Low stock — only {stockCount} left</span>
         ) : null}
         {variants.length > 0 ? (
           <div className="mt-2 flex flex-wrap gap-1" aria-label="Vial size">
-            {variants.map((variant) => (
-              <Button key={variant.id} type="button" size="sm" variant={variantId === variant.id ? "default" : "outline"} className="h-7 min-w-0 px-2 text-[9px]" onClick={() => setVariantId(variant.id)}>
-                {variant.label}
-              </Button>
-            ))}
+            {variants.map((variant) => {
+              const soldOut = stockState(variant.stock ?? 0) === "out";
+              return (
+                <Button key={variant.id} type="button" size="sm" variant={variantId === variant.id ? "default" : "outline"} className={`h-7 min-w-0 px-2 text-[9px] ${soldOut ? "opacity-60" : ""}`} onClick={() => setVariantId(variant.id)}>
+                  {variant.label}{soldOut ? " · Sold out" : ""}
+                </Button>
+              );
+            })}
           </div>
         ) : <p className="mt-2 text-[10px] font-semibold text-muted-foreground">Single vial</p>}
         <div className="mt-3 grid grid-cols-2 overflow-hidden border border-input divide-x divide-input" aria-label="Buy option">

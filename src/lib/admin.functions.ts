@@ -338,6 +338,7 @@ export type AdminProductVariant = {
   label: string;
   price: number;
   kitPrice?: number | null;
+  stock?: number | null;
   reconVialMg?: number | null;
   reconWaterMl?: number | null;
   reconDoseMg?: number | null;
@@ -390,10 +391,33 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
   .inputValidator((input: Partial<AdminProduct> & { slug: string; name: string }) => input)
   .handler(async ({ data, context }) => {
     await assertAdmin(context as any);
+    const optNum = (value: unknown) =>
+      value === null || value === undefined || value === "" || Number.isNaN(Number(value))
+        ? null
+        : Number(value);
+    const variants = (data.product_variants ?? [])
+      .map((v) => ({
+        id: String(v.id || crypto.randomUUID()),
+        label: String(v.label ?? "").trim(),
+        price: Number(v.price ?? 0),
+        kitPrice: optNum(v.kitPrice),
+        stock: Math.max(0, Math.trunc(Number(v.stock ?? 0)) || 0),
+        reconVialMg: optNum(v.reconVialMg),
+        reconWaterMl: optNum(v.reconWaterMl),
+        reconDoseMg: optNum(v.reconDoseMg),
+        reconNotes: String(v.reconNotes ?? ""),
+      }))
+      .filter((v) => v.label && v.price > 0);
+    const variantPrices = variants.map((v) => v.price).filter((p) => p > 0);
+    const basePrice = variantPrices.length > 0 ? Math.min(...variantPrices) : Number(data.price ?? 0);
+    const totalStock =
+      variants.length > 0
+        ? variants.reduce((sum, v) => sum + v.stock, 0)
+        : Math.max(0, Math.trunc(Number(data.stock_quantity ?? 0)) || 0);
     const row = {
       slug: data.slug.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
       name: data.name.trim(),
-      price: Number(data.price ?? 0),
+      price: basePrice,
       sale_price:
         data.sale_price === null || data.sale_price === undefined || Number.isNaN(Number(data.sale_price))
           ? null
@@ -403,24 +427,7 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
         data.kit_price === null || data.kit_price === undefined || Number.isNaN(Number(data.kit_price))
           ? null
           : Number(data.kit_price),
-      product_variants: (data.product_variants ?? [])
-        .map((v) => {
-          const optNum = (value: unknown) =>
-            value === null || value === undefined || value === "" || Number.isNaN(Number(value))
-              ? null
-              : Number(value);
-          return {
-            id: String(v.id || crypto.randomUUID()),
-            label: String(v.label ?? "").trim(),
-            price: Number(v.price ?? 0),
-            kitPrice: optNum(v.kitPrice),
-            reconVialMg: optNum(v.reconVialMg),
-            reconWaterMl: optNum(v.reconWaterMl),
-            reconDoseMg: optNum(v.reconDoseMg),
-            reconNotes: String(v.reconNotes ?? ""),
-          };
-        })
-        .filter((v) => v.label && v.price > 0),
+      product_variants: variants,
       recon_vial_mg: data.recon_vial_mg ?? null,
       recon_water_ml: data.recon_water_ml ?? null,
       recon_dose_mg: data.recon_dose_mg ?? null,
@@ -435,7 +442,7 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
       product_links: (data.product_links ?? []).filter((l) => l && l.url),
       active: data.active ?? true,
       sort_order: Number(data.sort_order ?? 0),
-      stock_quantity: Math.max(0, Math.trunc(Number(data.stock_quantity ?? 0)) || 0),
+      stock_quantity: totalStock,
     };
     if (data.id) {
       const { error } = await context.supabase.from("products").update(row).eq("id", data.id);

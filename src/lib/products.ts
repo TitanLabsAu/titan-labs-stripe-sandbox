@@ -8,6 +8,8 @@ export type ProductVariant = {
   label: string;
   price: number;
   kitPrice?: number | null;
+  /** Units on hand for this vial size. null = not tracked. */
+  stock?: number | null;
   reconVialMg?: number | null;
   reconWaterMl?: number | null;
   reconDoseMg?: number | null;
@@ -49,6 +51,22 @@ export function stockState(stock?: number | null): "out" | "low" | "ok" {
   if (stock <= 0) return "out";
   if (stock < LOW_STOCK_THRESHOLD) return "low";
   return "ok";
+}
+
+/** Units on hand for a given vial size, falling back to the product-wide count. */
+export function variantStockFor(product: Product, variantId?: string | null) {
+  const variants = product.variants ?? [];
+  if (variants.length === 0) return product.stock ?? null;
+  const variant = variants.find((v) => v.id === variantId) ?? null;
+  if (!variant) return product.stock ?? null;
+  return variant.stock ?? null;
+}
+
+/** Units on hand across every vial size (or the product-wide count when no sizes exist). */
+export function totalStockFor(product: Product) {
+  const variants = product.variants ?? [];
+  if (variants.length === 0) return product.stock ?? null;
+  return variants.reduce((sum, v) => sum + Math.max(0, Number(v.stock ?? 0)), 0);
 }
 
 export const products: Product[] = [
@@ -114,6 +132,7 @@ export function getProductOption(
     variantLabel,
     pack,
     unitPrice,
+    stock: variant ? (variant.stock ?? null) : (product.stock ?? null),
     label: pack === "kit" ? `${variantLabel} · 10x Kit` : variantLabel,
   };
 }

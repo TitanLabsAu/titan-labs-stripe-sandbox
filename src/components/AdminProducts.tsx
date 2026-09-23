@@ -22,6 +22,7 @@ export type DraftVariant = {
   label: string;
   price: string;
   kitPrice: string;
+  stock: string;
   reconVialMg: string;
   reconWaterMl: string;
   reconDoseMg: string;
@@ -108,6 +109,7 @@ export function toDraft(p: AdminProduct): Draft {
       label: v.label,
       price: String(v.price),
       kitPrice: v.kitPrice == null ? "" : String(v.kitPrice),
+      stock: String(v.stock ?? 0),
       reconVialMg: v.reconVialMg == null ? "" : String(v.reconVialMg),
       reconWaterMl: v.reconWaterMl == null ? "" : String(v.reconWaterMl),
       reconDoseMg: v.reconDoseMg == null ? "" : String(v.reconDoseMg),
@@ -133,26 +135,29 @@ export function toDraft(p: AdminProduct): Draft {
 
 export function draftToPayload(d: Draft) {
   const num = (v: string) => (v.trim() === "" || Number.isNaN(Number(v)) ? null : Number(v));
+  const variants = d.variants
+    .map((v) => ({
+      id: v.id || safeVariantId(v.label),
+      label: v.label.trim(),
+      price: Number(v.price) || 0,
+      kitPrice: num(v.kitPrice),
+      stock: Math.max(0, Math.trunc(Number(v.stock)) || 0),
+      reconVialMg: num(v.reconVialMg),
+      reconWaterMl: num(v.reconWaterMl),
+      reconDoseMg: num(v.reconDoseMg),
+      reconNotes: v.reconNotes,
+    }))
+    .filter((v) => v.label && v.price > 0);
+  const variantPrices = variants.map((v) => v.price).filter((p) => p > 0);
   return {
     ...(d.id ? { id: d.id } : {}),
     slug: d.slug || d.name,
     name: d.name,
-    price: Number(d.price) || 0,
+    price: variantPrices.length > 0 ? Math.min(...variantPrices) : Number(d.price) || 0,
     sale_price: num(d.sale_price),
     promo_label: d.promo_label,
     kit_price: num(d.kit_price),
-    product_variants: d.variants
-      .map((v) => ({
-        id: v.id || safeVariantId(v.label),
-        label: v.label.trim(),
-        price: Number(v.price) || 0,
-        kitPrice: num(v.kitPrice),
-        reconVialMg: num(v.reconVialMg),
-        reconWaterMl: num(v.reconWaterMl),
-        reconDoseMg: num(v.reconDoseMg),
-        reconNotes: v.reconNotes,
-      }))
-      .filter((v) => v.label && v.price > 0),
+    product_variants: variants,
     image_url: d.image_url,
     alt: d.alt || d.name,
     blurb: d.blurb,
@@ -172,7 +177,10 @@ export function draftToPayload(d: Draft) {
       .filter((l) => l.url),
     active: d.active,
     sort_order: Number(d.sort_order) || 0,
-    stock_quantity: Math.max(0, Math.trunc(Number(d.stock_quantity)) || 0),
+    stock_quantity:
+      variants.length > 0
+        ? variants.reduce((sum, v) => sum + v.stock, 0)
+        : Math.max(0, Math.trunc(Number(d.stock_quantity)) || 0),
   };
 }
 
@@ -183,6 +191,7 @@ export function ProductEditor({
   onCancel,
   saving,
   title,
+  showPromo = false,
 }: {
   draft: Draft;
   setDraft: (d: Draft) => void;
@@ -190,6 +199,7 @@ export function ProductEditor({
   onCancel?: () => void;
   saving: boolean;
   title?: string;
+  showPromo?: boolean;
 }) {
   const [uploading, setUploading] = useState(false);
   const set = (patch: Partial<Draft>) => setDraft({ ...draft, ...patch });
@@ -251,43 +261,6 @@ export function ProductEditor({
           <Input value={draft.name} onChange={(e) => set({ name: e.target.value })} />
         </div>
         <div>
-          <Label>Single vial price (AUD)</Label>
-          <Input
-            type="number"
-            min={0}
-            value={draft.price}
-            onChange={(e) => set({ price: e.target.value })}
-          />
-        </div>
-        <div>
-          <Label>Sale price (AUD) — leave empty for no sale</Label>
-          <Input
-            type="number"
-            min={0}
-            value={draft.sale_price}
-            placeholder="e.g. 99"
-            onChange={(e) => set({ sale_price: e.target.value })}
-          />
-        </div>
-        <div>
-          <Label>Promotion badge (e.g. Hot product, 20% off)</Label>
-          <Input
-            value={draft.promo_label}
-            placeholder="Hot product"
-            onChange={(e) => set({ promo_label: e.target.value })}
-          />
-        </div>
-        <div>
-          <Label>Kit price (10x Kit) — blank uses 20% off</Label>
-          <Input
-            type="number"
-            min={0}
-            value={draft.kit_price}
-            placeholder={draft.price ? formatPrice(kitPriceFor(Number(draft.price) || 0)) : "Auto 20% off"}
-            onChange={(e) => set({ kit_price: e.target.value })}
-          />
-        </div>
-        <div>
           <Label>Web address name (slug)</Label>
           <Input
             value={draft.slug}
@@ -295,6 +268,28 @@ export function ProductEditor({
             onChange={(e) => set({ slug: e.target.value })}
           />
         </div>
+        {showPromo ? (
+          <>
+            <div>
+              <Label>Sale price (AUD) — leave empty for no sale</Label>
+              <Input
+                type="number"
+                min={0}
+                value={draft.sale_price}
+                placeholder="e.g. 99"
+                onChange={(e) => set({ sale_price: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label>Promotion badge (e.g. Hot product, 20% off)</Label>
+              <Input
+                value={draft.promo_label}
+                placeholder="Hot product"
+                onChange={(e) => set({ promo_label: e.target.value })}
+              />
+            </div>
+          </>
+        ) : null}
         <div>
           <Label>Display order (products list A–Z on the site)</Label>
           <Input
@@ -302,18 +297,6 @@ export function ProductEditor({
             value={draft.sort_order}
             onChange={(e) => set({ sort_order: e.target.value })}
           />
-        </div>
-        <div>
-          <Label>Stock on hand (units)</Label>
-          <Input
-            type="number"
-            min={0}
-            value={draft.stock_quantity}
-            onChange={(e) => set({ stock_quantity: e.target.value })}
-          />
-          <p className="mt-1 text-xs text-muted-foreground">
-            Under {LOW_STOCK_THRESHOLD} shows a low stock warning. 0 shows out of stock and blocks ordering.
-          </p>
         </div>
         <div>
           <Label>Product picture</Label>
@@ -370,9 +353,11 @@ export function ProductEditor({
       <div className="space-y-3 rounded-lg border border-border bg-background/40 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <Label>Vial sizes and prices</Label>
+            <Label>Vial sizes, prices and stock</Label>
             <p className="mt-1 text-xs text-muted-foreground">
-              Add every vial size you sell. Leave kit price blank to advertise the automatic 20% discount.
+              Add every vial size you sell, even if there is only one. Leave kit price blank to use the
+              automatic 20% off. Stock is counted per size — under {LOW_STOCK_THRESHOLD} shows a low stock
+              warning, 0 shows out of stock for that size.
             </p>
           </div>
           <Button
@@ -387,6 +372,7 @@ export function ProductEditor({
                     label: "",
                     price: "",
                     kitPrice: "",
+                    stock: "0",
                     reconVialMg: "",
                     reconWaterMl: "",
                     reconDoseMg: "",
@@ -401,54 +387,102 @@ export function ProductEditor({
         </div>
         {draft.variants.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No extra sizes yet — customers will see the single vial price and 10x kit option.
+            No vial sizes yet — add at least one size with its price so this product can be ordered.
           </p>
         ) : (
           <div className="space-y-2">
-            {draft.variants.map((variant, i) => (
-              <div
-                key={variant.id}
-                className="space-y-3 rounded-lg border border-border bg-card/60 p-3"
-              >
-                <div className="grid gap-2 md:grid-cols-[1.3fr_1fr_1fr_auto]">
-                  <Input
-                    value={variant.label}
-                    placeholder="5mg, 10mg, 20mg…"
-                    aria-label="Vial size"
-                    onChange={(e) =>
-                      setVariant(i, {
-                        label: e.target.value,
-                        id: variant.id || safeVariantId(e.target.value),
-                      })
+            {draft.variants.map((variant, i) => {
+              const state = stockState(Number(variant.stock) || 0);
+              return (
+                <div
+                  key={variant.id}
+                  className="space-y-2 rounded-lg border border-border bg-card/60 p-3"
+                >
+                  <div className="grid gap-2 md:grid-cols-[1.3fr_1fr_1fr_0.8fr_auto]">
+                    <div>
+                      <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                        Vial size
+                      </span>
+                      <Input
+                        value={variant.label}
+                        placeholder="5mg, 10mg, 20mg…"
+                        aria-label="Vial size"
+                        onChange={(e) =>
+                          setVariant(i, {
+                            label: e.target.value,
+                            id: variant.id || safeVariantId(e.target.value),
+                          })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                        Single price
+                      </span>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={variant.price}
+                        placeholder="Single price"
+                        aria-label="Single vial price"
+                        onChange={(e) => setVariant(i, { price: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                        10x kit price
+                      </span>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={variant.kitPrice}
+                        placeholder={variant.price ? formatPrice(kitPriceFor(Number(variant.price) || 0)) : "Kit price"}
+                        aria-label="10x Kit price"
+                        onChange={(e) => setVariant(i, { kitPrice: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                        Stock
+                      </span>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={variant.stock}
+                        placeholder="0"
+                        aria-label="Stock on hand for this size"
+                        onChange={(e) => setVariant(i, { stock: e.target.value })}
+                      />
+                    </div>
+                    <div className="flex items-end">
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        aria-label="Remove size"
+                        onClick={() => set({ variants: draft.variants.filter((_, idx) => idx !== i) })}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <p
+                    className={
+                      state === "out"
+                        ? "text-xs font-bold uppercase tracking-[0.14em] text-destructive"
+                        : state === "low"
+                          ? "text-xs font-bold uppercase tracking-[0.14em] text-accent-foreground"
+                          : "text-xs uppercase tracking-[0.14em] text-muted-foreground"
                     }
-                  />
-                  <Input
-                    type="number"
-                    min={0}
-                    value={variant.price}
-                    placeholder="Single price"
-                    aria-label="Single vial price"
-                    onChange={(e) => setVariant(i, { price: e.target.value })}
-                  />
-                  <Input
-                    type="number"
-                    min={0}
-                    value={variant.kitPrice}
-                    placeholder={variant.price ? formatPrice(kitPriceFor(Number(variant.price) || 0)) : "Kit price"}
-                    aria-label="10x Kit price"
-                    onChange={(e) => setVariant(i, { kitPrice: e.target.value })}
-                  />
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    aria-label="Remove size"
-                    onClick={() => set({ variants: draft.variants.filter((_, idx) => idx !== i) })}
                   >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                    {state === "out"
+                      ? "Out of stock — customers cannot order this size"
+                      : state === "low"
+                        ? `Low stock — only ${Number(variant.stock) || 0} left`
+                        : `${Number(variant.stock) || 0} in stock`}
+                  </p>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -699,25 +733,36 @@ export function AdminProducts() {
                 </p>
                 <p className="max-w-md">
                   {(p.product_variants ?? []).length > 0
-                    ? `${p.product_variants.length} size options`
-                    : "Single size product"}
-                  {p.kit_price ? ` · 10x Kit ${formatPrice(Number(p.kit_price))}` : " · 10x Kit auto 20% off"}
+                    ? `${p.product_variants.length} vial size${p.product_variants.length === 1 ? "" : "s"}`
+                    : "No vial sizes set"}
                 </p>
-                <p className="mt-1">
-                  <span
-                    className={
-                      stockState(p.stock_quantity) === "out"
-                        ? "inline-flex border border-destructive bg-destructive/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-destructive"
-                        : stockState(p.stock_quantity) === "low"
-                          ? "inline-flex border border-accent bg-accent/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-accent-foreground"
-                          : "inline-flex border border-border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground"
-                    }
-                  >
-                    {stockState(p.stock_quantity) === "out"
-                      ? "Out of stock"
-                      : `${p.stock_quantity ?? 0} in stock`}
-                  </span>
-                </p>
+                <div className="mt-1 flex flex-wrap gap-1">
+                  {(p.product_variants ?? []).length > 0 ? (
+                    (p.product_variants ?? []).map((v) => {
+                      const qty = Math.max(0, Math.trunc(Number(v.stock ?? 0)) || 0);
+                      const state = stockState(qty);
+                      return (
+                        <span
+                          key={v.id || v.label}
+                          className={
+                            state === "out"
+                              ? "inline-flex border border-destructive bg-destructive/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-destructive"
+                              : state === "low"
+                                ? "inline-flex border border-accent bg-accent/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-accent-foreground"
+                                : "inline-flex border border-border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground"
+                          }
+                        >
+                          {v.label || "Size"}: {state === "out" ? "Out of stock" : `${qty} in stock`}
+                          {v.price ? ` · ${formatPrice(Number(v.price))}` : ""}
+                        </span>
+                      );
+                    })
+                  ) : (
+                    <span className="inline-flex border border-destructive bg-destructive/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-destructive">
+                      Add a vial size
+                    </span>
+                  )}
+                </div>
                 {(p.categories ?? []).length > 0 ? (
                   <p className="mt-1 text-xs uppercase tracking-[0.2em] text-accent">
                     {(p.categories ?? []).join(" · ")}

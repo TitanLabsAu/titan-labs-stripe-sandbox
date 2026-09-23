@@ -35,6 +35,7 @@ function toProduct(row: any): Product {
       label: String(v?.label || "").trim(),
       price: Number(v?.price ?? 0),
       kitPrice: optNum(v?.kitPrice),
+      stock: v?.stock === null || v?.stock === undefined ? null : Math.max(0, Math.trunc(Number(v.stock) || 0)),
       reconVialMg: optNum(v?.reconVialMg),
       reconWaterMl: optNum(v?.reconWaterMl),
       reconDoseMg: optNum(v?.reconDoseMg),
