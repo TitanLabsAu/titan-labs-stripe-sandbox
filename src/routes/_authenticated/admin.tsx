@@ -140,11 +140,8 @@ function OrderCard({ order, live }: { order: AdminOrder; live: boolean }) {
   });
 
   const methodName =
-    order.payment_method === "crypto"
-      ? "Cryptocurrency (USDC)"
-      : order.payment_method === "wise"
-        ? "Wise transfer"
-        : "PayID / Bank transfer";
+    order.payment_method === "crypto" ? "Cryptocurrency" : "PayID / Bank transfer";
+
 
   return (
     <article className="rounded-xl border border-border bg-card/80 p-6">
