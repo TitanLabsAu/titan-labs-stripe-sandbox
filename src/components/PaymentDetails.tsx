@@ -1,10 +1,14 @@
 import { useState } from "react";
-import { Check, Copy } from "lucide-react";
+import { AlertTriangle, Check, Copy } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { CryptoQr } from "@/components/CryptoQr";
+import { getCryptoRates } from "@/lib/crypto.functions";
 import { homeValue, type PaymentMethodKey } from "@/lib/homeContent";
 import { cryptoAmountFor, parseCryptoOptions, CRYPTO_DISCOUNT_PERCENT } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
+
 
 export function CopyLine({ label, value }: { label: string; value: string }) {
   const [copied, setCopied] = useState(false);
@@ -80,37 +84,6 @@ export function PaymentDetails({
     );
   }
 
-  if (method === "wise") {
-    const link = value("payment_wise_link");
-    const account = value("payment_wise_account");
-    return (
-      <div className={cn("border border-border bg-muted/20 p-4", className)}>
-        {link ? (
-          <div>
-            <CopyLine label="Account name" value={account} />
-            <CopyLine label="Wise link" value={link} />
-            {reference ? <CopyLine label="Payment reference" value={reference} /> : null}
-            <a
-              href={link}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-3 inline-flex items-center border border-accent bg-accent/10 px-4 py-2 text-xs font-bold uppercase tracking-wide text-foreground hover:bg-accent/20"
-            >
-              Open Wise to pay
-            </a>
-          </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">
-            Wise payment details will be sent to you with your order confirmation.
-          </p>
-        )}
-        <p className="mt-3 whitespace-pre-line text-xs text-muted-foreground">
-          {value("payment_wise_instructions")}
-        </p>
-      </div>
-    );
-  }
-
   return <CryptoPanel content={content} reference={reference} amountAud={amountAud} className={className} />;
 }
 
@@ -127,20 +100,43 @@ function CryptoPanel({
 }) {
   const options = parseCryptoOptions(content);
   const [selectedId, setSelectedId] = useState(options[0]?.id ?? "");
-  const selected = options.find((o) => o.id === selectedId) ?? options[0]!;
-  const coinAmount = amountAud ? cryptoAmountFor(amountAud, selected) : null;
+  const selected = options.find((o) => o.id === selectedId) ?? options[0];
+
+  const ids = options.map((o) => o.coinId).filter((id): id is string => Boolean(id));
+  const fetchRates = useServerFn(getCryptoRates);
+  const { data: rates } = useQuery({
+    queryKey: ["crypto-rates", ids.join(",")],
+    queryFn: () => fetchRates({ data: { ids } }),
+    enabled: ids.length > 0,
+    staleTime: 60_000,
+    refetchInterval: 60_000,
+  });
+
+  if (!selected) {
+    return (
+      <div className={cn("border border-border bg-muted/20 p-4", className)}>
+        <p className="text-sm text-muted-foreground">
+          Wallet details will be sent to you with your order confirmation.
+        </p>
+      </div>
+    );
+  }
+
+  const liveRate = selected.coinId ? rates?.[selected.coinId] : undefined;
+  const rate = liveRate ?? selected.audPerUnit;
+  const coinAmount = amountAud ? cryptoAmountFor(amountAud, rate) : null;
 
   return (
     <div className={cn("border border-border bg-muted/20 p-4", className)}>
       {options.length > 1 ? (
-        <div className="mb-4 flex flex-wrap gap-2">
+        <div className="mb-4 grid grid-cols-3 gap-2">
           {options.map((option) => (
             <button
               key={option.id}
               type="button"
               onClick={() => setSelectedId(option.id)}
               className={cn(
-                "border px-3 py-1.5 text-xs font-bold uppercase tracking-wide transition-colors",
+                "border px-3 py-2 text-xs font-bold uppercase tracking-wide transition-colors",
                 option.id === selected.id
                   ? "border-accent bg-accent/10 text-foreground"
                   : "border-border text-muted-foreground hover:border-foreground/40",
@@ -152,22 +148,32 @@ function CryptoPanel({
         </div>
       ) : null}
 
+      {selected.note ? (
+        <div className="mb-4 flex items-start gap-2 border border-destructive/40 bg-destructive/5 p-3">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
+          <p className="text-xs text-muted-foreground">{selected.note}</p>
+        </div>
+      ) : null}
+
+      {coinAmount ? (
+        <div className="mb-3 border border-accent/40 bg-accent/5 p-3">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+            Amount to send
+          </p>
+          <p className="mt-0.5 font-mono text-lg font-extrabold text-foreground">
+            {coinAmount} {selected.label}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Converted from ${amountAud?.toFixed(2)} AUD
+            {liveRate ? " · live market rate" : ""}
+          </p>
+        </div>
+      ) : null}
+
       {selected.wallet ? (
         <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-start">
           <div>
-            {coinAmount ? (
-              <div className="mb-3 border border-accent/40 bg-accent/5 p-3">
-                <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                  Amount to send
-                </p>
-                <p className="mt-0.5 font-mono text-lg font-extrabold text-foreground">
-                  {coinAmount} {selected.label}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Converted from ${amountAud?.toFixed(2)} AUD
-                </p>
-              </div>
-            ) : null}
+
             <CopyLine label="Coin" value={selected.label} />
             <CopyLine label="Network" value={selected.network} />
             <CopyLine label="Wallet address" value={selected.wallet} />
@@ -205,14 +211,9 @@ export function PaymentMethodPicker({
       hint: "Instant transfer from your Australian banking app.",
     },
     {
-      key: "wise",
-      label: homeValue(content, "payment_wise_label"),
-      hint: "Pay through the Wise app or website.",
-    },
-    {
       key: "crypto",
       label: homeValue(content, "payment_crypto_label"),
-      hint: "Send coin from your own wallet and save instantly.",
+      hint: "Send BTC, ETH or USDT from your own wallet and save instantly.",
       badge: `${CRYPTO_DISCOUNT_PERCENT}% OFF`,
     },
   ];
@@ -250,3 +251,4 @@ export function PaymentMethodPicker({
     </div>
   );
 }
+

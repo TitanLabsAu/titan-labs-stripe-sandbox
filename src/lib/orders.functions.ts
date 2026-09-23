@@ -20,7 +20,7 @@ export type SubmitOrderInput = {
   state: string;
   postcode: string;
   notes?: string;
-  paymentMethod: "payid" | "crypto" | "wise";
+  paymentMethod: "payid" | "crypto";
   shippingMethod?: ShippingMethodKey;
   items: SubmitOrderItem[];
 };
@@ -33,7 +33,7 @@ export type SubmittedOrder = {
   discount: number;
   shipping: number;
   total: number;
-  paymentMethod: "payid" | "crypto" | "wise";
+  paymentMethod: "payid" | "crypto";
   shippingMethod: ShippingMethodKey;
 };
 
@@ -112,8 +112,8 @@ export const submitOrder = createServerFn({ method: "POST" })
       });
     }
 
-    const paymentMethod =
-      data.paymentMethod === "crypto" ? "crypto" : data.paymentMethod === "wise" ? "wise" : "payid";
+    const paymentMethod = data.paymentMethod === "crypto" ? "crypto" : "payid";
+
     const shippingMethod: ShippingMethodKey =
       data.shippingMethod === "standard" ? "standard" : "express";
 

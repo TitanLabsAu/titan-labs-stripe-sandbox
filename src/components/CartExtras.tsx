@@ -1,4 +1,4 @@
-import { Bitcoin, Landmark, Layers, Send, Truck } from "lucide-react";
+import { Bitcoin, Landmark, Layers, ShieldCheck, Truck } from "lucide-react";
 import { formatPrice } from "@/lib/products";
 import {
   CRYPTO_DISCOUNT_PERCENT,
@@ -93,7 +93,7 @@ export function TitanTrustStrip() {
   const badges = [
     { label: "PayID / Osko", Icon: Landmark },
     { label: `Crypto · ${CRYPTO_DISCOUNT_PERCENT}% off`, Icon: Bitcoin },
-    { label: "Wise transfer", Icon: Send },
+    { label: "BTC · ETH · USDT", Icon: ShieldCheck },
     { label: "AusPost tracked", Icon: Truck },
   ];
   return (

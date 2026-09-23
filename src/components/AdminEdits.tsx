@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode, RefObject } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlignCenter, AlignLeft, AlignRight, ArrowDown, ArrowUp, Bold, GripVertical, Italic, Trash2, Underline } from "lucide-react";
+import { AlignCenter, AlignLeft, AlignRight, ArrowDown, ArrowUp, Bold, GripVertical, Italic, Plus, Trash2, Underline } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,7 +37,9 @@ import {
 } from "@/lib/homeContent";
 
 import { formatPrice } from "@/lib/products";
+import { DEFAULT_CRYPTO_LINES, serialiseCryptoOptions } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
+
 
 const ALIGN_OPTIONS: { value: TextAlign; label: string; Icon: typeof AlignLeft }[] = [
   { value: "left", label: "Align left", Icon: AlignLeft },
@@ -334,6 +336,149 @@ function SectionOrderEditor({
   );
 }
 
+type CryptoRow = {
+  label: string;
+  network: string;
+  wallet: string;
+  audPerUnit: string;
+  coinId: string;
+  note: string;
+};
+
+function parseRows(raw: string): CryptoRow[] {
+  const source = raw.trim() || DEFAULT_CRYPTO_LINES;
+  return source
+    .split("\n")
+    .filter((line) => line.trim())
+    .map((line) => {
+      const p = line.split("|").map((v) => v.trim());
+      return {
+        label: p[0] ?? "",
+        network: p[1] ?? "",
+        wallet: p[2] ?? "",
+        audPerUnit: p[3] ?? "",
+        coinId: p[4] ?? "",
+        note: p[5] ?? "",
+      };
+    });
+}
+
+/** Add, edit and remove the coins customers can pay with. */
+function CryptoOptionsEditor({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (next: string) => void;
+}) {
+  const rows = parseRows(value);
+  const update = (index: number, patch: Partial<CryptoRow>) => {
+    const next = rows.map((row, i) => (i === index ? { ...row, ...patch } : row));
+    onChange(serialiseCryptoOptions(next));
+  };
+
+  return (
+    <div className="sm:col-span-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <Label>Crypto payment options</Label>
+        <Button
+          type="button"
+          variant="outline"
+          className="font-bold uppercase"
+          onClick={() =>
+            onChange(
+              serialiseCryptoOptions([
+                ...rows,
+                { label: "NEW", network: "", wallet: "", audPerUnit: "", coinId: "", note: "" },
+              ]),
+            )
+          }
+        >
+          <Plus className="mr-1 h-4 w-4" /> Add payment option
+        </Button>
+      </div>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Prices update automatically from the live market when the coin is a known one (BTC, ETH,
+        USDT, USDC, SOL and more). The backup price is only used if the live price is unavailable.
+      </p>
+
+      <div className="mt-3 space-y-3">
+        {rows.map((row, index) => (
+          <div key={index} className="rounded-md border border-border bg-card p-4">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <Label className="text-xs">Coin name</Label>
+                <Input
+                  className="mt-1"
+                  value={row.label}
+                  placeholder="USDT"
+                  onChange={(e) => update(index, { label: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label className="text-xs">Network</Label>
+                <Input
+                  className="mt-1"
+                  value={row.network}
+                  placeholder="Ethereum (ERC-20)"
+                  onChange={(e) => update(index, { network: e.target.value })}
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <Label className="text-xs">Wallet address</Label>
+                <Input
+                  className="mt-1 font-mono"
+                  value={row.wallet}
+                  placeholder="Paste your wallet address"
+                  onChange={(e) => update(index, { wallet: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label className="text-xs">Live price name (optional)</Label>
+                <Input
+                  className="mt-1"
+                  value={row.coinId}
+                  placeholder="bitcoin, ethereum, tether"
+                  onChange={(e) => update(index, { coinId: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label className="text-xs">Backup price — AUD per coin</Label>
+                <Input
+                  className="mt-1"
+                  value={row.audPerUnit}
+                  placeholder="1.52"
+                  onChange={(e) => update(index, { audPerUnit: e.target.value })}
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <Label className="text-xs">Network warning shown to the customer</Label>
+                <Textarea
+                  rows={2}
+                  className="mt-1"
+                  value={row.note}
+                  placeholder="Send USDT on the Ethereum (ERC-20) network only."
+                  onChange={(e) => update(index, { note: e.target.value })}
+                />
+              </div>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              className="mt-3 text-destructive"
+              onClick={() => onChange(serialiseCryptoOptions(rows.filter((_, i) => i !== index)))}
+            >
+              <Trash2 className="mr-1 h-4 w-4" /> Remove {row.label || "this coin"}
+            </Button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+
+
 export function AdminEdits() {
   const queryClient = useQueryClient();
   const { data } = useQuery({ queryKey: ["site-content"], queryFn: () => getSiteContent() });
@@ -549,7 +694,7 @@ export function AdminEdits() {
             </div>
 
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              {PAYMENT_FIELDS.map((f) => (
+              {PAYMENT_FIELDS.filter((f) => f.key !== "payment_crypto_options").map((f) => (
                 <ContentFieldEditor
                   key={f.key}
                   field={f}
@@ -559,6 +704,11 @@ export function AdminEdits() {
                   setAlign={(value) => setValue(`${f.key}_align`, value)}
                 />
               ))}
+              <CryptoOptionsEditor
+                value={values["payment_crypto_options"] ?? ""}
+                onChange={(next) => setValue("payment_crypto_options", next)}
+              />
+
             </div>
 
             <Button

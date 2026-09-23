@@ -96,48 +96,86 @@ export type CryptoOption = {
   network: string;
   wallet: string;
   audPerUnit: number | null;
+  /** Live market id used to look up the current AUD price. */
+  coinId: string | null;
+  /** Network warning shown above the wallet address. */
+  note: string;
 };
 
+/** Well known tickers mapped to their live market id. */
+export const COIN_IDS: Record<string, string> = {
+  BTC: "bitcoin",
+  BITCOIN: "bitcoin",
+  ETH: "ethereum",
+  ETHEREUM: "ethereum",
+  USDT: "tether",
+  TETHER: "tether",
+  USDC: "usd-coin",
+  SOL: "solana",
+  XRP: "ripple",
+  LTC: "litecoin",
+  BNB: "binancecoin",
+  DOGE: "dogecoin",
+};
+
+export const DEFAULT_CRYPTO_LINES = [
+  "BTC | Bitcoin network | | | bitcoin | Send BTC on the Bitcoin network only. Coins sent on any other network cannot be recovered.",
+  "ETH | Ethereum (ERC-20) | | | ethereum | Send ETH on the Ethereum (ERC-20) network only. Coins sent on any other network cannot be recovered.",
+  "USDT | Ethereum (ERC-20) | | | tether | Send USDT on the Ethereum (ERC-20) network only. Do not use TRC-20 (Tron), BEP-20 (BSC) or any other network, or the funds will be permanently lost.",
+].join("\n");
+
+function coinIdFor(label: string, explicit: string | undefined) {
+  const given = (explicit ?? "").trim().toLowerCase();
+  if (given && given !== "live") return given;
+  return COIN_IDS[label.trim().toUpperCase()] ?? null;
+}
+
 /**
- * Crypto options are edited in Admin as one line per coin:
- * `USDC | Ethereum (ERC-20) | 0xWallet... | 1.52`
- * (the last number is how many AUD one coin is worth).
+ * Crypto options are edited in Admin, one line per coin:
+ * `USDT | Ethereum (ERC-20) | 0xWallet... | 1.52 | tether | network warning`
  */
 export function parseCryptoOptions(content: Record<string, string> | undefined): CryptoOption[] {
-  const raw = homeValue(content, "payment_crypto_options").trim();
+  const configured = homeValue(content, "payment_crypto_options").trim();
+  const raw = configured || DEFAULT_CRYPTO_LINES;
   const options: CryptoOption[] = [];
 
   for (const line of raw.split("\n")) {
     const parts = line.split("|").map((p) => p.trim());
-    if (!parts[0]) continue;
+    const label = parts[0];
+    if (!label) continue;
     const rate = Number(parts[3]);
     options.push({
-      id: `${parts[0]}-${options.length}`,
-      label: parts[0],
+      id: `${label}-${options.length}`,
+      label,
       network: parts[1] ?? "",
       wallet: parts[2] ?? "",
       audPerUnit: Number.isFinite(rate) && rate > 0 ? rate : null,
-    });
-  }
-
-  if (options.length === 0) {
-    const wallet = homeValue(content, "payment_crypto_wallet").trim();
-    const rate = Number(homeValue(content, "payment_crypto_rate"));
-    options.push({
-      id: "default",
-      label: homeValue(content, "payment_crypto_label") || "USDC",
-      network: homeValue(content, "payment_crypto_network"),
-      wallet,
-      audPerUnit: Number.isFinite(rate) && rate > 0 ? rate : null,
+      coinId: coinIdFor(label, parts[4]),
+      note: parts[5] ?? "",
     });
   }
 
   return options;
 }
 
-export function cryptoAmountFor(amountAud: number, option: CryptoOption) {
-  if (!option.audPerUnit || amountAud <= 0) return null;
-  const amount = amountAud / option.audPerUnit;
+export function cryptoAmountFor(amountAud: number, audPerUnit: number | null) {
+  if (!audPerUnit || amountAud <= 0) return null;
+  const amount = amountAud / audPerUnit;
   const decimals = amount < 1 ? 6 : amount < 100 ? 4 : 2;
   return amount.toFixed(decimals);
 }
+
+/** Serialise admin crypto rows back into the stored one-line-per-coin format. */
+export function serialiseCryptoOptions(
+  rows: { label: string; network: string; wallet: string; audPerUnit: string; coinId: string; note: string }[],
+) {
+  return rows
+    .filter((r) => r.label.trim())
+    .map((r) =>
+      [r.label, r.network, r.wallet, r.audPerUnit, r.coinId, r.note]
+        .map((v) => v.replace(/[|\n]/g, " ").trim())
+        .join(" | "),
+    )
+    .join("\n");
+}
+
