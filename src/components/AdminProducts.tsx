@@ -191,6 +191,7 @@ export function ProductEditor({
   onCancel,
   saving,
   title,
+  showPromo = false,
 }: {
   draft: Draft;
   setDraft: (d: Draft) => void;
@@ -198,6 +199,7 @@ export function ProductEditor({
   onCancel?: () => void;
   saving: boolean;
   title?: string;
+  showPromo?: boolean;
 }) {
   const [uploading, setUploading] = useState(false);
   const set = (patch: Partial<Draft>) => setDraft({ ...draft, ...patch });
