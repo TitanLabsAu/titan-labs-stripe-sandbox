@@ -155,23 +155,25 @@ function CryptoPanel({
         </div>
       ) : null}
 
+      {coinAmount ? (
+        <div className="mb-3 border border-accent/40 bg-accent/5 p-3">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+            Amount to send
+          </p>
+          <p className="mt-0.5 font-mono text-lg font-extrabold text-foreground">
+            {coinAmount} {selected.label}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Converted from ${amountAud?.toFixed(2)} AUD
+            {liveRate ? " · live market rate" : ""}
+          </p>
+        </div>
+      ) : null}
+
       {selected.wallet ? (
         <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-start">
           <div>
-            {coinAmount ? (
-              <div className="mb-3 border border-accent/40 bg-accent/5 p-3">
-                <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                  Amount to send
-                </p>
-                <p className="mt-0.5 font-mono text-lg font-extrabold text-foreground">
-                  {coinAmount} {selected.label}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Converted from ${amountAud?.toFixed(2)} AUD
-                  {liveRate ? " · live market rate" : ""}
-                </p>
-              </div>
-            ) : null}
+
             <CopyLine label="Coin" value={selected.label} />
             <CopyLine label="Network" value={selected.network} />
             <CopyLine label="Wallet address" value={selected.wallet} />
