@@ -36,6 +36,13 @@
       "when": 1790167662206,
       "tag": "0004_product_stock_default_zero",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790170180288,
+      "tag": "0005_create_expenses",
+      "breakpoints": true
     }
   ]
 }

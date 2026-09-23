@@ -106,6 +106,54 @@ export type Database = {
         }
         Relationships: []
       }
+      expenses: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string
+          id: string
+          occurred_on: string
+          product_slug: string | null
+          quantity: number | null
+          restocked: boolean
+          supplier: string
+          updated_at: string
+          variant_label: string | null
+        }
+        Insert: {
+          amount?: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          occurred_on?: string
+          product_slug?: string | null
+          quantity?: number | null
+          restocked?: boolean
+          supplier?: string
+          updated_at?: string
+          variant_label?: string | null
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          occurred_on?: string
+          product_slug?: string | null
+          quantity?: number | null
+          restocked?: boolean
+          supplier?: string
+          updated_at?: string
+          variant_label?: string | null
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string
