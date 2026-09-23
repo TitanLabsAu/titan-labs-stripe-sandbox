@@ -145,16 +145,19 @@ function ProductPage() {
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">Vial size</p>
                    <div className="mt-3 flex flex-wrap gap-2">
-                    {variants.map((variant) => (
-                      <Button
-                        key={variant.id}
-                        variant={selected.variantId === variant.id ? "default" : "outline"}
-                         className="h-9 min-w-16 px-3 font-bold uppercase"
-                        onClick={() => setVariantId(variant.id)}
-                      >
-                        <span>{variant.label}</span>
-                      </Button>
-                    ))}
+                    {variants.map((variant) => {
+                      const soldOut = stockState(variant.stock ?? 0) === "out";
+                      return (
+                        <Button
+                          key={variant.id}
+                          variant={selected.variantId === variant.id ? "default" : "outline"}
+                          className={`h-9 min-w-16 px-3 font-bold uppercase ${soldOut ? "opacity-60" : ""}`}
+                          onClick={() => setVariantId(variant.id)}
+                        >
+                          <span>{variant.label}{soldOut ? " · Sold out" : ""}</span>
+                        </Button>
+                      );
+                    })}
                   </div>
                 </div>
               ) : null}
