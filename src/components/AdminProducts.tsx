@@ -259,43 +259,6 @@ export function ProductEditor({
           <Input value={draft.name} onChange={(e) => set({ name: e.target.value })} />
         </div>
         <div>
-          <Label>Single vial price (AUD)</Label>
-          <Input
-            type="number"
-            min={0}
-            value={draft.price}
-            onChange={(e) => set({ price: e.target.value })}
-          />
-        </div>
-        <div>
-          <Label>Sale price (AUD) — leave empty for no sale</Label>
-          <Input
-            type="number"
-            min={0}
-            value={draft.sale_price}
-            placeholder="e.g. 99"
-            onChange={(e) => set({ sale_price: e.target.value })}
-          />
-        </div>
-        <div>
-          <Label>Promotion badge (e.g. Hot product, 20% off)</Label>
-          <Input
-            value={draft.promo_label}
-            placeholder="Hot product"
-            onChange={(e) => set({ promo_label: e.target.value })}
-          />
-        </div>
-        <div>
-          <Label>Kit price (10x Kit) — blank uses 20% off</Label>
-          <Input
-            type="number"
-            min={0}
-            value={draft.kit_price}
-            placeholder={draft.price ? formatPrice(kitPriceFor(Number(draft.price) || 0)) : "Auto 20% off"}
-            onChange={(e) => set({ kit_price: e.target.value })}
-          />
-        </div>
-        <div>
           <Label>Web address name (slug)</Label>
           <Input
             value={draft.slug}
