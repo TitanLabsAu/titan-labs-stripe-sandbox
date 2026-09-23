@@ -709,25 +709,36 @@ export function AdminProducts() {
                 </p>
                 <p className="max-w-md">
                   {(p.product_variants ?? []).length > 0
-                    ? `${p.product_variants.length} size options`
-                    : "Single size product"}
-                  {p.kit_price ? ` · 10x Kit ${formatPrice(Number(p.kit_price))}` : " · 10x Kit auto 20% off"}
+                    ? `${p.product_variants.length} vial size${p.product_variants.length === 1 ? "" : "s"}`
+                    : "No vial sizes set"}
                 </p>
-                <p className="mt-1">
-                  <span
-                    className={
-                      stockState(p.stock_quantity) === "out"
-                        ? "inline-flex border border-destructive bg-destructive/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-destructive"
-                        : stockState(p.stock_quantity) === "low"
-                          ? "inline-flex border border-accent bg-accent/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-accent-foreground"
-                          : "inline-flex border border-border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground"
-                    }
-                  >
-                    {stockState(p.stock_quantity) === "out"
-                      ? "Out of stock"
-                      : `${p.stock_quantity ?? 0} in stock`}
-                  </span>
-                </p>
+                <div className="mt-1 flex flex-wrap gap-1">
+                  {(p.product_variants ?? []).length > 0 ? (
+                    (p.product_variants ?? []).map((v) => {
+                      const qty = Math.max(0, Math.trunc(Number(v.stock ?? 0)) || 0);
+                      const state = stockState(qty);
+                      return (
+                        <span
+                          key={v.id || v.label}
+                          className={
+                            state === "out"
+                              ? "inline-flex border border-destructive bg-destructive/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-destructive"
+                              : state === "low"
+                                ? "inline-flex border border-accent bg-accent/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-accent-foreground"
+                                : "inline-flex border border-border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground"
+                          }
+                        >
+                          {v.label || "Size"}: {state === "out" ? "Out of stock" : `${qty} in stock`}
+                          {v.price ? ` · ${formatPrice(Number(v.price))}` : ""}
+                        </span>
+                      );
+                    })
+                  ) : (
+                    <span className="inline-flex border border-destructive bg-destructive/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-destructive">
+                      Add a vial size
+                    </span>
+                  )}
+                </div>
                 {(p.categories ?? []).length > 0 ? (
                   <p className="mt-1 text-xs uppercase tracking-[0.2em] text-accent">
                     {(p.categories ?? []).join(" · ")}
