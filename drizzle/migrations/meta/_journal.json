@@ -22,6 +22,13 @@
       "when": 1790160301399,
       "tag": "0002_order_payment_details",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790167435010,
+      "tag": "0003_add_product_stock_quantity",
+      "breakpoints": true
     }
   ]
 }
