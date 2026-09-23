@@ -12,7 +12,9 @@ export function ProductCard({ product: p }: { product: Product }) {
   const singleOption = getProductOption(p, variantId, "single");
   const kitOption = getProductOption(p, variantId, "kit");
   const option = pack === "kit" ? kitOption : singleOption;
-  const stock = stockState(p.stock);
+  const stockCount = variantStockFor(p, variantId);
+  const stock = stockState(stockCount);
+  const allOut = stockState(totalStockFor(p)) === "out";
   return (
     <article className="grid min-h-48 grid-cols-[7rem_minmax(0,1fr)] border border-border bg-card shadow-sm sm:min-h-40 sm:grid-cols-[8rem_minmax(0,1fr)]">
       <Link to="/product/$slug" params={{ slug: p.slug }} className="relative overflow-hidden border-r border-border">
