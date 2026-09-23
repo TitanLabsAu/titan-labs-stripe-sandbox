@@ -212,7 +212,8 @@ export function PaymentMethodPicker({
     {
       key: "crypto",
       label: homeValue(content, "payment_crypto_label"),
-      hint: "Send USDC from your own wallet.",
+      hint: "Send coin from your own wallet and save instantly.",
+      badge: `${CRYPTO_DISCOUNT_PERCENT}% OFF`,
     },
   ];
 
