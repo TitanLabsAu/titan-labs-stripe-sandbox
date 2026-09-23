@@ -15,6 +15,13 @@
       "when": 1789898824855,
       "tag": "0001_add_reconstitution_dose_mg",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790160301399,
+      "tag": "0002_order_payment_details",
+      "breakpoints": true
     }
   ]
 }

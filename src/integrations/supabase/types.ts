@@ -115,6 +115,7 @@ export type Database = {
           product_slug: string
           quantity: number
           unit_price: number
+          variant_label: string
         }
         Insert: {
           created_at?: string
@@ -124,6 +125,7 @@ export type Database = {
           product_slug: string
           quantity: number
           unit_price: number
+          variant_label?: string
         }
         Update: {
           created_at?: string
@@ -133,6 +135,7 @@ export type Database = {
           product_slug?: string
           quantity?: number
           unit_price?: number
+          variant_label?: string
         }
         Relationships: [
           {
@@ -146,10 +149,19 @@ export type Database = {
       }
       orders: {
         Row: {
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
           created_at: string
           delivered_at: string | null
           id: string
+          notes: string | null
+          order_number: number
+          payment_confirmed: boolean
+          payment_method: string
+          payment_reference: string | null
           shipping: number
+          shipping_address: string | null
           status: Database["public"]["Enums"]["order_status"]
           subtotal: number
           total: number
@@ -160,10 +172,19 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
           created_at?: string
           delivered_at?: string | null
           id?: string
+          notes?: string | null
+          order_number?: number
+          payment_confirmed?: boolean
+          payment_method?: string
+          payment_reference?: string | null
           shipping?: number
+          shipping_address?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number
           total?: number
@@ -174,10 +195,19 @@ export type Database = {
           user_id: string
         }
         Update: {
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
           created_at?: string
           delivered_at?: string | null
           id?: string
+          notes?: string | null
+          order_number?: number
+          payment_confirmed?: boolean
+          payment_method?: string
+          payment_reference?: string | null
           shipping?: number
+          shipping_address?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number
           total?: number

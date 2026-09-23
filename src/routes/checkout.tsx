@@ -1,5 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,10 +11,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { AddressFields, type AddressValue } from "@/components/AddressFields";
+import { PaymentDetails, PaymentMethodPicker } from "@/components/PaymentDetails";
+import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/products";
 import { useProducts, useSiteContent } from "@/lib/useCatalog";
-import { catalogueName } from "@/lib/homeContent";
+import { catalogueName, homeValue, type PaymentMethodKey } from "@/lib/homeContent";
+import { submitOrder, saveOrderPaymentReference, type SubmittedOrder } from "@/lib/orders.functions";
 import { FREE_SHIPPING_THRESHOLD, shippingFor } from "@/lib/categories";
 
 export const Route = createFileRoute("/checkout")({
@@ -35,26 +42,177 @@ export const Route = createFileRoute("/checkout")({
 });
 
 function CheckoutPage() {
-  const { items, subtotal, getLinePrice, getLineLabel } = useCart();
+  const { items, subtotal, getLinePrice, getLineLabel, clear } = useCart();
   const { getProduct } = useProducts();
   const { data: content } = useSiteContent();
+  const submit = useServerFn(submitOrder);
+  const saveReference = useServerFn(saveOrderPaymentReference);
+
+  const { data: session } = useQuery({
+    queryKey: ["checkout-session"],
+    queryFn: async () => {
+      const { data } = await supabase.auth.getUser();
+      return data.user ?? null;
+    },
+  });
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
+  const [method, setMethod] = useState<PaymentMethodKey>("payid");
   const [address, setAddress] = useState<AddressValue>({
     address_line: "",
     city: "",
     state: "",
     postcode: "",
   });
+  const [confirmed, setConfirmed] = useState<SubmittedOrder | null>(null);
+  const [reference, setReference] = useState("");
+  const [referenceSaved, setReferenceSaved] = useState(false);
+
+  // Pre-fill from the saved profile once we know who is signed in.
+  useEffect(() => {
+    if (!session) return;
+    let cancelled = false;
+    void supabase
+      .from("profiles")
+      .select("first_name, last_name, email, phone_number, address_line, city, state, postcode")
+      .eq("id", session.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (cancelled || !data) return;
+        setFirstName((v) => v || data.first_name || "");
+        setLastName((v) => v || data.last_name || "");
+        setEmail((v) => v || data.email || session.email || "");
+        setPhone((v) => v || data.phone_number || "");
+        setAddress((v) =>
+          v.address_line
+            ? v
+            : {
+                address_line: data.address_line ?? "",
+                city: data.city ?? "",
+                state: data.state ?? "",
+                postcode: data.postcode ?? "",
+              },
+        );
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [session]);
 
   const shipping = shippingFor(subtotal);
   const freeShipping = items.length > 0 && shipping === 0;
   const total = items.length > 0 ? subtotal + shipping : 0;
   const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
+
+  const placeOrder = useMutation({
+    mutationFn: async () => {
+      const result = await submit({
+        data: {
+          firstName,
+          lastName,
+          email,
+          phone,
+          addressLine: address.address_line,
+          city: address.city,
+          state: address.state,
+          postcode: address.postcode,
+          notes,
+          paymentMethod: method,
+          items: items.map((i) => ({
+            slug: i.slug,
+            variantId: i.variantId ?? null,
+            pack: i.pack ?? "single",
+            quantity: i.quantity,
+          })),
+        },
+      });
+      return result;
+    },
+    onSuccess: (result) => {
+      setConfirmed(result);
+      clear();
+      toast.success(`Order ${result.reference} received`);
+    },
+    onError: (error: any) =>
+      toast.error(error?.message ?? "We could not submit that order. Please try again."),
+  });
+
+  const submitReference = useMutation({
+    mutationFn: () =>
+      saveReference({ data: { orderId: confirmed!.id, reference } }),
+    onSuccess: () => {
+      setReferenceSaved(true);
+      toast.success("Thanks — we'll confirm your payment shortly.");
+    },
+    onError: (error: any) => toast.error(error?.message ?? "Could not save that reference."),
+  });
+
+  if (confirmed) {
+    return (
+      <div className="bg-hero min-h-screen">
+        <SiteHeader />
+        <main className="page-shell py-10 sm:py-12">
+          <div className="mx-auto max-w-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
+            <div className="flex items-center gap-3">
+              <CheckCircle2 className="h-7 w-7 text-accent" />
+              <h1 className="text-2xl font-medium uppercase sm:text-3xl">Order received</h1>
+            </div>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Your order number is{" "}
+              <span className="font-bold text-foreground">{confirmed.reference}</span>. Order total{" "}
+              <span className="font-bold text-foreground">{formatPrice(confirmed.total)}</span>.
+            </p>
+            <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">
+              {homeValue(content, "payment_confirmation_note")}
+            </p>
+
+            <h2 className="technical-label mt-8 text-foreground">Payment details</h2>
+            <PaymentDetails
+              method={confirmed.paymentMethod}
+              content={content}
+              reference={confirmed.reference}
+              className="mt-3"
+            />
+
+            {confirmed.paymentMethod === "crypto" ? (
+              <div className="mt-6 space-y-2">
+                <Label htmlFor="tx">Transaction hash</Label>
+                <Input
+                  id="tx"
+                  value={reference}
+                  maxLength={160}
+                  placeholder="Paste your transaction hash"
+                  onChange={(e) => setReference(e.target.value)}
+                  disabled={referenceSaved}
+                />
+                <Button
+                  className="font-bold uppercase"
+                  disabled={referenceSaved || submitReference.isPending}
+                  onClick={() => submitReference.mutate()}
+                >
+                  {referenceSaved ? "Saved" : "Complete order"}
+                </Button>
+              </div>
+            ) : null}
+
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button asChild variant="outline" className="font-bold uppercase">
+                <Link to="/orders">View my orders</Link>
+              </Button>
+              <Button asChild className="font-bold uppercase">
+                <Link to="/range">Keep shopping</Link>
+              </Button>
+            </div>
+          </div>
+        </main>
+        <SiteFooter />
+      </div>
+    );
+  }
 
   return (
     <div className="bg-hero min-h-screen">
@@ -140,6 +298,15 @@ function CheckoutPage() {
                   onChange={(e) => setNotes(e.target.value)}
                 />
               </div>
+
+              <h2 className="technical-label mt-8 text-foreground">Payment method</h2>
+              <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">
+                {homeValue(content, "payment_intro")}
+              </p>
+              <div className="mt-4">
+                <PaymentMethodPicker value={method} onChange={setMethod} content={content} />
+              </div>
+              <PaymentDetails method={method} content={content} className="mt-4" />
             </section>
 
             {/* Right: order breakdown */}
@@ -206,12 +373,30 @@ function CheckoutPage() {
                 <p className="text-xs text-muted-foreground">All prices displayed in AUD.</p>
               </div>
 
-              <Button size="lg" className="mt-6 w-full font-bold uppercase tracking-wide" disabled>
-                Submit order
-              </Button>
-              <p className="mt-3 text-center text-xs text-muted-foreground">
-                Order submission is not active yet.
-              </p>
+              {session ? (
+                <>
+                  <Button
+                    size="lg"
+                    className="mt-6 w-full font-bold uppercase tracking-wide"
+                    disabled={placeOrder.isPending}
+                    onClick={() => placeOrder.mutate()}
+                  >
+                    {placeOrder.isPending ? "Submitting…" : "Submit order"}
+                  </Button>
+                  <p className="mt-3 text-center text-xs text-muted-foreground">
+                    No payment is taken on this website.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <Button asChild size="lg" className="mt-6 w-full font-bold uppercase tracking-wide">
+                    <Link to="/auth">Log in to submit your order</Link>
+                  </Button>
+                  <p className="mt-3 text-center text-xs text-muted-foreground">
+                    Your cart is saved while you log in.
+                  </p>
+                </>
+              )}
             </aside>
           </div>
         )}
