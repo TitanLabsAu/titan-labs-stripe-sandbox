@@ -41,12 +41,14 @@ export function PaymentDetails({
   method,
   content,
   reference,
+  amountAud,
   className,
 }: {
   method: PaymentMethodKey;
   content: Record<string, string> | undefined;
-  reference?: string;
-  className?: string;
+  reference?: string | undefined;
+  amountAud?: number | undefined;
+  className?: string | undefined;
 }) {
   const value = (key: string) => homeValue(content, key).trim();
 
