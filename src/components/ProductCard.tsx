@@ -2,17 +2,18 @@ import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
-import { formatPrice, getProductOption, sortedProductVariants, type Product } from "@/lib/products";
+import { formatPrice, getProductOption, sortedProductVariants, stockState, type Product } from "@/lib/products";
 
 export function ProductCard({ product: p }: { product: Product }) {
   const { addItem } = useCart();
   const variants = sortedProductVariants(p);
   const [variantId, setVariantId] = useState<string | null>(variants[0]?.id ?? null);
   const option = getProductOption(p, variantId, "single");
+  const stock = stockState(p.stock);
   return (
     <article className="grid min-h-48 grid-cols-[7rem_minmax(0,1fr)] border border-border bg-card shadow-sm sm:min-h-40 sm:grid-cols-[8rem_minmax(0,1fr)]">
       <Link to="/product/$slug" params={{ slug: p.slug }} className="relative overflow-hidden border-r border-border">
-        <img src={p.image} alt={p.alt} loading="lazy" className="h-full w-full object-cover transition duration-300 hover:scale-[1.02]" />
+        <img src={p.image} alt={p.alt} loading="lazy" className={`h-full w-full object-cover transition duration-300 hover:scale-[1.02] ${stock === "out" ? "opacity-40 grayscale" : ""}`} />
         {p.promoLabel ? (
           <span className="absolute left-2 top-2 border border-accent bg-accent px-2 py-0.5 text-[8px] font-bold uppercase text-accent-foreground">
             {p.promoLabel}
@@ -24,6 +25,11 @@ export function ProductCard({ product: p }: { product: Product }) {
           <Link to="/product/$slug" params={{ slug: p.slug }} className="min-w-0 text-sm font-semibold text-foreground hover:text-primary">{p.name}</Link>
           {(p.categories ?? []).length ? <span className="self-start border border-border px-2 py-1 text-[8px] text-primary">{p.categories?.[0]}</span> : null}
         </div>
+        {stock === "out" ? (
+          <span className="mt-2 inline-flex w-fit items-center border border-destructive bg-destructive/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-destructive">Out of stock</span>
+        ) : stock === "low" ? (
+          <span className="mt-2 inline-flex w-fit items-center border border-accent bg-accent/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-accent-foreground">Low stock — only {p.stock} left</span>
+        ) : null}
         {variants.length > 0 ? (
           <div className="mt-2 flex flex-wrap gap-1" aria-label="Vial size">
             {variants.map((variant) => (
@@ -43,7 +49,7 @@ export function ProductCard({ product: p }: { product: Product }) {
             {formatPrice(option.unitPrice)}
           </span>
         </div>
-        <Button className="mt-auto w-full" onClick={() => addItem(p.slug, 1, { variantId: option.variantId, variantLabel: option.variantLabel, pack: option.pack })}>Add to order</Button>
+        <Button className="mt-auto w-full" disabled={stock === "out"} onClick={() => addItem(p.slug, 1, { variantId: option.variantId, variantLabel: option.variantLabel, pack: option.pack })}>{stock === "out" ? "Out of stock" : "Add to order"}</Button>
       </div>
     </article>
   );
