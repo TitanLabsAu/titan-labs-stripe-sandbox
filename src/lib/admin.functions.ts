@@ -482,7 +482,6 @@ export const adminSaveLink = createServerFn({ method: "POST" })
       label: data.label.trim(),
       url: data.url.trim(),
       sort_order: Number(data.sort_order ?? 0),
-      stock_quantity: Math.max(0, Math.trunc(Number(data.stock_quantity ?? 0)) || 0),
     };
     if (data.id) {
       const { error } = await context.supabase.from("site_links").update(row).eq("id", data.id);
