@@ -339,6 +339,7 @@ export type AdminProductVariant = {
   price: number;
   kitPrice?: number | null;
   stock?: number | null;
+  cost?: number | null;
   reconVialMg?: number | null;
   reconWaterMl?: number | null;
   reconDoseMg?: number | null;
@@ -402,6 +403,7 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
         price: Number(v.price ?? 0),
         kitPrice: optNum(v.kitPrice),
         stock: Math.max(0, Math.trunc(Number(v.stock ?? 0)) || 0),
+        cost: optNum(v.cost),
         reconVialMg: optNum(v.reconVialMg),
         reconWaterMl: optNum(v.reconWaterMl),
         reconDoseMg: optNum(v.reconDoseMg),

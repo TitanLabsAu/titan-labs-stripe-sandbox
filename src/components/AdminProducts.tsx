@@ -23,6 +23,7 @@ export type DraftVariant = {
   price: string;
   kitPrice: string;
   stock: string;
+  cost: string;
   reconVialMg: string;
   reconWaterMl: string;
   reconDoseMg: string;
@@ -110,6 +111,7 @@ export function toDraft(p: AdminProduct): Draft {
       price: String(v.price),
       kitPrice: v.kitPrice == null ? "" : String(v.kitPrice),
       stock: String(v.stock ?? 0),
+      cost: v.cost == null ? "" : String(v.cost),
       reconVialMg: v.reconVialMg == null ? "" : String(v.reconVialMg),
       reconWaterMl: v.reconWaterMl == null ? "" : String(v.reconWaterMl),
       reconDoseMg: v.reconDoseMg == null ? "" : String(v.reconDoseMg),
@@ -142,6 +144,7 @@ export function draftToPayload(d: Draft) {
       price: Number(v.price) || 0,
       kitPrice: num(v.kitPrice),
       stock: Math.max(0, Math.trunc(Number(v.stock)) || 0),
+      cost: num(v.cost),
       reconVialMg: num(v.reconVialMg),
       reconWaterMl: num(v.reconWaterMl),
       reconDoseMg: num(v.reconDoseMg),
@@ -373,6 +376,7 @@ export function ProductEditor({
                     price: "",
                     kitPrice: "",
                     stock: "0",
+                    cost: "",
                     reconVialMg: "",
                     reconWaterMl: "",
                     reconDoseMg: "",
@@ -398,7 +402,7 @@ export function ProductEditor({
                   key={variant.id}
                   className="space-y-2 rounded-lg border border-border bg-card/60 p-3"
                 >
-                  <div className="grid gap-2 md:grid-cols-[1.3fr_1fr_1fr_0.8fr_auto]">
+                  <div className="grid gap-2 md:grid-cols-[1.3fr_1fr_1fr_1fr_0.8fr_auto]">
                     <div>
                       <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
                         Vial size
@@ -439,6 +443,19 @@ export function ProductEditor({
                         placeholder={variant.price ? formatPrice(kitPriceFor(Number(variant.price) || 0)) : "Kit price"}
                         aria-label="10x Kit price"
                         onChange={(e) => setVariant(i, { kitPrice: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                        Cost each
+                      </span>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={variant.cost}
+                        placeholder="What you pay"
+                        aria-label="Cost price for this size"
+                        onChange={(e) => setVariant(i, { cost: e.target.value })}
                       />
                     </div>
                     <div>
