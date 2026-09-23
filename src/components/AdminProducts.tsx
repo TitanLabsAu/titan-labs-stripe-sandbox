@@ -268,6 +268,28 @@ export function ProductEditor({
             onChange={(e) => set({ slug: e.target.value })}
           />
         </div>
+        {showPromo ? (
+          <>
+            <div>
+              <Label>Sale price (AUD) — leave empty for no sale</Label>
+              <Input
+                type="number"
+                min={0}
+                value={draft.sale_price}
+                placeholder="e.g. 99"
+                onChange={(e) => set({ sale_price: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label>Promotion badge (e.g. Hot product, 20% off)</Label>
+              <Input
+                value={draft.promo_label}
+                placeholder="Hot product"
+                onChange={(e) => set({ promo_label: e.target.value })}
+              />
+            </div>
+          </>
+        ) : null}
         <div>
           <Label>Display order (products list A–Z on the site)</Label>
           <Input
