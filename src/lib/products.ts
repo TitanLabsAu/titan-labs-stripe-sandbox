@@ -53,6 +53,22 @@ export function stockState(stock?: number | null): "out" | "low" | "ok" {
   return "ok";
 }
 
+/** Units on hand for a given vial size, falling back to the product-wide count. */
+export function variantStockFor(product: Product, variantId?: string | null) {
+  const variants = product.variants ?? [];
+  if (variants.length === 0) return product.stock ?? null;
+  const variant = variants.find((v) => v.id === variantId) ?? null;
+  if (!variant) return product.stock ?? null;
+  return variant.stock ?? null;
+}
+
+/** Units on hand across every vial size (or the product-wide count when no sizes exist). */
+export function totalStockFor(product: Product) {
+  const variants = product.variants ?? [];
+  if (variants.length === 0) return product.stock ?? null;
+  return variants.reduce((sum, v) => sum + Math.max(0, Number(v.stock ?? 0)), 0);
+}
+
 export const products: Product[] = [
   {
     slug: "klow-80mg",
