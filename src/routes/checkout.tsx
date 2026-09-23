@@ -353,17 +353,42 @@ function CheckoutPage() {
                 })}
               </ul>
 
+              <div className="mt-6">
+                <p className="technical-label text-foreground">The Titan Stack</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  2 items = 10% off · 3 items = 15% off · 4 items = 20% off
+                </p>
+                <div className="mt-3">
+                  <TitanStackBanner units={count} />
+                </div>
+              </div>
+
               <div className="mt-4 space-y-2 border-t border-border pt-4 text-sm">
                 <div className="flex justify-between text-muted-foreground">
                   <span>Subtotal</span>
-                  <span>{formatPrice(subtotal)}</span>
+                  <span>{formatPrice(totals.subtotal)}</span>
                 </div>
+                {totals.stackDiscount > 0 ? (
+                  <div className="flex justify-between font-bold text-accent">
+                    <span>Titan Stack {totals.stackPercent}% off</span>
+                    <span>−{formatPrice(totals.stackDiscount)}</span>
+                  </div>
+                ) : null}
+                {totals.cryptoDiscount > 0 ? (
+                  <div className="flex justify-between font-bold text-accent">
+                    <span>Crypto payment {totals.cryptoPercent}% off</span>
+                    <span>−{formatPrice(totals.cryptoDiscount)}</span>
+                  </div>
+                ) : null}
                 <div className="flex justify-between text-muted-foreground">
-                  <span>Express shipping</span>
+                  <span>
+                    {shippingMethod === "standard" ? "Standard tracked" : "Express + insurance"}{" "}
+                    shipping
+                  </span>
                   {freeShipping ? (
                     <span className="font-bold uppercase text-accent">Free</span>
                   ) : (
-                    <span>{formatPrice(shipping)}</span>
+                    <span>{formatPrice(totals.shipping)}</span>
                   )}
                 </div>
                 {freeShipping ? (
@@ -378,9 +403,15 @@ function CheckoutPage() {
                 )}
                 <div className="flex items-center justify-between pt-2 text-base">
                   <span className="font-bold uppercase tracking-wide text-foreground">Total</span>
-                  <span className="text-2xl font-extrabold text-accent">{formatPrice(total)}</span>
+                  <span className="text-2xl font-extrabold text-accent">
+                    {formatPrice(totals.total)}
+                  </span>
                 </div>
                 <p className="text-xs text-muted-foreground">All prices displayed in AUD.</p>
+              </div>
+
+              <div className="mt-5 border-t border-border pt-5">
+                <TitanTrustStrip />
               </div>
 
               {session ? (
