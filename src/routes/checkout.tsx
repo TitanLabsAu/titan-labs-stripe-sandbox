@@ -108,10 +108,14 @@ function CheckoutPage() {
     };
   }, [session]);
 
-  const shipping = shippingFor(subtotal);
-  const freeShipping = items.length > 0 && shipping === 0;
-  const total = items.length > 0 ? subtotal + shipping : 0;
-  const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
+  const totals = computeTotals({
+    subtotal,
+    units: count,
+    shippingMethod,
+    paymentMethod: method,
+  });
+  const freeShipping = items.length > 0 && totals.shipping === 0;
+  const remaining = totals.remainingForFreeShipping;
 
   const placeOrder = useMutation({
     mutationFn: async () => {
