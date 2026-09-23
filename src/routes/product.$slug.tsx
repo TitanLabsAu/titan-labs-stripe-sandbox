@@ -87,8 +87,9 @@ function ProductPage() {
   const singleOption = getProductOption(product, variantId, "single");
   const kitOption = getProductOption(product, variantId, "kit");
   const total = selected.unitPrice * qty;
-  const stock = stockState(product.stock);
-  const maxQty = stock === "out" ? 1 : Math.min(99, product.stock ?? 99);
+  const stockCount = variantStockFor(product, variantId);
+  const stock = stockState(stockCount);
+  const maxQty = stock === "out" ? 1 : Math.min(99, stockCount ?? 99);
 
   return (
     <div className="bg-hero min-h-screen">
