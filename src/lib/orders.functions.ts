@@ -112,8 +112,8 @@ export const submitOrder = createServerFn({ method: "POST" })
       });
     }
 
-    const paymentMethod =
-      data.paymentMethod === "crypto" ? "crypto" : data.paymentMethod === "wise" ? "wise" : "payid";
+    const paymentMethod = data.paymentMethod === "crypto" ? "crypto" : "payid";
+
     const shippingMethod: ShippingMethodKey =
       data.shippingMethod === "standard" ? "standard" : "express";
 
