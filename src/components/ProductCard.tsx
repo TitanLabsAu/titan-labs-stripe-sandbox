@@ -2,13 +2,16 @@ import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
-import { formatPrice, getProductOption, sortedProductVariants, stockState, type Product } from "@/lib/products";
+import { formatPrice, getProductOption, sortedProductVariants, stockState, type Product, type ProductPack } from "@/lib/products";
 
 export function ProductCard({ product: p }: { product: Product }) {
   const { addItem } = useCart();
   const variants = sortedProductVariants(p);
   const [variantId, setVariantId] = useState<string | null>(variants[0]?.id ?? null);
-  const option = getProductOption(p, variantId, "single");
+  const [pack, setPack] = useState<ProductPack>("single");
+  const singleOption = getProductOption(p, variantId, "single");
+  const kitOption = getProductOption(p, variantId, "kit");
+  const option = pack === "kit" ? kitOption : singleOption;
   const stock = stockState(p.stock);
   return (
     <article className="grid min-h-48 grid-cols-[7rem_minmax(0,1fr)] border border-border bg-card shadow-sm sm:min-h-40 sm:grid-cols-[8rem_minmax(0,1fr)]">
