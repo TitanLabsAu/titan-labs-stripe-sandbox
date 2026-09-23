@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { kitPriceFor } from "@/lib/products";
-import { shippingFor } from "@/lib/categories";
+import { computeTotals, type ShippingMethodKey } from "@/lib/pricing";
 
 export type SubmitOrderItem = {
   slug: string;
@@ -21,6 +21,7 @@ export type SubmitOrderInput = {
   postcode: string;
   notes?: string;
   paymentMethod: "payid" | "crypto" | "wise";
+  shippingMethod?: ShippingMethodKey;
   items: SubmitOrderItem[];
 };
 
@@ -29,9 +30,11 @@ export type SubmittedOrder = {
   orderNumber: number;
   reference: string;
   subtotal: number;
+  discount: number;
   shipping: number;
   total: number;
   paymentMethod: "payid" | "crypto" | "wise";
+  shippingMethod: ShippingMethodKey;
 };
 
 function clean(value: string | undefined, max: number) {
@@ -71,7 +74,8 @@ export const submitOrder = createServerFn({ method: "POST" })
 
     const bySlug = new Map((products ?? []).map((p: any) => [p.slug, p]));
 
-    let subtotal = 0;
+    let rawSubtotal = 0;
+    let units = 0;
     const lines: {
       product_slug: string;
       product_name: string;
@@ -97,7 +101,8 @@ export const submitOrder = createServerFn({ method: "POST" })
       const quantity = Math.min(99, Math.max(1, Math.floor(item.quantity)));
       const label = variant?.label ? String(variant.label) : "Single vial";
 
-      subtotal += unitPrice * quantity;
+      rawSubtotal += unitPrice * quantity;
+      units += quantity;
       lines.push({
         product_slug: product.slug,
         product_name: product.name,
@@ -107,29 +112,47 @@ export const submitOrder = createServerFn({ method: "POST" })
       });
     }
 
-    subtotal = Math.round(subtotal * 100) / 100;
-    const shipping = shippingFor(subtotal);
-    const total = Math.round((subtotal + shipping) * 100) / 100;
     const paymentMethod =
       data.paymentMethod === "crypto" ? "crypto" : data.paymentMethod === "wise" ? "wise" : "payid";
+    const shippingMethod: ShippingMethodKey =
+      data.shippingMethod === "standard" ? "standard" : "express";
+
+    const totals = computeTotals({
+      subtotal: rawSubtotal,
+      units,
+      shippingMethod,
+      paymentMethod,
+    });
+
     const shippingAddress = [addressLine, city, `${state} ${postcode}`.trim()]
       .filter(Boolean)
       .join(", ");
+
+    const discountNote =
+      totals.discountTotal > 0
+        ? `Discounts: Titan Stack ${totals.stackPercent}%${
+            totals.cryptoPercent ? ` + crypto ${totals.cryptoPercent}%` : ""
+          } (−$${totals.discountTotal.toFixed(2)})`
+        : "";
+    const shippingNote = `Shipping: ${
+      shippingMethod === "standard" ? "Standard tracked (3-7 days)" : "Express + insurance (1-4 days)"
+    }`;
+    const notes = [clean(data.notes, 500), shippingNote, discountNote].filter(Boolean).join("\n");
 
     const { data: order, error } = await context.supabase
       .from("orders")
       .insert({
         user_id: context.userId,
         status: "processing",
-        subtotal,
-        shipping,
-        total,
+        subtotal: totals.itemsTotal,
+        shipping: totals.shipping,
+        total: totals.total,
         payment_method: paymentMethod,
         contact_name: `${firstName} ${lastName}`.trim(),
         contact_email: email,
         contact_phone: phone,
         shipping_address: shippingAddress,
-        notes: clean(data.notes, 500),
+        notes,
       })
       .select("id, order_number")
       .single();
@@ -159,10 +182,12 @@ export const submitOrder = createServerFn({ method: "POST" })
       id: order.id as string,
       orderNumber: Number(order.order_number),
       reference: `TL-${order.order_number}`,
-      subtotal,
-      shipping,
-      total,
+      subtotal: totals.subtotal,
+      discount: totals.discountTotal,
+      shipping: totals.shipping,
+      total: totals.total,
       paymentMethod,
+      shippingMethod,
     };
   });
 
