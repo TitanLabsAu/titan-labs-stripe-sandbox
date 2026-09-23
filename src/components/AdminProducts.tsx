@@ -177,7 +177,10 @@ export function draftToPayload(d: Draft) {
       .filter((l) => l.url),
     active: d.active,
     sort_order: Number(d.sort_order) || 0,
-    stock_quantity: Math.max(0, Math.trunc(Number(d.stock_quantity)) || 0),
+    stock_quantity:
+      variants.length > 0
+        ? variants.reduce((sum, v) => sum + v.stock, 0)
+        : Math.max(0, Math.trunc(Number(d.stock_quantity)) || 0),
   };
 }
 
