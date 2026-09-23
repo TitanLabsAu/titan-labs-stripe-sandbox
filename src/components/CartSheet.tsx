@@ -10,14 +10,23 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { FreeShippingMeter, TitanStackBanner, TitanTrustStrip } from "@/components/CartExtras";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/products";
+import { computeTotals } from "@/lib/pricing";
 import { useProducts } from "@/lib/useCatalog";
 
 export function CartSheet() {
   const [open, setOpen] = useState(false);
   const { items, count, subtotal, setQuantity, removeItem, getLinePrice, getLineLabel } = useCart();
   const { getProduct } = useProducts();
+
+  const totals = computeTotals({
+    subtotal,
+    units: count,
+    shippingMethod: "express",
+    paymentMethod: "payid",
+  });
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -31,92 +40,116 @@ export function CartSheet() {
           )}
         </Button>
       </SheetTrigger>
-       <SheetContent className="flex w-full flex-col border-l-border bg-background sm:max-w-md">
+      <SheetContent className="flex w-full flex-col border-l-border bg-background sm:max-w-md">
         <SheetHeader>
           <SheetTitle className="uppercase tracking-wide">Your cart</SheetTitle>
           <SheetDescription>Review your items before checkout.</SheetDescription>
         </SheetHeader>
 
-        <div className="flex-1 overflow-y-auto px-4">
+        <div className="flex-1 space-y-4 overflow-y-auto px-4 pb-2">
           {items.length === 0 ? (
             <p className="py-10 text-center text-sm text-muted-foreground">Your cart is empty.</p>
           ) : (
-            <ul className="space-y-4">
-              {items.map((item) => {
-                const product = getProduct(item.slug);
-                if (!product) return null;
-                const linePrice = getLinePrice(item);
-                return (
-                  <li
-                    key={item.key}
-                     className="flex gap-3 border border-border bg-card p-3"
-                  >
-                    <img
-                      src={product.image}
-                      alt={product.alt}
-                       className="brand-cut h-16 w-16 object-cover"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <p className="text-sm font-bold uppercase text-foreground">
-                            {product.name}
-                          </p>
-                          <p className="text-xs text-muted-foreground">{getLineLabel(item, product)}</p>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeItem(item.key)}
-                          aria-label={`Remove ${product.name}`}
-                          className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {formatPrice(linePrice)} each
-                      </p>
-                      <div className="mt-2 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
+            <>
+              <FreeShippingMeter amount={totals.itemsTotal} />
+
+              <ul className="space-y-4">
+                {items.map((item) => {
+                  const product = getProduct(item.slug);
+                  if (!product) return null;
+                  const linePrice = getLinePrice(item);
+                  return (
+                    <li key={item.key} className="flex gap-3 border border-border bg-card p-3">
+                      <img
+                        src={product.image}
+                        alt={product.alt}
+                        className="brand-cut h-16 w-16 object-cover"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <p className="text-sm font-bold uppercase text-foreground">
+                              {product.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {getLineLabel(item, product)}
+                            </p>
+                          </div>
                           <Button
-                            variant="outline"
+                            variant="ghost"
                             size="icon"
-                            className="h-7 w-7"
-                            aria-label="Decrease quantity"
-                            onClick={() => setQuantity(item.key, item.quantity - 1)}
+                            onClick={() => removeItem(item.key)}
+                            aria-label={`Remove ${product.name}`}
+                            className="h-7 w-7 text-muted-foreground hover:text-destructive"
                           >
-                            <Minus className="h-3 w-3" />
+                            <Trash2 className="h-4 w-4" />
                           </Button>
-                          <span className="w-6 text-center text-sm font-semibold">
-                            {item.quantity}
+                        </div>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {formatPrice(linePrice)} each
+                        </p>
+                        <div className="mt-2 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-7 w-7"
+                              aria-label="Decrease quantity"
+                              onClick={() => setQuantity(item.key, item.quantity - 1)}
+                            >
+                              <Minus className="h-3 w-3" />
+                            </Button>
+                            <span className="w-6 text-center text-sm font-semibold">
+                              {item.quantity}
+                            </span>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-7 w-7"
+                              aria-label="Increase quantity"
+                              onClick={() => setQuantity(item.key, item.quantity + 1)}
+                            >
+                              <Plus className="h-3 w-3" />
+                            </Button>
+                          </div>
+                          <span className="text-sm font-extrabold text-accent">
+                            {formatPrice(linePrice * item.quantity)}
                           </span>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="h-7 w-7"
-                            aria-label="Increase quantity"
-                            onClick={() => setQuantity(item.key, item.quantity + 1)}
-                          >
-                            <Plus className="h-3 w-3" />
-                          </Button>
                         </div>
-                        <span className="text-sm font-extrabold text-accent">
-                          {formatPrice(linePrice * item.quantity)}
-                        </span>
                       </div>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
+                    </li>
+                  );
+                })}
+              </ul>
+
+              <TitanStackBanner units={count} />
+              <TitanTrustStrip />
+            </>
           )}
         </div>
 
         <div className="border-t border-border p-4">
-          <div className="flex items-center justify-between text-sm">
-            <span className="uppercase tracking-wide text-muted-foreground">Total</span>
-            <span className="text-xl font-extrabold text-accent">{formatPrice(subtotal)}</span>
+          <div className="space-y-1.5 text-sm">
+            <div className="flex justify-between text-muted-foreground">
+              <span>Subtotal</span>
+              <span>{formatPrice(totals.subtotal)}</span>
+            </div>
+            {totals.stackDiscount > 0 ? (
+              <div className="flex justify-between font-bold text-accent">
+                <span>Titan Stack {totals.stackPercent}% off</span>
+                <span>−{formatPrice(totals.stackDiscount)}</span>
+              </div>
+            ) : null}
+            <div className="flex items-center justify-between pt-1">
+              <span className="uppercase tracking-wide text-muted-foreground">Total</span>
+              <span className="text-xl font-extrabold text-accent">
+                {formatPrice(totals.itemsTotal)}{" "}
+                <span className="text-xs font-bold text-muted-foreground">AUD</span>
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Shipping chosen at checkout. Pay with crypto for another 10% off.
+            </p>
           </div>
           <Button
             asChild={items.length > 0}
@@ -125,7 +158,7 @@ export function CartSheet() {
           >
             {items.length > 0 ? (
               <Link to="/checkout" onClick={() => setOpen(false)}>
-                Proceed to checkout
+                Checkout · {formatPrice(totals.itemsTotal)} AUD
               </Link>
             ) : (
               <span>Proceed to checkout</span>

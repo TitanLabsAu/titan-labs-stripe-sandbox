@@ -18,7 +18,12 @@ import { formatPrice } from "@/lib/products";
 import { useProducts, useSiteContent } from "@/lib/useCatalog";
 import { catalogueName, homeValue, type PaymentMethodKey } from "@/lib/homeContent";
 import { submitOrder, saveOrderPaymentReference, type SubmittedOrder } from "@/lib/orders.functions";
-import { FREE_SHIPPING_THRESHOLD, shippingFor } from "@/lib/categories";
+import { ShippingPicker, TitanStackBanner, TitanTrustStrip } from "@/components/CartExtras";
+import {
+  FREE_SHIPPING_THRESHOLD,
+  computeTotals,
+  type ShippingMethodKey,
+} from "@/lib/pricing";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -42,7 +47,7 @@ export const Route = createFileRoute("/checkout")({
 });
 
 function CheckoutPage() {
-  const { items, subtotal, getLinePrice, getLineLabel, clear } = useCart();
+  const { items, count, subtotal, getLinePrice, getLineLabel, clear } = useCart();
   const { getProduct } = useProducts();
   const { data: content } = useSiteContent();
   const submit = useServerFn(submitOrder);
@@ -62,6 +67,7 @@ function CheckoutPage() {
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
   const [method, setMethod] = useState<PaymentMethodKey>("payid");
+  const [shippingMethod, setShippingMethod] = useState<ShippingMethodKey>("express");
   const [address, setAddress] = useState<AddressValue>({
     address_line: "",
     city: "",
@@ -103,10 +109,14 @@ function CheckoutPage() {
     };
   }, [session]);
 
-  const shipping = shippingFor(subtotal);
-  const freeShipping = items.length > 0 && shipping === 0;
-  const total = items.length > 0 ? subtotal + shipping : 0;
-  const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
+  const totals = computeTotals({
+    subtotal,
+    units: count,
+    shippingMethod,
+    paymentMethod: method,
+  });
+  const freeShipping = items.length > 0 && totals.shipping === 0;
+  const remaining = totals.remainingForFreeShipping;
 
   const placeOrder = useMutation({
     mutationFn: async () => {
@@ -122,6 +132,7 @@ function CheckoutPage() {
           postcode: address.postcode,
           notes,
           paymentMethod: method,
+          shippingMethod,
           items: items.map((i) => ({
             slug: i.slug,
             variantId: i.variantId ?? null,
@@ -175,6 +186,7 @@ function CheckoutPage() {
               method={confirmed.paymentMethod}
               content={content}
               reference={confirmed.reference}
+              amountAud={confirmed.total}
               className="mt-3"
             />
 
@@ -299,6 +311,15 @@ function CheckoutPage() {
                 />
               </div>
 
+              <h2 className="technical-label mt-8 text-foreground">Shipping method</h2>
+              <div className="mt-4">
+                <ShippingPicker
+                  value={shippingMethod}
+                  onChange={setShippingMethod}
+                  freeShipping={freeShipping}
+                />
+              </div>
+
               <h2 className="technical-label mt-8 text-foreground">Payment method</h2>
               <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">
                 {homeValue(content, "payment_intro")}
@@ -306,7 +327,12 @@ function CheckoutPage() {
               <div className="mt-4">
                 <PaymentMethodPicker value={method} onChange={setMethod} content={content} />
               </div>
-              <PaymentDetails method={method} content={content} className="mt-4" />
+              <PaymentDetails
+                method={method}
+                content={content}
+                amountAud={totals.total}
+                className="mt-4"
+              />
             </section>
 
             {/* Right: order breakdown */}
@@ -343,17 +369,42 @@ function CheckoutPage() {
                 })}
               </ul>
 
+              <div className="mt-6">
+                <p className="technical-label text-foreground">The Titan Stack</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  2 items = 10% off · 3 items = 15% off · 4 items = 20% off
+                </p>
+                <div className="mt-3">
+                  <TitanStackBanner units={count} />
+                </div>
+              </div>
+
               <div className="mt-4 space-y-2 border-t border-border pt-4 text-sm">
                 <div className="flex justify-between text-muted-foreground">
                   <span>Subtotal</span>
-                  <span>{formatPrice(subtotal)}</span>
+                  <span>{formatPrice(totals.subtotal)}</span>
                 </div>
+                {totals.stackDiscount > 0 ? (
+                  <div className="flex justify-between font-bold text-accent">
+                    <span>Titan Stack {totals.stackPercent}% off</span>
+                    <span>−{formatPrice(totals.stackDiscount)}</span>
+                  </div>
+                ) : null}
+                {totals.cryptoDiscount > 0 ? (
+                  <div className="flex justify-between font-bold text-accent">
+                    <span>Crypto payment {totals.cryptoPercent}% off</span>
+                    <span>−{formatPrice(totals.cryptoDiscount)}</span>
+                  </div>
+                ) : null}
                 <div className="flex justify-between text-muted-foreground">
-                  <span>Express shipping</span>
+                  <span>
+                    {shippingMethod === "standard" ? "Standard tracked" : "Express + insurance"}{" "}
+                    shipping
+                  </span>
                   {freeShipping ? (
                     <span className="font-bold uppercase text-accent">Free</span>
                   ) : (
-                    <span>{formatPrice(shipping)}</span>
+                    <span>{formatPrice(totals.shipping)}</span>
                   )}
                 </div>
                 {freeShipping ? (
@@ -368,9 +419,15 @@ function CheckoutPage() {
                 )}
                 <div className="flex items-center justify-between pt-2 text-base">
                   <span className="font-bold uppercase tracking-wide text-foreground">Total</span>
-                  <span className="text-2xl font-extrabold text-accent">{formatPrice(total)}</span>
+                  <span className="text-2xl font-extrabold text-accent">
+                    {formatPrice(totals.total)}
+                  </span>
                 </div>
                 <p className="text-xs text-muted-foreground">All prices displayed in AUD.</p>
+              </div>
+
+              <div className="mt-5 border-t border-border pt-5">
+                <TitanTrustStrip />
               </div>
 
               {session ? (

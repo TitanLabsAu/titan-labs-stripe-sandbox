@@ -9,3 +9,5 @@
 - [x] Submit order records the order (no on-site payment) and shows an Order Received screen.
 - [x] Admin Edits: editable PayID and crypto wallet details.
 - [x] Admin order cards show chosen payment method and reference.
+
+- [x] Titan Stack discounts, shipping method choice, crypto QR + AUD conversion, cart redesign, payment badge row (PayID/Crypto/Wise/AusPost)
