@@ -376,6 +376,7 @@ export function ProductEditor({
                     price: "",
                     kitPrice: "",
                     stock: "0",
+                    cost: "",
                     reconVialMg: "",
                     reconWaterMl: "",
                     reconDoseMg: "",
