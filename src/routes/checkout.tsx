@@ -18,7 +18,12 @@ import { formatPrice } from "@/lib/products";
 import { useProducts, useSiteContent } from "@/lib/useCatalog";
 import { catalogueName, homeValue, type PaymentMethodKey } from "@/lib/homeContent";
 import { submitOrder, saveOrderPaymentReference, type SubmittedOrder } from "@/lib/orders.functions";
-import { FREE_SHIPPING_THRESHOLD, shippingFor } from "@/lib/categories";
+import { ShippingPicker, TitanStackBanner, TitanTrustStrip } from "@/components/CartExtras";
+import {
+  FREE_SHIPPING_THRESHOLD,
+  computeTotals,
+  type ShippingMethodKey,
+} from "@/lib/pricing";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
