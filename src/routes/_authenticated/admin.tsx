@@ -233,6 +233,8 @@ function OrderCard({ order, live }: { order: AdminOrder; live: boolean }) {
           </p>
         ) : null}
       </div>
+
+      <AdminOrderActions order={order} />
     </article>
   );
 }
