@@ -23,6 +23,7 @@ export type DraftVariant = {
   price: string;
   kitPrice: string;
   stock: string;
+  cost: string;
   reconVialMg: string;
   reconWaterMl: string;
   reconDoseMg: string;
@@ -110,6 +111,7 @@ export function toDraft(p: AdminProduct): Draft {
       price: String(v.price),
       kitPrice: v.kitPrice == null ? "" : String(v.kitPrice),
       stock: String(v.stock ?? 0),
+      cost: v.cost == null ? "" : String(v.cost),
       reconVialMg: v.reconVialMg == null ? "" : String(v.reconVialMg),
       reconWaterMl: v.reconWaterMl == null ? "" : String(v.reconWaterMl),
       reconDoseMg: v.reconDoseMg == null ? "" : String(v.reconDoseMg),
@@ -142,6 +144,7 @@ export function draftToPayload(d: Draft) {
       price: Number(v.price) || 0,
       kitPrice: num(v.kitPrice),
       stock: Math.max(0, Math.trunc(Number(v.stock)) || 0),
+      cost: num(v.cost),
       reconVialMg: num(v.reconVialMg),
       reconWaterMl: num(v.reconWaterMl),
       reconDoseMg: num(v.reconDoseMg),
