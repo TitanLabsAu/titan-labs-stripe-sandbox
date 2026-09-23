@@ -55,18 +55,44 @@ function CustomerBlock({ order }: { order: AdminOrder }) {
     <div className="rounded-lg border border-border bg-background/40 p-4 text-sm">
       <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">Customer</p>
       {c ? (
-        <div className="mt-2 space-y-1 text-muted-foreground">
-          <p className="font-bold text-foreground">
-            {[c.first_name, c.last_name].filter(Boolean).join(" ") || "—"}
-          </p>
-          <p>{c.email ?? "—"}</p>
-          <p>{c.phone_number ?? "No phone number"}</p>
-          <p>
-            {[c.address_line, c.city, c.state, c.postcode].filter(Boolean).join(", ") ||
-              c.postal_address ||
-              "No address on file"}
-          </p>
-        </div>
+        (() => {
+          const name = [c.first_name, c.last_name].filter(Boolean).join(" ");
+          const address =
+            [c.address_line, c.city, c.state, c.postcode].filter(Boolean).join(", ") ||
+            c.postal_address ||
+            "";
+          return (
+            <div className="mt-2 space-y-1 text-muted-foreground">
+              <p className="font-bold text-foreground">{name || "—"}</p>
+              <p className="flex items-center gap-2">
+                {c.email ?? "—"}
+                {c.email ? <CopyButton value={c.email} label="Email" /> : null}
+              </p>
+              <p className="flex items-center gap-2">
+                {c.phone_number ?? "No phone number"}
+                {c.phone_number ? <CopyButton value={c.phone_number} label="Phone number" /> : null}
+              </p>
+              <p className="flex items-start gap-2">
+                <span>{address || "No address on file"}</span>
+                {address ? <CopyButton value={address} label="Address" /> : null}
+              </p>
+              {address ? (
+                <button
+                  type="button"
+                  onClick={() =>
+                    copyText(
+                      [name, address, c.phone_number ?? ""].filter(Boolean).join("\n"),
+                      "Shipping label",
+                    )
+                  }
+                  className="pt-1 text-xs font-bold uppercase tracking-wide text-accent underline underline-offset-4"
+                >
+                  Copy full shipping details
+                </button>
+              ) : null}
+            </div>
+          );
+        })()
       ) : (
         <p className="mt-2 text-muted-foreground">No profile details saved.</p>
       )}
