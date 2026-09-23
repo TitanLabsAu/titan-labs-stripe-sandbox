@@ -8,6 +8,7 @@ import { AdminMembers } from "@/components/AdminMembers";
 import { AdminProducts } from "@/components/AdminProducts";
 import { AdminDiscounts } from "@/components/AdminDiscounts";
 import { AdminEdits } from "@/components/AdminEdits";
+import { AdminFinance } from "@/components/AdminFinance";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
