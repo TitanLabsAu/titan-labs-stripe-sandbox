@@ -107,15 +107,70 @@ export function PaymentDetails({
     );
   }
 
-  const wallet = value("payment_crypto_wallet");
-  const network = value("payment_crypto_network");
+  return <CryptoPanel content={content} reference={reference} amountAud={amountAud} className={className} />;
+}
+
+function CryptoPanel({
+  content,
+  reference,
+  amountAud,
+  className,
+}: {
+  content: Record<string, string> | undefined;
+  reference?: string;
+  amountAud?: number;
+  className?: string;
+}) {
+  const options = parseCryptoOptions(content);
+  const [selectedId, setSelectedId] = useState(options[0]?.id ?? "");
+  const selected = options.find((o) => o.id === selectedId) ?? options[0]!;
+  const coinAmount = amountAud ? cryptoAmountFor(amountAud, selected) : null;
+
   return (
     <div className={cn("border border-border bg-muted/20 p-4", className)}>
-      {wallet ? (
-        <div>
-          <CopyLine label="Network" value={network} />
-          <CopyLine label="Wallet address" value={wallet} />
-          {reference ? <CopyLine label="Payment reference" value={reference} /> : null}
+      {options.length > 1 ? (
+        <div className="mb-4 flex flex-wrap gap-2">
+          {options.map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              onClick={() => setSelectedId(option.id)}
+              className={cn(
+                "border px-3 py-1.5 text-xs font-bold uppercase tracking-wide transition-colors",
+                option.id === selected.id
+                  ? "border-accent bg-accent/10 text-foreground"
+                  : "border-border text-muted-foreground hover:border-foreground/40",
+              )}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      ) : null}
+
+      {selected.wallet ? (
+        <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-start">
+          <div>
+            {coinAmount ? (
+              <div className="mb-3 border border-accent/40 bg-accent/5 p-3">
+                <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                  Amount to send
+                </p>
+                <p className="mt-0.5 font-mono text-lg font-extrabold text-foreground">
+                  {coinAmount} {selected.label}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Converted from ${amountAud?.toFixed(2)} AUD
+                </p>
+              </div>
+            ) : null}
+            <CopyLine label="Coin" value={selected.label} />
+            <CopyLine label="Network" value={selected.network} />
+            <CopyLine label="Wallet address" value={selected.wallet} />
+            {coinAmount ? <CopyLine label="Amount" value={coinAmount} /> : null}
+            {reference ? <CopyLine label="Payment reference" value={reference} /> : null}
+          </div>
+          <CryptoQr value={selected.wallet} />
         </div>
       ) : (
         <p className="text-sm text-muted-foreground">
@@ -123,7 +178,7 @@ export function PaymentDetails({
         </p>
       )}
       <p className="mt-3 whitespace-pre-line text-xs text-muted-foreground">
-        {value("payment_crypto_instructions")}
+        {homeValue(content, "payment_crypto_instructions")}
       </p>
     </div>
   );
