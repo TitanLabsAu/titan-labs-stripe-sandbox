@@ -164,6 +164,17 @@ export const PAYMENT_FIELDS: HomeField[] = [
     fallback:
       "Send the order total in USDC to the wallet address above, then paste your transaction hash so we can match your payment.",
   },
+  { key: "payment_wise_label", label: "Wise option name", align: "left", fallback: "Wise transfer" },
+  { key: "payment_wise_link", label: "Your Wise payment link", align: "left", fallback: "" },
+  { key: "payment_wise_account", label: "Wise account name (optional)", align: "left", fallback: "" },
+  {
+    key: "payment_wise_instructions",
+    label: "Wise instructions",
+    multiline: true,
+    align: "left",
+    fallback:
+      "Open the Wise link above and send the order total, using your order number as the payment reference.",
+  },
   {
     key: "payment_confirmation_note",
     label: "Text on the order received screen",
