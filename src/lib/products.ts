@@ -37,7 +37,19 @@ export type Product = {
   reconDoseMg?: number | null;
   reconNotes?: string;
   links?: ProductLink[];
+  /** Units on hand. null = not tracked. */
+  stock?: number | null;
 };
+
+export const LOW_STOCK_THRESHOLD = 7;
+
+/** "out" = nothing left, "low" = under the low-stock threshold, "ok" = plenty (or untracked). */
+export function stockState(stock?: number | null): "out" | "low" | "ok" {
+  if (stock === null || stock === undefined) return "ok";
+  if (stock <= 0) return "out";
+  if (stock < LOW_STOCK_THRESHOLD) return "low";
+  return "ok";
+}
 
 export const products: Product[] = [
   {

@@ -13,6 +13,7 @@ import {
   kitPriceFor,
   productBasePrice,
   sortedProductVariants,
+  stockState,
   type ProductPack,
 } from "@/lib/products";
 import { getProductBySlug } from "@/lib/catalog.functions";
@@ -86,6 +87,8 @@ function ProductPage() {
   const singleOption = getProductOption(product, variantId, "single");
   const kitOption = getProductOption(product, variantId, "kit");
   const total = selected.unitPrice * qty;
+  const stock = stockState(product.stock);
+  const maxQty = stock === "out" ? 1 : Math.min(99, product.stock ?? 99);
 
   return (
     <div className="bg-hero min-h-screen">
@@ -124,6 +127,16 @@ function ProductPage() {
                 </span>
               ) : null}
             </p>
+
+            {stock === "out" ? (
+              <p className="mt-4 inline-flex items-center border border-destructive bg-destructive/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-destructive">
+                Out of stock
+              </p>
+            ) : stock === "low" ? (
+              <p className="mt-4 inline-flex items-center border border-accent bg-accent/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-accent-foreground">
+                Low stock — only {product.stock} left
+              </p>
+            ) : null}
 
             <div className="mt-6 border border-border bg-card p-5 shadow-sm">
               {variants.length > 0 ? (
@@ -181,9 +194,9 @@ function ProductPage() {
                 <input
                   type="number"
                   min={1}
-                  max={99}
+                  max={maxQty}
                   value={qty}
-                  onChange={(e) => setQty(Math.min(99, Math.max(1, Number(e.target.value) || 1)))}
+                  onChange={(e) => setQty(Math.min(maxQty, Math.max(1, Number(e.target.value) || 1)))}
                   className="quantity-input h-10 w-20 rounded-md border border-input bg-background text-center text-lg font-bold text-foreground"
                   aria-label="Quantity"
                 />
@@ -191,7 +204,7 @@ function ProductPage() {
                   variant="outline"
                   size="icon"
                   aria-label="Increase quantity"
-                  onClick={() => setQty((q) => Math.min(99, q + 1))}
+                  onClick={() => setQty((q) => Math.min(maxQty, q + 1))}
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -204,6 +217,7 @@ function ProductPage() {
 
               <Button
                 size="lg"
+                disabled={stock === "out"}
                 className="mt-5 w-full font-bold uppercase tracking-wide"
                 onClick={() => {
                   expectedCarted.current = (carted ?? 0) + qty;
@@ -215,7 +229,7 @@ function ProductPage() {
                   toast.success(`${qty} × ${product.name} ${selected.label} added to cart`);
                 }}
               >
-                Add to cart
+                {stock === "out" ? "Out of stock" : "Add to cart"}
               </Button>
             </div>
 

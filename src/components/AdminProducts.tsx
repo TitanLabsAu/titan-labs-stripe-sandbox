@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { CATEGORIES } from "@/lib/categories";
-import { formatPrice, kitPriceFor } from "@/lib/products";
+import { formatPrice, kitPriceFor, LOW_STOCK_THRESHOLD, stockState } from "@/lib/products";
 import {
   adminDeleteProduct,
   adminListProducts,
@@ -51,6 +51,7 @@ export type Draft = {
   links: AdminProductLink[];
   active: boolean;
   sort_order: string;
+  stock_quantity: string;
 };
 
 const emptyDraft: Draft = {
@@ -75,6 +76,7 @@ const emptyDraft: Draft = {
   links: [],
   active: true,
   sort_order: "0",
+  stock_quantity: "25",
 };
 
 function safeVariantId(label: string) {
@@ -125,6 +127,7 @@ export function toDraft(p: AdminProduct): Draft {
     links: p.product_links ?? [],
     active: p.active,
     sort_order: String(p.sort_order),
+    stock_quantity: String(p.stock_quantity ?? 0),
   };
 }
 
@@ -169,6 +172,7 @@ export function draftToPayload(d: Draft) {
       .filter((l) => l.url),
     active: d.active,
     sort_order: Number(d.sort_order) || 0,
+    stock_quantity: Math.max(0, Math.trunc(Number(d.stock_quantity)) || 0),
   };
 }
 
@@ -298,6 +302,18 @@ export function ProductEditor({
             value={draft.sort_order}
             onChange={(e) => set({ sort_order: e.target.value })}
           />
+        </div>
+        <div>
+          <Label>Stock on hand (units)</Label>
+          <Input
+            type="number"
+            min={0}
+            value={draft.stock_quantity}
+            onChange={(e) => set({ stock_quantity: e.target.value })}
+          />
+          <p className="mt-1 text-xs text-muted-foreground">
+            Under {LOW_STOCK_THRESHOLD} shows a low stock warning. 0 shows out of stock and blocks ordering.
+          </p>
         </div>
         <div>
           <Label>Product picture</Label>
@@ -686,6 +702,21 @@ export function AdminProducts() {
                     ? `${p.product_variants.length} size options`
                     : "Single size product"}
                   {p.kit_price ? ` · 10x Kit ${formatPrice(Number(p.kit_price))}` : " · 10x Kit auto 20% off"}
+                </p>
+                <p className="mt-1">
+                  <span
+                    className={
+                      stockState(p.stock_quantity) === "out"
+                        ? "inline-flex border border-destructive bg-destructive/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-destructive"
+                        : stockState(p.stock_quantity) === "low"
+                          ? "inline-flex border border-accent bg-accent/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-accent-foreground"
+                          : "inline-flex border border-border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground"
+                    }
+                  >
+                    {stockState(p.stock_quantity) === "out"
+                      ? "Out of stock"
+                      : `${p.stock_quantity ?? 0} in stock`}
+                  </span>
                 </p>
                 {(p.categories ?? []).length > 0 ? (
                   <p className="mt-1 text-xs uppercase tracking-[0.2em] text-accent">
