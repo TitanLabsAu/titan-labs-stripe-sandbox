@@ -132,6 +132,7 @@ export function getProductOption(
     variantLabel,
     pack,
     unitPrice,
+    stock: variant ? (variant.stock ?? null) : (product.stock ?? null),
     label: pack === "kit" ? `${variantLabel} · 10x Kit` : variantLabel,
   };
 }
