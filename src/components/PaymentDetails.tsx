@@ -121,9 +121,9 @@ function CryptoPanel({
   className,
 }: {
   content: Record<string, string> | undefined;
-  reference?: string;
-  amountAud?: number;
-  className?: string;
+  reference?: string | undefined;
+  amountAud?: number | undefined;
+  className?: string | undefined;
 }) {
   const options = parseCryptoOptions(content);
   const [selectedId, setSelectedId] = useState(options[0]?.id ?? "");
