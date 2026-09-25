@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { Calculator, FlaskConical, Home, LogIn, Shield, UserPlus, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CartSheet } from "@/components/CartSheet";
-import { TitanLogo } from "@/components/TitanLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useSiteContent } from "@/lib/useCatalog";
@@ -21,6 +20,10 @@ export function SiteHeader() {
   const label = (key: string) => homeValue(content, key);
   const tabOrder = pageSectionOrder(content, "header_layout_order", HEADER_TABS);
   const display = (key: string) => headerDisplayMode(content, key);
+  const pageName = homeValue(content, "home_headline");
+  const headerTitle = /^titan labs(?:\s*\/\/)?\s*aus(?:tralia)?$/i.test(pageName.trim())
+    ? "TITAN LABS // AUS"
+    : pageName;
 
   const navButton = (
     key: string,
@@ -90,10 +93,15 @@ export function SiteHeader() {
         >
           <Link
             to="/"
-            aria-label={`${homeValue(content, "home_headline")} home`}
+            aria-label={`${pageName} home`}
             className={cn("min-w-0", layout === "centred" && "flex justify-center")}
           >
-            <TitanLogo size={54} />
+            <span className="block font-display text-xl font-bold uppercase text-foreground sm:text-2xl">
+              {headerTitle}
+            </span>
+            <span className="mt-1 block text-[0.5rem] font-bold uppercase text-accent">
+              {homeValue(content, "header_tagline")}
+            </span>
           </Link>
           {nav}
         </div>
