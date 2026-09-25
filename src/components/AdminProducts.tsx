@@ -25,6 +25,7 @@ export type DraftVariant = {
   kitPrice: string;
   stock: string;
   cost: string;
+  comingSoon: boolean;
   reconVialMg: string;
   reconWaterMl: string;
   reconDoseMg: string;
@@ -113,6 +114,7 @@ export function toDraft(p: AdminProduct): Draft {
       kitPrice: v.kitPrice == null ? "" : String(v.kitPrice),
       stock: String(v.stock ?? 0),
       cost: v.cost == null ? "" : String(v.cost),
+      comingSoon: Boolean(v.comingSoon),
       reconVialMg: v.reconVialMg == null ? "" : String(v.reconVialMg),
       reconWaterMl: v.reconWaterMl == null ? "" : String(v.reconWaterMl),
       reconDoseMg: v.reconDoseMg == null ? "" : String(v.reconDoseMg),
@@ -146,6 +148,7 @@ export function draftToPayload(d: Draft) {
       kitPrice: num(v.kitPrice),
       stock: Math.max(0, Math.trunc(Number(v.stock)) || 0),
       cost: num(v.cost),
+      comingSoon: v.comingSoon,
       reconVialMg: num(v.reconVialMg),
       reconWaterMl: num(v.reconWaterMl),
       reconDoseMg: num(v.reconDoseMg),
@@ -378,6 +381,7 @@ export function ProductEditor({
                     kitPrice: "",
                     stock: "0",
                     cost: "",
+                    comingSoon: false,
                     reconVialMg: "",
                     reconWaterMl: "",
                     reconDoseMg: "",
@@ -471,6 +475,17 @@ export function ProductEditor({
                         aria-label="Stock on hand for this size"
                         onChange={(e) => setVariant(i, { stock: e.target.value })}
                       />
+                    </div>
+                    <div className="flex items-end">
+                      <label className="flex h-10 cursor-pointer items-center gap-2 whitespace-nowrap border border-input px-2 text-[10px] font-bold uppercase tracking-[0.14em] text-foreground">
+                        <input
+                          type="checkbox"
+                          checked={variant.comingSoon}
+                          onChange={(e) => setVariant(i, { comingSoon: e.target.checked })}
+                          aria-label="This size is coming soon"
+                        />
+                        Coming soon
+                      </label>
                     </div>
                     <div className="flex items-end">
                       <Button

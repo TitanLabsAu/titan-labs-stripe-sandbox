@@ -10,6 +10,8 @@ export type ProductVariant = {
   kitPrice?: number | null;
   /** Units on hand for this vial size. null = not tracked. */
   stock?: number | null;
+  /** This size is coming soon and cannot be ordered yet. */
+  comingSoon?: boolean;
   reconVialMg?: number | null;
   reconWaterMl?: number | null;
   reconDoseMg?: number | null;
@@ -44,6 +46,20 @@ export type Product = {
   /** Shown with a Coming Soon banner; cannot be ordered yet. */
   comingSoon?: boolean;
 };
+
+/** True when the whole product, or the chosen vial size, is coming soon. */
+export function isComingSoon(product: Product, variantId?: string | null) {
+  if (product.comingSoon) return true;
+  const v = (product.variants ?? []).find((x) => x.id === variantId);
+  return Boolean(v?.comingSoon);
+}
+
+/** True when the product, or every one of its vial sizes, is coming soon. */
+export function allComingSoon(product: Product) {
+  if (product.comingSoon) return true;
+  const vs = product.variants ?? [];
+  return vs.length > 0 && vs.every((v) => v.comingSoon);
+}
 
 export const LOW_STOCK_THRESHOLD = 7;
 
