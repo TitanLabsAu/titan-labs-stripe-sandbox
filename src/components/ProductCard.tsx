@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
-import { formatPrice, getProductOption, sortedProductVariants, stockState, totalStockFor, variantStockFor, type Product, type ProductPack } from "@/lib/products";
+import { allComingSoon, isComingSoon, formatPrice, getProductOption, sortedProductVariants, stockState, totalStockFor, variantStockFor, type Product, type ProductPack } from "@/lib/products";
 
 export function ProductCard({ product: p }: { product: Product }) {
   const { addItem } = useCart();
@@ -15,16 +15,18 @@ export function ProductCard({ product: p }: { product: Product }) {
   const stockCount = variantStockFor(p, variantId);
   const stock = stockState(stockCount);
   const allOut = stockState(totalStockFor(p)) === "out";
+  const soon = isComingSoon(p, variantId);
+  const bannerSoon = allComingSoon(p);
   return (
     <article className="grid min-h-48 grid-cols-[7rem_minmax(0,1fr)] border border-border bg-card shadow-sm sm:min-h-40 sm:grid-cols-[8rem_minmax(0,1fr)]">
       <Link to="/product/$slug" params={{ slug: p.slug }} className="relative overflow-hidden border-r border-border">
         <img src={p.image} alt={p.alt} loading="lazy" className={`h-full w-full object-cover transition duration-300 hover:scale-[1.02] ${allOut ? "opacity-40 grayscale" : ""}`} />
-        {p.promoLabel && !p.comingSoon ? (
+        {p.promoLabel && !bannerSoon ? (
           <span className="absolute left-2 top-2 border border-accent bg-accent px-2 py-0.5 text-[8px] font-bold uppercase text-accent-foreground">
             {p.promoLabel}
           </span>
         ) : null}
-        {p.comingSoon ? (
+        {bannerSoon ? (
           <span className="absolute inset-x-0 bottom-0 bg-primary py-1 text-center text-[9px] font-bold uppercase tracking-[0.16em] text-primary-foreground">
             Coming soon
           </span>
@@ -35,7 +37,9 @@ export function ProductCard({ product: p }: { product: Product }) {
           <Link to="/product/$slug" params={{ slug: p.slug }} className="min-w-0 text-sm font-semibold text-foreground hover:text-primary">{p.name}</Link>
           {(p.categories ?? []).length ? <span className="self-start border border-border px-2 py-1 text-[8px] text-primary">{p.categories?.[0]}</span> : null}
         </div>
-        {stock === "out" ? (
+        {soon && !bannerSoon ? (
+          <span className="mt-2 inline-flex w-fit items-center border border-primary bg-primary px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-primary-foreground">This size coming soon</span>
+        ) : soon ? null : stock === "out" ? (
           <span className="mt-2 inline-flex w-fit items-center border border-destructive bg-destructive/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-destructive">Out of stock</span>
         ) : stock === "low" ? (
           <span className="mt-2 inline-flex w-fit items-center border border-accent bg-accent/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-accent-foreground">Low stock — only {stockCount} left</span>
@@ -44,9 +48,10 @@ export function ProductCard({ product: p }: { product: Product }) {
           <div className="mt-2 flex flex-wrap gap-1" aria-label="Vial size">
             {variants.map((variant) => {
               const soldOut = stockState(variant.stock ?? 0) === "out";
+              const vSoon = Boolean(variant.comingSoon) && !p.comingSoon;
               return (
                 <Button key={variant.id} type="button" size="sm" variant={variantId === variant.id ? "default" : "outline"} className={`h-7 min-w-0 px-2 text-[9px] ${soldOut ? "opacity-60" : ""}`} onClick={() => setVariantId(variant.id)}>
-                  {variant.label}{soldOut ? " · Sold out" : ""}
+                  {variant.label}{vSoon ? " · Soon" : soldOut ? " · Sold out" : ""}
                 </Button>
               );
             })}
@@ -76,7 +81,7 @@ export function ProductCard({ product: p }: { product: Product }) {
             {formatPrice(option.unitPrice)}
           </span>
         </div>
-        <Button className="mt-auto w-full" disabled={p.comingSoon || stock === "out"} onClick={() => addItem(p.slug, 1, { variantId: option.variantId, variantLabel: option.variantLabel, pack: option.pack })}>{p.comingSoon ? "Coming soon" : stock === "out" ? "Out of stock" : pack === "kit" ? "Add kit to order" : "Add to order"}</Button>
+        <Button className="mt-auto w-full" disabled={soon || stock === "out"} onClick={() => addItem(p.slug, 1, { variantId: option.variantId, variantLabel: option.variantLabel, pack: option.pack })}>{soon ? "Coming soon" : stock === "out" ? "Out of stock" : pack === "kit" ? "Add kit to order" : "Add to order"}</Button>
       </div>
     </article>
   );

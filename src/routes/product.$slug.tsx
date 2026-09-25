@@ -10,6 +10,7 @@ import {
   cartLineKey,
   formatPrice,
   getProductOption,
+  isComingSoon,
   kitPriceFor,
   productBasePrice,
   sortedProductVariants,
@@ -90,6 +91,7 @@ function ProductPage() {
   const total = selected.unitPrice * qty;
   const stockCount = variantStockFor(product, variantId);
   const stock = stockState(stockCount);
+  const soon = isComingSoon(product, variantId);
   const maxQty = stock === "out" ? 1 : Math.min(99, stockCount ?? 99);
 
   return (
@@ -130,9 +132,9 @@ function ProductPage() {
               ) : null}
             </p>
 
-            {product.comingSoon ? (
+            {soon ? (
               <p className="mt-4 inline-flex items-center border border-primary bg-primary px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-primary-foreground">
-                Coming soon
+                {product.comingSoon ? "Coming soon" : `${selected.variantLabel ?? "This size"} coming soon`}
               </p>
             ) : stock === "out" ? (
               <p className="mt-4 inline-flex items-center border border-destructive bg-destructive/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-destructive">
@@ -151,6 +153,7 @@ function ProductPage() {
                    <div className="mt-3 flex flex-wrap gap-2">
                     {variants.map((variant) => {
                       const soldOut = stockState(variant.stock ?? 0) === "out";
+                      const vSoon = Boolean(variant.comingSoon) && !product.comingSoon;
                       return (
                         <Button
                           key={variant.id}
@@ -158,7 +161,7 @@ function ProductPage() {
                           className={`h-9 min-w-16 px-3 font-bold uppercase ${soldOut ? "opacity-60" : ""}`}
                           onClick={() => setVariantId(variant.id)}
                         >
-                          <span>{variant.label}{soldOut ? " · Sold out" : ""}</span>
+                          <span>{variant.label}{vSoon ? " · Coming soon" : soldOut ? " · Sold out" : ""}</span>
                         </Button>
                       );
                     })}
@@ -226,7 +229,7 @@ function ProductPage() {
 
               <Button
                 size="lg"
-                disabled={product.comingSoon || stock === "out"}
+                disabled={soon || stock === "out"}
                 className="mt-5 w-full font-bold uppercase tracking-wide"
                 onClick={() => {
                   expectedCarted.current = (carted ?? 0) + qty;
@@ -238,7 +241,7 @@ function ProductPage() {
                   toast.success(`${qty} × ${product.name} ${selected.label} added to cart`);
                 }}
               >
-                {product.comingSoon ? "Coming soon" : stock === "out" ? "Out of stock" : "Add to cart"}
+                {soon ? "Coming soon" : stock === "out" ? "Out of stock" : "Add to cart"}
               </Button>
             </div>
 
