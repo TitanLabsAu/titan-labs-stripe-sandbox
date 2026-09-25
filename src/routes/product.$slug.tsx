@@ -8,6 +8,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { useCart } from "@/lib/cart";
 import {
   cartLineKey,
+  firstAvailableVariant,
   formatPrice,
   getProductOption,
   isComingSoon,
@@ -60,7 +61,7 @@ function ProductPage() {
   const { data: content } = useSiteContent();
   const { addItem, items } = useCart();
   const variants = sortedProductVariants(product);
-  const [variantId, setVariantId] = useState<string | null>(variants[0]?.id ?? null);
+  const [variantId, setVariantId] = useState<string | null>(firstAvailableVariant(product)?.id ?? null);
   const [pack, setPack] = useState<ProductPack>("single");
   const selected = useMemo(
     () => getProductOption(product, variantId, pack),
