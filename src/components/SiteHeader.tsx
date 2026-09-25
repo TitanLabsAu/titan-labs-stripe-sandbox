@@ -21,7 +21,7 @@ export function SiteHeader() {
   const tabOrder = pageSectionOrder(content, "header_layout_order", HEADER_TABS);
   const display = (key: string) => headerDisplayMode(content, key);
   const pageName = homeValue(content, "home_headline");
-  const headerTitle = /^titan labs aus(?:tralia)?$/i.test(pageName.trim())
+  const headerTitle = /^titan labs(?:\s*\/\/)?\s*aus(?:tralia)?$/i.test(pageName.trim())
     ? "TITAN LABS // AUS"
     : pageName;
 
