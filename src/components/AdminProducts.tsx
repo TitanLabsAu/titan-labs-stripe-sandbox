@@ -407,7 +407,7 @@ export function ProductEditor({
                   key={variant.id}
                   className="space-y-2 rounded-lg border border-border bg-card/60 p-3"
                 >
-                  <div className="grid gap-2 md:grid-cols-[1.3fr_1fr_1fr_1fr_0.8fr_auto]">
+                  <div className="grid gap-2 md:grid-cols-[1.3fr_1fr_1fr_1fr_0.8fr_auto_auto]">
                     <div>
                       <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
                         Vial size
