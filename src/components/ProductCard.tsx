@@ -19,9 +19,14 @@ export function ProductCard({ product: p }: { product: Product }) {
     <article className="grid min-h-48 grid-cols-[7rem_minmax(0,1fr)] border border-border bg-card shadow-sm sm:min-h-40 sm:grid-cols-[8rem_minmax(0,1fr)]">
       <Link to="/product/$slug" params={{ slug: p.slug }} className="relative overflow-hidden border-r border-border">
         <img src={p.image} alt={p.alt} loading="lazy" className={`h-full w-full object-cover transition duration-300 hover:scale-[1.02] ${allOut ? "opacity-40 grayscale" : ""}`} />
-        {p.promoLabel ? (
+        {p.promoLabel && !p.comingSoon ? (
           <span className="absolute left-2 top-2 border border-accent bg-accent px-2 py-0.5 text-[8px] font-bold uppercase text-accent-foreground">
             {p.promoLabel}
+          </span>
+        ) : null}
+        {p.comingSoon ? (
+          <span className="absolute inset-x-0 bottom-0 bg-primary py-1 text-center text-[9px] font-bold uppercase tracking-[0.16em] text-primary-foreground">
+            Coming soon
           </span>
         ) : null}
       </Link>
@@ -71,7 +76,7 @@ export function ProductCard({ product: p }: { product: Product }) {
             {formatPrice(option.unitPrice)}
           </span>
         </div>
-        <Button className="mt-auto w-full" disabled={stock === "out"} onClick={() => addItem(p.slug, 1, { variantId: option.variantId, variantLabel: option.variantLabel, pack: option.pack })}>{stock === "out" ? "Out of stock" : pack === "kit" ? "Add kit to order" : "Add to order"}</Button>
+        <Button className="mt-auto w-full" disabled={p.comingSoon || stock === "out"} onClick={() => addItem(p.slug, 1, { variantId: option.variantId, variantLabel: option.variantLabel, pack: option.pack })}>{p.comingSoon ? "Coming soon" : stock === "out" ? "Out of stock" : pack === "kit" ? "Add kit to order" : "Add to order"}</Button>
       </div>
     </article>
   );

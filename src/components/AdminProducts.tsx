@@ -11,6 +11,7 @@ import { CATEGORIES } from "@/lib/categories";
 import { formatPrice, kitPriceFor, LOW_STOCK_THRESHOLD, stockState } from "@/lib/products";
 import {
   adminDeleteProduct,
+  adminSetProductFlags,
   adminListProducts,
   adminSaveProduct,
   type AdminProduct,
@@ -621,6 +622,16 @@ export function AdminProducts() {
     onError: (e: any) => toast.error(e?.message ?? "Could not save the product"),
   });
 
+  const flags = useMutation({
+    mutationFn: (d: { id: string; active?: boolean; coming_soon?: boolean }) =>
+      adminSetProductFlags({ data: d }),
+    onSuccess: () => {
+      toast.success("Product updated");
+      refresh();
+    },
+    onError: () => toast.error("Could not update the product"),
+  });
+
   const remove = useMutation({
     mutationFn: (id: string) => adminDeleteProduct({ data: { id } }),
     onSuccess: () => {
@@ -746,6 +757,7 @@ export function AdminProducts() {
                     formatPrice(Number(p.price))
                   )}{" "}
                   · {p.active ? "Visible" : "Hidden"}
+                  {p.coming_soon ? " · Coming soon" : ""}
                   {p.promo_label ? ` · ${p.promo_label}` : ""}
                 </p>
                 <p className="max-w-md">
@@ -787,13 +799,29 @@ export function AdminProducts() {
                 ) : null}
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button
                 variant="outline"
                 className="font-bold uppercase"
                 onClick={() => setDraft(toDraft(p))}
               >
                 Edit
+              </Button>
+              <Button
+                variant={p.active ? "outline" : "default"}
+                className="font-bold uppercase"
+                disabled={flags.isPending}
+                onClick={() => flags.mutate({ id: p.id, active: !p.active })}
+              >
+                {p.active ? "Hide" : "Show"}
+              </Button>
+              <Button
+                variant={p.coming_soon ? "default" : "outline"}
+                className="font-bold uppercase"
+                disabled={flags.isPending}
+                onClick={() => flags.mutate({ id: p.id, coming_soon: !p.coming_soon })}
+              >
+                {p.coming_soon ? "Coming soon ✓" : "Coming soon"}
               </Button>
               <Button
                 variant="destructive"

@@ -273,6 +273,7 @@ export type Database = {
           alt: string
           blurb: string
           categories: string[]
+          coming_soon: boolean
           created_at: string
           description: string
           details: string[]
@@ -301,6 +302,7 @@ export type Database = {
           alt?: string
           blurb?: string
           categories?: string[]
+          coming_soon?: boolean
           created_at?: string
           description?: string
           details?: string[]
@@ -329,6 +331,7 @@ export type Database = {
           alt?: string
           blurb?: string
           categories?: string[]
+          coming_soon?: boolean
           created_at?: string
           description?: string
           details?: string[]

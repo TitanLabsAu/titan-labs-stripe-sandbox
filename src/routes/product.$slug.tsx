@@ -130,7 +130,11 @@ function ProductPage() {
               ) : null}
             </p>
 
-            {stock === "out" ? (
+            {product.comingSoon ? (
+              <p className="mt-4 inline-flex items-center border border-primary bg-primary px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-primary-foreground">
+                Coming soon
+              </p>
+            ) : stock === "out" ? (
               <p className="mt-4 inline-flex items-center border border-destructive bg-destructive/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-destructive">
                 Out of stock
               </p>
@@ -222,7 +226,7 @@ function ProductPage() {
 
               <Button
                 size="lg"
-                disabled={stock === "out"}
+                disabled={product.comingSoon || stock === "out"}
                 className="mt-5 w-full font-bold uppercase tracking-wide"
                 onClick={() => {
                   expectedCarted.current = (carted ?? 0) + qty;
@@ -234,7 +238,7 @@ function ProductPage() {
                   toast.success(`${qty} × ${product.name} ${selected.label} added to cart`);
                 }}
               >
-                {stock === "out" ? "Out of stock" : "Add to cart"}
+                {product.comingSoon ? "Coming soon" : stock === "out" ? "Out of stock" : "Add to cart"}
               </Button>
             </div>
 

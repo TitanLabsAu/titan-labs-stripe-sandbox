@@ -43,6 +43,13 @@
       "when": 1790170180288,
       "tag": "0005_create_expenses",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790336817172,
+      "tag": "0006_add_products_coming_soon",
+      "breakpoints": true
     }
   ]
 }

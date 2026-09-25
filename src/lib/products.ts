@@ -41,6 +41,8 @@ export type Product = {
   links?: ProductLink[];
   /** Units on hand. null = not tracked. */
   stock?: number | null;
+  /** Shown with a Coming Soon banner; cannot be ordered yet. */
+  comingSoon?: boolean;
 };
 
 export const LOW_STOCK_THRESHOLD = 7;

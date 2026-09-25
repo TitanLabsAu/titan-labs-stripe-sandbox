@@ -368,12 +368,13 @@ export type AdminProduct = {
   recon_notes: string;
   product_links: AdminProductLink[];
   active: boolean;
+  coming_soon?: boolean;
   sort_order: number;
   stock_quantity: number;
 };
 
 const PRODUCT_COLS =
-  "id, slug, name, price, sale_price, promo_label, kit_price, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, active, sort_order, stock_quantity";
+  "id, slug, name, price, sale_price, promo_label, kit_price, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, active, coming_soon, sort_order, stock_quantity";
 
 export const adminListProducts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -453,6 +454,19 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
       const { error } = await context.supabase.from("products").insert(row);
       if (error) throw error;
     }
+    return { ok: true };
+  });
+
+export const adminSetProductFlags = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id: string; active?: boolean; coming_soon?: boolean }) => input)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as any);
+    const patch: { active?: boolean; coming_soon?: boolean } = {};
+    if (typeof data.active === "boolean") patch.active = data.active;
+    if (typeof data.coming_soon === "boolean") patch.coming_soon = data.coming_soon;
+    const { error } = await context.supabase.from("products").update(patch).eq("id", data.id);
+    if (error) throw error;
     return { ok: true };
   });
 
