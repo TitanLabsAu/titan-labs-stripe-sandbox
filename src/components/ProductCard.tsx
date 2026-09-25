@@ -5,7 +5,7 @@ import { useCart } from "@/lib/cart";
 import { allComingSoon, firstAvailableVariant, isComingSoon, formatPrice, getProductOption, sortedProductVariants, stockState, totalStockFor, variantStockFor, type Product, type ProductPack } from "@/lib/products";
 
 export function ProductCard({ product: p }: { product: Product }) {
-  const { addItem } = useCart();
+  const { addItem, items, setQuantity } = useCart();
   const variants = sortedProductVariants(p);
   const [variantId, setVariantId] = useState<string | null>(firstAvailableVariant(p)?.id ?? null);
   const [pack, setPack] = useState<ProductPack>("single");
@@ -17,6 +17,9 @@ export function ProductCard({ product: p }: { product: Product }) {
   const allOut = stockState(totalStockFor(p)) === "out";
   const soon = isComingSoon(p, variantId);
   const bannerSoon = allComingSoon(p);
+  const inCart = items.find((i) => i.key === option.key);
+  const vialsPer = pack === "kit" ? 10 : 1;
+  const atMax = Boolean(inCart) && ((stockCount != null && (inCart!.quantity + 1) * vialsPer > stockCount) || inCart!.quantity >= 99);
   return (
     <article className="grid min-h-48 grid-cols-[7rem_minmax(0,1fr)] border border-border bg-card shadow-sm sm:min-h-40 sm:grid-cols-[8rem_minmax(0,1fr)]">
       <Link to="/product/$slug" params={{ slug: p.slug }} className="relative overflow-hidden border-r border-border">
@@ -81,7 +84,15 @@ export function ProductCard({ product: p }: { product: Product }) {
             {formatPrice(option.unitPrice)}
           </span>
         </div>
-        <Button className="mt-auto w-full" disabled={soon || stock === "out"} onClick={() => addItem(p.slug, 1, { variantId: option.variantId, variantLabel: option.variantLabel, pack: option.pack })}>{soon ? "Coming soon" : stock === "out" ? "Out of stock" : pack === "kit" ? "Add kit to order" : "Add to order"}</Button>
+        {inCart && !soon ? (
+          <div className="mt-auto grid h-10 w-full grid-cols-[2.5rem_minmax(0,1fr)_2.5rem] overflow-hidden border border-primary" aria-label="Quantity in order">
+            <button type="button" aria-label="Remove one" onClick={() => setQuantity(inCart.key, inCart.quantity - 1)} className="bg-primary text-lg font-bold text-primary-foreground hover:opacity-90">−</button>
+            <span className="flex items-center justify-center text-sm font-semibold text-foreground">{inCart.quantity} in order</span>
+            <button type="button" aria-label="Add one" disabled={atMax} onClick={() => addItem(p.slug, 1, { variantId: option.variantId, variantLabel: option.variantLabel, pack: option.pack })} className="bg-primary text-lg font-bold text-primary-foreground hover:opacity-90 disabled:opacity-40">+</button>
+          </div>
+        ) : (
+          <Button className="mt-auto w-full" disabled={soon || stock === "out"} onClick={() => addItem(p.slug, 1, { variantId: option.variantId, variantLabel: option.variantLabel, pack: option.pack })}>{soon ? "Coming soon" : stock === "out" ? "Out of stock" : pack === "kit" ? "Add kit to order" : "Add to order"}</Button>
+        )}
       </div>
     </article>
   );
