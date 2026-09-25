@@ -165,6 +165,16 @@ export function sortedProductVariants(product: Product) {
   });
 }
 
+/** First vial size a customer can actually order (in stock, not coming soon).
+ *  Falls back to the first size when every size is unavailable. */
+export function firstAvailableVariant(product: Product) {
+  const variants = sortedProductVariants(product);
+  if (variants.length === 0) return null;
+  return (
+    variants.find((v) => !v.comingSoon && stockState(v.stock ?? null) !== "out") ?? variants[0]
+  );
+}
+
 export function productBasePrice(product: Product) {
   const variantPrices = (product.variants ?? []).map((v) => v.price).filter((price) => price > 0);
   return variantPrices.length > 0 ? Math.min(...variantPrices) : product.price;
