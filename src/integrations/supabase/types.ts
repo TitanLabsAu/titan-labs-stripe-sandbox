@@ -206,8 +206,12 @@ export type Database = {
           notes: string | null
           order_number: number
           payment_confirmed: boolean
+          payment_confirmed_at: string | null
+          payment_failure_code: string | null
           payment_method: string
+          payment_provider: string | null
           payment_reference: string | null
+          payment_transaction_id: string | null
           shipping: number
           shipping_address: string | null
           status: Database["public"]["Enums"]["order_status"]
@@ -229,8 +233,12 @@ export type Database = {
           notes?: string | null
           order_number?: number
           payment_confirmed?: boolean
+          payment_confirmed_at?: string | null
+          payment_failure_code?: string | null
           payment_method?: string
+          payment_provider?: string | null
           payment_reference?: string | null
+          payment_transaction_id?: string | null
           shipping?: number
           shipping_address?: string | null
           status?: Database["public"]["Enums"]["order_status"]
@@ -252,8 +260,12 @@ export type Database = {
           notes?: string | null
           order_number?: number
           payment_confirmed?: boolean
+          payment_confirmed_at?: string | null
+          payment_failure_code?: string | null
           payment_method?: string
+          payment_provider?: string | null
           payment_reference?: string | null
+          payment_transaction_id?: string | null
           shipping?: number
           shipping_address?: string | null
           status?: Database["public"]["Enums"]["order_status"]
@@ -484,7 +496,12 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user"
       discount_type: "percent" | "fixed"
-      order_status: "processing" | "shipped" | "delivered" | "cancelled"
+      order_status:
+        | "processing"
+        | "shipped"
+        | "delivered"
+        | "cancelled"
+        | "pending_payment"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -614,7 +631,13 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       discount_type: ["percent", "fixed"],
-      order_status: ["processing", "shipped", "delivered", "cancelled"],
+      order_status: [
+        "processing",
+        "shipped",
+        "delivered",
+        "cancelled",
+        "pending_payment",
+      ],
     },
   },
 } as const
