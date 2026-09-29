@@ -33,7 +33,7 @@ type EwayModalResult = "Complete" | "Cancel" | "Error";
 declare global {
   interface Window {
     eCrypt?: {
-      showModalPayment: (
+      showModalPayment?: (
         config: { sharedPaymentUrl: string },
         callback: (result: EwayModalResult, transactionId?: string, errors?: string) => void,
       ) => void;
@@ -42,18 +42,40 @@ declare global {
 }
 
 let ewayScriptPromise: Promise<void> | null = null;
+
 function loadEwayIframeScript() {
-  if (typeof window === "undefined") return Promise.reject(new Error("Eway can only open in the browser."));
-  if (window.eCrypt) return Promise.resolve();
+  if (typeof window === "undefined") {
+    return Promise.reject(new Error("Eway can only open in the browser."));
+  }
+
+  if (typeof window.eCrypt?.showModalPayment === "function") {
+    return Promise.resolve();
+  }
+
   if (ewayScriptPromise) return ewayScriptPromise;
+
   ewayScriptPromise = new Promise<void>((resolve, reject) => {
     const script = document.createElement("script");
     script.src = "https://secure.ewaypayments.com/scripts/eCrypt.min.js";
     script.async = true;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error("Could not load the Eway secure payment window."));
+
+    script.onload = () => {
+      if (typeof window.eCrypt?.showModalPayment === "function") {
+        resolve();
+      } else {
+        ewayScriptPromise = null;
+        reject(new Error("Eway secure payment window did not initialise correctly."));
+      }
+    };
+
+    script.onerror = () => {
+      ewayScriptPromise = null;
+      reject(new Error("Could not load the Eway secure payment window."));
+    };
+
     document.head.appendChild(script);
   });
+
   return ewayScriptPromise;
 }
 
@@ -187,7 +209,9 @@ function CheckoutPage() {
     onSuccess: async ({ accessCode, sharedPaymentUrl }) => {
       try {
         await loadEwayIframeScript();
-        if (!window.eCrypt) throw new Error("Eway secure payment window is unavailable.");
+        if (typeof window.eCrypt?.showModalPayment !== "function") {
+  throw new Error("Eway secure payment window is unavailable.");
+}
         window.eCrypt.showModalPayment({ sharedPaymentUrl }, (result, _transactionId, errors) => {
           if (result === "Complete") {
             verifyCardPayment.mutate(accessCode);
