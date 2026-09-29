@@ -18,12 +18,44 @@ import { formatPrice } from "@/lib/products";
 import { useProducts, useSiteContent } from "@/lib/useCatalog";
 import { catalogueName, homeValue, type PaymentMethodKey } from "@/lib/homeContent";
 import { submitOrder, saveOrderPaymentReference, type SubmittedOrder } from "@/lib/orders.functions";
+import { createEwaySandboxPayment, verifyEwaySandboxPayment } from "@/lib/eway.functions";
 import { ShippingPicker, TitanStackBanner, TitanTrustStrip } from "@/components/CartExtras";
 import {
   FREE_SHIPPING_THRESHOLD,
   computeTotals,
   type ShippingMethodKey,
 } from "@/lib/pricing";
+
+
+
+type EwayModalResult = "Complete" | "Cancel" | "Error";
+
+declare global {
+  interface Window {
+    eCrypt?: {
+      showModalPayment: (
+        config: { sharedPaymentUrl: string },
+        callback: (result: EwayModalResult, transactionId?: string, errors?: string) => void,
+      ) => void;
+    };
+  }
+}
+
+let ewayScriptPromise: Promise<void> | null = null;
+function loadEwayIframeScript() {
+  if (typeof window === "undefined") return Promise.reject(new Error("Eway can only open in the browser."));
+  if (window.eCrypt) return Promise.resolve();
+  if (ewayScriptPromise) return ewayScriptPromise;
+  ewayScriptPromise = new Promise<void>((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "https://secure.ewaypayments.com/scripts/eCrypt.min.js";
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("Could not load the Eway secure payment window."));
+    document.head.appendChild(script);
+  });
+  return ewayScriptPromise;
+}
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -52,6 +84,8 @@ function CheckoutPage() {
   const { data: content } = useSiteContent();
   const submit = useServerFn(submitOrder);
   const saveReference = useServerFn(saveOrderPaymentReference);
+  const createEwayPayment = useServerFn(createEwaySandboxPayment);
+  const verifyEwayPayment = useServerFn(verifyEwaySandboxPayment);
 
   const { data: session } = useQuery({
     queryKey: ["checkout-session"],
@@ -118,6 +152,71 @@ function CheckoutPage() {
   const freeShipping = items.length > 0 && totals.shipping === 0;
   const remaining = totals.remainingForFreeShipping;
 
+  const cardCheckoutData = () => ({
+    firstName,
+    lastName,
+    email,
+    phone,
+    addressLine: address.address_line,
+    city: address.city,
+    state: address.state,
+    postcode: address.postcode,
+    notes,
+    shippingMethod,
+    items: items.map((i) => ({
+      slug: i.slug,
+      variantId: i.variantId ?? null,
+      pack: i.pack ?? "single",
+      quantity: i.quantity,
+    })),
+  });
+
+  const verifyCardPayment = useMutation({
+    mutationFn: (accessCode: string) => verifyEwayPayment({ data: { accessCode } }),
+    onSuccess: (result) => {
+      setConfirmed(result);
+      clear();
+      toast.success(`Payment approved — order ${result.reference} confirmed`);
+      if (typeof window !== "undefined") window.history.replaceState({}, "", "/checkout");
+    },
+    onError: (error: any) => toast.error(error?.message ?? "We could not verify the Eway payment."),
+  });
+
+  const startCardPayment = useMutation({
+    mutationFn: () => createEwayPayment({ data: cardCheckoutData() }),
+    onSuccess: async ({ accessCode, sharedPaymentUrl }) => {
+      try {
+        await loadEwayIframeScript();
+        if (!window.eCrypt) throw new Error("Eway secure payment window is unavailable.");
+        window.eCrypt.showModalPayment({ sharedPaymentUrl }, (result, _transactionId, errors) => {
+          if (result === "Complete") {
+            verifyCardPayment.mutate(accessCode);
+          } else if (result === "Cancel") {
+            toast.message("Card payment cancelled. Your cart has been kept.");
+          } else {
+            toast.error(errors || "Eway could not complete the payment window.");
+          }
+        });
+      } catch (error: any) {
+        toast.error(error?.message ?? "Could not open Eway secure payment.");
+      }
+    },
+    onError: (error: any) => toast.error(error?.message ?? "Could not start the Eway payment."),
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !session) return;
+    const params = new URLSearchParams(window.location.search);
+    const accessCode = params.get("AccessCode");
+    const ewayReturn = params.get("eway");
+    if (ewayReturn === "return" && accessCode && !verifyCardPayment.isPending) {
+      verifyCardPayment.mutate(accessCode);
+    } else if (ewayReturn === "cancel") {
+      toast.message("Card payment cancelled. Your cart has been kept.");
+      window.history.replaceState({}, "", "/checkout");
+    }
+  }, [session]); // Eway appends AccessCode to the configured return URL.
+
   const placeOrder = useMutation({
     mutationFn: async () => {
       const result = await submit({
@@ -131,7 +230,7 @@ function CheckoutPage() {
           state: address.state,
           postcode: address.postcode,
           notes,
-          paymentMethod: method,
+          paymentMethod: method === "crypto" ? "crypto" : "payid",
           shippingMethod,
           items: items.map((i) => ({
             slug: i.slug,
@@ -178,7 +277,9 @@ function CheckoutPage() {
               <span className="font-bold text-foreground">{formatPrice(confirmed.total)}</span>.
             </p>
             <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">
-              {homeValue(content, "payment_confirmation_note")}
+              {confirmed.paymentMethod === "card"
+                ? "Your sandbox card payment was approved and verified with Eway. Your order is confirmed."
+                : homeValue(content, "payment_confirmation_note")}
             </p>
 
             <h2 className="technical-label mt-8 text-foreground">Payment details</h2>
@@ -435,13 +536,21 @@ function CheckoutPage() {
                   <Button
                     size="lg"
                     className="mt-6 w-full font-bold uppercase tracking-wide"
-                    disabled={placeOrder.isPending}
-                    onClick={() => placeOrder.mutate()}
+                    disabled={placeOrder.isPending || startCardPayment.isPending || verifyCardPayment.isPending}
+                    onClick={() => method === "card" ? startCardPayment.mutate() : placeOrder.mutate()}
                   >
-                    {placeOrder.isPending ? "Submitting…" : "Submit order"}
+                    {method === "card"
+                      ? startCardPayment.isPending || verifyCardPayment.isPending
+                        ? "Connecting securely…"
+                        : "Pay securely with card"
+                      : placeOrder.isPending
+                        ? "Submitting…"
+                        : "Submit order"}
                   </Button>
                   <p className="mt-3 text-center text-xs text-muted-foreground">
-                    No payment is taken on this website.
+                    {method === "card"
+                      ? "Sandbox mode: payment details are handled by Eway's secure hosted payment window."
+                      : "No payment is taken on this website."}
                   </p>
                 </>
               ) : (
