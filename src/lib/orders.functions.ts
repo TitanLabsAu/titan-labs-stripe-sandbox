@@ -33,7 +33,7 @@ export type SubmittedOrder = {
   discount: number;
   shipping: number;
   total: number;
-  paymentMethod: "payid" | "crypto";
+  paymentMethod: "payid" | "crypto" | "card";
   shippingMethod: ShippingMethodKey;
 };
 
