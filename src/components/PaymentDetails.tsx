@@ -84,6 +84,18 @@ export function PaymentDetails({
     );
   }
 
+  if (method === "card") {
+    return (
+      <div className={cn("border border-border bg-muted/20 p-4", className)}>
+        <p className="font-bold uppercase tracking-wide text-foreground">Secure card payment</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Your card details are entered in Eway&apos;s secure hosted payment window and are not stored by Titan Labs.
+        </p>
+        <p className="mt-2 text-xs text-muted-foreground">Sandbox mode — no real card will be charged.</p>
+      </div>
+    );
+  }
+
   return <CryptoPanel content={content} reference={reference} amountAud={amountAud} className={className} />;
 }
 
@@ -215,6 +227,11 @@ export function PaymentMethodPicker({
       label: homeValue(content, "payment_crypto_label"),
       hint: "Send BTC, ETH or USDT from your own wallet and save instantly.",
       badge: `${CRYPTO_DISCOUNT_PERCENT}% OFF`,
+    },
+    {
+      key: "card",
+      label: homeValue(content, "payment_card_label"),
+      hint: "Pay securely online by credit or debit card via Eway.",
     },
   ];
 
