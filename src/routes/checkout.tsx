@@ -60,13 +60,27 @@ function loadEwayIframeScript() {
     script.async = true;
 
     script.onload = () => {
-      if (typeof window.eCrypt?.showModalPayment === "function") {
-        resolve();
-      } else {
-        ewayScriptPromise = null;
-        reject(new Error("Eway secure payment window did not initialise correctly."));
-      }
-    };
+  const startedAt = Date.now();
+
+  const waitForEway = () => {
+    if (typeof window.eCrypt?.showModalPayment === "function") {
+      resolve();
+      return;
+    }
+
+    if (Date.now() - startedAt >= 5000) {
+      ewayScriptPromise = null;
+      reject(
+        new Error("Eway secure payment window did not initialise correctly."),
+      );
+      return;
+    }
+
+    window.setTimeout(waitForEway, 50);
+  };
+
+  waitForEway();
+};
 
     script.onerror = () => {
       ewayScriptPromise = null;
