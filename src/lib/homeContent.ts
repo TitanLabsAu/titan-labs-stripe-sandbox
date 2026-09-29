@@ -154,6 +154,7 @@ export const PAYMENT_FIELDS: HomeField[] = [
       "Transfer the order total from your banking app using your order number as the payment description. Payments clear instantly with Osko.",
   },
   { key: "payment_crypto_label", label: "Crypto option name", align: "left", fallback: "Cryptocurrency (10% off)" },
+  { key: "payment_card_label", label: "Card option name", align: "left", fallback: "Credit / Debit Card" },
   {
     key: "payment_crypto_options",
     label: "Coins you accept",
@@ -179,13 +180,18 @@ export const PAYMENT_FIELDS: HomeField[] = [
   },
 ];
 
-export type PaymentMethodKey = "payid" | "crypto";
+export type PaymentMethodKey = "payid" | "crypto" | "card";
 
 export function paymentMethodName(
   content: Record<string, string> | undefined,
   method: PaymentMethodKey,
 ) {
-  const key = method === "payid" ? "payment_payid_label" : "payment_crypto_label";
+  const key =
+    method === "payid"
+      ? "payment_payid_label"
+      : method === "crypto"
+        ? "payment_crypto_label"
+        : "payment_card_label";
   return homeValue(content, key);
 }
 
