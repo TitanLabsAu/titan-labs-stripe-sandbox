@@ -279,6 +279,62 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_attempts: {
+        Row: {
+          access_code: string | null
+          amount_cents: number
+          created_at: string
+          currency: string
+          error_code: string | null
+          id: string
+          order_id: string | null
+          order_payload: Json
+          provider: string
+          status: string
+          transaction_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_code?: string | null
+          amount_cents: number
+          created_at?: string
+          currency?: string
+          error_code?: string | null
+          id?: string
+          order_id?: string | null
+          order_payload: Json
+          provider?: string
+          status?: string
+          transaction_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_code?: string | null
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          error_code?: string | null
+          id?: string
+          order_id?: string | null
+          order_payload?: Json
+          provider?: string
+          status?: string
+          transaction_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_attempts_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           active: boolean
