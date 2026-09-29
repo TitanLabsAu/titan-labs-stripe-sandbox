@@ -111,7 +111,7 @@ export function TitanTrustStrip() {
         ))}
       </div>
       <p className="mt-2 text-center text-xs text-muted-foreground">
-        100% delivery guarantee · paid off-platform, never on this site
+        Secure and flexible payment options
       </p>
     </div>
   );
