@@ -138,7 +138,7 @@ export const PAYMENT_FIELDS: HomeField[] = [
     multiline: true,
     align: "left",
     fallback:
-      "Payment is made outside the website. Choose how you would like to pay and we will confirm your order once the funds arrive.",
+      "Choose your preferred payment method below. Payment instructions and confirmation will be provided based on your selected method.",
   },
   { key: "payment_payid_label", label: "PayID option name", align: "left", fallback: "PayID / Bank transfer" },
   { key: "payment_payid_id", label: "Your PayID", align: "left", fallback: "" },
