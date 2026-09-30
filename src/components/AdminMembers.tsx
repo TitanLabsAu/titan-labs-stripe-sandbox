@@ -44,7 +44,7 @@ function MemberOrderCard({ order }: { order: AdminOrder }) {
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
         <div>
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-            Order #{order.id.slice(0, 8)}
+            Order {orderReference(order)}
           </p>
           <p className="mt-1 text-sm text-muted-foreground">
             Placed {formatDate(order.created_at)}
