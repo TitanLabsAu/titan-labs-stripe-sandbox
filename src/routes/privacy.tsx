@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { LegalPage, LegalSection } from "@/components/LegalPage";
 import { useSiteContent } from "@/lib/useCatalog";
-import { homeValue } from "@/lib/homeContent";
+import { contentAlign, homeValue } from "@/lib/homeContent";
 
 export const Route = createFileRoute("/privacy")({
   head: () => ({
@@ -21,7 +21,7 @@ function PrivacyPage() {
   const { data: content } = useSiteContent();
   return (
     <LegalPage eyebrow="Your information" title="Privacy Policy">
-      <LegalSection heading="Privacy Policy" text={homeValue(content, "legal_privacy")} />
+      <LegalSection heading="Privacy Policy" text={homeValue(content, "legal_privacy")} align={contentAlign(content, "legal_privacy")} />
     </LegalPage>
   );
 }

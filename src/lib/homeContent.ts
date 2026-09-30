@@ -376,7 +376,7 @@ export function fieldAlign(
 }
 
 export function contentAlign(content: Record<string, string> | undefined, key: string) {
-  const field = [...HOME_FIELDS, ...RANGE_FIELDS, ...HEADER_FIELDS, ...FOOTER_FIELDS, ...PAYMENT_FIELDS].find((f) => f.key === key);
+  const field = [...HOME_FIELDS, ...RANGE_FIELDS, ...HEADER_FIELDS, ...FOOTER_FIELDS, ...PAYMENT_FIELDS, ...LEGAL_FIELDS].find((f) => f.key === key);
   return normaliseAlign(content?.[`${key}_align`], field?.align ?? "center");
 }
 
@@ -417,7 +417,7 @@ export function featuredSlugs(content: Record<string, string> | undefined) {
 }
 
 export function homeValue(content: Record<string, string> | undefined, key: string) {
-  const field = [...HOME_FIELDS, ...RANGE_FIELDS, ...HEADER_FIELDS, ...FOOTER_FIELDS, ...PAYMENT_FIELDS].find((f) => f.key === key);
+  const field = [...HOME_FIELDS, ...RANGE_FIELDS, ...HEADER_FIELDS, ...FOOTER_FIELDS, ...PAYMENT_FIELDS, ...LEGAL_FIELDS].find((f) => f.key === key);
   const value = content?.[key];
   return value && value.trim() ? value : field?.fallback || "";
 }
