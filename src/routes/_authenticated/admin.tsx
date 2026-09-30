@@ -56,7 +56,7 @@ function formatDate(value: string) {
 }
 
 function orderRef(order: AdminOrder) {
-  return order.order_number ? `TL-${order.order_number}` : order.id.slice(0, 8).toUpperCase();
+  return orderReference(order);
 }
 
 function customerName(order: AdminOrder) {
