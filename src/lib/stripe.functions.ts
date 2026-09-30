@@ -396,6 +396,9 @@ export const verifyStripeSandboxPayment = createServerFn({
         );
       }
 
+      const payload =
+        attempt.order_payload as PreparedStripePayload;
+
       /*
        * Idempotency protection:
        * if this payment already created an order,
@@ -416,23 +419,19 @@ export const verifyStripeSandboxPayment = createServerFn({
           throw error;
         }
 
-        const payload =
-          attempt.order_payload as PreparedStripePayload;
-
         return {
           id: existing.id,
           orderNumber: Number(existing.order_number),
           reference: `TL-${existing.order_number}`,
-          subtotal:
-            Number(existing.subtotal) +
-            Number(payload.totals.discount),
-          discount: Number(payload.totals.discount),
-          shipping: Number(existing.shipping),
-          total: Number(existing.total),
+          subtotal: payload.totals.subtotal,
+          discount: payload.totals.discount,
+          shipping: payload.totals.shipping,
+          total: payload.totals.total,
           paymentMethod: "card",
           shippingMethod: payload.shippingMethod,
         };
       }
+
 
       /*
        * Retrieve the PaymentIntent directly from
@@ -489,92 +488,53 @@ export const verifyStripeSandboxPayment = createServerFn({
         );
       }
 
-      const payload =
-        attempt.order_payload as PreparedStripePayload;
-
-      const { data: order, error: orderError } =
-        await (supabaseAdmin as any)
-          .from("orders")
-          .insert({
-            user_id: context.userId,
-            status: "processing",
-
-            subtotal:
-              payload.totals.total -
-              payload.totals.shipping,
-
-            shipping: payload.totals.shipping,
-            total: payload.totals.total,
-
-            payment_method: "card",
-            payment_reference: paymentIntent.id,
-            payment_provider: "stripe",
-            payment_transaction_id: paymentIntent.id,
-
-            payment_confirmed: true,
-            payment_confirmed_at:
-              new Date().toISOString(),
-
-            contact_name:
+      /*
+       * Atomic order finalisation: order, order_items,
+       * profile and payment_attempt are written inside
+       * one PostgreSQL transaction, keyed on the
+       * PaymentIntent id, and roll back together.
+       */
+      const { data: result, error: rpcError } =
+        await (supabaseAdmin as any).rpc(
+          "finalize_stripe_order",
+          {
+            _payment_intent_id: paymentIntent.id,
+            _user_id: context.userId,
+            _attempt_id: attempt.id,
+            _subtotal:
+              payload.totals.total - payload.totals.shipping,
+            _shipping: payload.totals.shipping,
+            _total: payload.totals.total,
+            _contact_name:
               `${payload.customer.firstName} ${payload.customer.lastName}`.trim(),
-
-            contact_email: payload.customer.email,
-            contact_phone: payload.customer.phone,
-
-            shipping_address:
+            _contact_email: payload.customer.email,
+            _contact_phone: payload.customer.phone,
+            _shipping_address:
               payload.customer.shippingAddress,
+            _notes: payload.notes,
+            _items: payload.lines,
+            _profile_first_name: payload.customer.firstName,
+            _profile_last_name: payload.customer.lastName,
+            _profile_phone: payload.customer.phone,
+            _profile_address_line:
+              payload.customer.addressLine,
+            _profile_city: payload.customer.city,
+            _profile_state: payload.customer.state,
+            _profile_postcode: payload.customer.postcode,
+          },
+        );
 
-            notes: payload.notes,
-          })
-          .select("id, order_number")
-          .single();
-
-      if (orderError) {
-        throw orderError;
+      if (rpcError || !result) {
+        throw (
+          rpcError ??
+          new Error("The order could not be finalised.")
+        );
       }
-
-      const { error: itemError } =
-        await (supabaseAdmin as any)
-          .from("order_items")
-          .insert(
-            payload.lines.map((line) => ({
-              ...line,
-              order_id: order.id,
-            })),
-          );
-
-      if (itemError) {
-        throw itemError;
-      }
-
-      await (supabaseAdmin as any)
-        .from("profiles")
-        .update({
-          first_name: payload.customer.firstName,
-          last_name: payload.customer.lastName,
-          phone_number: payload.customer.phone,
-          address_line: payload.customer.addressLine,
-          city: payload.customer.city,
-          state: payload.customer.state,
-          postcode: payload.customer.postcode,
-          postal_address:
-            payload.customer.shippingAddress,
-        })
-        .eq("id", context.userId);
-
-      await (supabaseAdmin as any)
-        .from("payment_attempts")
-        .update({
-          status: "paid",
-          transaction_id: paymentIntent.id,
-          order_id: order.id,
-        })
-        .eq("id", attempt.id);
 
       return {
-        id: order.id,
-        orderNumber: Number(order.order_number),
-        reference: `TL-${order.order_number}`,
+        id: result.id,
+        orderNumber: Number(result.order_number),
+        reference: `TL-${result.order_number}`,
         subtotal: payload.totals.subtotal,
         discount: payload.totals.discount,
         shipping: payload.totals.shipping,
@@ -582,5 +542,6 @@ export const verifyStripeSandboxPayment = createServerFn({
         paymentMethod: "card",
         shippingMethod: payload.shippingMethod,
       };
+
     },
   );
