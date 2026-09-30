@@ -70,7 +70,7 @@ function NumberField({
         max={max}
         step={step}
         value={[sliderValue]}
-        onValueChange={([v]) => onChange(String(Number(v.toFixed(4))))}
+        onValueChange={([v]) => onChange(String(Number((v ?? 0).toFixed(4))))}
         aria-label={`${label} slider`}
       />
     </div>
