@@ -77,7 +77,7 @@ function ResearchIndex() {
         provided for laboratory research reference only and is not medical advice.
       </p>
 
-      <div className="industrial-panel mt-6 grid gap-4 p-4 sm:grid-cols-3">
+      <div className="industrial-panel mt-6 grid grid-cols-3 gap-4 p-4">
         <Stat label="Entries" value={entries.length} />
         <Stat label="Categories" value={Math.max(0, categories.length - 1)} />
         <Stat label="Showing" value={visible.length} />
