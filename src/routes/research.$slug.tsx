@@ -106,7 +106,7 @@ function EntryPage() {
           ))}
           {e.research_findings.length ? (
             <section className="industrial-panel p-6">
-              <h2 className="font-display text-lg font-extrabold uppercase text-foreground">Research findings</h2>
+              <h2 className="font-display text-lg font-extrabold uppercase text-foreground">Areas studied</h2>
               <ul className="mt-3 space-y-2 text-sm leading-6 text-muted-foreground">
                 {e.research_findings.map((f, i) => (
                   <li key={i} className="flex gap-3"><span className="mt-2 h-1.5 w-1.5 shrink-0 bg-accent" />{f}</li>
@@ -163,8 +163,17 @@ function EntryPage() {
               </dl>
             </section>
           ) : null}
+          {e.updated_at ? (
+            <p className="border border-border bg-card p-4 text-xs text-muted-foreground">
+              Last updated{" "}
+              <span className="font-bold text-foreground">
+                {new Date(e.updated_at).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" })}
+              </span>
+            </p>
+          ) : null}
           <p className="border border-border bg-card p-4 text-xs leading-5 text-muted-foreground">
-            Research reference only. Not medical advice. Products supplied by Titan Labs Australia are for laboratory
+            Research reference only. Not medical advice. Reference information is summarised from third-party material
+            and has not been independently verified. Products supplied by Titan Labs Australia are for laboratory
             research use only and are not for human or animal consumption.
           </p>
         </aside>
