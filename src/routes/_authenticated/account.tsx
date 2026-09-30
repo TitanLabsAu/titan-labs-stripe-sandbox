@@ -11,6 +11,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { AddressFields, combineAddress } from "@/components/AddressFields";
 import { ProfileMenu } from "@/components/ProfileMenu";
+import { ChangePasswordCard } from "@/components/ChangePasswordCard";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({
@@ -221,6 +222,7 @@ function AccountPage() {
             </form>
           )}
         </div>
+        <ChangePasswordCard />
       </main>
       <SiteFooter />
     </div>

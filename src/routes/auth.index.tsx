@@ -34,6 +34,27 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resetting, setResetting] = useState(false);
+
+  async function handleForgotPassword() {
+    const trimmed = email.trim();
+    if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      toast.error("Enter your email address above, then click Forgot password.");
+      return;
+    }
+    setResetting(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(trimmed, {
+        redirectTo: `${window.location.origin}/auth/reset-password`,
+      });
+      if (error) throw error;
+      toast.success("Password reset email sent — check your inbox.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not send the reset email.");
+    } finally {
+      setResetting(false);
+    }
+  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -115,6 +136,15 @@ function AuthPage() {
               {loading ? "Please wait…" : "Log in"}
             </Button>
           </form>
+
+          <button
+            type="button"
+            onClick={handleForgotPassword}
+            disabled={resetting}
+            className="mt-4 block w-full text-center text-sm text-muted-foreground underline-offset-4 hover:text-accent hover:underline disabled:opacity-60"
+          >
+            {resetting ? "Sending reset email…" : "Forgot password?"}
+          </button>
 
           <Link
             to="/auth/signup"

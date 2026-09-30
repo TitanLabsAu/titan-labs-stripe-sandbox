@@ -19,6 +19,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedOrderHistoryRouteImport } from './routes/_authenticated/order-history'
 import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
 import { Route as AuthIndexRouteImport } from './routes/auth.index'
+import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
 import { Route as AuthSignupRouteImport } from './routes/auth.signup'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as ApiPublicAuspostPollRouteImport } from './routes/api/public/auspost-poll'
@@ -75,6 +76,11 @@ const AuthIndexRoute = AuthIndexRouteImport.update({
   path: '/auth/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
+  id: '/auth/reset-password',
+  path: '/auth/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthSignupRoute = AuthSignupRouteImport.update({
   id: '/auth/signup',
   path: '/auth/signup',
@@ -111,6 +117,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/order-history': typeof AuthenticatedOrderHistoryRoute
   '/orders': typeof AuthenticatedOrdersRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/product/$slug': typeof ProductSlugRoute
   '/auth/': typeof AuthIndexRoute
@@ -127,6 +134,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/order-history': typeof AuthenticatedOrderHistoryRoute
   '/orders': typeof AuthenticatedOrdersRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/product/$slug': typeof ProductSlugRoute
   '/auth': typeof AuthIndexRoute
@@ -145,6 +153,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/order-history': typeof AuthenticatedOrderHistoryRoute
   '/_authenticated/orders': typeof AuthenticatedOrdersRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/product/$slug': typeof ProductSlugRoute
   '/auth/': typeof AuthIndexRoute
@@ -163,6 +172,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/order-history'
     | '/orders'
+    | '/auth/reset-password'
     | '/auth/signup'
     | '/product/$slug'
     | '/auth/'
@@ -179,6 +189,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/order-history'
     | '/orders'
+    | '/auth/reset-password'
     | '/auth/signup'
     | '/product/$slug'
     | '/auth'
@@ -196,6 +207,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/order-history'
     | '/_authenticated/orders'
+    | '/auth/reset-password'
     | '/auth/signup'
     | '/product/$slug'
     | '/auth/'
@@ -210,6 +222,7 @@ export interface RootRouteChildren {
   CalculatorRoute: typeof CalculatorRoute
   CheckoutRoute: typeof CheckoutRoute
   RangeRoute: typeof RangeRoute
+  AuthResetPasswordRoute: typeof AuthResetPasswordRoute
   AuthSignupRoute: typeof AuthSignupRoute
   ProductSlugRoute: typeof ProductSlugRoute
   AuthIndexRoute: typeof AuthIndexRoute
@@ -290,6 +303,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/reset-password': {
+      id: '/auth/reset-password'
+      path: '/auth/reset-password'
+      fullPath: '/auth/reset-password'
+      preLoaderRoute: typeof AuthResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/signup': {
       id: '/auth/signup'
       path: '/auth/signup'
@@ -351,6 +371,7 @@ const rootRouteChildren: RootRouteChildren = {
   CalculatorRoute: CalculatorRoute,
   CheckoutRoute: CheckoutRoute,
   RangeRoute: RangeRoute,
+  AuthResetPasswordRoute: AuthResetPasswordRoute,
   AuthSignupRoute: AuthSignupRoute,
   ProductSlugRoute: ProductSlugRoute,
   AuthIndexRoute: AuthIndexRoute,
