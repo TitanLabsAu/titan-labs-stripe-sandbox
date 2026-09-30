@@ -304,6 +304,38 @@ const verifyStripeCardPayment = useMutation({
     ),
 });
 
+  /*
+   * Redirect-based payment methods (Zip, Klarna) send the
+   * customer back to /checkout with Stripe's query params.
+   * We ignore redirect_status entirely — the server-side
+   * verification against Stripe is the only source of truth.
+   */
+  const runStripeReturn = verifyStripeCardPayment.mutate;
+  const stripeReturnHandled = useRef(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (stripeReturnHandled.current) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const paymentIntentId = params.get("payment_intent");
+    if (!paymentIntentId) return;
+
+    stripeReturnHandled.current = true;
+
+    params.delete("payment_intent");
+    params.delete("payment_intent_client_secret");
+    params.delete("redirect_status");
+    const rest = params.toString();
+    window.history.replaceState(
+      {},
+      "",
+      rest ? `/checkout?${rest}` : "/checkout",
+    );
+
+    runStripeReturn(paymentIntentId);
+  }, [runStripeReturn]);
+
 const startStripeCardPayment = useMutation({
   mutationFn: () =>
     createStripePayment({
