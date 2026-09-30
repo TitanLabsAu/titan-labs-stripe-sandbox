@@ -197,7 +197,7 @@ export function AdminResearch() {
     const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setDraft({ ...draft, [k]: v });
     const existing = entries.find((e) => e.id === draft.id);
     return (
-      <div className="rounded-xl border border-border bg-card/80 p-6">
+      <div className="rounded-xl border border-border bg-card/80 p-4 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h3 className="text-lg font-extrabold uppercase text-foreground">
@@ -252,7 +252,7 @@ export function AdminResearch() {
           <Field label="Sequence" wide>
             <Textarea rows={2} className="font-mono text-xs" value={draft.sequence} onChange={(e) => set("sequence", e.target.value)} />
           </Field>
-          <Field label="Research findings (one per line)" wide>
+          <Field label="Areas studied (one per line)" wide>
             <Textarea rows={5} value={draft.findings} onChange={(e) => set("findings", e.target.value)} />
           </Field>
         </div>
@@ -318,7 +318,7 @@ export function AdminResearch() {
           </div>
         </div>
 
-        <div className="mt-6 flex flex-wrap gap-3">
+        <div className="mt-6 grid gap-3 sm:flex sm:flex-wrap">
           <Button variant="outline" className="font-bold uppercase" disabled={save.isPending} onClick={() => save.mutate({ d: draft, published: false })}>
             Save as draft
           </Button>
@@ -343,7 +343,7 @@ export function AdminResearch() {
   }
 
   return (
-    <div className="rounded-xl border border-border bg-card/80 p-6">
+    <div className="rounded-xl border border-border bg-card/80 p-4 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h3 className="text-lg font-extrabold uppercase text-foreground">Titan's Research Lab</h3>
@@ -364,17 +364,17 @@ export function AdminResearch() {
       ) : (
         <ul className="mt-5 divide-y divide-border border border-border">
           {entries.map((e, i) => (
-            <li key={e.id} className="flex flex-wrap items-center gap-3 p-3">
+            <li key={e.id} className="flex flex-col gap-3 p-3 sm:flex-row sm:flex-wrap sm:items-center">
               <div className="min-w-0 flex-1">
-                <p className="truncate font-bold uppercase text-foreground">{e.title}</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="font-bold uppercase text-foreground sm:truncate">{e.title}</p>
+                <p className="break-words text-xs text-muted-foreground">
                   {e.category || "Uncategorised"} · /research/{e.slug} ·{" "}
                   <span className={e.published ? "font-bold text-primary" : "font-bold text-accent"}>
                     {e.published ? "Published" : "Draft"}
                   </span>
                 </p>
               </div>
-              <div className="flex gap-1.5">
+              <div className="flex flex-wrap gap-1.5">
                 <Button size="icon" variant="outline" aria-label="Move up" disabled={i === 0 || move.isPending} onClick={() => move.mutate({ index: i, dir: -1 })}>
                   <ArrowUp />
                 </Button>
