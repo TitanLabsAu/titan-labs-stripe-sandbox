@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatPrice } from "@/lib/products";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { OrderAcknowledgementInfo } from "@/components/OrderAcknowledgementInfo";
 import { AdminOrderActions, CopyButton, copyText } from "@/components/AdminOrderActions";
 import {
   adminListNotifications,
@@ -520,6 +521,8 @@ function OrderDetail({ order, live }: { order: AdminOrder; live: boolean }) {
           </p>
         ) : null}
       </div>
+
+      <OrderAcknowledgementInfo orderId={order.id} userId={order.user_id} createdAt={order.created_at} />
 
       <AdminOrderActions order={order} />
     </div>

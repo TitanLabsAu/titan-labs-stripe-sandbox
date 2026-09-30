@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { AdminLinks } from "@/components/AdminLinks";
+import { AdminResearch } from "@/components/AdminResearch";
 import { ProductEditor, draftToPayload, toDraft, type Draft } from "@/components/AdminProducts";
 import { supabase } from "@/integrations/supabase/client";
 import { adminListProducts, adminSaveContent, adminSaveProduct } from "@/lib/admin.functions";
@@ -25,6 +26,7 @@ import {
   HOME_FIELDS,
   HOME_IMAGE_SLOTS,
   HOME_SECTIONS,
+  LEGAL_FIELDS,
   PAYMENT_FIELDS,
   RANGE_FIELDS,
   RANGE_IMAGE_SLOTS,
@@ -137,7 +139,7 @@ function ContentFieldEditor({
   setAlign: (value: TextAlign) => void;
 }) {
   const textarea = useRef<HTMLTextAreaElement | null>(null);
-  const rows = field.key === "range_disclaimer" ? 5 : field.multiline ? 4 : 2;
+  const rows = field.key.startsWith("legal_") ? 12 : field.key === "range_disclaimer" ? 5 : field.multiline ? 4 : 2;
 
   return (
     <div className={field.multiline ? "sm:col-span-2" : ""}>
@@ -503,7 +505,7 @@ export function AdminEdits() {
         next[f.key] = data[f.key] ?? f.fallback;
         next[`${f.key}_align`] = data[`${f.key}_align`] ?? f.align ?? "center";
       }
-      for (const f of [...RANGE_FIELDS, ...HEADER_FIELDS, ...FOOTER_FIELDS, ...PAYMENT_FIELDS]) {
+      for (const f of [...RANGE_FIELDS, ...HEADER_FIELDS, ...FOOTER_FIELDS, ...PAYMENT_FIELDS, ...LEGAL_FIELDS]) {
         next[f.key] = data[f.key] ?? f.fallback;
         next[`${f.key}_align`] = data[`${f.key}_align`] ?? f.align ?? "center";
       }
@@ -603,6 +605,20 @@ export function AdminEdits() {
     onError: () => toast.error("Could not save the payment details"),
   });
 
+  const saveLegal = useMutation({
+    mutationFn: async () => {
+      const keys = LEGAL_FIELDS.flatMap((f) => [f.key, `${f.key}_align`]);
+      await Promise.all(
+        keys.map((key) => adminSaveContent({ data: { key, body: values[key] ?? "" } })),
+      );
+    },
+    onSuccess: () => {
+      toast.success("Legal pages updated");
+      refreshContent();
+    },
+    onError: () => toast.error("Could not save the legal pages"),
+  });
+
   const saveFeatured = useMutation({
     mutationFn: (slugs: string[]) =>
       adminSaveContent({ data: { key: "home_featured", body: slugs.join(",") } }),
@@ -672,7 +688,49 @@ export function AdminEdits() {
           <TabsTrigger value="payments" className="font-bold uppercase">
             Payments
           </TabsTrigger>
+          <TabsTrigger value="legal" className="font-bold uppercase">
+            Legal
+          </TabsTrigger>
+          <TabsTrigger value="research" className="font-bold uppercase">
+            Research Lab
+          </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="legal" className="mt-6 space-y-6">
+          <div className="rounded-xl border border-border bg-card/80 p-6">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-extrabold uppercase text-foreground">Legal pages</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Wording shown on the Terms &amp; Conditions and Privacy Policy pages. Change the Terms
+                  version whenever you change the terms — new checkout acknowledgements record that version.
+                </p>
+              </div>
+              <Button className="font-bold uppercase" disabled={saveLegal.isPending} onClick={() => saveLegal.mutate()}>
+                Save legal pages
+              </Button>
+            </div>
+            <div className="mt-5 grid gap-4">
+              {LEGAL_FIELDS.map((f) => (
+                <ContentFieldEditor
+                  key={f.key}
+                  field={f}
+                  value={values[f.key] ?? ""}
+                  align={(values[`${f.key}_align`] as TextAlign) || f.align || "left"}
+                  setValue={(value) => setValue(f.key, value)}
+                  setAlign={(value) => setValue(`${f.key}_align`, value)}
+                />
+              ))}
+            </div>
+            <Button className="mt-5 font-bold uppercase" disabled={saveLegal.isPending} onClick={() => saveLegal.mutate()}>
+              Save legal pages
+            </Button>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="research" className="mt-6 space-y-6">
+          <AdminResearch />
+        </TabsContent>
 
         <TabsContent value="payments" className="mt-6 space-y-6">
           <div className="rounded-xl border border-border bg-card/80 p-6">

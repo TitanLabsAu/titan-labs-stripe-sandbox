@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Calculator } from "lucide-react";
-import { ReconstitutionCalculator } from "@/components/ReconstitutionCalculator";
+import { ConcentrationCalculator } from "@/components/ConcentrationCalculator";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 
@@ -8,9 +8,9 @@ export const Route = createFileRoute("/calculator")({
   head: () => ({
     meta: [
       { title: "Reconstitution Calculator | Titan Labs Australia" },
-      { name: "description", content: "Calculate research vial concentration, syringe units and doses using vial size, mixing water and desired dose." },
+      { name: "description", content: "Calculate vial concentration, volume and U-100 scale units from vial strength, diluent volume and a target amount." },
       { property: "og:title", content: "Reconstitution Calculator | Titan Labs Australia" },
-      { property: "og:description", content: "A research reconstitution calculator for vial concentration, mixing water and desired dose." },
+      { property: "og:description", content: "A neutral reconstitution and concentration calculator with a U-100 scale visualiser." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -30,9 +30,7 @@ function CalculatorPage() {
             <h1 className="text-3xl font-medium uppercase text-foreground sm:text-4xl">Reconstitution Calculator</h1>
           </div>
         </div>
-        <div className="max-w-4xl">
-          <ReconstitutionCalculator title="Calculate your reconstitution" />
-        </div>
+        <ConcentrationCalculator />
       </main>
       <SiteFooter />
     </div>

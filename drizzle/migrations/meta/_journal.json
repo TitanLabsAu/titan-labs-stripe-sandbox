@@ -71,6 +71,20 @@
       "when": 1790765366708,
       "tag": "0009_orders_unique_and_finalize_stripe_order",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1790773947793,
+      "tag": "0010_order_acknowledgements",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1790773958593,
+      "tag": "0011_research_entries",
+      "breakpoints": true
     }
   ]
 }

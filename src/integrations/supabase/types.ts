@@ -154,6 +154,44 @@ export type Database = {
         }
         Relationships: []
       }
+      order_acknowledgements: {
+        Row: {
+          accepted: boolean
+          accepted_at: string
+          created_at: string
+          id: string
+          order_id: string | null
+          user_id: string
+          version: string
+        }
+        Insert: {
+          accepted?: boolean
+          accepted_at?: string
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          user_id?: string
+          version: string
+        }
+        Update: {
+          accepted?: boolean
+          accepted_at?: string
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          user_id?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_acknowledgements_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           created_at: string
@@ -470,6 +508,72 @@ export type Database = {
         }
         Relationships: []
       }
+      research_entries: {
+        Row: {
+          cas_number: string | null
+          category: string
+          content: Json
+          created_at: string
+          id: string
+          molecular_formula: string | null
+          pubchem_cid: string | null
+          published: boolean
+          published_at: string | null
+          research_findings: Json
+          sequence: string | null
+          slug: string
+          sort_order: number
+          source_references: Json
+          summary: string
+          synonyms: string[]
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          cas_number?: string | null
+          category?: string
+          content?: Json
+          created_at?: string
+          id?: string
+          molecular_formula?: string | null
+          pubchem_cid?: string | null
+          published?: boolean
+          published_at?: string | null
+          research_findings?: Json
+          sequence?: string | null
+          slug: string
+          sort_order?: number
+          source_references?: Json
+          summary?: string
+          synonyms?: string[]
+          tags?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          cas_number?: string | null
+          category?: string
+          content?: Json
+          created_at?: string
+          id?: string
+          molecular_formula?: string | null
+          pubchem_cid?: string | null
+          published?: boolean
+          published_at?: string | null
+          research_findings?: Json
+          sequence?: string | null
+          slug?: string
+          sort_order?: number
+          source_references?: Json
+          summary?: string
+          synonyms?: string[]
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       site_content: {
         Row: {
           body: string
@@ -570,6 +674,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      link_order_acknowledgement: {
+        Args: { _ack_id: string; _order_id: string }
         Returns: boolean
       }
     }
