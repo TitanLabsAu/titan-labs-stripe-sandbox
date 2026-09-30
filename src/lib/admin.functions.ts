@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { orderReference } from "@/lib/order-reference";
 
 export type AdminOrderItem = {
   id: string;

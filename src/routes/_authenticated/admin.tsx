@@ -25,6 +25,7 @@ import {
   adminUpdateStatus,
   type AdminOrder,
 } from "@/lib/admin.functions";
+import { orderReference } from "@/lib/order-reference";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
