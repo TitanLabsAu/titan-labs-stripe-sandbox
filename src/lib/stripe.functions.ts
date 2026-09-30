@@ -334,13 +334,18 @@ export const createStripeSandboxPayment = createServerFn({
         attemptId: String(attempt.id),
         amountCents,
       };
-    } catch (error) {
+       } catch (error) {
       await (supabaseAdmin as any)
         .from("payment_attempts")
         .update({
           status: "failed",
         })
         .eq("id", attempt.id);
+
+      throw error;
+    }
+  });
+
 export const verifyStripeSandboxPayment = createServerFn({
   method: "POST",
 })
@@ -579,6 +584,3 @@ export const verifyStripeSandboxPayment = createServerFn({
       };
     },
   );
-      throw error;
-    }
-  });
