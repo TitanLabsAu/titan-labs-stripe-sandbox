@@ -11,3 +11,4 @@
 - [x] Admin order cards show chosen payment method and reference.
 
 - [x] Titan Stack discounts, shipping method choice, crypto QR + AUD conversion, cart redesign, payment badge row (PayID/Crypto/Wise/AusPost)
+- [x] Redeploy preview so the Stripe webhook signing secret is bound to the deployed server runtime.
