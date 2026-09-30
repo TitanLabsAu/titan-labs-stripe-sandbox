@@ -364,17 +364,17 @@ export function AdminResearch() {
       ) : (
         <ul className="mt-5 divide-y divide-border border border-border">
           {entries.map((e, i) => (
-            <li key={e.id} className="flex flex-wrap items-center gap-3 p-3">
+            <li key={e.id} className="flex flex-col gap-3 p-3 sm:flex-row sm:flex-wrap sm:items-center">
               <div className="min-w-0 flex-1">
-                <p className="truncate font-bold uppercase text-foreground">{e.title}</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="font-bold uppercase text-foreground sm:truncate">{e.title}</p>
+                <p className="break-words text-xs text-muted-foreground">
                   {e.category || "Uncategorised"} · /research/{e.slug} ·{" "}
                   <span className={e.published ? "font-bold text-primary" : "font-bold text-accent"}>
                     {e.published ? "Published" : "Draft"}
                   </span>
                 </p>
               </div>
-              <div className="flex gap-1.5">
+              <div className="flex flex-wrap gap-1.5">
                 <Button size="icon" variant="outline" aria-label="Move up" disabled={i === 0 || move.isPending} onClick={() => move.mutate({ index: i, dir: -1 })}>
                   <ArrowUp />
                 </Button>
