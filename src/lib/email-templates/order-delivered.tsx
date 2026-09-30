@@ -20,7 +20,7 @@ export interface OrderDeliveredProps {
 }
 
 export function OrderDelivered({
-  orderNumber = '00000000',
+  orderNumber = 'TL-0000',
   customerName = 'a customer',
   trackingNumber = '',
   total = '$0.00',
@@ -28,7 +28,7 @@ export function OrderDelivered({
   return (
     <Html>
       <Head />
-      <Preview>{`Order #${orderNumber} has been delivered`}</Preview>
+      <Preview>{`Order ${orderNumber} has been delivered`}</Preview>
       <Body style={{ backgroundColor: '#0b1220', fontFamily: 'Arial, sans-serif', margin: 0 }}>
         <Container style={{ maxWidth: '560px', margin: '0 auto', padding: '32px 24px' }}>
           <Heading style={{ color: '#4da3ff', fontSize: '22px', margin: '0 0 8px' }}>
@@ -46,7 +46,7 @@ export function OrderDelivered({
             }}
           >
             <Text style={{ color: '#ffffff', fontSize: '18px', fontWeight: 'bold', margin: '0 0 12px' }}>
-              Order #{orderNumber} has been delivered
+              Order {orderNumber} has been delivered
             </Text>
             <Text style={{ color: '#c9d4e4', fontSize: '14px', margin: '0 0 6px' }}>
               Customer: {customerName}
@@ -78,10 +78,10 @@ export function OrderDelivered({
 export const template = {
   component: OrderDelivered,
   subject: (data: Record<string, any>) =>
-    `Order #${data['orderNumber'] ?? ''} delivered by Australia Post`,
+    `Order ${data['orderNumber'] ?? ''} delivered by Australia Post`,
   displayName: 'Order delivered (admin notification)',
   previewData: {
-    orderNumber: '4f2a91c3',
+    orderNumber: 'TL-1052',
     customerName: 'Jane Smith',
     trackingNumber: '33ABC123456789',
     total: '$300.00',

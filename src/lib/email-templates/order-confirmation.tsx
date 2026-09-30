@@ -10,7 +10,7 @@ export interface OrderConfirmationProps {
 }
 
 export function OrderConfirmation({
-  orderNumber = '00000000',
+  orderNumber = 'TL-0000',
   customerName = 'there',
   total = '$0.00',
   items = [],
@@ -18,7 +18,7 @@ export function OrderConfirmation({
   return (
     <Html>
       <Head />
-      <Preview>{`Order #${orderNumber} received`}</Preview>
+      <Preview>{`Order ${orderNumber} received`}</Preview>
       <Body style={{ backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif', margin: 0 }}>
         <Container style={{ maxWidth: '560px', margin: '0 auto', padding: '32px 24px' }}>
           <Heading style={{ color: '#12447d', fontSize: '22px', margin: '0 0 8px' }}>
@@ -30,7 +30,7 @@ export function OrderConfirmation({
 
           <Section style={{ backgroundColor: '#f4f7fb', borderRadius: '10px', padding: '24px' }}>
             <Text style={{ color: '#0d1b2a', fontSize: '18px', fontWeight: 'bold', margin: '0 0 12px' }}>
-              Hi {customerName}, we have your order #{orderNumber}
+              Hi {customerName}, we have your order {orderNumber}
             </Text>
             <Text style={{ color: '#3c4a5c', fontSize: '14px', margin: '0 0 12px' }}>
               Your order has been received and is being prepared for dispatch with Australia Post Express.
@@ -55,10 +55,10 @@ export function OrderConfirmation({
 
 export const template = {
   component: OrderConfirmation,
-  subject: (data: Record<string, any>) => `Your Titan Labs order #${data['orderNumber'] ?? ''}`,
+  subject: (data: Record<string, any>) => `Your Titan Labs order ${data['orderNumber'] ?? ''}`,
   displayName: 'Order confirmation (customer)',
   previewData: {
-    orderNumber: '4f2a91c3',
+    orderNumber: 'TL-1052',
     customerName: 'Jane',
     total: '$300.00',
     items: ['2 × Retatrutide 10mg', '1 × BPC-157'],
