@@ -180,7 +180,9 @@ export function AdminResearch() {
       const reordered = [...entries];
       const target = index + dir;
       if (target < 0 || target >= reordered.length) return;
-      [reordered[index], reordered[target]] = [reordered[target], reordered[index]];
+      const tmp = reordered[index]!;
+      reordered[index] = reordered[target]!;
+      reordered[target] = tmp;
       await Promise.all(
         reordered.map((e, i) =>
           e.sort_order === i ? null : supabase.from("research_entries").update({ sort_order: i }).eq("id", e.id),
