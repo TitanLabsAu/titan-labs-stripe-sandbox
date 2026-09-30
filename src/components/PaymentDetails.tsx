@@ -89,7 +89,7 @@ export function PaymentDetails({
       <div className={cn("border border-border bg-muted/20 p-4", className)}>
         <p className="font-bold uppercase tracking-wide text-foreground">Secure card payment</p>
         <p className="mt-2 text-sm text-muted-foreground">
-          Your card details are entered in Eway&apos;s secure hosted payment window and are not stored by Titan Labs.
+          Your card details are securely handled by Stripe and are never stored by Titan Labs.
         </p>
         <p className="mt-2 text-xs text-muted-foreground">Sandbox mode — no real card will be charged.</p>
       </div>
@@ -231,7 +231,7 @@ export function PaymentMethodPicker({
     {
       key: "card",
       label: homeValue(content, "payment_card_label"),
-      hint: "Pay securely online by credit or debit card via Eway.",
+      hint: "Pay securely online by credit or debit card via Stripe.",
     },
   ];
 
