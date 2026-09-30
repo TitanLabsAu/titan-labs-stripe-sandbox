@@ -578,8 +578,7 @@ const startStripeCardPayment = useMutation({
     amountAud={totals.total}
     className="mt-4"
   />
-)}"
-              />
+)}
             </section>
 
             {/* Right: order breakdown */}
