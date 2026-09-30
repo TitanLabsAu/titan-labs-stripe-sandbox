@@ -2,6 +2,13 @@ import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import {
+  Elements,
+  PaymentElement,
+  useElements,
+  useStripe,
+} from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 import { CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -18,7 +25,10 @@ import { formatPrice } from "@/lib/products";
 import { useProducts, useSiteContent } from "@/lib/useCatalog";
 import { catalogueName, homeValue, type PaymentMethodKey } from "@/lib/homeContent";
 import { submitOrder, saveOrderPaymentReference, type SubmittedOrder } from "@/lib/orders.functions";
-import { createEwaySandboxPayment, verifyEwaySandboxPayment } from "@/lib/eway.functions";
+import {
+  createStripeSandboxPayment,
+  verifyStripeSandboxPayment,
+} from "@/lib/stripe.functions";
 import { ShippingPicker, TitanStackBanner, TitanTrustStrip } from "@/components/CartExtras";
 import {
   FREE_SHIPPING_THRESHOLD,
@@ -26,73 +36,114 @@ import {
   type ShippingMethodKey,
 } from "@/lib/pricing";
 
+const stripePublishableKey =
+  import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
 
+const stripePromise = stripePublishableKey
+  ? loadStripe(stripePublishableKey)
+  : null;
 
-type EwayModalResult = "Complete" | "Cancel" | "Error";
+function StripePaymentForm({
+  onPaid,
+  onCancel,
+}: {
+  onPaid: (paymentIntentId: string) => void;
+  onCancel: () => void;
+}) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [submitting, setSubmitting] = useState(false);
 
-declare global {
-  interface Window {
-    eCrypt?: {
-      showModalPayment?: (
-        config: { sharedPaymentUrl: string },
-        callback: (result: EwayModalResult, transactionId?: string, errors?: string) => void,
-      ) => void;
-    };
-  }
-}
+  const handlePayment = async () => {
+    if (!stripe || !elements || submitting) return;
 
-let ewayScriptPromise: Promise<void> | null = null;
+    setSubmitting(true);
 
-function loadEwayIframeScript() {
-  if (typeof window === "undefined") {
-    return Promise.reject(new Error("Eway can only open in the browser."));
-  }
+    try {
+      const { error: submitError } =
+        await elements.submit();
 
-  if (typeof window.eCrypt?.showModalPayment === "function") {
-    return Promise.resolve();
-  }
+      if (submitError) {
+        toast.error(
+          submitError.message ??
+            "Please check your payment details.",
+        );
+        return;
+      }
 
-  if (ewayScriptPromise) return ewayScriptPromise;
+      const { error, paymentIntent } =
+        await stripe.confirmPayment({
+          elements,
+          redirect: "if_required",
+        });
 
-  ewayScriptPromise = new Promise<void>((resolve, reject) => {
-    const script = document.createElement("script");
-    script.src = "https://secure.ewaypayments.com/scripts/eCrypt.min.js";
-    script.async = true;
+      if (error) {
+        toast.error(
+          error.message ??
+            "The card payment could not be completed.",
+        );
+        return;
+      }
 
-    script.onload = () => {
-  const startedAt = Date.now();
+      if (!paymentIntent) {
+        toast.error(
+          "Stripe did not return the payment result.",
+        );
+        return;
+      }
 
-  const waitForEway = () => {
-    if (typeof window.eCrypt?.showModalPayment === "function") {
-      resolve();
-      return;
-    }
+      if (paymentIntent.status === "succeeded") {
+        onPaid(paymentIntent.id);
+        return;
+      }
 
-    if (Date.now() - startedAt >= 5000) {
-      ewayScriptPromise = null;
-      reject(
-        new Error("Eway secure payment window did not initialise correctly."),
+      toast.error(
+        `Payment status: ${paymentIntent.status}`,
       );
-      return;
+    } catch (error: any) {
+      toast.error(
+        error?.message ??
+          "The card payment could not be completed.",
+      );
+    } finally {
+      setSubmitting(false);
     }
-
-    window.setTimeout(waitForEway, 50);
   };
 
-  waitForEway();
-};
+  return (
+    <div className="mt-4 space-y-4">
+      <div className="rounded border border-border bg-background p-4">
+        <PaymentElement />
+      </div>
 
-    script.onerror = () => {
-      ewayScriptPromise = null;
-      reject(new Error("Could not load the Eway secure payment window."));
-    };
+      <Button
+        type="button"
+        size="lg"
+        className="w-full font-bold uppercase tracking-wide"
+        disabled={!stripe || !elements || submitting}
+        onClick={handlePayment}
+      >
+        {submitting
+          ? "Processing payment…"
+          : "Pay securely with Stripe"}
+      </Button>
 
-    document.head.appendChild(script);
-  });
+      <Button
+        type="button"
+        variant="outline"
+        className="w-full font-bold uppercase"
+        disabled={submitting}
+        onClick={onCancel}
+      >
+        Cancel card payment
+      </Button>
 
-  return ewayScriptPromise;
+      <p className="text-center text-xs text-muted-foreground">
+        Sandbox mode. Payment details are securely handled by Stripe.
+      </p>
+    </div>
+  );
 }
-
 export const Route = createFileRoute("/checkout")({
   head: () => ({
     meta: [
@@ -120,8 +171,14 @@ function CheckoutPage() {
   const { data: content } = useSiteContent();
   const submit = useServerFn(submitOrder);
   const saveReference = useServerFn(saveOrderPaymentReference);
-  const createEwayPayment = useServerFn(createEwaySandboxPayment);
-  const verifyEwayPayment = useServerFn(verifyEwaySandboxPayment);
+  const createStripePayment =
+  useServerFn(createStripeSandboxPayment);
+
+const verifyStripePayment =
+  useServerFn(verifyStripeSandboxPayment);
+
+const [stripeClientSecret, setStripeClientSecret] =
+  useState<string | null>(null);
 
   const { data: session } = useQuery({
     queryKey: ["checkout-session"],
@@ -206,55 +263,50 @@ function CheckoutPage() {
       quantity: i.quantity,
     })),
   });
+const verifyStripeCardPayment = useMutation({
+  mutationFn: (paymentIntentId: string) =>
+    verifyStripePayment({
+      data: { paymentIntentId },
+    }),
 
-  const verifyCardPayment = useMutation({
-    mutationFn: (accessCode: string) => verifyEwayPayment({ data: { accessCode } }),
-    onSuccess: (result) => {
-      setConfirmed(result);
-      clear();
-      toast.success(`Payment approved — order ${result.reference} confirmed`);
-      if (typeof window !== "undefined") window.history.replaceState({}, "", "/checkout");
-    },
-    onError: (error: any) => toast.error(error?.message ?? "We could not verify the Eway payment."),
-  });
+  onSuccess: (result) => {
+    setConfirmed(result);
+    setStripeClientSecret(null);
+    clear();
 
-  const startCardPayment = useMutation({
-    mutationFn: () => createEwayPayment({ data: cardCheckoutData() }),
-    onSuccess: async ({ accessCode, sharedPaymentUrl }) => {
-      try {
-        await loadEwayIframeScript();
-        if (typeof window.eCrypt?.showModalPayment !== "function") {
-  throw new Error("Eway secure payment window is unavailable.");
-}
-        window.eCrypt.showModalPayment({ sharedPaymentUrl }, (result, _transactionId, errors) => {
-          if (result === "Complete") {
-            verifyCardPayment.mutate(accessCode);
-          } else if (result === "Cancel") {
-            toast.message("Card payment cancelled. Your cart has been kept.");
-          } else {
-            toast.error(errors || "Eway could not complete the payment window.");
-          }
-        });
-      } catch (error: any) {
-        toast.error(error?.message ?? "Could not open Eway secure payment.");
-      }
-    },
-    onError: (error: any) => toast.error(error?.message ?? "Could not start the Eway payment."),
-  });
+    toast.success(
+      `Payment approved — order ${result.reference} confirmed`,
+    );
 
-  useEffect(() => {
-    if (typeof window === "undefined" || !session) return;
-    const params = new URLSearchParams(window.location.search);
-    const accessCode = params.get("AccessCode");
-    const ewayReturn = params.get("eway");
-    if (ewayReturn === "return" && accessCode && !verifyCardPayment.isPending) {
-      verifyCardPayment.mutate(accessCode);
-    } else if (ewayReturn === "cancel") {
-      toast.message("Card payment cancelled. Your cart has been kept.");
+    if (typeof window !== "undefined") {
       window.history.replaceState({}, "", "/checkout");
     }
-  }, [session]); // Eway appends AccessCode to the configured return URL.
+  },
 
+  onError: (error: any) =>
+    toast.error(
+      error?.message ??
+        "We could not verify the Stripe payment.",
+    ),
+});
+
+const startStripeCardPayment = useMutation({
+  mutationFn: () =>
+    createStripePayment({
+      data: cardCheckoutData(),
+    }),
+
+  onSuccess: ({ clientSecret }) => {
+    setStripeClientSecret(clientSecret);
+  },
+
+  onError: (error: any) =>
+    toast.error(
+      error?.message ??
+        "Could not start the Stripe payment.",
+    ),
+});
+  
   const placeOrder = useMutation({
     mutationFn: async () => {
       const result = await submit({
@@ -316,7 +368,7 @@ function CheckoutPage() {
             </p>
             <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">
               {confirmed.paymentMethod === "card"
-                ? "Your sandbox card payment was approved and verified with Eway. Your order is confirmed."
+                ? "Your sandbox card payment was approved and verified with Stripe. Your order is confirmed."
                 : homeValue(content, "payment_confirmation_note")}
             </p>
 
@@ -466,11 +518,67 @@ function CheckoutPage() {
               <div className="mt-4">
                 <PaymentMethodPicker value={method} onChange={setMethod} content={content} />
               </div>
-              <PaymentDetails
-                method={method}
-                content={content}
-                amountAud={totals.total}
-                className="mt-4"
+             {method === "card" ? (
+  <div className="mt-4">
+    {!stripeClientSecret ? (
+      <div className="rounded border border-border bg-background p-4">
+        <p className="text-sm text-muted-foreground">
+          Pay securely by card using Stripe.
+        </p>
+
+        <Button
+          type="button"
+          className="mt-4 w-full font-bold uppercase"
+          disabled={
+            startStripeCardPayment.isPending ||
+            !stripePromise
+          }
+          onClick={() =>
+            startStripeCardPayment.mutate()
+          }
+        >
+          {startStripeCardPayment.isPending
+            ? "Connecting securely…"
+            : "Continue to secure payment"}
+        </Button>
+
+        {!stripePromise ? (
+          <p className="mt-3 text-xs text-destructive">
+            Stripe sandbox is not configured.
+          </p>
+        ) : null}
+      </div>
+    ) : stripePromise ? (
+      <Elements
+        stripe={stripePromise}
+        options={{
+          clientSecret: stripeClientSecret,
+          appearance: {
+            theme: "stripe",
+          },
+        }}
+      >
+        <StripePaymentForm
+          onPaid={(paymentIntentId) =>
+            verifyStripeCardPayment.mutate(
+              paymentIntentId,
+            )
+          }
+          onCancel={() =>
+            setStripeClientSecret(null)
+          }
+        />
+      </Elements>
+    ) : null}
+  </div>
+) : (
+  <PaymentDetails
+    method={method}
+    content={content}
+    amountAud={totals.total}
+    className="mt-4"
+  />
+)}"
               />
             </section>
 
@@ -569,38 +677,46 @@ function CheckoutPage() {
                 <TitanTrustStrip />
               </div>
 
-              {session ? (
-                <>
-                  <Button
-                    size="lg"
-                    className="mt-6 w-full font-bold uppercase tracking-wide"
-                    disabled={placeOrder.isPending || startCardPayment.isPending || verifyCardPayment.isPending}
-                    onClick={() => method === "card" ? startCardPayment.mutate() : placeOrder.mutate()}
-                  >
-                    {method === "card"
-                      ? startCardPayment.isPending || verifyCardPayment.isPending
-                        ? "Connecting securely…"
-                        : "Pay securely with card"
-                      : placeOrder.isPending
-                        ? "Submitting…"
-                        : "Submit order"}
-                  </Button>
-                  <p className="mt-3 text-center text-xs text-muted-foreground">
-                    {method === "card"
-                      ? "Sandbox mode: payment details are handled by Eway's secure hosted payment window."
-                      : "No payment is taken on this website."}
-                  </p>
-                </>
-              ) : (
-                <>
-                  <Button asChild size="lg" className="mt-6 w-full font-bold uppercase tracking-wide">
-                    <Link to="/auth">Log in to submit your order</Link>
-                  </Button>
-                  <p className="mt-3 text-center text-xs text-muted-foreground">
-                    Your cart is saved while you log in.
-                  </p>
-                </>
-              )}
+             {session ? (
+  method === "card" ? (
+    <p className="mt-6 text-center text-xs text-muted-foreground">
+      Complete your secure Stripe payment in the payment section.
+    </p>
+  ) : (
+    <>
+      <Button
+        size="lg"
+        className="mt-6 w-full font-bold uppercase tracking-wide"
+        disabled={placeOrder.isPending}
+        onClick={() => placeOrder.mutate()}
+      >
+        {placeOrder.isPending
+          ? "Submitting…"
+          : "Submit order"}
+      </Button>
+
+      <p className="mt-3 text-center text-xs text-muted-foreground">
+        No payment is taken on this website.
+      </p>
+    </>
+  )
+) : (
+  <>
+    <Button
+      asChild
+      size="lg"
+      className="mt-6 w-full font-bold uppercase tracking-wide"
+    >
+      <Link to="/auth">
+        Log in to submit your order
+      </Link>
+    </Button>
+
+    <p className="mt-3 text-center text-xs text-muted-foreground">
+      Your cart is saved while you log in.
+    </p>
+  </>
+)}
             </aside>
           </div>
         )}
