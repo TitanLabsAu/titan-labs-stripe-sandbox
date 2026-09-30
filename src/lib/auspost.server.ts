@@ -1,5 +1,6 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { sendTemplateEmail } from "@/lib/email-templates/send-email";
+import { orderReference } from "@/lib/order-reference";
 
 const ADMIN_EMAIL = "sjrendall@live.com.au";
 const TRACK_URL = "https://digitalapi.auspost.com.au/shipping/v1/track";
@@ -47,7 +48,7 @@ export async function syncAustraliaPostTracking(): Promise<SyncSummary> {
 
   const { data: orders, error } = await supabaseAdmin
     .from("orders")
-    .select("id, tracking_number, status, user_id, total")
+    .select("id, order_number, tracking_number, status, user_id, total")
     .in("status", ["processing", "shipped"])
     .not("tracking_number", "is", null);
   if (error) throw error;
@@ -86,7 +87,7 @@ export async function syncAustraliaPostTracking(): Promise<SyncSummary> {
       summary.delivered += 1;
       await supabaseAdmin.from("admin_notifications").insert({
         order_id: order.id,
-        title: `Order #${order.id.slice(0, 8)} delivered`,
+        title: `Order ${orderReference(order)} delivered`,
         body: `Australia Post has marked tracking ${tracking} as delivered. The order moved to Closed Orders.`,
       });
 
@@ -104,7 +105,7 @@ export async function syncAustraliaPostTracking(): Promise<SyncSummary> {
 
         await sendTemplateEmail("order-delivered", ADMIN_EMAIL, {
           templateData: {
-            orderNumber: order.id.slice(0, 8),
+            orderNumber: orderReference(order),
             customerName,
             trackingNumber: tracking,
             total: `$${Number(order.total).toFixed(2)}`,

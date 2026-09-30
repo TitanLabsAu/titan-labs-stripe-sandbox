@@ -4,6 +4,7 @@ import { Copy, Mail, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/products";
 import { adminSendOrderEmail, type AdminOrder } from "@/lib/admin.functions";
+import { orderReference } from "@/lib/order-reference";
 
 export function trackingUrl(tracking: string) {
   return `https://auspost.com.au/mypost/track/details/${encodeURIComponent(tracking)}`;
@@ -40,7 +41,7 @@ function waNumber(phone: string | null | undefined) {
 
 function messages(order: AdminOrder) {
   const name = order.customer?.first_name?.trim() || "there";
-  const ref = order.id.slice(0, 8);
+  const ref = orderReference(order);
   const total = formatPrice(Number(order.total));
   const tracking = order.tracking_number ?? "";
 

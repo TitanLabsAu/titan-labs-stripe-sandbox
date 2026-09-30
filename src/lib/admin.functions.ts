@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { orderReference } from "@/lib/order-reference";
 
 export type AdminOrderItem = {
   id: string;
@@ -150,7 +151,7 @@ export const adminSendOrderEmail = createServerFn({ method: "POST" })
     const { data: order, error } = await context.supabase
       .from("orders")
       .select(
-        "id, user_id, total, tracking_number, order_items(product_name, quantity, unit_price)",
+        "id, user_id, order_number, total, tracking_number, order_items(product_name, quantity, unit_price)",
       )
       .eq("id", data.orderId)
       .maybeSingle();
@@ -168,7 +169,7 @@ export const adminSendOrderEmail = createServerFn({ method: "POST" })
 
     const money = (cents: number) => `$${(Number(cents) / 100).toFixed(2)}`;
     const templateData: Record<string, any> = {
-      orderNumber: String((order as any).id).slice(0, 8),
+      orderNumber: orderReference(order as any),
       customerName: (profile as any)?.first_name ?? "there",
       total: money((order as any).total),
       trackingNumber: (order as any).tracking_number ?? "",
