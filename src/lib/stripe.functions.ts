@@ -396,6 +396,9 @@ export const verifyStripeSandboxPayment = createServerFn({
         );
       }
 
+      const payload =
+        attempt.order_payload as PreparedStripePayload;
+
       /*
        * Idempotency protection:
        * if this payment already created an order,
@@ -416,23 +419,19 @@ export const verifyStripeSandboxPayment = createServerFn({
           throw error;
         }
 
-        const payload =
-          attempt.order_payload as PreparedStripePayload;
-
         return {
           id: existing.id,
           orderNumber: Number(existing.order_number),
           reference: `TL-${existing.order_number}`,
-          subtotal:
-            Number(existing.subtotal) +
-            Number(payload.totals.discount),
-          discount: Number(payload.totals.discount),
-          shipping: Number(existing.shipping),
-          total: Number(existing.total),
+          subtotal: payload.totals.subtotal,
+          discount: payload.totals.discount,
+          shipping: payload.totals.shipping,
+          total: payload.totals.total,
           paymentMethod: "card",
           shippingMethod: payload.shippingMethod,
         };
       }
+
 
       /*
        * Retrieve the PaymentIntent directly from
