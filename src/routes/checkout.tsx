@@ -23,7 +23,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/products";
 import { useProducts, useSiteContent } from "@/lib/useCatalog";
-import { catalogueName, homeValue, type PaymentMethodKey } from "@/lib/homeContent";
+import { catalogueName, homeValue, termsVersion, type PaymentMethodKey } from "@/lib/homeContent";
+import { ResearchAcknowledgement } from "@/components/ResearchAcknowledgement";
+import { linkAcknowledgement, recordAcknowledgement } from "@/lib/acknowledgement";
 import { submitOrder, saveOrderPaymentReference, type SubmittedOrder } from "@/lib/orders.functions";
 import {
   createStripeSandboxPayment,
@@ -46,9 +48,11 @@ const stripePromise = stripePublishableKey
 function StripePaymentForm({
   onPaid,
   onCancel,
+  acknowledged,
 }: {
   onPaid: (paymentIntentId: string) => void;
   onCancel: () => void;
+  acknowledged: boolean;
 }) {
   const stripe = useStripe();
   const elements = useElements();
@@ -56,6 +60,10 @@ function StripePaymentForm({
 
   const handlePayment = async () => {
     if (!stripe || !elements || submitting) return;
+    if (!acknowledged) {
+      toast.error("Please tick the Research Use Acknowledgement to continue.");
+      return;
+    }
 
     setSubmitting(true);
 
@@ -134,7 +142,7 @@ function StripePaymentForm({
         type="button"
         size="lg"
         className="w-full font-bold uppercase tracking-wide"
-        disabled={!stripe || !elements || submitting}
+        disabled={!stripe || !elements || submitting || !acknowledged}
         onClick={handlePayment}
       >
         {submitting
@@ -218,6 +226,8 @@ const [stripeClientSecret, setStripeClientSecret] =
   const [confirmed, setConfirmed] = useState<SubmittedOrder | null>(null);
   const [reference, setReference] = useState("");
   const [referenceSaved, setReferenceSaved] = useState(false);
+  const [acknowledged, setAcknowledged] = useState(false);
+  const ackVersion = termsVersion(content);
 
   // Pre-fill from the saved profile once we know who is signed in.
   useEffect(() => {
@@ -287,6 +297,7 @@ const verifyStripeCardPayment = useMutation({
     setConfirmed(result);
     setStripeClientSecret(null);
     clear();
+    void linkAcknowledgement(result.id);
 
     toast.success(
       `Payment approved — order ${result.reference} confirmed`,
@@ -337,10 +348,16 @@ const verifyStripeCardPayment = useMutation({
   }, [runStripeReturn]);
 
 const startStripeCardPayment = useMutation({
-  mutationFn: () =>
-    createStripePayment({
+  mutationFn: async () => {
+    if (!acknowledged) {
+      throw new Error("Please tick the Research Use Acknowledgement to continue.");
+    }
+    // Acknowledgement is recorded before any payment is initiated.
+    await recordAcknowledgement(ackVersion);
+    return createStripePayment({
       data: cardCheckoutData(),
-    }),
+    });
+  },
 
   onSuccess: ({ clientSecret }) => {
     setStripeClientSecret(clientSecret);
@@ -355,6 +372,10 @@ const startStripeCardPayment = useMutation({
   
   const placeOrder = useMutation({
     mutationFn: async () => {
+      if (!acknowledged) {
+        throw new Error("Please tick the Research Use Acknowledgement to continue.");
+      }
+      await recordAcknowledgement(ackVersion);
       const result = await submit({
         data: {
           firstName,
@@ -381,6 +402,7 @@ const startStripeCardPayment = useMutation({
     onSuccess: (result) => {
       setConfirmed(result);
       clear();
+      void linkAcknowledgement(result.id);
       toast.success(`Order ${result.reference} received`);
     },
     onError: (error: any) =>
@@ -564,6 +586,12 @@ const startStripeCardPayment = useMutation({
               <div className="mt-4">
                 <PaymentMethodPicker value={method} onChange={setMethod} content={content} />
               </div>
+              <ResearchAcknowledgement
+                className="mt-4"
+                checked={acknowledged}
+                onChange={setAcknowledged}
+                disabled={Boolean(stripeClientSecret)}
+              />
              {method === "card" ? (
   <div className="mt-4">
     {!stripeClientSecret ? (
@@ -577,7 +605,8 @@ const startStripeCardPayment = useMutation({
           className="mt-4 w-full font-bold uppercase"
           disabled={
             startStripeCardPayment.isPending ||
-            !stripePromise
+            !stripePromise ||
+            !acknowledged
           }
           onClick={() =>
             startStripeCardPayment.mutate()
@@ -613,6 +642,7 @@ const startStripeCardPayment = useMutation({
           onCancel={() =>
             setStripeClientSecret(null)
           }
+          acknowledged={acknowledged}
         />
       </Elements>
     ) : null}
@@ -732,7 +762,7 @@ const startStripeCardPayment = useMutation({
       <Button
         size="lg"
         className="mt-6 w-full font-bold uppercase tracking-wide"
-        disabled={placeOrder.isPending}
+        disabled={placeOrder.isPending || !acknowledged}
         onClick={() => placeOrder.mutate()}
       >
         {placeOrder.isPending
@@ -741,7 +771,9 @@ const startStripeCardPayment = useMutation({
       </Button>
 
       <p className="mt-3 text-center text-xs text-muted-foreground">
-        No payment is taken on this website.
+        {acknowledged
+          ? "No payment is taken on this website."
+          : "Tick the Research Use Acknowledgement to submit your order."}
       </p>
     </>
   )

@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Calculator, FlaskConical, Home, LogIn, Shield, UserPlus, UserRound } from "lucide-react";
+import { Calculator, FlaskConical, Home, LogIn, Microscope, Shield, UserPlus, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CartSheet } from "@/components/CartSheet";
 import { supabase } from "@/integrations/supabase/client";
@@ -67,6 +67,7 @@ export function SiteHeader() {
       {tabOrder.map((tab) => {
         if (tab === "home") return navButton(tab, "/", "header_nav_home", Home);
         if (tab === "range") return <Button key={tab} asChild variant="outline" size="icon"><Link to="/range" aria-label={catalogueName(content)} title={catalogueName(content)}><FlaskConical /></Link></Button>;
+        if (tab === "research") return <Button key={tab} asChild variant="outline" size="icon"><Link to="/research" aria-label="Titan's Research Lab" title="Titan's Research Lab"><Microscope /></Link></Button>;
         if (tab === "calculator") return navButton(tab, "/calculator", "header_nav_calculator", Calculator, "outline");
         if (tab === "admin" && signedIn && isAdmin) return navButton(tab, "/admin", "header_nav_admin", Shield, "outline");
         if (tab === "account" && signedIn) return navButton(tab, "/account", "header_nav_account", UserRound, "outline");

@@ -13,7 +13,9 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RangeRouteImport } from './routes/range'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedOrderHistoryRouteImport } from './routes/_authenticated/order-history'
@@ -22,6 +24,8 @@ import { Route as AuthIndexRouteImport } from './routes/auth.index'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
 import { Route as AuthSignupRouteImport } from './routes/auth.signup'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
+import { Route as ResearchIndexRouteImport } from './routes/research.index'
+import { Route as ResearchSlugRouteImport } from './routes/research.$slug'
 import { Route as ApiPublicAuspostPollRouteImport } from './routes/api/public/auspost-poll'
 import { Route as ApiPublicProductImageRouteImport } from './routes/api/public/product-image'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe-webhook'
@@ -46,9 +50,19 @@ const CheckoutRoute = CheckoutRouteImport.update({
   path: '/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RangeRoute = RangeRouteImport.update({
   id: '/range',
   path: '/range',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
@@ -92,6 +106,16 @@ const ProductSlugRoute = ProductSlugRouteImport.update({
   path: '/product/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResearchIndexRoute = ResearchIndexRouteImport.update({
+  id: '/research/',
+  path: '/research/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResearchSlugRoute = ResearchSlugRouteImport.update({
+  id: '/research/$slug',
+  path: '/research/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicAuspostPollRoute = ApiPublicAuspostPollRouteImport.update({
   id: '/api/public/auspost-poll',
   path: '/api/public/auspost-poll',
@@ -118,7 +142,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/calculator': typeof CalculatorRoute
   '/checkout': typeof CheckoutRoute
+  '/privacy': typeof PrivacyRoute
   '/range': typeof RangeRoute
+  '/terms': typeof TermsRoute
   '/account': typeof AuthenticatedAccountRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/order-history': typeof AuthenticatedOrderHistoryRoute
@@ -126,7 +152,9 @@ export interface FileRoutesByFullPath {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/product/$slug': typeof ProductSlugRoute
+  '/research/$slug': typeof ResearchSlugRoute
   '/auth/': typeof AuthIndexRoute
+  '/research/': typeof ResearchIndexRoute
   '/api/public/auspost-poll': typeof ApiPublicAuspostPollRoute
   '/api/public/product-image': typeof ApiPublicProductImageRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
@@ -136,7 +164,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/calculator': typeof CalculatorRoute
   '/checkout': typeof CheckoutRoute
+  '/privacy': typeof PrivacyRoute
   '/range': typeof RangeRoute
+  '/terms': typeof TermsRoute
   '/account': typeof AuthenticatedAccountRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/order-history': typeof AuthenticatedOrderHistoryRoute
@@ -144,7 +174,9 @@ export interface FileRoutesByTo {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/product/$slug': typeof ProductSlugRoute
+  '/research/$slug': typeof ResearchSlugRoute
   '/auth': typeof AuthIndexRoute
+  '/research': typeof ResearchIndexRoute
   '/api/public/auspost-poll': typeof ApiPublicAuspostPollRoute
   '/api/public/product-image': typeof ApiPublicProductImageRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
@@ -156,7 +188,9 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/calculator': typeof CalculatorRoute
   '/checkout': typeof CheckoutRoute
+  '/privacy': typeof PrivacyRoute
   '/range': typeof RangeRoute
+  '/terms': typeof TermsRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/order-history': typeof AuthenticatedOrderHistoryRoute
@@ -164,7 +198,9 @@ export interface FileRoutesById {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/product/$slug': typeof ProductSlugRoute
+  '/research/$slug': typeof ResearchSlugRoute
   '/auth/': typeof AuthIndexRoute
+  '/research/': typeof ResearchIndexRoute
   '/api/public/auspost-poll': typeof ApiPublicAuspostPollRoute
   '/api/public/product-image': typeof ApiPublicProductImageRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
@@ -176,7 +212,9 @@ export interface FileRouteTypes {
     | '/'
     | '/calculator'
     | '/checkout'
+    | '/privacy'
     | '/range'
+    | '/terms'
     | '/account'
     | '/admin'
     | '/order-history'
@@ -184,7 +222,9 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/auth/signup'
     | '/product/$slug'
+    | '/research/$slug'
     | '/auth/'
+    | '/research/'
     | '/api/public/auspost-poll'
     | '/api/public/product-image'
     | '/api/public/stripe-webhook'
@@ -194,7 +234,9 @@ export interface FileRouteTypes {
     | '/'
     | '/calculator'
     | '/checkout'
+    | '/privacy'
     | '/range'
+    | '/terms'
     | '/account'
     | '/admin'
     | '/order-history'
@@ -202,7 +244,9 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/auth/signup'
     | '/product/$slug'
+    | '/research/$slug'
     | '/auth'
+    | '/research'
     | '/api/public/auspost-poll'
     | '/api/public/product-image'
     | '/api/public/stripe-webhook'
@@ -213,7 +257,9 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/calculator'
     | '/checkout'
+    | '/privacy'
     | '/range'
+    | '/terms'
     | '/_authenticated/account'
     | '/_authenticated/admin'
     | '/_authenticated/order-history'
@@ -221,7 +267,9 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/auth/signup'
     | '/product/$slug'
+    | '/research/$slug'
     | '/auth/'
+    | '/research/'
     | '/api/public/auspost-poll'
     | '/api/public/product-image'
     | '/api/public/stripe-webhook'
@@ -233,11 +281,15 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   CalculatorRoute: typeof CalculatorRoute
   CheckoutRoute: typeof CheckoutRoute
+  PrivacyRoute: typeof PrivacyRoute
   RangeRoute: typeof RangeRoute
+  TermsRoute: typeof TermsRoute
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
   AuthSignupRoute: typeof AuthSignupRoute
   ProductSlugRoute: typeof ProductSlugRoute
+  ResearchSlugRoute: typeof ResearchSlugRoute
   AuthIndexRoute: typeof AuthIndexRoute
+  ResearchIndexRoute: typeof ResearchIndexRoute
   ApiPublicAuspostPollRoute: typeof ApiPublicAuspostPollRoute
   ApiPublicProductImageRoute: typeof ApiPublicProductImageRoute
   ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
@@ -274,11 +326,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/range': {
       id: '/range'
       path: '/range'
       fullPath: '/range'
       preLoaderRoute: typeof RangeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/account': {
@@ -337,6 +403,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/research/': {
+      id: '/research/'
+      path: '/research'
+      fullPath: '/research/'
+      preLoaderRoute: typeof ResearchIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/research/$slug': {
+      id: '/research/$slug'
+      path: '/research/$slug'
+      fullPath: '/research/$slug'
+      preLoaderRoute: typeof ResearchSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/auspost-poll': {
       id: '/api/public/auspost-poll'
       path: '/api/public/auspost-poll'
@@ -390,11 +470,15 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   CalculatorRoute: CalculatorRoute,
   CheckoutRoute: CheckoutRoute,
+  PrivacyRoute: PrivacyRoute,
   RangeRoute: RangeRoute,
+  TermsRoute: TermsRoute,
   AuthResetPasswordRoute: AuthResetPasswordRoute,
   AuthSignupRoute: AuthSignupRoute,
   ProductSlugRoute: ProductSlugRoute,
+  ResearchSlugRoute: ResearchSlugRoute,
   AuthIndexRoute: AuthIndexRoute,
+  ResearchIndexRoute: ResearchIndexRoute,
   ApiPublicAuspostPollRoute: ApiPublicAuspostPollRoute,
   ApiPublicProductImageRoute: ApiPublicProductImageRoute,
   ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,

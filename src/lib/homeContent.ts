@@ -180,6 +180,47 @@ export const PAYMENT_FIELDS: HomeField[] = [
   },
 ];
 
+/** Legal pages (/terms, /privacy), editable in Admin → Website editor → Legal. */
+export const LEGAL_FIELDS: HomeField[] = [
+  { key: "legal_terms_version", label: "Terms version", align: "left", fallback: "2026.1" },
+  {
+    key: "legal_terms",
+    label: "Terms & Conditions",
+    multiline: true,
+    align: "left",
+    fallback:
+      "These Terms & Conditions apply to orders placed with Titan Labs Australia through this website.\n\n1. Research use\nAll products are supplied for laboratory research purposes only. They are not intended for human or animal consumption, and no therapeutic, medical or performance use is described or implied.\n\n2. Accounts and eligibility\nYou must be 18 years or older and provide accurate account, contact and delivery details.\n\n3. Orders and pricing\nPrices are shown in Australian dollars. An order is accepted once payment has been confirmed. We may cancel and refund an order if a product becomes unavailable or a pricing error occurs.\n\n4. Your consumer rights\nNothing in these terms excludes, restricts or modifies any right or remedy you have under the Australian Consumer Law or any other law that cannot lawfully be excluded.\n\n5. Contact\nIf you have a question about these terms or your order, please contact us through our listed contact channels.",
+  },
+  {
+    key: "legal_research_notice",
+    label: "Research Use Notice",
+    multiline: true,
+    align: "left",
+    fallback:
+      "Products sold by Titan Labs Australia are supplied strictly for laboratory and research purposes. They are not medicines, foods or supplements and are not intended for human or animal consumption. Information on this website is provided for research reference only and is not medical advice.",
+  },
+  {
+    key: "legal_shipping",
+    label: "Shipping / Returns information",
+    multiline: true,
+    align: "left",
+    fallback:
+      "Orders are dispatched within Australia by Australia Post with tracking. Delivery times are estimates. If your order arrives damaged, incorrect or does not arrive, please contact us so we can help. Your rights under the Australian Consumer Law are not affected.",
+  },
+  {
+    key: "legal_privacy",
+    label: "Privacy Policy",
+    multiline: true,
+    align: "left",
+    fallback:
+      "Titan Labs Australia collects the personal information you give us — such as your name, email, phone number and delivery address — to create your account, process and deliver your orders, and contact you about them.\n\nPayments by card are handled by our payment provider; we do not store card numbers on this website.\n\nWe do not sell your personal information. We share it only with service providers needed to run the store (for example delivery and payment providers), or where required by law.\n\nYou can ask to access or correct your personal information at any time by contacting us. We handle personal information in line with the Australian Privacy Principles.",
+  },
+];
+
+export function termsVersion(content: Record<string, string> | undefined) {
+  return homeValue(content, "legal_terms_version").trim() || "2026.1";
+}
+
 export type PaymentMethodKey = "payid" | "crypto" | "card";
 
 export function paymentMethodName(
@@ -199,6 +240,7 @@ export function paymentMethodName(
 export const HEADER_TABS: PageSection[] = [
   { key: "home", label: "Home" },
   { key: "range", label: "Catalogue" },
+  { key: "research", label: "Research Lab" },
   { key: "calculator", label: "Calculator" },
   { key: "admin", label: "Admin" },
   { key: "account", label: "My profile" },
