@@ -204,6 +204,33 @@ export function AdminResearch() {
     onError: () => toast.error("Could not change the order"),
   });
 
+  const draftEntries = entries.filter((e) => !e.published);
+  const publishedEntries = entries.filter((e) => e.published);
+
+  const bulkUpdate = useMutation({
+    mutationFn: async ({ action, ids }: { action: "publish" | "unpublish"; ids: string[] }) => {
+      if (!ids.length) return { action, count: 0 };
+      const body =
+        action === "publish"
+          ? { published: true, published_at: new Date().toISOString() }
+          : { published: false, published_at: null };
+      const { error } = await supabase.from("research_entries").update(body).in("id", ids);
+      if (error) throw error;
+      return { action, count: ids.length };
+    },
+    onSuccess: ({ action, count }) => {
+      toast.success(
+        action === "publish" ? `${count} ${count === 1 ? "entry" : "entries"} published` : `Research Lab taken offline — ${count} ${count === 1 ? "entry" : "entries"} unpublished`,
+      );
+      setBulkAction(null);
+      refresh();
+    },
+    onError: () => {
+      toast.error(`Could not ${bulkAction === "publish" ? "publish" : "unpublish"} the entries`);
+      setBulkAction(null);
+    },
+  });
+
   if (draft) {
     const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setDraft({ ...draft, [k]: v });
     const existing = entries.find((e) => e.id === draft.id);
