@@ -24,6 +24,7 @@ import { Route as AuthSignupRouteImport } from './routes/auth.signup'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as ApiPublicAuspostPollRouteImport } from './routes/api/public/auspost-poll'
 import { Route as ApiPublicProductImageRouteImport } from './routes/api/public/product-image'
+import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe-webhook'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
 const IndexRoute = IndexRouteImport.update({
@@ -101,6 +102,11 @@ const ApiPublicProductImageRoute = ApiPublicProductImageRouteImport.update({
   path: '/api/public/product-image',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicStripeWebhookRoute = ApiPublicStripeWebhookRouteImport.update({
+  id: '/api/public/stripe-webhook',
+  path: '/api/public/stripe-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailTransactionalPreviewRoute =
   LovableEmailTransactionalPreviewRouteImport.update({
     id: '/lovable/email/transactional/preview',
@@ -123,6 +129,7 @@ export interface FileRoutesByFullPath {
   '/auth/': typeof AuthIndexRoute
   '/api/public/auspost-poll': typeof ApiPublicAuspostPollRoute
   '/api/public/product-image': typeof ApiPublicProductImageRoute
+  '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesByTo {
@@ -140,6 +147,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthIndexRoute
   '/api/public/auspost-poll': typeof ApiPublicAuspostPollRoute
   '/api/public/product-image': typeof ApiPublicProductImageRoute
+  '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesById {
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/auth/': typeof AuthIndexRoute
   '/api/public/auspost-poll': typeof ApiPublicAuspostPollRoute
   '/api/public/product-image': typeof ApiPublicProductImageRoute
+  '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRouteTypes {
@@ -178,6 +187,7 @@ export interface FileRouteTypes {
     | '/auth/'
     | '/api/public/auspost-poll'
     | '/api/public/product-image'
+    | '/api/public/stripe-webhook'
     | '/lovable/email/transactional/preview'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -195,6 +205,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/api/public/auspost-poll'
     | '/api/public/product-image'
+    | '/api/public/stripe-webhook'
     | '/lovable/email/transactional/preview'
   id:
     | '__root__'
@@ -213,6 +224,7 @@ export interface FileRouteTypes {
     | '/auth/'
     | '/api/public/auspost-poll'
     | '/api/public/product-image'
+    | '/api/public/stripe-webhook'
     | '/lovable/email/transactional/preview'
   fileRoutesById: FileRoutesById
 }
@@ -228,6 +240,7 @@ export interface RootRouteChildren {
   AuthIndexRoute: typeof AuthIndexRoute
   ApiPublicAuspostPollRoute: typeof ApiPublicAuspostPollRoute
   ApiPublicProductImageRoute: typeof ApiPublicProductImageRoute
+  ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
 
@@ -338,6 +351,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicProductImageRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/stripe-webhook': {
+      id: '/api/public/stripe-webhook'
+      path: '/api/public/stripe-webhook'
+      fullPath: '/api/public/stripe-webhook'
+      preLoaderRoute: typeof ApiPublicStripeWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/transactional/preview': {
       id: '/lovable/email/transactional/preview'
       path: '/lovable/email/transactional/preview'
@@ -377,6 +397,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthIndexRoute: AuthIndexRoute,
   ApiPublicAuspostPollRoute: ApiPublicAuspostPollRoute,
   ApiPublicProductImageRoute: ApiPublicProductImageRoute,
+  ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport
