@@ -380,6 +380,9 @@ export function AdminResearch() {
     );
   }
 
+  const bulkTarget = bulkAction === "publish" ? draftEntries : publishedEntries;
+  const bulkCount = bulkTarget.length;
+
   return (
     <div className="rounded-xl border border-border bg-card/80 p-4 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -394,6 +397,61 @@ export function AdminResearch() {
           <Plus /> New entry
         </Button>
       </div>
+
+      {entries.length > 0 && (draftEntries.length > 0 || publishedEntries.length > 0) ? (
+        <div className="mt-5 grid gap-2 sm:flex sm:flex-wrap sm:items-center">
+          <Button
+            className="h-11 w-full font-bold uppercase sm:h-10 sm:w-auto"
+            disabled={bulkUpdate.isPending || draftEntries.length === 0}
+            onClick={() => setBulkAction("publish")}
+          >
+            <CheckCheck /> Publish all drafts ({draftEntries.length})
+          </Button>
+          <Button
+            variant="outline"
+            className="h-11 w-full font-bold uppercase text-destructive hover:text-destructive sm:h-10 sm:w-auto"
+            disabled={bulkUpdate.isPending || publishedEntries.length === 0}
+            onClick={() => setBulkAction("unpublish")}
+          >
+            <Undo2 /> Unpublish all ({publishedEntries.length})
+          </Button>
+        </div>
+      ) : null}
+
+      <AlertDialog open={bulkAction !== null} onOpenChange={(open) => !open && setBulkAction(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="uppercase">
+              {bulkAction === "publish" ? "Publish all drafts?" : "Unpublish everything?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {bulkAction === "publish"
+                ? `${bulkCount} ${bulkCount === 1 ? "entry" : "entries"} will become publicly visible at /research immediately after you confirm. No entry content will be changed.`
+                : `All ${bulkCount} published ${bulkCount === 1 ? "entry" : "entries"} will be hidden from customers — the entire Research Lab will be taken offline. No entry content will be changed.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="h-11 font-bold uppercase sm:h-10">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className={
+                bulkAction === "publish"
+                  ? "h-11 font-bold uppercase sm:h-10"
+                  : "h-11 bg-destructive font-bold uppercase text-white hover:bg-destructive/90 sm:h-10"
+              }
+              disabled={bulkUpdate.isPending}
+              onClick={(e) => {
+                e.preventDefault();
+                if (!bulkAction) return;
+                bulkUpdate.mutate({ action: bulkAction, ids: bulkTarget.map((t) => t.id) });
+              }}
+            >
+              {bulkAction === "publish"
+                ? `Publish ${bulkCount} ${bulkCount === 1 ? "entry" : "entries"}`
+                : `Unpublish ${bulkCount} ${bulkCount === 1 ? "entry" : "entries"}`}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {isLoading ? (
         <p className="mt-5 text-sm text-muted-foreground">Loading…</p>
