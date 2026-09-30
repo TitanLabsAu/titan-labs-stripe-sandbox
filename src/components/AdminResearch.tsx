@@ -1,6 +1,16 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowDown, ArrowUp, Eye, EyeOff, Pencil, Plus, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { ArrowDown, ArrowUp, CheckCheck, Eye, EyeOff, Pencil, Plus, Trash2, Undo2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -103,6 +113,7 @@ function payload(d: Draft, published: boolean, wasPublishedAt: string | null) {
 export function AdminResearch() {
   const qc = useQueryClient();
   const [draft, setDraft] = useState<Draft | null>(null);
+  const [bulkAction, setBulkAction] = useState<"publish" | "unpublish" | null>(null);
 
   const { data: entries = [], isLoading } = useQuery({
     queryKey: ["admin-research"],
@@ -191,6 +202,33 @@ export function AdminResearch() {
     },
     onSuccess: refresh,
     onError: () => toast.error("Could not change the order"),
+  });
+
+  const draftEntries = entries.filter((e) => !e.published);
+  const publishedEntries = entries.filter((e) => e.published);
+
+  const bulkUpdate = useMutation({
+    mutationFn: async ({ action, ids }: { action: "publish" | "unpublish"; ids: string[] }) => {
+      if (!ids.length) return { action, count: 0 };
+      const body =
+        action === "publish"
+          ? { published: true, published_at: new Date().toISOString() }
+          : { published: false, published_at: null };
+      const { error } = await supabase.from("research_entries").update(body).in("id", ids);
+      if (error) throw error;
+      return { action, count: ids.length };
+    },
+    onSuccess: ({ action, count }) => {
+      toast.success(
+        action === "publish" ? `${count} ${count === 1 ? "entry" : "entries"} published` : `Research Lab taken offline — ${count} ${count === 1 ? "entry" : "entries"} unpublished`,
+      );
+      setBulkAction(null);
+      refresh();
+    },
+    onError: () => {
+      toast.error(`Could not ${bulkAction === "publish" ? "publish" : "unpublish"} the entries`);
+      setBulkAction(null);
+    },
   });
 
   if (draft) {
@@ -342,6 +380,9 @@ export function AdminResearch() {
     );
   }
 
+  const bulkTarget = bulkAction === "publish" ? draftEntries : publishedEntries;
+  const bulkCount = bulkTarget.length;
+
   return (
     <div className="rounded-xl border border-border bg-card/80 p-4 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -356,6 +397,61 @@ export function AdminResearch() {
           <Plus /> New entry
         </Button>
       </div>
+
+      {entries.length > 0 && (draftEntries.length > 0 || publishedEntries.length > 0) ? (
+        <div className="mt-5 grid gap-2 sm:flex sm:flex-wrap sm:items-center">
+          <Button
+            className="h-11 w-full font-bold uppercase sm:h-10 sm:w-auto"
+            disabled={bulkUpdate.isPending || draftEntries.length === 0}
+            onClick={() => setBulkAction("publish")}
+          >
+            <CheckCheck /> Publish all drafts ({draftEntries.length})
+          </Button>
+          <Button
+            variant="outline"
+            className="h-11 w-full font-bold uppercase text-destructive hover:text-destructive sm:h-10 sm:w-auto"
+            disabled={bulkUpdate.isPending || publishedEntries.length === 0}
+            onClick={() => setBulkAction("unpublish")}
+          >
+            <Undo2 /> Unpublish all ({publishedEntries.length})
+          </Button>
+        </div>
+      ) : null}
+
+      <AlertDialog open={bulkAction !== null} onOpenChange={(open) => !open && setBulkAction(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="uppercase">
+              {bulkAction === "publish" ? "Publish all drafts?" : "Unpublish everything?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {bulkAction === "publish"
+                ? `${bulkCount} ${bulkCount === 1 ? "entry" : "entries"} will become publicly visible at /research immediately after you confirm. No entry content will be changed.`
+                : `All ${bulkCount} published ${bulkCount === 1 ? "entry" : "entries"} will be hidden from customers — the entire Research Lab will be taken offline. No entry content will be changed.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="h-11 font-bold uppercase sm:h-10">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className={
+                bulkAction === "publish"
+                  ? "h-11 font-bold uppercase sm:h-10"
+                  : "h-11 bg-destructive font-bold uppercase text-white hover:bg-destructive/90 sm:h-10"
+              }
+              disabled={bulkUpdate.isPending}
+              onClick={(e) => {
+                e.preventDefault();
+                if (!bulkAction) return;
+                bulkUpdate.mutate({ action: bulkAction, ids: bulkTarget.map((t) => t.id) });
+              }}
+            >
+              {bulkAction === "publish"
+                ? `Publish ${bulkCount} ${bulkCount === 1 ? "entry" : "entries"}`
+                : `Unpublish ${bulkCount} ${bulkCount === 1 ? "entry" : "entries"}`}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {isLoading ? (
         <p className="mt-5 text-sm text-muted-foreground">Loading…</p>
