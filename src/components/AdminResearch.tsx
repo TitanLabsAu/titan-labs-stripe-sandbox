@@ -197,7 +197,7 @@ export function AdminResearch() {
     const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setDraft({ ...draft, [k]: v });
     const existing = entries.find((e) => e.id === draft.id);
     return (
-      <div className="rounded-xl border border-border bg-card/80 p-6">
+      <div className="rounded-xl border border-border bg-card/80 p-4 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h3 className="text-lg font-extrabold uppercase text-foreground">
@@ -343,7 +343,7 @@ export function AdminResearch() {
   }
 
   return (
-    <div className="rounded-xl border border-border bg-card/80 p-6">
+    <div className="rounded-xl border border-border bg-card/80 p-4 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h3 className="text-lg font-extrabold uppercase text-foreground">Titan's Research Lab</h3>
