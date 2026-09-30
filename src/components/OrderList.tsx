@@ -1,4 +1,5 @@
 import { formatPrice } from "@/lib/products";
+import { orderReference } from "@/lib/order-reference";
 
 export type OrderItemRow = {
   id: string;
@@ -10,6 +11,7 @@ export type OrderItemRow = {
 
 export type OrderRow = {
   id: string;
+  order_number?: number | null;
   status: "processing" | "shipped" | "delivered" | "cancelled";
   tracking_number: string | null;
   subtotal: number;
@@ -55,7 +57,7 @@ export function OrderList({ orders, emptyMessage }: { orders: OrderRow[]; emptyM
           <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border pb-4">
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                Order #{order.id.slice(0, 8)}
+                Order {orderReference(order)}
               </p>
               <p className="mt-1 text-sm text-muted-foreground">
                 Placed {formatDate(order.created_at)}
