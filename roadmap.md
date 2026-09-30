@@ -12,3 +12,9 @@
 
 - [x] Titan Stack discounts, shipping method choice, crypto QR + AUD conversion, cart redesign, payment badge row (PayID/Crypto/Wise/AusPost)
 - [x] Redeploy preview so the Stripe webhook signing secret is bound to the deployed server runtime.
+- [x] Legal pages (/terms, /privacy) editable in Admin, footer links
+- [x] Checkout research-use acknowledgement, recorded per order, shown in Admin
+- [x] Titan's Research Lab: admin editor + public /research pages
+- [x] Calculator upgrade (neutral maths, U-100 scale visualiser)
+- [ ] Add real Research Lab entries (owner content)
+- [ ] Owner to review legal wording
