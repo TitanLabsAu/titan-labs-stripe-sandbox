@@ -113,7 +113,18 @@ function StripePaymentForm({
   return (
     <div className="mt-4 space-y-4">
       <div className="rounded border border-border bg-background p-4">
-        <PaymentElement />
+        <PaymentElement
+          options={{
+            layout: {
+              type: "accordion",
+              defaultCollapsed: false,
+              radios: true,
+              spacedAccordionItems: false,
+            },
+            paymentMethodOrder: ["card", "zip", "klarna"],
+            wallets: { link: "never" },
+          }}
+        />
       </div>
 
       <Button
