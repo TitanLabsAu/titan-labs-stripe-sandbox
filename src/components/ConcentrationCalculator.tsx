@@ -344,7 +344,7 @@ function ResultCard({
   label: string;
   note: string;
   value: string;
-  sub?: string;
+  sub?: string | undefined;
   highlight?: boolean;
 }) {
   return (
