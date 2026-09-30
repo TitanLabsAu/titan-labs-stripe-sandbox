@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - eway-sandbox
+      - stripe-sandbox
   workflow_dispatch:
 
 jobs:
