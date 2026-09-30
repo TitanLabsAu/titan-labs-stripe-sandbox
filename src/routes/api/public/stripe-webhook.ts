@@ -1,0 +1,247 @@
+import { createFileRoute } from "@tanstack/react-router";
+
+/*
+ * Stripe webhook endpoint.
+ *
+ * Safety net for asynchronous / redirect payment methods (Zip, Klarna, cards
+ * completing after the customer closes the tab). The browser return handler in
+ * /checkout remains untouched; whichever path arrives first finalises the
+ * order, and the atomic finalize_stripe_order RPC keeps them idempotent.
+ */
+
+type PreparedPayload = {
+  customer: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    addressLine: string;
+    city: string;
+    state: string;
+    postcode: string;
+    shippingAddress: string;
+  };
+  notes: string;
+  shippingMethod: string;
+  totals: {
+    subtotal: number;
+    discount: number;
+    shipping: number;
+    total: number;
+    stackPercent: number;
+  };
+  lines: unknown[];
+};
+
+const ok = (body: Record<string, unknown>) =>
+  Response.json({ received: true, ...body });
+
+export const Route = createFileRoute("/api/public/stripe-webhook")({
+  server: {
+    handlers: {
+      POST: async ({ request }) => {
+        const secretKey = process.env["STRIPE_SECRET_KEY"];
+        const webhookSecret = process.env["STRIPE_WEBHOOK_SECRET"];
+
+        if (!secretKey || !webhookSecret) {
+          console.error("[stripe-webhook] missing Stripe configuration");
+          return Response.json(
+            { error: "Webhook is not configured" },
+            { status: 500 },
+          );
+        }
+
+        const signature = request.headers.get("stripe-signature");
+        if (!signature) {
+          return Response.json(
+            { error: "Missing signature" },
+            { status: 400 },
+          );
+        }
+
+        // Raw body, exactly as sent — required for signature verification.
+        const rawBody = await request.text();
+
+        const Stripe = (await import("stripe")).default;
+        const stripe = new Stripe(secretKey);
+
+        let event: import("stripe").Stripe.Event;
+        try {
+          event = await stripe.webhooks.constructEventAsync(
+            rawBody,
+            signature,
+            webhookSecret,
+          );
+        } catch (error) {
+          console.error(
+            "[stripe-webhook] signature verification failed",
+            (error as Error)?.message,
+          );
+          return Response.json(
+            { error: "Invalid signature" },
+            { status: 400 },
+          );
+        }
+
+        // Only past this point do we touch the database.
+        if (
+          event.type !== "payment_intent.succeeded" &&
+          event.type !== "payment_intent.payment_failed" &&
+          event.type !== "payment_intent.canceled"
+        ) {
+          return ok({ ignored: event.type });
+        }
+
+        const paymentIntent = event.data
+          .object as import("stripe").Stripe.PaymentIntent;
+
+        const { supabaseAdmin } = await import(
+          "@/integrations/supabase/client.server"
+        );
+
+        const { data: attempt, error: attemptError } = await (
+          supabaseAdmin as any
+        )
+          .from("payment_attempts")
+          .select("*")
+          .eq("provider", "stripe")
+          .eq("transaction_id", paymentIntent.id)
+          .maybeSingle();
+
+        if (attemptError) {
+          console.error(
+            "[stripe-webhook] attempt lookup failed",
+            attemptError,
+          );
+          // 500 so Stripe retries this delivery.
+          return Response.json(
+            { error: "Lookup failed" },
+            { status: 500 },
+          );
+        }
+
+        if (!attempt) {
+          console.warn(
+            "[stripe-webhook] no payment attempt for",
+            paymentIntent.id,
+          );
+          return ok({ unmatched: true });
+        }
+
+        // Already finalised: never touch the order or the attempt again.
+        if (attempt.order_id) {
+          return ok({ alreadyProcessed: true });
+        }
+
+        if (event.type === "payment_intent.payment_failed") {
+          await (supabaseAdmin as any)
+            .from("payment_attempts")
+            .update({
+              status: "failed",
+              error_code:
+                paymentIntent.last_payment_error?.code ??
+                "STRIPE_PAYMENT_FAILED",
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", attempt.id)
+            .is("order_id", null);
+
+          return ok({ status: "failed" });
+        }
+
+        if (event.type === "payment_intent.canceled") {
+          await (supabaseAdmin as any)
+            .from("payment_attempts")
+            .update({
+              status: "cancelled",
+              error_code:
+                paymentIntent.cancellation_reason ??
+                "STRIPE_PAYMENT_CANCELED",
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", attempt.id)
+            .is("order_id", null);
+
+          return ok({ status: "cancelled" });
+        }
+
+        /* payment_intent.succeeded — validate before finalising. */
+        const amountMatches =
+          Number(paymentIntent.amount) === Number(attempt.amount_cents);
+        const currencyMatches =
+          String(paymentIntent.currency).toLowerCase() === "aud";
+        const metadataMatches =
+          String(paymentIntent.metadata?.["payment_attempt_id"] ?? "") ===
+            String(attempt.id) &&
+          String(paymentIntent.metadata?.["user_id"] ?? "") ===
+            String(attempt.user_id);
+
+        if (!amountMatches || !currencyMatches || !metadataMatches) {
+          const failure = !amountMatches
+            ? "AMOUNT_MISMATCH"
+            : !currencyMatches
+              ? "CURRENCY_MISMATCH"
+              : "METADATA_MISMATCH";
+
+          console.error("[stripe-webhook] validation failed", {
+            paymentIntent: paymentIntent.id,
+            failure,
+          });
+
+          await (supabaseAdmin as any)
+            .from("payment_attempts")
+            .update({
+              status: "failed",
+              error_code: failure,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", attempt.id)
+            .is("order_id", null);
+
+          return ok({ status: "rejected", reason: failure });
+        }
+
+        const payload = attempt.order_payload as PreparedPayload;
+
+        const { data: result, error: rpcError } = await (
+          supabaseAdmin as any
+        ).rpc("finalize_stripe_order", {
+          _payment_intent_id: paymentIntent.id,
+          _user_id: attempt.user_id,
+          _attempt_id: attempt.id,
+          _subtotal: payload.totals.total - payload.totals.shipping,
+          _shipping: payload.totals.shipping,
+          _total: payload.totals.total,
+          _contact_name:
+            `${payload.customer.firstName} ${payload.customer.lastName}`.trim(),
+          _contact_email: payload.customer.email,
+          _contact_phone: payload.customer.phone,
+          _shipping_address: payload.customer.shippingAddress,
+          _notes: payload.notes,
+          _items: payload.lines,
+          _profile_first_name: payload.customer.firstName,
+          _profile_last_name: payload.customer.lastName,
+          _profile_phone: payload.customer.phone,
+          _profile_address_line: payload.customer.addressLine,
+          _profile_city: payload.customer.city,
+          _profile_state: payload.customer.state,
+          _profile_postcode: payload.customer.postcode,
+        });
+
+        if (rpcError || !result) {
+          console.error("[stripe-webhook] finalisation failed", rpcError);
+          // 500 so Stripe retries the delivery later.
+          return Response.json(
+            { error: "Finalisation failed" },
+            { status: 500 },
+          );
+        }
+
+        return ok({
+          status: "finalised",
+          orderNumber: result.order_number ?? null,
+        });
+      },
+    },
+  },
+});
