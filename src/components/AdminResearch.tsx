@@ -252,7 +252,7 @@ export function AdminResearch() {
           <Field label="Sequence" wide>
             <Textarea rows={2} className="font-mono text-xs" value={draft.sequence} onChange={(e) => set("sequence", e.target.value)} />
           </Field>
-          <Field label="Research findings (one per line)" wide>
+          <Field label="Areas studied (one per line)" wide>
             <Textarea rows={5} value={draft.findings} onChange={(e) => set("findings", e.target.value)} />
           </Field>
         </div>
@@ -318,7 +318,7 @@ export function AdminResearch() {
           </div>
         </div>
 
-        <div className="mt-6 flex flex-wrap gap-3">
+        <div className="mt-6 grid gap-3 sm:flex sm:flex-wrap">
           <Button variant="outline" className="font-bold uppercase" disabled={save.isPending} onClick={() => save.mutate({ d: draft, published: false })}>
             Save as draft
           </Button>
