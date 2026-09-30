@@ -387,12 +387,30 @@ export const verifyStripeSandboxPayment = createServerFn({
           .select("*")
           .eq("provider", "stripe")
           .eq("transaction_id", paymentIntentId)
-          .eq("user_id", context.userId)
-          .single();
+          .maybeSingle();
 
-      if (attemptError || !attempt) {
+      if (attemptError) {
+        console.error("Stripe attempt lookup failed", attemptError);
         throw new Error(
-          "Stripe payment attempt not found.",
+          "We could not look up this payment. Please try again.",
+        );
+      }
+
+      if (!attempt) {
+        console.error("No Stripe attempt for PaymentIntent", paymentIntentId);
+        throw new Error(
+          "We couldn't find this payment. If you were charged, please contact us with your payment reference.",
+        );
+      }
+
+      if (attempt.user_id !== context.userId) {
+        console.error("Stripe attempt user mismatch", {
+          paymentIntentId,
+          attemptUser: attempt.user_id,
+          sessionUser: context.userId,
+        });
+        throw new Error(
+          "This payment was started from a different account. Please log in with the account you used at checkout.",
         );
       }
 
