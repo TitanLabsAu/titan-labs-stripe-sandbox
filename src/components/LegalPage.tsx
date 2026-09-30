@@ -1,4 +1,5 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { ChevronDown } from "lucide-react";
 import { useRouterState } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -50,13 +51,32 @@ export function LegalSection({
     "",
   );
 
+  const hash = useRouterState({ select: (state) => state.location.hash });
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (id && hash.replace(/^#/, "") === id) setOpen(true);
+  }, [hash, id]);
+
   return (
-    <section id={id} className="industrial-panel scroll-mt-6 border-l-2 border-l-primary p-6 sm:p-8">
-      <h2 className="font-display text-lg font-extrabold uppercase text-foreground">{heading}</h2>
-      <div className="mt-2 h-px w-12 bg-primary" />
-      <div className={cn("mt-5 text-sm text-muted-foreground", TEXT_ALIGN_CLASS[align])}>
-        <RichText text={body} />
-      </div>
+    <section id={id} className="industrial-panel scroll-mt-6 border-l-2 border-l-primary">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between gap-4 p-6 text-left sm:p-8"
+      >
+        <span>
+          <h2 className="font-display text-lg font-extrabold uppercase text-foreground">{heading}</h2>
+          <span className="mt-2 block h-px w-12 bg-primary" />
+        </span>
+        <ChevronDown className={cn("h-5 w-5 shrink-0 text-primary transition-transform", open && "rotate-180")} />
+      </button>
+      {open ? (
+        <div className={cn("px-6 pb-6 text-sm text-muted-foreground sm:px-8 sm:pb-8", TEXT_ALIGN_CLASS[align])}>
+          <RichText text={body} />
+        </div>
+      ) : null}
     </section>
   );
 }
