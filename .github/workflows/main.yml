@@ -1,5 +1,8 @@
 name: Validate Eway Sandbox
 
+permissions:
+  contents: write
+
 on:
   push:
     branches:
