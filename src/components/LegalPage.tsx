@@ -44,11 +44,18 @@ export function LegalSection({
   text: string;
   align?: TextAlign;
 }) {
+  // The saved copy sometimes repeats the section title on its first line.
+  const body = text.replace(
+    new RegExp(`^\\s*${heading.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&")}\\s*\\n`, "i"),
+    "",
+  );
+
   return (
-    <section id={id} className="industrial-panel scroll-mt-6 border-l-2 border-l-primary p-6">
+    <section id={id} className="industrial-panel scroll-mt-6 border-l-2 border-l-primary p-6 sm:p-8">
       <h2 className="font-display text-lg font-extrabold uppercase text-foreground">{heading}</h2>
-      <div className={cn("mt-3 whitespace-pre-wrap text-sm leading-7 text-muted-foreground", TEXT_ALIGN_CLASS[align])}>
-        <RichText text={text} />
+      <div className="mt-2 h-px w-12 bg-primary" />
+      <div className={cn("mt-5 text-sm text-muted-foreground", TEXT_ALIGN_CLASS[align])}>
+        <RichText text={body} />
       </div>
     </section>
   );
