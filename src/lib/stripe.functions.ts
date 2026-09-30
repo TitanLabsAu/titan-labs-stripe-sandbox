@@ -454,9 +454,9 @@ export const verifyStripeSandboxPayment = createServerFn({
 
       const metadataMatches =
         String(
-          paymentIntent.metadata?.payment_attempt_id ?? "",
+          paymentIntent.metadata?.["payment_attempt_id"] ?? "",
         ) === String(attempt.id) &&
-        String(paymentIntent.metadata?.user_id ?? "") ===
+        String(paymentIntent.metadata?.["user_id"] ?? "") ===
           String(context.userId);
 
       if (
