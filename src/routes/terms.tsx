@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { LegalPage, LegalSection } from "@/components/LegalPage";
 import { useSiteContent } from "@/lib/useCatalog";
-import { homeValue, termsVersion } from "@/lib/homeContent";
+import { contentAlign, homeValue, termsVersion } from "@/lib/homeContent";
 
 export const Route = createFileRoute("/terms")({
   head: () => ({
@@ -21,9 +21,9 @@ function TermsPage() {
   const { data: content } = useSiteContent();
   return (
     <LegalPage eyebrow={`Version ${termsVersion(content)}`} title="Terms & Conditions">
-      <LegalSection id="terms" heading="Terms & Conditions" text={homeValue(content, "legal_terms")} />
-      <LegalSection id="research-use" heading="Research Use Notice" text={homeValue(content, "legal_research_notice")} />
-      <LegalSection id="shipping" heading="Shipping & Returns" text={homeValue(content, "legal_shipping")} />
+      <LegalSection id="terms" heading="Terms & Conditions" text={homeValue(content, "legal_terms")} align={contentAlign(content, "legal_terms")} />
+      <LegalSection id="research-notice" heading="Research Use Notice" text={homeValue(content, "legal_research_notice")} align={contentAlign(content, "legal_research_notice")} />
+      <LegalSection id="shipping-returns" heading="Shipping & Returns" text={homeValue(content, "legal_shipping")} align={contentAlign(content, "legal_shipping")} />
     </LegalPage>
   );
 }
