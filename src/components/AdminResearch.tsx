@@ -113,6 +113,7 @@ function payload(d: Draft, published: boolean, wasPublishedAt: string | null) {
 export function AdminResearch() {
   const qc = useQueryClient();
   const [draft, setDraft] = useState<Draft | null>(null);
+  const [bulkAction, setBulkAction] = useState<"publish" | "unpublish" | null>(null);
 
   const { data: entries = [], isLoading } = useQuery({
     queryKey: ["admin-research"],
