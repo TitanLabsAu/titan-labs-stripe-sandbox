@@ -541,6 +541,30 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      finalize_stripe_order: {
+        Args: {
+          _attempt_id: string
+          _contact_email: string
+          _contact_name: string
+          _contact_phone: string
+          _items: Json
+          _notes: string
+          _payment_intent_id: string
+          _profile_address_line: string
+          _profile_city: string
+          _profile_first_name: string
+          _profile_last_name: string
+          _profile_phone: string
+          _profile_postcode: string
+          _profile_state: string
+          _shipping: number
+          _shipping_address: string
+          _subtotal: number
+          _total: number
+          _user_id: string
+        }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
