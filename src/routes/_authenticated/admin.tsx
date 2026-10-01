@@ -25,7 +25,6 @@ import {
   adminListNotifications,
   adminListOrders,
   adminMarkNotificationsRead,
-  adminRefreshTracking,
   adminSetPaymentConfirmed,
   adminSetTracking,
   adminUpdateStatus,
@@ -119,18 +118,6 @@ function OrdersTab() {
     queryFn: () => adminListOrders({ data: { scope: "closed" } }),
   });
 
-  const refresh = useMutation({
-    mutationFn: () => adminRefreshTracking({}),
-    onSuccess: (summary) => {
-      toast.success(
-        `Checked ${summary.checked} order(s); ${summary.delivered} marked delivered.`,
-      );
-      void queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
-      void queryClient.invalidateQueries({ queryKey: ["admin-notifications"] });
-    },
-    onError: () =>
-      toast.error("Australia Post check failed. Check the API details."),
-  });
 
   const active = liveQuery.data ?? [];
   const closed = closedQuery.data ?? [];
@@ -247,15 +234,6 @@ function OrdersTab() {
           }
         >
           <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Refresh
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="text-xs uppercase tracking-[0.16em]"
-          disabled={refresh.isPending}
-          onClick={() => refresh.mutate()}
-        >
-          {refresh.isPending ? "Checking…" : "Check Aus Post"}
         </Button>
       </div>
 
@@ -568,11 +546,6 @@ function OrderDetail({ order, live }: { order: AdminOrder; live: boolean }) {
             No tracking number yet.
           </p>
         )}
-        {order.tracking_status ? (
-          <p className="mt-1 text-xs text-muted-foreground">
-            Australia Post status: {order.tracking_status}
-          </p>
-        ) : null}
       </div>
 
       <OrderAcknowledgementInfo
@@ -635,8 +608,8 @@ function NotificationsPanel() {
         </div>
         <p className="mt-3 text-sm text-muted-foreground">
           Confirm manual payments and add the tracking number when you ship.
-          Saved order changes send the matching email automatically. Australia
-          Post checks delivery on the scheduled tracking run.
+          Saved order changes send the matching email automatically. Mark orders
+          delivered yourself once delivery is confirmed.
         </p>
         <p className="mt-2 text-xs text-muted-foreground">
           Failed emails retry automatically. Repeated failures appear in these

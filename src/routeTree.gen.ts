@@ -30,6 +30,7 @@ import { Route as ResearchSlugRouteImport } from './routes/research.$slug'
 import { Route as AuthenticatedResearchPreviewIndexRouteImport } from './routes/_authenticated/research-preview.index'
 import { Route as AuthenticatedResearchPreviewSlugRouteImport } from './routes/_authenticated/research-preview.$slug'
 import { Route as ApiPublicAuspostPollRouteImport } from './routes/api/public/auspost-poll'
+import { Route as ApiPublicOrderEmailRetryRouteImport } from './routes/api/public/order-email-retry'
 import { Route as ApiPublicProductImageRouteImport } from './routes/api/public/product-image'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe-webhook'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
@@ -141,6 +142,12 @@ const ApiPublicAuspostPollRoute = ApiPublicAuspostPollRouteImport.update({
   path: '/api/public/auspost-poll',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicOrderEmailRetryRoute =
+  ApiPublicOrderEmailRetryRouteImport.update({
+    id: '/api/public/order-email-retry',
+    path: '/api/public/order-email-retry',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicProductImageRoute = ApiPublicProductImageRouteImport.update({
   id: '/api/public/product-image',
   path: '/api/public/product-image',
@@ -178,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/research/': typeof ResearchIndexRoute
   '/research-preview/$slug': typeof AuthenticatedResearchPreviewSlugRoute
   '/api/public/auspost-poll': typeof ApiPublicAuspostPollRoute
+  '/api/public/order-email-retry': typeof ApiPublicOrderEmailRetryRoute
   '/api/public/product-image': typeof ApiPublicProductImageRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/research-preview/': typeof AuthenticatedResearchPreviewIndexRoute
@@ -203,6 +211,7 @@ export interface FileRoutesByTo {
   '/research': typeof ResearchIndexRoute
   '/research-preview/$slug': typeof AuthenticatedResearchPreviewSlugRoute
   '/api/public/auspost-poll': typeof ApiPublicAuspostPollRoute
+  '/api/public/order-email-retry': typeof ApiPublicOrderEmailRetryRoute
   '/api/public/product-image': typeof ApiPublicProductImageRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/research-preview': typeof AuthenticatedResearchPreviewIndexRoute
@@ -230,6 +239,7 @@ export interface FileRoutesById {
   '/research/': typeof ResearchIndexRoute
   '/_authenticated/research-preview/$slug': typeof AuthenticatedResearchPreviewSlugRoute
   '/api/public/auspost-poll': typeof ApiPublicAuspostPollRoute
+  '/api/public/order-email-retry': typeof ApiPublicOrderEmailRetryRoute
   '/api/public/product-image': typeof ApiPublicProductImageRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/_authenticated/research-preview/': typeof AuthenticatedResearchPreviewIndexRoute
@@ -257,6 +267,7 @@ export interface FileRouteTypes {
     | '/research/'
     | '/research-preview/$slug'
     | '/api/public/auspost-poll'
+    | '/api/public/order-email-retry'
     | '/api/public/product-image'
     | '/api/public/stripe-webhook'
     | '/research-preview/'
@@ -282,6 +293,7 @@ export interface FileRouteTypes {
     | '/research'
     | '/research-preview/$slug'
     | '/api/public/auspost-poll'
+    | '/api/public/order-email-retry'
     | '/api/public/product-image'
     | '/api/public/stripe-webhook'
     | '/research-preview'
@@ -308,6 +320,7 @@ export interface FileRouteTypes {
     | '/research/'
     | '/_authenticated/research-preview/$slug'
     | '/api/public/auspost-poll'
+    | '/api/public/order-email-retry'
     | '/api/public/product-image'
     | '/api/public/stripe-webhook'
     | '/_authenticated/research-preview/'
@@ -330,6 +343,7 @@ export interface RootRouteChildren {
   AuthIndexRoute: typeof AuthIndexRoute
   ResearchIndexRoute: typeof ResearchIndexRoute
   ApiPublicAuspostPollRoute: typeof ApiPublicAuspostPollRoute
+  ApiPublicOrderEmailRetryRoute: typeof ApiPublicOrderEmailRetryRoute
   ApiPublicProductImageRoute: typeof ApiPublicProductImageRoute
   ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
@@ -484,6 +498,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAuspostPollRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/order-email-retry': {
+      id: '/api/public/order-email-retry'
+      path: '/api/public/order-email-retry'
+      fullPath: '/api/public/order-email-retry'
+      preLoaderRoute: typeof ApiPublicOrderEmailRetryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/product-image': {
       id: '/api/public/product-image'
       path: '/api/public/product-image'
@@ -546,6 +567,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthIndexRoute: AuthIndexRoute,
   ResearchIndexRoute: ResearchIndexRoute,
   ApiPublicAuspostPollRoute: ApiPublicAuspostPollRoute,
+  ApiPublicOrderEmailRetryRoute: ApiPublicOrderEmailRetryRoute,
   ApiPublicProductImageRoute: ApiPublicProductImageRoute,
   ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,

@@ -330,15 +330,6 @@ export const adminGetMemberOrders = createServerFn({ method: "POST" })
     }));
   });
 
-/** Checks Australia Post now for every live order that has a tracking number. */
-export const adminRefreshTracking = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    await assertAdmin(context as any);
-    const { syncAustraliaPostTracking } = await import("@/lib/auspost.server");
-    return syncAustraliaPostTracking();
-  });
-
 /* ---------------- Products ---------------- */
 
 export type AdminProductLink = { label: string; url: string };
