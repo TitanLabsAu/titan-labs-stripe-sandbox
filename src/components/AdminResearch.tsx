@@ -138,7 +138,13 @@ const list = (v: string) =>
 const opt = (v: string) => (v.trim() ? v.trim() : null);
 
 const PUBLISH_BLOCKED =
-  "Only entries with Verification Status = Verified can be published.";
+  "The database publication rule needs updating before this entry can be published.";
+
+function confirmPublication(status: VerificationStatus): boolean {
+  return status === "verified" || window.confirm(
+    "This entry is not fully verified. Publish it with its current verification status?",
+  );
+}
 const isPublishBlock = (e: any) =>
   String(e?.message ?? "").includes("Only entries with Verification Status");
 
@@ -249,8 +255,6 @@ export function AdminResearch() {
   const togglePublish = useMutation({
     mutationFn: async (e: ResearchEntry) => {
       const next = !e.published;
-      if (next && e.verification_status !== "verified")
-        throw new Error(PUBLISH_BLOCKED);
       const { error } = await supabase
         .from("research_entries")
         .update({
@@ -729,7 +733,7 @@ export function AdminResearch() {
           </div>
           {draft.verification_status !== "verified" ? (
             <p className="mt-3 text-xs font-bold text-accent">
-              {PUBLISH_BLOCKED} Current:{" "}
+              Publishing does not mark this entry as verified. Current:{" "}
               {label(VERIFICATION_STATUSES, draft.verification_status)}.
             </p>
           ) : null}
@@ -746,10 +750,11 @@ export function AdminResearch() {
           </Button>
           <Button
             className="font-bold uppercase"
-            disabled={
-              save.isPending || draft.verification_status !== "verified"
-            }
-            onClick={() => save.mutate({ d: draft, published: true })}
+            disabled={save.isPending}
+            onClick={() => {
+              if (confirmPublication(draft.verification_status))
+                save.mutate({ d: draft, published: true });
+            }}
           >
             Save &amp; publish
           </Button>
@@ -819,8 +824,8 @@ export function AdminResearch() {
       {entries.length > 0 ? (
         <p className="mt-4 text-xs text-muted-foreground">
           {draftEntries.length} draft{draftEntries.length === 1 ? "" : "s"} ·{" "}
-          {verifiedDrafts.length} verified and eligible to publish. Only entries
-          with Verification Status = Verified can be published.
+          {verifiedDrafts.length} verified and eligible for bulk publishing.
+          Individual entries can be published with their current verification status.
         </p>
       ) : null}
 
@@ -943,16 +948,11 @@ export function AdminResearch() {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => togglePublish.mutate(e)}
-                  disabled={
-                    togglePublish.isPending ||
-                    (!e.published && e.verification_status !== "verified")
-                  }
-                  title={
-                    !e.published && e.verification_status !== "verified"
-                      ? PUBLISH_BLOCKED
-                      : undefined
-                  }
+                  onClick={() => {
+                    if (e.published || confirmPublication(e.verification_status))
+                      togglePublish.mutate(e);
+                  }}
+                  disabled={togglePublish.isPending}
                 >
                   {e.published ? <EyeOff /> : <Eye />}{" "}
                   {e.published ? "Unpublish" : "Publish"}
