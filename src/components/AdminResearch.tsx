@@ -194,6 +194,7 @@ export function AdminResearch() {
         : await supabase.from("research_entries").insert(body).select("*").single();
       if (res.error) {
         if (res.error.code === "23505") throw new Error("Another entry already uses that web address");
+        if (isPublishBlock(res.error)) throw new Error(PUBLISH_BLOCKED);
         throw res.error;
       }
       return toResearchEntry(res.data);
@@ -209,18 +210,19 @@ export function AdminResearch() {
   const togglePublish = useMutation({
     mutationFn: async (e: ResearchEntry) => {
       const next = !e.published;
+      if (next && e.verification_status !== "verified") throw new Error(PUBLISH_BLOCKED);
       const { error } = await supabase
         .from("research_entries")
         .update({ published: next, published_at: next ? e.published_at ?? new Date().toISOString() : null })
         .eq("id", e.id);
-      if (error) throw error;
+      if (error) throw isPublishBlock(error) ? new Error(PUBLISH_BLOCKED) : error;
       return next;
     },
     onSuccess: (next) => {
       toast.success(next ? "Published" : "Moved back to drafts");
       refresh();
     },
-    onError: () => toast.error("Could not change the status"),
+    onError: (e: any) => toast.error(e?.message ?? "Could not change the status"),
   });
 
   const remove = useMutation({
@@ -261,11 +263,18 @@ export function AdminResearch() {
   const bulkUpdate = useMutation({
     mutationFn: async ({ action, ids }: { action: "publish" | "unpublish"; ids: string[] }) => {
       if (!ids.length) return { action, count: 0 };
-      const body =
-        action === "publish"
-          ? { published: true, published_at: new Date().toISOString() }
-          : { published: false, published_at: null };
-      const { error } = await supabase.from("research_entries").update(body).in("id", ids);
+      if (action === "publish") {
+        const { data, error } = await supabase
+          .from("research_entries")
+          .update({ published: true, published_at: new Date().toISOString() })
+          .in("id", ids)
+          .eq("verification_status", "verified")
+          .eq("published", false)
+          .select("id");
+        if (error) throw error;
+        return { action, count: data?.length ?? 0 };
+      }
+      const { error } = await supabase.from("research_entries").update({ published: false, published_at: null }).in("id", ids);
       if (error) throw error;
       return { action, count: ids.length };
     },
