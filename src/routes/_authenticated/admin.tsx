@@ -566,7 +566,7 @@ function NotificationsPanel() {
           {items.map((n) => (
             <li
               key={n.id}
-              className={`border p-4 ${n.read ? "border-border bg-card/60" : "border-accent/50 bg-card"}`}
+              className={`rounded-xl border p-4 ${n.read ? "border-primary/15 bg-card/60" : "border-accent/50 bg-card/90 shadow-gold"}`}
             >
               <p className="text-sm font-bold uppercase tracking-[0.12em] text-foreground">
                 {n.title}
