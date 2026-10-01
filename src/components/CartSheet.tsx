@@ -60,7 +60,7 @@ export function CartSheet() {
                   if (!product) return null;
                   const linePrice = getLinePrice(item);
                   return (
-                    <li key={item.key} className="flex gap-3 rounded-xl border border-border bg-card p-3 shadow-sm">
+                    <li key={item.key} className="flex gap-3 rounded-xl border border-primary/20 bg-card/90 p-3 shadow-glow">
                       <img
                         src={product.image}
                         alt={product.alt}
