@@ -21,8 +21,8 @@ export function ProductCard({ product: p }: { product: Product }) {
   const vialsPer = pack === "kit" ? 10 : 1;
   const atMax = Boolean(inCart) && ((stockCount != null && (inCart!.quantity + 1) * vialsPer > stockCount) || inCart!.quantity >= 99);
   return (
-    <article className="grid min-h-48 grid-cols-[7rem_minmax(0,1fr)] border border-border bg-card shadow-sm sm:min-h-40 sm:grid-cols-[8rem_minmax(0,1fr)]">
-      <Link to="/product/$slug" params={{ slug: p.slug }} className="relative overflow-hidden border-r border-border">
+    <article className="group grid min-h-48 grid-cols-[7rem_minmax(0,1fr)] overflow-hidden rounded-xl border border-border bg-card/90 shadow-sm transition hover:border-primary/55 hover:shadow-glow sm:min-h-40 sm:grid-cols-[8rem_minmax(0,1fr)]">
+      <Link to="/product/$slug" params={{ slug: p.slug }} className="relative overflow-hidden border-r border-border bg-secondary/30">
         <img src={p.image} alt={p.alt} loading="lazy" className={`h-full w-full object-cover transition duration-300 hover:scale-[1.02] ${allOut ? "opacity-40 grayscale" : ""}`} />
         {p.promoLabel && !bannerSoon ? (
           <span className="absolute left-2 top-2 border border-accent bg-accent px-2 py-0.5 text-[8px] font-bold uppercase text-accent-foreground">
@@ -37,7 +37,7 @@ export function ProductCard({ product: p }: { product: Product }) {
       </Link>
       <div className="flex min-w-0 flex-col p-4">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
-          <Link to="/product/$slug" params={{ slug: p.slug }} className="min-w-0 text-sm font-semibold text-foreground hover:text-primary">{p.name}</Link>
+          <Link to="/product/$slug" params={{ slug: p.slug }} className="min-w-0 font-display text-base font-bold uppercase tracking-wide text-foreground transition group-hover:text-primary">{p.name}</Link>
           {(p.categories ?? []).length ? <span className="self-start border border-border px-2 py-1 text-[8px] text-primary">{p.categories?.[0]}</span> : null}
         </div>
         {soon && !bannerSoon ? (
