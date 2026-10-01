@@ -2,7 +2,7 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { ResearchEntryView } from "@/components/ResearchEntryView";
 import { ResearchLabShell } from "@/components/ResearchLabShell";
-import { getPublishedResearch } from "@/lib/research.functions";
+import { getPublishedResearch, listPublishedResearch } from "@/lib/research.functions";
 
 const entryQuery = (slug: string) => queryOptions({
   queryKey: ["research", "entry", slug],
@@ -42,5 +42,5 @@ function EntryPage() {
   const { slug } = Route.useParams();
   const { data: entry } = useSuspenseQuery(entryQuery(slug));
   if (!entry) return <EntryUnavailable />;
-  return <ResearchLabShell><ResearchEntryView entry={entry} /></ResearchLabShell>;
+  const { data: entries } = useSuspenseQuery(queryOptions({ queryKey: ["research", "list"], queryFn: () => listPublishedResearch(), staleTime: 30_000 }));\n  return <ResearchLabShell><ResearchEntryView entry={entry} entries={entries} /></ResearchLabShell>;
 }
