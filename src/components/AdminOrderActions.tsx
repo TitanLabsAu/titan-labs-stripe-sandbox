@@ -83,7 +83,7 @@ export function AdminOrderActions({ order }: { order: AdminOrder }) {
 
   return (
     <div className="mt-4 grid gap-4 md:grid-cols-2">
-      <div className="rounded-lg border border-border bg-background/40 p-4">
+      <div className="rounded-xl border border-primary/20 bg-background/45 p-4">
         <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
           WhatsApp messages
         </p>
@@ -123,7 +123,7 @@ export function AdminOrderActions({ order }: { order: AdminOrder }) {
         </div>
       </div>
 
-      <div className="rounded-lg border border-border bg-background/40 p-4">
+      <div className="rounded-xl border border-primary/20 bg-background/45 p-4">
         <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
           Customer emails
         </p>
