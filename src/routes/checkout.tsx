@@ -427,7 +427,7 @@ const startStripeCardPayment = useMutation({
           <div className="mx-auto max-w-2xl rounded-2xl border border-primary/30 bg-card/90 p-6 shadow-glow sm:p-8">
             <div className="flex items-center gap-3">
               <CheckCircle2 className="h-7 w-7 text-accent" />
-              <h1 className="text-2xl font-medium uppercase sm:text-3xl">Order received</h1>
+              <h1 className="font-display text-2xl font-black uppercase tracking-[0.08em] sm:text-3xl">Order received</h1>
             </div>
             <p className="mt-3 text-sm text-muted-foreground">
               Your order number is{" "}
@@ -495,7 +495,7 @@ const startStripeCardPayment = useMutation({
         </p>
 
         {items.length === 0 ? (
-          <div className="mt-8 rounded-2xl border border-border bg-card/90 p-8 text-center shadow-glow">
+          <div className="mt-8 rounded-2xl border border-primary/25 bg-card/90 p-8 text-center shadow-glow">
             <p className="text-muted-foreground">Your cart is empty.</p>
             <Button asChild className="mt-6 font-bold uppercase">
               <Link to="/range">Browse {catalogueName(content)}</Link>
