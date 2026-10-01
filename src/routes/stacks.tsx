@@ -28,7 +28,7 @@ function TitanStacksPage() {
             <p className="technical-label text-accent">Build your research library</p>
             <div className="mt-3 flex items-center gap-3">
               <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-primary/40 bg-primary/10"><Layers3 className="h-6 w-6 text-primary" /></span>
-              <h1 className="font-display text-4xl font-black uppercase tracking-[0.08em] text-foreground sm:text-6xl">Titan Stacks</h1>
+              <h1 className="font-display text-[clamp(2.35rem,11vw,3.75rem)] font-black uppercase leading-none tracking-[0.055em] text-foreground sm:text-6xl sm:tracking-[0.08em]">Titan Stacks</h1>
             </div>
             <p className="mt-4 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">Six research collections based on the stack library shown in your reference video. Select a collection, then choose a compound to open the matching Titan catalogue product when available.</p>
           </div>
