@@ -150,8 +150,8 @@ function AccountPage() {
       <SiteHeader />
       <main className="page-shell py-10 sm:py-12">
         <ProfileMenu email={profile?.email} />
-        <div className="border border-border bg-card p-6 shadow-sm sm:p-8">
-          <div className="border-b border-border pb-5">
+        <div className="rounded-2xl border border-primary/25 bg-card/90 p-6 shadow-glow sm:p-8">
+          <div className="border-b border-primary/20 pb-5">
             <h2 className="technical-label text-foreground">My details</h2>
             <p className="mt-2 text-sm text-muted-foreground">{complete ? "Your details are on file. Update them any time." : "Complete your details so we can process and ship your orders."}</p>
           </div>
