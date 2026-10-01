@@ -10,7 +10,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ArrowDown, ArrowUp, CheckCheck, Eye, EyeOff, Pencil, Plus, Trash2, Undo2 } from "lucide-react";
+import { ArrowDown, ArrowUp, CheckCheck, Eye, EyeOff, ExternalLink, Pencil, Plus, Trash2, Undo2 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +41,7 @@ type Draft = {
   slug: string;
   category: string;
   tags: string;
+  at_a_glance: string;
   summary: string;
   synonyms: string;
   molecular_formula: string;
@@ -75,6 +77,7 @@ const emptyDraft = (sort = 0): Draft => ({
   slug: "",
   category: "",
   tags: "",
+  at_a_glance: "",
   summary: "",
   synonyms: "",
   molecular_formula: "",
@@ -98,6 +101,7 @@ const toDraft = (e: ResearchEntry): Draft => ({
   slug: e.slug,
   category: e.category,
   tags: e.tags.join(", "),
+  at_a_glance: e.at_a_glance,
   summary: e.summary,
   synonyms: e.synonyms.join(", "),
   molecular_formula: e.molecular_formula ?? "",
@@ -127,6 +131,7 @@ function payload(d: Draft, published: boolean, wasPublishedAt: string | null) {
     slug: slugify(d.slug || d.title),
     category: d.category.trim(),
     tags: list(d.tags),
+    at_a_glance: d.at_a_glance.trim(),
     summary: d.summary.trim(),
     synonyms: list(d.synonyms),
     molecular_formula: opt(d.molecular_formula),
@@ -332,6 +337,9 @@ export function AdminResearch() {
           <Field label="Summary" wide>
             <Textarea rows={3} value={draft.summary} maxLength={1200} onChange={(e) => set("summary", e.target.value)} />
           </Field>
+          <Field label="At a glance (member-facing, derived only from verified content)" wide>
+            <Textarea rows={4} value={draft.at_a_glance} maxLength={1200} onChange={(e) => set("at_a_glance", e.target.value)} />
+          </Field>
           <Field label="Synonyms / other names (comma separated)" wide>
             <Input value={draft.synonyms} onChange={(e) => set("synonyms", e.target.value)} />
           </Field>
@@ -468,6 +476,13 @@ export function AdminResearch() {
             Save &amp; publish
           </Button>
           {existing ? (
+            <Button variant="outline" asChild className="font-bold uppercase">
+              <Link to="/research-preview/$slug" params={{ slug: existing.slug }} target="_blank">
+                <ExternalLink /> Member preview
+              </Link>
+            </Button>
+          ) : null}
+          {existing ? (
             <Button
               variant="outline"
               className="font-bold uppercase text-destructive"
@@ -499,6 +514,9 @@ export function AdminResearch() {
         </div>
         <Button className="font-bold uppercase" onClick={() => setDraft(emptyDraft(entries.length))}>
           <Plus /> New entry
+        </Button>
+        <Button variant="outline" asChild className="font-bold uppercase">
+          <Link to="/research-preview" target="_blank"><ExternalLink /> Member preview</Link>
         </Button>
       </div>
 
