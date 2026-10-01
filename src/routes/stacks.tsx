@@ -36,7 +36,7 @@ function TitanStacksPage() {
 
         <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {TITAN_STACK_LIBRARY.map((stack) => (
-            <a key={stack.id} href={`#${stack.id}`} className="group rounded-2xl border border-border bg-card/80 p-5 transition hover:border-primary/70 hover:shadow-glow">
+            <a key={stack.id} href={`#${stack.id}`} className="group rounded-2xl border border-primary/25 bg-card/90 p-5 shadow-glow transition hover:border-primary/70 hover:shadow-glow">
               <div className="flex items-start justify-between gap-4">
                 <span className="font-display text-4xl font-black text-primary/80">{stack.number}</span>
                 <span className={cn("rounded-md border px-2 py-1 font-mono text-[10px] uppercase tracking-widest", stack.level === "Advanced" ? "border-accent/45 text-accent" : stack.level === "Intermediate" ? "border-accent/35 text-accent" : "border-primary/40 text-primary")}>{stack.level}</span>
