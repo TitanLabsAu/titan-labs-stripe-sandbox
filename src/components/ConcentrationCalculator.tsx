@@ -81,15 +81,18 @@ function NumberField({
 function SyringeScale({ units, capacityUnits }: { units: number; capacityUnits: number }) {
   const W = 560;
   const H = 96;
-  const x0 = 70;
-  const x1 = 500;
+  const x0 = 60;
+  const x1 = 490;
   const barrelW = x1 - x0;
   const fill = Math.max(0, Math.min(units, capacityUnits));
   const fillW = (fill / capacityUnits) * barrelW;
+  // On a real syringe, liquid sits against the needle/tip. The plunger face
+  // moves left as volume increases, so the highlighted liquid grows from the tip backwards.
+  const liquidX = x1 - fillW;
   const majorEvery = capacityUnits <= 30 ? 5 : 10;
   const ticks = [];
   for (let u = 0; u <= capacityUnits; u += capacityUnits <= 50 ? 1 : 2) {
-    const x = x0 + (u / capacityUnits) * barrelW;
+    const x = x1 - (u / capacityUnits) * barrelW;
     const major = u % majorEvery === 0;
     ticks.push(
       <g key={u}>
@@ -104,18 +107,20 @@ function SyringeScale({ units, capacityUnits }: { units: number; capacityUnits: 
   }
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label={`Scale reading ${round(fill, 1)} of ${capacityUnits} units`}>
-      {/* plunger */}
-      <rect x={10} y={40} width={x0 - 22} height={8} className="fill-muted" />
-      <rect x={x0 - 14} y={22} width={8} height={44} className="fill-foreground/70" />
+      {/* plunger rod and fixed barrel */}
+      <rect x={10} y={40} width={Math.max(0, liquidX - 18)} height={8} className="fill-muted" />
       {/* barrel */}
       <rect x={x0} y={22} width={barrelW} height={44} rx={3} className="fill-background stroke-foreground" strokeWidth={1.4} />
-      <rect x={x0} y={23} width={fillW} height={42} className="fill-primary/30" />
-      {fillW > 0 ? <line x1={x0 + fillW} x2={x0 + fillW} y1={18} y2={70} className="stroke-accent" strokeWidth={2.5} /> : null}
+      {/* liquid occupies the needle end of the barrel */}
+      <rect x={liquidX} y={23} width={fillW} height={42} className="fill-primary/30" />
+      {/* moving plunger face marks the selected scale reading */}
+      <rect x={liquidX - 4} y={22} width={8} height={44} className="fill-foreground/70" />
+      {fillW > 0 ? <line x1={liquidX} x2={liquidX} y1={18} y2={70} className="stroke-accent" strokeWidth={2.5} /> : null}
       {ticks}
       {/* tip */}
       <polygon points={`${x1},34 ${x1 + 22},40 ${x1 + 22},48 ${x1},54`} className="fill-muted stroke-foreground" strokeWidth={1} />
       <line x1={x1 + 22} x2={W - 6} y1={44} y2={44} className="stroke-muted-foreground" strokeWidth={1.2} />
-      <text x={x0} y={88} className="fill-muted-foreground font-mono" fontSize={10}>U-100 SCALE · UNITS</text>
+      <text x={x0} y={88} className="fill-muted-foreground font-mono" fontSize={10}>U-100 SCALE · UNITS FROM NEEDLE END</text>
     </svg>
   );
 }
