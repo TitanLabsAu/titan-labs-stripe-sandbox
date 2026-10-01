@@ -4,7 +4,7 @@ import { ArrowRight, Layers3, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ResearchEvidenceBadge } from "@/components/ResearchEvidenceBadge";
-import type { ResearchEntry } from "@/lib/research";
+import { EVIDENCE_STATUSES, label, type ResearchEntry } from "@/lib/research";
 import { entriesForCollection, RESEARCH_COLLECTIONS } from "@/lib/research-discovery";
 import { TitanBlendsView } from "@/components/TitanBlendsView";
 
@@ -12,12 +12,14 @@ export function ResearchIndexView({ entries, preview = false }: { entries: Resea
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
   const [collectionSlug, setCollectionSlug] = useState<string | null>(null);
+  const [evidence, setEvidence] = useState("All");
   const categories = useMemo(() => ["All", ...Array.from(new Set(entries.map((entry) => entry.category).filter(Boolean))).sort()], [entries]);
   const term = query.trim().toLowerCase();
   const selectedCollection = RESEARCH_COLLECTIONS.find((item) => item.slug === collectionSlug);
   const collectionEntries = selectedCollection ? entriesForCollection(entries, selectedCollection) : entries;
   const visible = collectionEntries.filter((entry) => {
     if (!selectedCollection && category !== "All" && entry.category !== category) return false;
+    if (evidence !== "All" && entry.evidence_status !== evidence) return false;
     if (!term) return true;
     return [entry.title, entry.at_a_glance, entry.summary, entry.category, ...entry.tags, ...entry.synonyms].join(" ").toLowerCase().includes(term);
   });
@@ -52,11 +54,16 @@ export function ResearchIndexView({ entries, preview = false }: { entries: Resea
         </div>
       </section>
 
-      <div className="mt-8 grid gap-4 lg:grid-cols-[minmax(16rem,24rem)_1fr] lg:items-start">
+      <div className="mt-8 grid gap-4 lg:grid-cols-[minmax(16rem,24rem)_minmax(11rem,14rem)_1fr] lg:items-start">
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
           <Input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search compounds or research areas" className="h-11 pl-9" aria-label="Search the Research Lab" />
         </div>
+        <label className="sr-only" htmlFor="research-evidence-filter">Filter by evidence level</label>
+        <select id="research-evidence-filter" value={evidence} onChange={(event) => setEvidence(event.target.value)} className="h-11 rounded-md border border-input bg-background px-3 text-sm font-bold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <option value="All">All evidence levels</option>
+          {EVIDENCE_STATUSES.filter(([key]) => entries.some((entry) => entry.evidence_status === key)).map(([key]) => <option key={key} value={key}>{label(EVIDENCE_STATUSES, key)}</option>)}
+        </select>
         <div className="flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Filter by category">
           {categories.map((item) => (
             <Button key={item} size="sm" variant={item === category ? "default" : "outline"} className="h-11 shrink-0 font-bold uppercase sm:h-10" aria-pressed={item === category} onClick={() => { setCategory(item); setCollectionSlug(null); }}>
