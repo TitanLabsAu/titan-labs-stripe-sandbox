@@ -52,6 +52,8 @@ export const CLAIM_FIELDS = [
   ["mechanism", "Reported mechanism"],
   ["findings", "Areas studied / research findings"],
   ["identifiers", "Composition / identifiers"],
+  ["cross_reference", "Cross-reference"],
+  ["regulatory", "Regulatory status"],
 ] as const;
 export type ClaimField = (typeof CLAIM_FIELDS)[number][0];
 
@@ -60,6 +62,7 @@ export const CLAIM_STATES = [
   ["verified", "Verified"],
   ["needs_qualification", "Needs qualification"],
   ["unsupported", "Unsupported"],
+  ["not_applicable", "Not applicable"],
 ] as const;
 export type ClaimState = (typeof CLAIM_STATES)[number][0];
 export type ClaimChecks = Partial<Record<ClaimField, ClaimState>>;
