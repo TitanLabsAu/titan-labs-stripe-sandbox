@@ -35,6 +35,13 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
         </div>
       </header>
 
+      <section className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-4" aria-label="Quick research map">
+        <ResearchMapItem label="Research area" value={entry.category || "Research"} />
+        <ResearchMapItem label="Evidence" value={label(EVIDENCE_TYPES, entry.evidence_status)} />
+        <ResearchMapItem label="References" value={String(entry.source_references.length)} />
+        <ResearchMapItem label="Source check" value={entry.verification_status === "verified" ? "Verified" : "In review"} />
+      </section>
+
       <div className="mt-7 grid gap-5 lg:grid-cols-12 lg:items-start">
         <div className="space-y-5 lg:col-span-8">
           <section className="border-l-2 border-l-primary bg-card p-5 shadow-glow sm:p-7">
@@ -133,6 +140,10 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
       </div>
     </article>
   );
+}
+
+function ResearchMapItem({ label: itemLabel, value }: { label: string; value: string }) {
+  return <div className="rounded-xl border border-border bg-card p-4"><p className="technical-label text-muted-foreground">{itemLabel}</p><p className="mt-2 font-display text-sm font-bold uppercase text-foreground">{value}</p></div>;
 }
 
 function DetailSection({ heading, body }: ResearchSection) {
