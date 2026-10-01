@@ -223,7 +223,7 @@ function CheckoutPage() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
-  const [method, setMethod] = useState<PaymentMethodKey>("payid");
+  const [method, setMethod] = useState<PaymentMethodKey>("card");
   const [shippingMethod, setShippingMethod] =
     useState<ShippingMethodKey>("express");
   const [address, setAddress] = useState<AddressValue>({

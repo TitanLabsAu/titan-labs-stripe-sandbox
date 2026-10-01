@@ -1072,7 +1072,7 @@ export function AdminEdits() {
                 </h3>
                 <p className="mt-1 text-sm text-muted-foreground">
                   These are shown to the customer after they choose a payment
-                  option at checkout. Leave a field blank to hide it.
+                  option at checkout. PayID and bank details stay saved here while bank transfer is hidden.
                 </p>
               </div>
               <Button
@@ -1084,9 +1084,21 @@ export function AdminEdits() {
               </Button>
             </div>
 
+            <label className="mt-5 flex items-start gap-3 rounded-xl border border-primary/25 p-4">
+              <input
+                type="checkbox"
+                className="mt-1"
+                checked={values["payment_bank_enabled"] === "true"}
+                onChange={(event) => setValue("payment_bank_enabled", event.target.checked ? "true" : "false")}
+              />
+              <span>
+                <span className="block font-bold">Show PayID / bank transfer at checkout</span>
+                <span className="mt-1 block text-sm text-muted-foreground">Enable when your payment details are ready, then save. Appears between Card and Crypto. Card remains the default.</span>
+              </span>
+            </label>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               {PAYMENT_FIELDS.filter(
-                (f) => f.key !== "payment_crypto_options",
+                (f) => f.key !== "payment_crypto_options" && f.key !== "payment_bank_enabled",
               ).map((f) => (
                 <ContentFieldEditor
                   key={f.key}

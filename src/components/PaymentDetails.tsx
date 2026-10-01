@@ -216,22 +216,23 @@ export function PaymentMethodPicker({
   onChange: (next: PaymentMethodKey) => void;
   content: Record<string, string> | undefined;
 }) {
+  const bankEnabled = homeValue(content, "payment_bank_enabled") === "true";
   const options: { key: PaymentMethodKey; label: string; hint: string; badge?: string }[] = [
     {
-      key: "payid",
-      label: homeValue(content, "payment_payid_label"),
-      hint: "Instant transfer from your Australian banking app.",
+      key: "card",
+      label: homeValue(content, "payment_card_label"),
+      hint: "Pay securely online by credit or debit card via Stripe.",
     },
+    ...(bankEnabled ? [{
+      key: "payid" as const,
+      label: homeValue(content, "payment_payid_label"),
+      hint: "Transfer from your banking app using the payment details provided.",
+    }] : []),
     {
       key: "crypto",
       label: homeValue(content, "payment_crypto_label"),
       hint: "Send BTC, ETH or USDT from your own wallet and save instantly.",
       badge: `${CRYPTO_DISCOUNT_PERCENT}% OFF`,
-    },
-    {
-      key: "card",
-      label: homeValue(content, "payment_card_label"),
-      hint: "Pay securely online by credit or debit card via Stripe.",
     },
   ];
 
@@ -268,4 +269,5 @@ export function PaymentMethodPicker({
     </div>
   );
 }
+
 

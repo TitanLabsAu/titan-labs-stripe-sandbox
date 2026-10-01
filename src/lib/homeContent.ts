@@ -140,6 +140,7 @@ export const PAYMENT_FIELDS: HomeField[] = [
     fallback:
       "Choose your preferred payment method below. Payment instructions and confirmation will be provided based on your selected method.",
   },
+  { key: "payment_bank_enabled", label: "Show bank transfer at checkout", align: "left", fallback: "false" },
   { key: "payment_payid_label", label: "PayID option name", align: "left", fallback: "PayID / Bank transfer" },
   { key: "payment_payid_id", label: "Your PayID", align: "left", fallback: "" },
   { key: "payment_payid_account", label: "Account name", align: "left", fallback: "Titan Labs Australia" },
@@ -426,3 +427,4 @@ export function homeValue(content: Record<string, string> | undefined, key: stri
 export function catalogueName(content: Record<string, string> | undefined) {
   return homeValue(content, "home_range_title");
 }
+
