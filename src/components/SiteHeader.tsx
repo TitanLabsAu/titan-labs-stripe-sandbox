@@ -86,8 +86,8 @@ export function SiteHeader() {
         <div className="titan-header-surface absolute inset-0" />
         <div
           className={cn(
-            "relative mx-auto min-h-32 max-w-7xl items-center gap-4 px-4 py-6 sm:min-h-36 sm:px-6",
-            layout === "inline" && "grid grid-cols-[minmax(0,1fr)_auto]",
+            "relative mx-auto min-h-32 max-w-7xl items-center gap-4 px-4 py-5 sm:min-h-36 sm:px-6 sm:py-6",
+            layout === "inline" && "flex flex-col items-stretch sm:grid sm:grid-cols-[minmax(0,1fr)_auto]",
             layout === "stacked" && "flex flex-col items-stretch gap-4",
             layout === "centred" && "flex flex-col items-center gap-4",
           )}
@@ -95,7 +95,7 @@ export function SiteHeader() {
           <Link
             to="/"
             aria-label={`${pageName} home`}
-            className={cn("min-w-0", layout === "centred" && "flex justify-center")}
+            className={cn("min-w-0", layout === "centred" && "flex justify-center", layout === "inline" && "text-center sm:text-left")}
           >
             <span className="block font-display text-2xl font-black uppercase tracking-wide text-foreground drop-shadow-md sm:text-3xl">
               {headerTitle}
