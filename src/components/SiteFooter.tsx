@@ -46,9 +46,10 @@ export function SiteFooter() {
             <p className="flex items-center gap-3"><FlaskConical className="h-4 w-4 text-accent" /> {label("footer_point_3")}</p>
           </div>
         </div>
-        <nav aria-label="Legal" className="mt-8 flex flex-wrap gap-x-5 gap-y-2 font-bold uppercase">
+        <nav aria-label="Support and legal" className="mt-8 flex flex-wrap gap-x-5 gap-y-2 font-bold uppercase">
           <Link to="/terms" hash="terms" className="text-foreground hover:text-primary">Terms &amp; Conditions</Link>
           <Link to="/terms" hash="research-notice" className="text-foreground hover:text-primary">Research Use Notice</Link>
+          <Link to="/contact" target="_blank" rel="noopener noreferrer" className="text-foreground hover:text-primary">Contact &amp; Customer Support</Link>
           <Link to="/privacy" className="text-foreground hover:text-primary">Privacy Policy</Link>
         </nav>
         {siteLinks && siteLinks.length > 0 ? <p className="mt-8 flex flex-wrap gap-x-5 gap-y-2">{siteLinks.map((l) => <a key={l.id} href={l.url} target="_blank" rel="noopener noreferrer" className="font-bold text-accent hover:text-primary">{l.label}</a>)}</p> : null}
@@ -62,3 +63,4 @@ export function SiteFooter() {
     </footer>
   );
 }
+

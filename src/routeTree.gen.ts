@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RangeRouteImport } from './routes/range'
 import { Route as StacksRouteImport } from './routes/stacks'
@@ -51,6 +52,11 @@ const CalculatorRoute = CalculatorRouteImport.update({
 const CheckoutRoute = CheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -163,6 +169,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/calculator': typeof CalculatorRoute
   '/checkout': typeof CheckoutRoute
+  '/contact': typeof ContactRoute
   '/privacy': typeof PrivacyRoute
   '/range': typeof RangeRoute
   '/stacks': typeof StacksRoute
@@ -188,6 +195,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/calculator': typeof CalculatorRoute
   '/checkout': typeof CheckoutRoute
+  '/contact': typeof ContactRoute
   '/privacy': typeof PrivacyRoute
   '/range': typeof RangeRoute
   '/stacks': typeof StacksRoute
@@ -215,6 +223,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/calculator': typeof CalculatorRoute
   '/checkout': typeof CheckoutRoute
+  '/contact': typeof ContactRoute
   '/privacy': typeof PrivacyRoute
   '/range': typeof RangeRoute
   '/stacks': typeof StacksRoute
@@ -242,6 +251,7 @@ export interface FileRouteTypes {
     | '/'
     | '/calculator'
     | '/checkout'
+    | '/contact'
     | '/privacy'
     | '/range'
     | '/stacks'
@@ -267,6 +277,7 @@ export interface FileRouteTypes {
     | '/'
     | '/calculator'
     | '/checkout'
+    | '/contact'
     | '/privacy'
     | '/range'
     | '/stacks'
@@ -293,6 +304,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/calculator'
     | '/checkout'
+    | '/contact'
     | '/privacy'
     | '/range'
     | '/stacks'
@@ -320,6 +332,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   CalculatorRoute: typeof CalculatorRoute
   CheckoutRoute: typeof CheckoutRoute
+  ContactRoute: typeof ContactRoute
   PrivacyRoute: typeof PrivacyRoute
   RangeRoute: typeof RangeRoute
   StacksRoute: typeof StacksRoute
@@ -364,6 +377,13 @@ declare module '@tanstack/react-router' {
       path: '/checkout'
       fullPath: '/checkout'
       preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -536,6 +556,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   CalculatorRoute: CalculatorRoute,
   CheckoutRoute: CheckoutRoute,
+  ContactRoute: ContactRoute,
   PrivacyRoute: PrivacyRoute,
   RangeRoute: RangeRoute,
   StacksRoute: StacksRoute,
