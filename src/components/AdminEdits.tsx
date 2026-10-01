@@ -219,7 +219,7 @@ function PictureSlotEditor({
   }
 
   return (
-    <div className="space-y-3 rounded-lg border border-border bg-background/40 p-4">
+    <div className="space-y-3 rounded-xl border border-primary/20 bg-background/45 p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <Label>{slot.label}</Label>
         <AlignmentButtons value={align} onChange={(value) => setValue(alignKey, value)} />
@@ -299,7 +299,7 @@ function SectionOrderEditor({
   };
 
   return (
-    <div className="mt-5 rounded-lg border border-border bg-background/40 p-4">
+    <div className="mt-5 rounded-xl border border-primary/20 bg-background/45 p-4">
       <h4 className="text-sm font-extrabold uppercase tracking-[0.15em] text-accent">Page layout</h4>
       <p className="mt-1 text-sm text-muted-foreground">Drag sections into position, or use the arrow buttons.</p>
       <div className="mt-3 space-y-2">
@@ -318,7 +318,7 @@ function SectionOrderEditor({
               setDragged(null);
             }}
             className={cn(
-              "grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-md border border-border bg-card px-3 py-2",
+              "grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-primary/20 bg-card/90 px-3 py-2",
               dragged === key && "opacity-50",
             )}
           >
@@ -407,7 +407,7 @@ function CryptoOptionsEditor({
 
       <div className="mt-3 space-y-3">
         {rows.map((row, index) => (
-          <div key={index} className="rounded-md border border-border bg-card p-4">
+          <div key={index} className="rounded-xl border border-primary/20 bg-card/90 p-4">
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
                 <Label className="text-xs">Coin name</Label>
@@ -703,7 +703,7 @@ export function AdminEdits() {
         </TabsList>
 
         <TabsContent value="appearance" className="mt-6 space-y-6">
-          <div className="rounded-xl border border-border bg-card/80 p-6">
+          <div className="rounded-2xl border border-primary/25 bg-card/90 shadow-glow p-6">
             <p className="technical-label text-accent">Site appearance</p>
             <h3 className="mt-2 text-xl font-extrabold uppercase text-foreground">Titan theme</h3>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
@@ -726,7 +726,7 @@ export function AdminEdits() {
         </TabsContent>
 
         <TabsContent value="legal" className="mt-6 space-y-6">
-          <div className="rounded-xl border border-border bg-card/80 p-6">
+          <div className="rounded-2xl border border-primary/25 bg-card/90 shadow-glow p-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h3 className="text-lg font-extrabold uppercase text-foreground">Legal pages</h3>
@@ -762,7 +762,7 @@ export function AdminEdits() {
         </TabsContent>
 
         <TabsContent value="payments" className="mt-6 space-y-6">
-          <div className="rounded-xl border border-border bg-card/80 p-6">
+          <div className="rounded-2xl border border-primary/25 bg-card/90 shadow-glow p-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h3 className="text-lg font-extrabold uppercase text-foreground">Payment details</h3>
@@ -809,7 +809,7 @@ export function AdminEdits() {
         </TabsContent>
 
         <TabsContent value="header" className="mt-6 space-y-6">
-          <div className="rounded-xl border border-border bg-card/80 p-6">
+          <div className="rounded-2xl border border-primary/25 bg-card/90 shadow-glow p-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h3 className="text-lg font-extrabold uppercase text-foreground">Header</h3>
@@ -896,7 +896,7 @@ export function AdminEdits() {
         </TabsContent>
 
         <TabsContent value="footer" className="mt-6 space-y-6">
-          <div className="rounded-xl border border-border bg-card/80 p-6">
+          <div className="rounded-2xl border border-primary/25 bg-card/90 shadow-glow p-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h3 className="text-lg font-extrabold uppercase text-foreground">Footer</h3>
@@ -934,7 +934,7 @@ export function AdminEdits() {
 
 
         <TabsContent value="home" className="mt-6 space-y-6">
-          <div className="rounded-xl border border-border bg-card/80 p-6">
+          <div className="rounded-2xl border border-primary/25 bg-card/90 shadow-glow p-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h3 className="text-lg font-extrabold uppercase text-foreground">Home page name and subheading</h3>
@@ -964,7 +964,7 @@ export function AdminEdits() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-border bg-card/80 p-6">
+          <div className="rounded-2xl border border-primary/25 bg-card/90 shadow-glow p-6">
             <h3 className="text-lg font-extrabold uppercase text-foreground">
               Hot products on the home page
             </h3>
@@ -1002,7 +1002,7 @@ export function AdminEdits() {
                 featuredProducts.map((p, i) => (
                   <div
                     key={p.id}
-                    className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-background/40 p-4"
+                    className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/20 bg-background/45 p-4"
                   >
                     <div className="flex items-center gap-3 text-sm text-muted-foreground">
                       {p.image_url ? (
@@ -1085,7 +1085,7 @@ export function AdminEdits() {
             ) : null}
           </div>
 
-          <div className="rounded-xl border border-border bg-card/80 p-6">
+          <div className="rounded-2xl border border-primary/25 bg-card/90 shadow-glow p-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h3 className="text-lg font-extrabold uppercase text-foreground">Home page wording</h3>
@@ -1141,7 +1141,7 @@ export function AdminEdits() {
         </TabsContent>
 
         <TabsContent value="range" className="mt-6">
-          <div className="rounded-xl border border-border bg-card/80 p-6">
+          <div className="rounded-2xl border border-primary/25 bg-card/90 shadow-glow p-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h3 className="text-lg font-extrabold uppercase text-foreground">
