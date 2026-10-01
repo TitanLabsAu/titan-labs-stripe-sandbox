@@ -23,7 +23,7 @@ export function TitanBlendsView({ entries, preview = false }: { entries: Researc
       </div>
       <div className="mt-8 grid gap-5 lg:grid-cols-3">
         {TITAN_BLENDS.map((blend) => (
-          <section key={blend.slug} className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+          <section key={blend.slug} className="rounded-2xl border border-primary/25 bg-card/90 p-5 shadow-glow sm:p-6">
             <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-primary/30 bg-primary/10">
               <Layers3 className="h-5 w-5 text-primary" aria-hidden="true" />
             </div>
