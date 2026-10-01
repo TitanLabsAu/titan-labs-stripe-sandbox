@@ -38,7 +38,7 @@ function OrderHistoryPage() {
       <SiteHeader />
       <main className="page-shell py-10 sm:py-12">
         <ProfileMenu />
-        <section className="border border-border bg-card p-6 shadow-sm sm:p-8">
+        <section className="rounded-2xl border border-primary/25 bg-card/90 p-6 shadow-glow sm:p-8">
           <h2 className="technical-label text-foreground">Order history</h2>
           <p className="mt-2 text-sm text-muted-foreground">Every order that has been completed and delivered.</p>
         <div className="mt-6">
