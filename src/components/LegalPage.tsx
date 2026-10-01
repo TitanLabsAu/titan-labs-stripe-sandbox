@@ -26,8 +26,8 @@ export function LegalPage({ eyebrow, title, children }: { eyebrow: string; title
       <main className="page-shell py-10 sm:py-14">
         <LegalAnchorScroll />
         <p className="technical-label text-accent">{eyebrow}</p>
-        <h1 className="mt-1 text-3xl font-medium uppercase text-foreground sm:text-4xl">{title}</h1>
-        <div className="mt-8 max-w-3xl space-y-6">{children}</div>
+        <h1 className="mt-2 font-display text-4xl font-black uppercase tracking-[0.08em] text-foreground sm:text-5xl">{title}</h1>
+        <div className="mt-8 max-w-4xl space-y-4">{children}</div>
       </main>
       <SiteFooter />
     </div>
@@ -59,7 +59,7 @@ export function LegalSection({
   }, [hash, id]);
 
   return (
-    <section id={id} className="industrial-panel scroll-mt-6 border-l-2 border-l-primary">
+    <section id={id} className="scroll-mt-6 rounded-2xl border border-primary/25 border-l-2 border-l-primary bg-card/85 shadow-glow">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
