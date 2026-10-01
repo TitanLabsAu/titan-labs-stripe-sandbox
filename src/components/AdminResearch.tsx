@@ -430,7 +430,7 @@ export function AdminResearch() {
     );
   }
 
-  const bulkTarget = bulkAction === "publish" ? draftEntries : publishedEntries;
+  const bulkTarget = bulkAction === "publish" ? verifiedDrafts : publishedEntries;
   const bulkCount = bulkTarget.length;
 
   return (
@@ -448,14 +448,21 @@ export function AdminResearch() {
         </Button>
       </div>
 
+      {entries.length > 0 ? (
+        <p className="mt-4 text-xs text-muted-foreground">
+          {draftEntries.length} draft{draftEntries.length === 1 ? "" : "s"} · {verifiedDrafts.length} verified and
+          eligible to publish. Only entries with Verification Status = Verified can be published.
+        </p>
+      ) : null}
+
       {entries.length > 0 && (draftEntries.length > 0 || publishedEntries.length > 0) ? (
-        <div className="mt-5 grid gap-2 sm:flex sm:flex-wrap sm:items-center">
+        <div className="mt-3 grid gap-2 sm:flex sm:flex-wrap sm:items-center">
           <Button
             className="h-11 w-full font-bold uppercase sm:h-10 sm:w-auto"
-            disabled={bulkUpdate.isPending || draftEntries.length === 0}
+            disabled={bulkUpdate.isPending || verifiedDrafts.length === 0}
             onClick={() => setBulkAction("publish")}
           >
-            <CheckCheck /> Publish all drafts ({draftEntries.length})
+            <CheckCheck /> Publish verified drafts ({verifiedDrafts.length})
           </Button>
           <Button
             variant="outline"
