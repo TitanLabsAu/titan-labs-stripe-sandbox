@@ -21,7 +21,7 @@ export function ProductCard({ product: p }: { product: Product }) {
   const vialsPer = pack === "kit" ? 10 : 1;
   const atMax = Boolean(inCart) && ((stockCount != null && (inCart!.quantity + 1) * vialsPer > stockCount) || inCart!.quantity >= 99);
   return (
-    <article className="group grid min-h-48 grid-cols-[7rem_minmax(0,1fr)] overflow-hidden rounded-xl border border-border bg-card/90 shadow-sm transition hover:border-primary/55 hover:shadow-glow sm:min-h-40 sm:grid-cols-[8rem_minmax(0,1fr)]">
+    <article className="group grid min-h-48 grid-cols-[7rem_minmax(0,1fr)] overflow-hidden rounded-2xl border border-primary/20 bg-card/90 shadow-glow transition hover:border-primary/55 hover:shadow-glow sm:min-h-40 sm:grid-cols-[8rem_minmax(0,1fr)]">
       <Link to="/product/$slug" params={{ slug: p.slug }} className="relative overflow-hidden border-r border-border bg-secondary/30">
         <img src={p.image} alt={p.alt} loading="lazy" className={`h-full w-full object-cover transition duration-300 hover:scale-[1.02] ${allOut ? "opacity-40 grayscale" : ""}`} />
         {p.promoLabel && !bannerSoon ? (
