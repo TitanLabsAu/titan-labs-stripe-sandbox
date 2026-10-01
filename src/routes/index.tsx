@@ -20,7 +20,7 @@ import {
   TEXT_ALIGN_CLASS,
 } from "@/lib/homeContent";
 import { cn } from "@/lib/utils";
-import emblemAsset from "@/assets/titan-australia-metallic-emblem-transparent.png.asset.json";
+import logoAsset from "@/assets/titan-labs-new-logo.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
