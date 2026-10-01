@@ -357,7 +357,7 @@ export function ProductEditor({
         </div>
       </div>
 
-      <div className="space-y-3 rounded-lg border border-border bg-background/40 p-4">
+      <div className="space-y-3 rounded-xl border border-primary/20 bg-background/45 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <Label>Vial sizes, prices and stock</Label>
