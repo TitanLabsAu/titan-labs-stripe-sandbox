@@ -104,10 +104,10 @@ function SignupPage() {
       <SiteHeader />
       <main className="page-shell py-12">
       <div className="w-full max-w-3xl">
-        <div className="border border-border bg-card p-8 shadow-sm">
+        <div className="rounded-2xl border border-primary/25 bg-card/90 p-8 shadow-glow">
           {sent ? (
             <div className="space-y-4 text-center">
-              <h1 className="text-2xl font-extrabold tracking-tight text-steel">Check your email</h1>
+              <h1 className="font-display text-2xl font-black uppercase tracking-[0.08em] text-foreground">Check your email</h1>
               <p className="text-sm text-muted-foreground">
                 We've sent a confirmation link to{" "}
                 <span className="text-foreground">{form.email}</span>. Click it to confirm your
@@ -119,7 +119,7 @@ function SignupPage() {
             </div>
           ) : (
             <>
-               <h1 className="text-left text-3xl font-medium uppercase text-foreground">
+               <h1 className="font-display text-left text-3xl font-black uppercase tracking-[0.08em] text-foreground">
                 Create Account
               </h1>
                <p className="mt-2 text-left text-sm text-muted-foreground">
