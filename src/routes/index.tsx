@@ -153,6 +153,7 @@ function Index() {
                 >
                   <p className="rounded-xl border border-border bg-card px-6 py-3 font-display text-sm font-black uppercase tracking-wider text-muted-foreground">
                     <RichText
+                      inline
                       text={homeValue(content, "home_shipping_banner")}
                     />
                   </p>
@@ -197,6 +198,7 @@ function Index() {
                     )}
                   >
                     <RichText
+                      inline
                       text={homeValue(content, "home_featured_title")}
                     />
                   </h2>
