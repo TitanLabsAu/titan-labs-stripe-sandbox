@@ -106,6 +106,13 @@
       "when": 1790825008871,
       "tag": "0014_research_member_at_a_glance",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1790896020894,
+      "tag": "0015_allow_individual_research_publication",
+      "breakpoints": true
     }
   ]
 }
