@@ -18,11 +18,20 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import {
+  CLAIM_FIELDS,
+  CLAIM_STATES,
+  EVIDENCE_STATUSES,
+  EVIDENCE_TYPES,
+  VERIFICATION_STATUSES,
+  label,
   slugify,
   toResearchEntry,
+  type ClaimChecks,
+  type EvidenceStatus,
   type ResearchEntry,
   type ResearchReference,
   type ResearchSection,
+  type VerificationStatus,
 } from "@/lib/research";
 
 type Draft = {
@@ -42,7 +51,23 @@ type Draft = {
   content: ResearchSection[];
   references: ResearchReference[];
   published: boolean;
+  evidence_status: EvidenceStatus;
+  verification_status: VerificationStatus;
+  claim_checks: ClaimChecks;
+  blend_notice: boolean;
 };
+
+const emptyRef = (): ResearchReference => ({
+  title: "",
+  authors: "",
+  source: "",
+  year: "",
+  pmid: "",
+  doi: "",
+  url: "",
+  evidence_type: "",
+  note: "",
+});
 
 const emptyDraft = (sort = 0): Draft => ({
   id: null,
@@ -61,6 +86,10 @@ const emptyDraft = (sort = 0): Draft => ({
   content: [{ heading: "Overview", body: "" }],
   references: [],
   published: false,
+  evidence_status: "not_reviewed",
+  verification_status: "unverified",
+  claim_checks: {},
+  blend_notice: false,
 });
 
 const toDraft = (e: ResearchEntry): Draft => ({
@@ -80,10 +109,17 @@ const toDraft = (e: ResearchEntry): Draft => ({
   content: e.content.length ? e.content : [{ heading: "", body: "" }],
   references: e.source_references,
   published: e.published,
+  evidence_status: e.evidence_status,
+  verification_status: e.verification_status,
+  claim_checks: e.claim_checks,
+  blend_notice: e.blend_notice,
 });
 
 const list = (v: string) => v.split(",").map((s) => s.trim()).filter(Boolean);
 const opt = (v: string) => (v.trim() ? v.trim() : null);
+
+const PUBLISH_BLOCKED = "Only entries with Verification Status = Verified can be published.";
+const isPublishBlock = (e: any) => String(e?.message ?? "").includes("Only entries with Verification Status");
 
 function payload(d: Draft, published: boolean, wasPublishedAt: string | null) {
   return {
@@ -103,8 +139,22 @@ function payload(d: Draft, published: boolean, wasPublishedAt: string | null) {
       .map((s) => ({ heading: s.heading.trim(), body: s.body.trim() }))
       .filter((s) => s.heading || s.body),
     source_references: d.references
-      .map((r) => ({ title: r.title.trim(), url: r.url.trim(), source: r.source.trim(), year: r.year.trim() }))
-      .filter((r) => r.title || r.url),
+      .map((r) => ({
+        title: r.title.trim(),
+        authors: r.authors.trim(),
+        source: r.source.trim(),
+        year: r.year.trim(),
+        pmid: r.pmid.trim(),
+        doi: r.doi.trim(),
+        url: r.url.trim(),
+        evidence_type: r.evidence_type,
+        note: r.note.trim(),
+      }))
+      .filter((r) => r.title || r.url || r.pmid || r.doi),
+    evidence_status: d.evidence_status,
+    verification_status: d.verification_status,
+    claim_checks: d.claim_checks,
+    blend_notice: d.blend_notice,
     published,
     published_at: published ? wasPublishedAt ?? new Date().toISOString() : null,
   };
@@ -144,6 +194,7 @@ export function AdminResearch() {
         : await supabase.from("research_entries").insert(body).select("*").single();
       if (res.error) {
         if (res.error.code === "23505") throw new Error("Another entry already uses that web address");
+        if (isPublishBlock(res.error)) throw new Error(PUBLISH_BLOCKED);
         throw res.error;
       }
       return toResearchEntry(res.data);
@@ -159,18 +210,19 @@ export function AdminResearch() {
   const togglePublish = useMutation({
     mutationFn: async (e: ResearchEntry) => {
       const next = !e.published;
+      if (next && e.verification_status !== "verified") throw new Error(PUBLISH_BLOCKED);
       const { error } = await supabase
         .from("research_entries")
         .update({ published: next, published_at: next ? e.published_at ?? new Date().toISOString() : null })
         .eq("id", e.id);
-      if (error) throw error;
+      if (error) throw isPublishBlock(error) ? new Error(PUBLISH_BLOCKED) : error;
       return next;
     },
     onSuccess: (next) => {
       toast.success(next ? "Published" : "Moved back to drafts");
       refresh();
     },
-    onError: () => toast.error("Could not change the status"),
+    onError: (e: any) => toast.error(e?.message ?? "Could not change the status"),
   });
 
   const remove = useMutation({
@@ -205,16 +257,24 @@ export function AdminResearch() {
   });
 
   const draftEntries = entries.filter((e) => !e.published);
+  const verifiedDrafts = draftEntries.filter((e) => e.verification_status === "verified");
   const publishedEntries = entries.filter((e) => e.published);
 
   const bulkUpdate = useMutation({
     mutationFn: async ({ action, ids }: { action: "publish" | "unpublish"; ids: string[] }) => {
       if (!ids.length) return { action, count: 0 };
-      const body =
-        action === "publish"
-          ? { published: true, published_at: new Date().toISOString() }
-          : { published: false, published_at: null };
-      const { error } = await supabase.from("research_entries").update(body).in("id", ids);
+      if (action === "publish") {
+        const { data, error } = await supabase
+          .from("research_entries")
+          .update({ published: true, published_at: new Date().toISOString() })
+          .in("id", ids)
+          .eq("verification_status", "verified")
+          .eq("published", false)
+          .select("id");
+        if (error) throw error;
+        return { action, count: data?.length ?? 0 };
+      }
+      const { error } = await supabase.from("research_entries").update({ published: false, published_at: null }).in("id", ids);
       if (error) throw error;
       return { action, count: ids.length };
     },
@@ -329,11 +389,7 @@ export function AdminResearch() {
         <div className="mt-6">
           <div className="flex items-center justify-between">
             <p className="technical-label text-foreground">References / sources</p>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => set("references", [...draft.references, { title: "", url: "", source: "", year: "" }])}
-            >
+            <Button size="sm" variant="outline" onClick={() => set("references", [...draft.references, emptyRef()])}>
               <Plus /> Reference
             </Button>
           </div>
@@ -342,25 +398,73 @@ export function AdminResearch() {
               const upd = (patch: Partial<ResearchReference>) =>
                 set("references", draft.references.map((x, j) => (j === i ? { ...x, ...patch } : x)));
               return (
-                <div key={i} className="grid gap-2 border border-border p-3 sm:grid-cols-[2fr_1fr_80px_auto]">
-                  <Input placeholder="Title" value={r.title} onChange={(e) => upd({ title: e.target.value })} />
-                  <Input placeholder="Journal / source" value={r.source} onChange={(e) => upd({ source: e.target.value })} />
-                  <Input placeholder="Year" value={r.year} onChange={(e) => upd({ year: e.target.value })} />
-                  <Button size="icon" variant="outline" aria-label="Remove reference" onClick={() => set("references", draft.references.filter((_, j) => j !== i))}>
-                    <Trash2 />
-                  </Button>
-                  <Input className="sm:col-span-4" placeholder="https://…" value={r.url} onChange={(e) => upd({ url: e.target.value })} />
+                <div key={i} className="grid gap-2 border border-border p-3 sm:grid-cols-2">
+                  <div className="flex gap-2 sm:col-span-2">
+                    <Input placeholder="Source title" value={r.title} onChange={(e) => upd({ title: e.target.value })} />
+                    <Button size="icon" variant="outline" aria-label="Remove reference" onClick={() => set("references", draft.references.filter((_, j) => j !== i))}>
+                      <Trash2 />
+                    </Button>
+                  </div>
+                  <Input placeholder="Authors / organisation" value={r.authors} onChange={(e) => upd({ authors: e.target.value })} />
+                  <Input placeholder="Journal / authority" value={r.source} onChange={(e) => upd({ source: e.target.value })} />
+                  <Input placeholder="Publication year" value={r.year} onChange={(e) => upd({ year: e.target.value })} />
+                  <select
+                    className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                    value={r.evidence_type}
+                    onChange={(e) => upd({ evidence_type: e.target.value as ResearchReference["evidence_type"] })}
+                  >
+                    <option value="">Evidence type…</option>
+                    {EVIDENCE_TYPES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+                  </select>
+                  <Input placeholder="PMID" inputMode="numeric" value={r.pmid} onChange={(e) => upd({ pmid: e.target.value })} />
+                  <Input placeholder="DOI (10.xxxx/…)" value={r.doi} onChange={(e) => upd({ doi: e.target.value })} />
+                  <Input className="sm:col-span-2" placeholder="https://…" value={r.url} onChange={(e) => upd({ url: e.target.value })} />
+                  <Textarea className="sm:col-span-2" rows={2} placeholder="Admin verification note (never shown publicly)" value={r.note} onChange={(e) => upd({ note: e.target.value })} />
                 </div>
               );
             })}
           </div>
         </div>
 
+        <div className="mt-6 border border-border p-3 sm:p-4">
+          <p className="technical-label text-foreground">Scientific verification (admin only)</p>
+          <div className="mt-3 grid gap-4 sm:grid-cols-2">
+            <Field label="Evidence status">
+              <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={draft.evidence_status} onChange={(e) => set("evidence_status", e.target.value as EvidenceStatus)}>
+                {EVIDENCE_STATUSES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+              </select>
+            </Field>
+            <Field label="Verification status">
+              <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={draft.verification_status} onChange={(e) => set("verification_status", e.target.value as VerificationStatus)}>
+                {VERIFICATION_STATUSES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+              </select>
+            </Field>
+            {CLAIM_FIELDS.map(([k, l]) => (
+              <Field key={k} label={l}>
+                <select
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  value={draft.claim_checks[k] ?? "not_checked"}
+                  onChange={(e) => set("claim_checks", { ...draft.claim_checks, [k]: e.target.value as any })}
+                >
+                  {CLAIM_STATES.map(([v, t]) => <option key={v} value={v}>{t}</option>)}
+                </select>
+              </Field>
+            ))}
+            <label className="flex items-start gap-2 text-sm sm:col-span-2">
+              <input type="checkbox" className="mt-1" checked={draft.blend_notice} onChange={(e) => set("blend_notice", e.target.checked)} />
+              <span>Show signature-blend notice (ingredient evidence does not establish effects of the combined formulation)</span>
+            </label>
+          </div>
+          {draft.verification_status !== "verified" ? (
+            <p className="mt-3 text-xs font-bold text-accent">{PUBLISH_BLOCKED} Current: {label(VERIFICATION_STATUSES, draft.verification_status)}.</p>
+          ) : null}
+        </div>
+
         <div className="mt-6 grid gap-3 sm:flex sm:flex-wrap">
           <Button variant="outline" className="font-bold uppercase" disabled={save.isPending} onClick={() => save.mutate({ d: draft, published: false })}>
             Save as draft
           </Button>
-          <Button className="font-bold uppercase" disabled={save.isPending} onClick={() => save.mutate({ d: draft, published: true })}>
+          <Button className="font-bold uppercase" disabled={save.isPending || draft.verification_status !== "verified"} onClick={() => save.mutate({ d: draft, published: true })}>
             Save &amp; publish
           </Button>
           {existing ? (
@@ -380,7 +484,7 @@ export function AdminResearch() {
     );
   }
 
-  const bulkTarget = bulkAction === "publish" ? draftEntries : publishedEntries;
+  const bulkTarget = bulkAction === "publish" ? verifiedDrafts : publishedEntries;
   const bulkCount = bulkTarget.length;
 
   return (
@@ -398,14 +502,21 @@ export function AdminResearch() {
         </Button>
       </div>
 
+      {entries.length > 0 ? (
+        <p className="mt-4 text-xs text-muted-foreground">
+          {draftEntries.length} draft{draftEntries.length === 1 ? "" : "s"} · {verifiedDrafts.length} verified and
+          eligible to publish. Only entries with Verification Status = Verified can be published.
+        </p>
+      ) : null}
+
       {entries.length > 0 && (draftEntries.length > 0 || publishedEntries.length > 0) ? (
-        <div className="mt-5 grid gap-2 sm:flex sm:flex-wrap sm:items-center">
+        <div className="mt-3 grid gap-2 sm:flex sm:flex-wrap sm:items-center">
           <Button
             className="h-11 w-full font-bold uppercase sm:h-10 sm:w-auto"
-            disabled={bulkUpdate.isPending || draftEntries.length === 0}
+            disabled={bulkUpdate.isPending || verifiedDrafts.length === 0}
             onClick={() => setBulkAction("publish")}
           >
-            <CheckCheck /> Publish all drafts ({draftEntries.length})
+            <CheckCheck /> Publish verified drafts ({verifiedDrafts.length})
           </Button>
           <Button
             variant="outline"
@@ -426,7 +537,7 @@ export function AdminResearch() {
             </AlertDialogTitle>
             <AlertDialogDescription>
               {bulkAction === "publish"
-                ? `${bulkCount} ${bulkCount === 1 ? "entry" : "entries"} will become publicly visible at /research immediately after you confirm. No entry content will be changed.`
+                ? `${bulkCount} verified draft ${bulkCount === 1 ? "entry is" : "entries are"} eligible and will become publicly visible at /research immediately after you confirm. Unverified, partially verified and needs-correction drafts are excluded. No entry content will be changed.`
                 : `All ${bulkCount} published ${bulkCount === 1 ? "entry" : "entries"} will be hidden from customers — the entire Research Lab will be taken offline. No entry content will be changed.`}
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -467,7 +578,8 @@ export function AdminResearch() {
                   {e.category || "Uncategorised"} · /research/{e.slug} ·{" "}
                   <span className={e.published ? "font-bold text-primary" : "font-bold text-accent"}>
                     {e.published ? "Published" : "Draft"}
-                  </span>
+                  </span>{" "}
+                  · {label(VERIFICATION_STATUSES, e.verification_status)}
                 </p>
               </div>
               <div className="flex flex-wrap gap-1.5">
@@ -477,7 +589,13 @@ export function AdminResearch() {
                 <Button size="icon" variant="outline" aria-label="Move down" disabled={i === entries.length - 1 || move.isPending} onClick={() => move.mutate({ index: i, dir: 1 })}>
                   <ArrowDown />
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => togglePublish.mutate(e)} disabled={togglePublish.isPending}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => togglePublish.mutate(e)}
+                  disabled={togglePublish.isPending || (!e.published && e.verification_status !== "verified")}
+                  title={!e.published && e.verification_status !== "verified" ? PUBLISH_BLOCKED : undefined}
+                >
                   {e.published ? <EyeOff /> : <Eye />} {e.published ? "Unpublish" : "Publish"}
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => setDraft(toDraft(e))}>
