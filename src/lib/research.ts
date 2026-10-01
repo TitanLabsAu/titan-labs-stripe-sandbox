@@ -5,9 +5,11 @@ export type ResearchSection = { heading: string; body: string };
 export const EVIDENCE_TYPES = [
   ["in_vitro", "In vitro"],
   ["animal", "Animal / preclinical"],
+  ["analytical", "Analytical chemistry"],
   ["human_observational", "Human observational"],
   ["human_trial", "Human clinical trial"],
   ["rct", "Randomised controlled trial"],
+  ["narrative_review", "Review"],
   ["review", "Systematic review / meta-analysis"],
   ["regulatory", "Regulatory / official"],
 ] as const;
@@ -63,7 +65,10 @@ export type ClaimState = (typeof CLAIM_STATES)[number][0];
 export type ClaimChecks = Partial<Record<ClaimField, ClaimState>>;
 
 export const BLEND_NOTICE =
-  "Evidence relating to the individual ingredients of this blend does not establish the effects of the combined formulation. No direct published research on this specific combination is referenced here unless listed below.";
+  "Evidence relating to individual ingredients does not establish the effects, safety or efficacy of the combined formulation. No direct published research on this specific combination is referenced here unless listed below.";
+
+export const VERIFIED_EXPLANATION =
+  "Verified means the Research Lab entry has been checked against its cited sources. It does not mean the compound has been proven safe or effective for human use.";
 
 export const label = (list: readonly (readonly [string, string])[], v: string) =>
   list.find(([k]) => k === v)?.[1] ?? v;

@@ -4,7 +4,7 @@ import { ArrowLeft, ExternalLink } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { getPublishedResearch } from "@/lib/research.functions";
-import { BLEND_NOTICE, EVIDENCE_STATUSES, EVIDENCE_TYPES, doiUrl, label, pubchemUrl, pubmedUrl, safeUrl } from "@/lib/research";
+import { BLEND_NOTICE, EVIDENCE_STATUSES, EVIDENCE_TYPES, VERIFIED_EXPLANATION, doiUrl, label, pubchemUrl, pubmedUrl, safeUrl } from "@/lib/research";
 
 const entryQuery = (slug: string) =>
   queryOptions({
@@ -190,6 +190,12 @@ function EntryPage() {
                   </div>
                 ) : null}
               </dl>
+            </section>
+          ) : null}
+          {e.verification_status === "verified" ? (
+            <section className="border border-border bg-card p-4 text-xs leading-5 text-muted-foreground">
+              <p className="technical-label text-foreground">Source-checked entry</p>
+              <p className="mt-2">{VERIFIED_EXPLANATION}</p>
             </section>
           ) : null}
           {e.updated_at ? (
