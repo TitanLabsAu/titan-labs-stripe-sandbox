@@ -33,6 +33,7 @@ export function SiteFooter() {
                {tabOrder.map((tab) => {
                  if (tab === "home") return <Link key={tab} to="/">{label("header_nav_home")}</Link>;
                   if (tab === "range") return <Link key={tab} to="/range">{catalogueName(content)}</Link>;
+                 if (tab === "research") return <Link key={tab} to="/research">Titan Research Lab</Link>;
                  if (tab === "calculator") return <Link key={tab} to="/calculator">{label("header_nav_calculator")}</Link>;
                  return <Link key={tab} to="/auth">{label("header_nav_login")}</Link>;
                })}
