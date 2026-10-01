@@ -70,7 +70,7 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
           ) : null}
 
           {entry.research_findings.length ? (
-            <section className="border border-border bg-card p-5 sm:p-7">
+            <section className="rounded-2xl border border-primary/25 bg-card/90 p-5 shadow-glow sm:p-7">
               <div className="flex items-center gap-2"><ListChecks className="h-5 w-5 text-primary" aria-hidden="true" /><h2 className="font-display text-lg font-bold uppercase text-foreground">What researchers are studying</h2></div>
               <ul className="mt-4 grid gap-3 sm:grid-cols-2">
                 {entry.research_findings.map((finding, index) => <li key={index} className="border-l-2 border-l-accent bg-background px-4 py-3 text-sm leading-6 text-muted-foreground">{finding}</li>)}
@@ -79,7 +79,7 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
           ) : null}
 
           {related.length ? (
-            <section className="rounded-2xl border border-border bg-card p-5 sm:p-7">
+            <section className="rounded-2xl rounded-2xl border border-primary/25 bg-card/90 p-5 shadow-glow sm:p-7">
               <p className="technical-label text-primary">Related research</p>
               <h2 className="mt-1 font-display text-lg font-bold uppercase text-foreground">Explore similar research</h2>
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -100,7 +100,7 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
             </section>
           ) : null}
 
-          <Accordion type="multiple" className="border border-border bg-card px-5 sm:px-7">
+          <Accordion type="multiple" className="rounded-2xl border border-primary/25 bg-card/90 px-5 shadow-glow sm:px-7">
             <AccordionItem value="research-details">
               <AccordionTrigger className="min-h-14 font-display text-base font-bold uppercase text-foreground hover:no-underline">Research details</AccordionTrigger>
               <AccordionContent className="space-y-6 text-base leading-7 text-muted-foreground">
@@ -133,7 +133,7 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
         </div>
 
         <aside className="space-y-4 lg:sticky lg:top-6 lg:col-span-4">
-          {entry.verification_status === "verified" ? <div className="border border-border bg-card p-5"><p className="technical-label text-primary">Source-checked entry</p><p className="mt-2 text-xs leading-5 text-muted-foreground">{VERIFIED_EXPLANATION}</p></div> : null}
+          {entry.verification_status === "verified" ? <div className="rounded-2xl border border-primary/25 bg-card/90 p-5 shadow-glow"><p className="technical-label text-primary">Source-checked entry</p><p className="mt-2 text-xs leading-5 text-muted-foreground">{VERIFIED_EXPLANATION}</p></div> : null}
           <div className="border border-border bg-secondary p-5"><p className="technical-label text-foreground">Research-use information</p><p className="mt-2 text-xs leading-5 text-muted-foreground">Educational research reference only. Not medical advice. Laboratory and animal findings do not establish effects in humans. Products supplied by Titan Labs Australia are for laboratory research use only and are not for human or animal consumption.</p></div>
           {entry.updated_at ? <p className="px-1 text-xs text-muted-foreground">Last updated <span className="font-bold text-foreground">{new Date(entry.updated_at).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric", timeZone: "Australia/Sydney" })}</span></p> : null}
         </aside>
@@ -143,7 +143,7 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
 }
 
 function ResearchMapItem({ label: itemLabel, value }: { label: string; value: string }) {
-  return <div className="rounded-xl border border-border bg-card p-4"><p className="technical-label text-muted-foreground">{itemLabel}</p><p className="mt-2 font-display text-sm font-bold uppercase text-foreground">{value}</p></div>;
+  return <div className="rounded-xl border border-primary/20 bg-card/90 p-4"><p className="technical-label text-muted-foreground">{itemLabel}</p><p className="mt-2 font-display text-sm font-bold uppercase text-foreground">{value}</p></div>;
 }
 
 function DetailSection({ heading, body }: ResearchSection) {
