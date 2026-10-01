@@ -18,11 +18,20 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import {
+  CLAIM_FIELDS,
+  CLAIM_STATES,
+  EVIDENCE_STATUSES,
+  EVIDENCE_TYPES,
+  VERIFICATION_STATUSES,
+  label,
   slugify,
   toResearchEntry,
+  type ClaimChecks,
+  type EvidenceStatus,
   type ResearchEntry,
   type ResearchReference,
   type ResearchSection,
+  type VerificationStatus,
 } from "@/lib/research";
 
 type Draft = {
@@ -42,7 +51,23 @@ type Draft = {
   content: ResearchSection[];
   references: ResearchReference[];
   published: boolean;
+  evidence_status: EvidenceStatus;
+  verification_status: VerificationStatus;
+  claim_checks: ClaimChecks;
+  blend_notice: boolean;
 };
+
+const emptyRef = (): ResearchReference => ({
+  title: "",
+  authors: "",
+  source: "",
+  year: "",
+  pmid: "",
+  doi: "",
+  url: "",
+  evidence_type: "",
+  note: "",
+});
 
 const emptyDraft = (sort = 0): Draft => ({
   id: null,
@@ -61,6 +86,10 @@ const emptyDraft = (sort = 0): Draft => ({
   content: [{ heading: "Overview", body: "" }],
   references: [],
   published: false,
+  evidence_status: "not_reviewed",
+  verification_status: "unverified",
+  claim_checks: {},
+  blend_notice: false,
 });
 
 const toDraft = (e: ResearchEntry): Draft => ({
@@ -80,10 +109,17 @@ const toDraft = (e: ResearchEntry): Draft => ({
   content: e.content.length ? e.content : [{ heading: "", body: "" }],
   references: e.source_references,
   published: e.published,
+  evidence_status: e.evidence_status,
+  verification_status: e.verification_status,
+  claim_checks: e.claim_checks,
+  blend_notice: e.blend_notice,
 });
 
 const list = (v: string) => v.split(",").map((s) => s.trim()).filter(Boolean);
 const opt = (v: string) => (v.trim() ? v.trim() : null);
+
+const PUBLISH_BLOCKED = "Only entries with Verification Status = Verified can be published.";
+const isPublishBlock = (e: any) => String(e?.message ?? "").includes("Only entries with Verification Status");
 
 function payload(d: Draft, published: boolean, wasPublishedAt: string | null) {
   return {
@@ -103,8 +139,22 @@ function payload(d: Draft, published: boolean, wasPublishedAt: string | null) {
       .map((s) => ({ heading: s.heading.trim(), body: s.body.trim() }))
       .filter((s) => s.heading || s.body),
     source_references: d.references
-      .map((r) => ({ title: r.title.trim(), url: r.url.trim(), source: r.source.trim(), year: r.year.trim() }))
-      .filter((r) => r.title || r.url),
+      .map((r) => ({
+        title: r.title.trim(),
+        authors: r.authors.trim(),
+        source: r.source.trim(),
+        year: r.year.trim(),
+        pmid: r.pmid.trim(),
+        doi: r.doi.trim(),
+        url: r.url.trim(),
+        evidence_type: r.evidence_type,
+        note: r.note.trim(),
+      }))
+      .filter((r) => r.title || r.url || r.pmid || r.doi),
+    evidence_status: d.evidence_status,
+    verification_status: d.verification_status,
+    claim_checks: d.claim_checks,
+    blend_notice: d.blend_notice,
     published,
     published_at: published ? wasPublishedAt ?? new Date().toISOString() : null,
   };
