@@ -617,6 +617,32 @@ function NotificationsPanel() {
           Mark all read
         </Button>
       </div>
+      <section className="mt-5 rounded-xl border border-primary/25 bg-background/50 p-4">
+        <h3 className="font-display text-sm font-bold uppercase tracking-wide">
+          Automatic customer emails
+        </h3>
+        <div className="mt-3 grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            "Order received",
+            "Payment confirmed",
+            "Dispatched with tracking",
+            "Delivered",
+          ].map((step) => (
+            <p key={step} className="rounded-lg border border-primary/20 px-3 py-2">
+              {step}
+            </p>
+          ))}
+        </div>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Confirm manual payments and add the tracking number when you ship.
+          Saved order changes send the matching email automatically. Australia
+          Post checks delivery on the scheduled tracking run.
+        </p>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Failed emails retry automatically. Repeated failures appear in these
+          notifications so you can check them.
+        </p>
+      </section>
       {items.length === 0 ? (
         <p className="py-10 text-center text-sm text-muted-foreground">
           No notifications yet.
