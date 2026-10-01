@@ -577,7 +577,9 @@ export function AdminResearch() {
                 <p className="break-words text-xs text-muted-foreground">
                   {e.category || "Uncategorised"} · /research/{e.slug} ·{" "}
                   <span className={e.published ? "font-bold text-primary" : "font-bold text-accent"}>
-                    · {label(VERIFICATION_STATUSES, e.verification_status)}
+                    {e.published ? "Published" : "Draft"}
+                  </span>{" "}
+                  · {label(VERIFICATION_STATUSES, e.verification_status)}
                 </p>
               </div>
               <div className="flex flex-wrap gap-1.5">
