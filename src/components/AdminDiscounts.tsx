@@ -82,7 +82,7 @@ export function AdminDiscounts() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border border-border bg-card/80 p-6">
+      <div className="rounded-2xl border border-primary/25 bg-card/90 p-6">
         <h3 className="flex items-center gap-2 text-lg font-extrabold uppercase text-foreground">
           <Tag className="h-5 w-5 text-accent" /> Discount codes
         </h3>
@@ -200,7 +200,7 @@ export function AdminDiscounts() {
               return (
                 <li
                   key={c.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card/80 p-4"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/25 bg-card/90 p-4"
                 >
                   <div className="text-sm text-muted-foreground">
                     <p className="text-base font-extrabold uppercase tracking-wide text-foreground">
