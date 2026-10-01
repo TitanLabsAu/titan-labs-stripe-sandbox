@@ -109,7 +109,7 @@ function ProductPage() {
             <img
               src={product.image}
               alt={product.alt}
-              className="w-full border border-border object-cover shadow-sm"
+              className="w-full rounded-xl border border-border bg-card object-cover shadow-glow"
             />
           </div>
 
@@ -147,7 +147,7 @@ function ProductPage() {
               </p>
             ) : null}
 
-            <div className="mt-6 border border-border bg-card p-5 shadow-sm">
+            <div className="mt-6 rounded-xl border border-border bg-card/90 p-5 shadow-glow">
               {variants.length > 0 ? (
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">Vial size</p>
@@ -246,7 +246,7 @@ function ProductPage() {
               </Button>
             </div>
 
-            <div className="mt-5 flex gap-3 border border-border bg-card p-4">
+            <div className="mt-5 flex gap-3 rounded-xl border border-accent/35 bg-card p-4 shadow-sm">
               <ShieldCheck className="mt-0.5 h-6 w-6 shrink-0 text-accent" />
               <p className="text-sm font-bold uppercase leading-6 tracking-wide text-foreground">
                 Delivered Australia wide or your money back. Every order is covered by our 100%
@@ -316,7 +316,7 @@ function ProductPage() {
                   key={p.slug}
                   to="/product/$slug"
                   params={{ slug: p.slug }}
-                    className="group overflow-hidden border border-border bg-card transition-all hover:border-primary"
+                    className="group overflow-hidden rounded-xl border border-border bg-card transition-all hover:border-primary hover:shadow-glow"
                 >
                   <img
                     src={p.image}
