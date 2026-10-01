@@ -16,6 +16,7 @@ export interface OrderDispatchedProps {
   orderNumber?: string
   customerName?: string
   trackingNumber?: string
+  shippingMethod?: string
   total?: string
 }
 
@@ -24,6 +25,7 @@ export function OrderDispatched({
   customerName = 'there',
   trackingNumber = '',
   total = '$0.00',
+  shippingMethod = 'Australia Post Express',
 }: OrderDispatchedProps) {
   const trackingLink = trackingNumber
     ? `https://auspost.com.au/mypost/track/details/${encodeURIComponent(trackingNumber)}`
@@ -46,7 +48,7 @@ export function OrderDispatched({
               Hi {customerName}, order {orderNumber} is on its way
             </Text>
             <Text style={{ color: '#3c4a5c', fontSize: '14px', margin: '0 0 6px' }}>
-              Your parcel has been dispatched with Australia Post Express.
+              Your parcel has been dispatched with {shippingMethod}.
             </Text>
             {trackingNumber ? (
               <Text style={{ color: '#3c4a5c', fontSize: '14px', margin: '0 0 6px' }}>
@@ -81,3 +83,4 @@ export const template = {
     total: '$300.00',
   },
 } satisfies TemplateEntry
+

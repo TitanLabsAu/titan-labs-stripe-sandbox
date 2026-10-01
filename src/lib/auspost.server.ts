@@ -2,6 +2,9 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { sendTemplateEmail } from "@/lib/email-templates/send-email";
 import { orderReference } from "@/lib/order-reference";
 
+import { isCompletedDelivery } from "@/lib/tracking-status";
+import { tryOrderCheckpointEmails } from "@/lib/order-checkpoint-email.server";
+
 const ADMIN_EMAIL = "sjrendall@live.com.au";
 const TRACK_URL = "https://digitalapi.auspost.com.au/shipping/v1/track";
 
@@ -72,9 +75,9 @@ export async function syncAustraliaPostTracking(): Promise<SyncSummary> {
     }
 
     const status = result.status ?? null;
-    const isDelivered = (status ?? "").toLowerCase().includes("deliver");
+    const isDelivered = isCompletedDelivery(status);
 
-    await supabaseAdmin
+    const { error: updateError } = await supabaseAdmin
       .from("orders")
       .update({
         tracking_status: status,
@@ -82,6 +85,11 @@ export async function syncAustraliaPostTracking(): Promise<SyncSummary> {
         ...(isDelivered ? { status: "delivered", delivered_at: new Date().toISOString() } : {}),
       })
       .eq("id", order.id);
+    if (updateError) {
+      summary.errors += 1;
+      continue;
+    }
+    await tryOrderCheckpointEmails(order.id);
 
     if (isDelivered) {
       summary.delivered += 1;
@@ -121,3 +129,4 @@ export async function syncAustraliaPostTracking(): Promise<SyncSummary> {
 
   return summary;
 }
+

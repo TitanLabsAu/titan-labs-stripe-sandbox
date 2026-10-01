@@ -22,8 +22,11 @@ export const Route = createFileRoute("/api/public/auspost-poll")({
           } catch (error) {
             console.error("[order-confirmation] retry failed", error);
           }
+          const { tryOrderCheckpointEmails } = await import("@/lib/order-checkpoint-email.server");
+          await tryOrderCheckpointEmails();
           const { syncAustraliaPostTracking } = await import("@/lib/auspost.server");
           const summary = await syncAustraliaPostTracking();
+          await tryOrderCheckpointEmails();
           let milestoneEmails = 0;
           try {
             const { sendPendingMilestoneEmails } = await import("@/lib/milestone-email.server");

@@ -108,6 +108,8 @@ export const adminSetTracking = createServerFn({ method: "POST" })
       })
       .eq("id", data.orderId);
     if (error) throw error;
+    const { tryOrderCheckpointEmails } = await import("@/lib/order-checkpoint-email.server");
+    await tryOrderCheckpointEmails(data.orderId);
     return { ok: true };
   });
 
@@ -121,6 +123,8 @@ export const adminSetPaymentConfirmed = createServerFn({ method: "POST" })
       .update({ payment_confirmed: data.confirmed })
       .eq("id", data.orderId);
     if (error) throw error;
+    const { tryOrderCheckpointEmails } = await import("@/lib/order-checkpoint-email.server");
+    await tryOrderCheckpointEmails(data.orderId);
     return { ok: true };
   });
 
@@ -137,6 +141,8 @@ export const adminUpdateStatus = createServerFn({ method: "POST" })
       })
       .eq("id", data.orderId);
     if (error) throw error;
+    const { tryOrderCheckpointEmails } = await import("@/lib/order-checkpoint-email.server");
+    await tryOrderCheckpointEmails(data.orderId);
     return { ok: true };
   });
 
