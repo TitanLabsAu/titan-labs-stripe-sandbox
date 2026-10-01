@@ -255,6 +255,7 @@ export function AdminResearch() {
   });
 
   const draftEntries = entries.filter((e) => !e.published);
+  const verifiedDrafts = draftEntries.filter((e) => e.verification_status === "verified");
   const publishedEntries = entries.filter((e) => e.published);
 
   const bulkUpdate = useMutation({
@@ -379,11 +380,7 @@ export function AdminResearch() {
         <div className="mt-6">
           <div className="flex items-center justify-between">
             <p className="technical-label text-foreground">References / sources</p>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => set("references", [...draft.references, { title: "", url: "", source: "", year: "" }])}
-            >
+            <Button size="sm" variant="outline" onClick={() => set("references", [...draft.references, emptyRef()])}>
               <Plus /> Reference
             </Button>
           </div>
@@ -392,25 +389,73 @@ export function AdminResearch() {
               const upd = (patch: Partial<ResearchReference>) =>
                 set("references", draft.references.map((x, j) => (j === i ? { ...x, ...patch } : x)));
               return (
-                <div key={i} className="grid gap-2 border border-border p-3 sm:grid-cols-[2fr_1fr_80px_auto]">
-                  <Input placeholder="Title" value={r.title} onChange={(e) => upd({ title: e.target.value })} />
-                  <Input placeholder="Journal / source" value={r.source} onChange={(e) => upd({ source: e.target.value })} />
-                  <Input placeholder="Year" value={r.year} onChange={(e) => upd({ year: e.target.value })} />
-                  <Button size="icon" variant="outline" aria-label="Remove reference" onClick={() => set("references", draft.references.filter((_, j) => j !== i))}>
-                    <Trash2 />
-                  </Button>
-                  <Input className="sm:col-span-4" placeholder="https://…" value={r.url} onChange={(e) => upd({ url: e.target.value })} />
+                <div key={i} className="grid gap-2 border border-border p-3 sm:grid-cols-2">
+                  <div className="flex gap-2 sm:col-span-2">
+                    <Input placeholder="Source title" value={r.title} onChange={(e) => upd({ title: e.target.value })} />
+                    <Button size="icon" variant="outline" aria-label="Remove reference" onClick={() => set("references", draft.references.filter((_, j) => j !== i))}>
+                      <Trash2 />
+                    </Button>
+                  </div>
+                  <Input placeholder="Authors / organisation" value={r.authors} onChange={(e) => upd({ authors: e.target.value })} />
+                  <Input placeholder="Journal / authority" value={r.source} onChange={(e) => upd({ source: e.target.value })} />
+                  <Input placeholder="Publication year" value={r.year} onChange={(e) => upd({ year: e.target.value })} />
+                  <select
+                    className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                    value={r.evidence_type}
+                    onChange={(e) => upd({ evidence_type: e.target.value as ResearchReference["evidence_type"] })}
+                  >
+                    <option value="">Evidence type…</option>
+                    {EVIDENCE_TYPES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+                  </select>
+                  <Input placeholder="PMID" inputMode="numeric" value={r.pmid} onChange={(e) => upd({ pmid: e.target.value })} />
+                  <Input placeholder="DOI (10.xxxx/…)" value={r.doi} onChange={(e) => upd({ doi: e.target.value })} />
+                  <Input className="sm:col-span-2" placeholder="https://…" value={r.url} onChange={(e) => upd({ url: e.target.value })} />
+                  <Textarea className="sm:col-span-2" rows={2} placeholder="Admin verification note (never shown publicly)" value={r.note} onChange={(e) => upd({ note: e.target.value })} />
                 </div>
               );
             })}
           </div>
         </div>
 
+        <div className="mt-6 border border-border p-3 sm:p-4">
+          <p className="technical-label text-foreground">Scientific verification (admin only)</p>
+          <div className="mt-3 grid gap-4 sm:grid-cols-2">
+            <Field label="Evidence status">
+              <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={draft.evidence_status} onChange={(e) => set("evidence_status", e.target.value as EvidenceStatus)}>
+                {EVIDENCE_STATUSES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+              </select>
+            </Field>
+            <Field label="Verification status">
+              <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={draft.verification_status} onChange={(e) => set("verification_status", e.target.value as VerificationStatus)}>
+                {VERIFICATION_STATUSES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+              </select>
+            </Field>
+            {CLAIM_FIELDS.map(([k, l]) => (
+              <Field key={k} label={l}>
+                <select
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  value={draft.claim_checks[k] ?? "not_checked"}
+                  onChange={(e) => set("claim_checks", { ...draft.claim_checks, [k]: e.target.value as any })}
+                >
+                  {CLAIM_STATES.map(([v, t]) => <option key={v} value={v}>{t}</option>)}
+                </select>
+              </Field>
+            ))}
+            <label className="flex items-start gap-2 text-sm sm:col-span-2">
+              <input type="checkbox" className="mt-1" checked={draft.blend_notice} onChange={(e) => set("blend_notice", e.target.checked)} />
+              <span>Show signature-blend notice (ingredient evidence does not establish effects of the combined formulation)</span>
+            </label>
+          </div>
+          {draft.verification_status !== "verified" ? (
+            <p className="mt-3 text-xs font-bold text-accent">{PUBLISH_BLOCKED} Current: {label(VERIFICATION_STATUSES, draft.verification_status)}.</p>
+          ) : null}
+        </div>
+
         <div className="mt-6 grid gap-3 sm:flex sm:flex-wrap">
           <Button variant="outline" className="font-bold uppercase" disabled={save.isPending} onClick={() => save.mutate({ d: draft, published: false })}>
             Save as draft
           </Button>
-          <Button className="font-bold uppercase" disabled={save.isPending} onClick={() => save.mutate({ d: draft, published: true })}>
+          <Button className="font-bold uppercase" disabled={save.isPending || draft.verification_status !== "verified"} onClick={() => save.mutate({ d: draft, published: true })}>
             Save &amp; publish
           </Button>
           {existing ? (
@@ -483,7 +528,7 @@ export function AdminResearch() {
             </AlertDialogTitle>
             <AlertDialogDescription>
               {bulkAction === "publish"
-                ? `${bulkCount} ${bulkCount === 1 ? "entry" : "entries"} will become publicly visible at /research immediately after you confirm. No entry content will be changed.`
+                ? `${bulkCount} verified draft ${bulkCount === 1 ? "entry is" : "entries are"} eligible and will become publicly visible at /research immediately after you confirm. Unverified, partially verified and needs-correction drafts are excluded. No entry content will be changed.`
                 : `All ${bulkCount} published ${bulkCount === 1 ? "entry" : "entries"} will be hidden from customers — the entire Research Lab will be taken offline. No entry content will be changed.`}
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -534,7 +579,13 @@ export function AdminResearch() {
                 <Button size="icon" variant="outline" aria-label="Move down" disabled={i === entries.length - 1 || move.isPending} onClick={() => move.mutate({ index: i, dir: 1 })}>
                   <ArrowDown />
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => togglePublish.mutate(e)} disabled={togglePublish.isPending}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => togglePublish.mutate(e)}
+                  disabled={togglePublish.isPending || (!e.published && e.verification_status !== "verified")}
+                  title={!e.published && e.verification_status !== "verified" ? PUBLISH_BLOCKED : undefined}
+                >
                   {e.published ? <EyeOff /> : <Eye />} {e.published ? "Unpublish" : "Publish"}
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => setDraft(toDraft(e))}>
