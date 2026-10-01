@@ -35,7 +35,7 @@ export function SiteHeader() {
     const text = label(labelKey);
     if (display(key) === "icon") {
       return (
-        <Button key={key} asChild variant="outline" size="icon">
+        <Button key={key} asChild variant="outline" size="icon" className="titan-nav-icon">
           <Link to={to} aria-label={text} title={text}><Icon /></Link>
         </Button>
       );
@@ -66,8 +66,8 @@ export function SiteHeader() {
     >
       {tabOrder.map((tab) => {
         if (tab === "home") return navButton(tab, "/", "header_nav_home", Home);
-        if (tab === "range") return <Button key={tab} asChild variant="outline" size="icon"><Link to="/range" aria-label={catalogueName(content)} title={catalogueName(content)}><FlaskConical /></Link></Button>;
-        if (tab === "research") return <Button key={tab} asChild variant="outline" size="icon"><Link to="/research" aria-label="Titan Research Lab" title="Titan Research Lab"><Microscope /></Link></Button>;
+        if (tab === "range") return <Button key={tab} asChild variant="outline" size="icon" className="titan-nav-icon"><Link to="/range" aria-label={catalogueName(content)} title={catalogueName(content)}><FlaskConical /></Link></Button>;
+        if (tab === "research") return <Button key={tab} asChild variant="outline" size="icon" className="titan-nav-icon"><Link to="/research" aria-label="Titan Research Lab" title="Titan Research Lab"><Microscope /></Link></Button>;
         if (tab === "calculator") return navButton(tab, "/calculator", "header_nav_calculator", Calculator, "outline");
         if (tab === "admin" && signedIn && isAdmin) return navButton(tab, "/admin", "header_nav_admin", Shield, "outline");
         if (tab === "account" && signedIn) return navButton(tab, "/account", "header_nav_account", UserRound, "outline");
@@ -80,13 +80,13 @@ export function SiteHeader() {
   );
 
   return (
-    <header className="border-b border-border bg-background shadow-sm">
+    <header className="border-b border-primary/25 bg-background shadow-lg">
       <div className="relative overflow-hidden">
-        <img src={headerImage} alt="" width={1920} height={768} className="absolute inset-0 h-full w-full object-cover object-center opacity-48" />
-        <div className="brand-image-shade absolute inset-0" />
+        <img src={headerImage} alt="" width={1920} height={768} className="absolute inset-0 h-full w-full object-cover object-center opacity-25" />
+        <div className="titan-header-surface absolute inset-0" />
         <div
           className={cn(
-            "relative mx-auto min-h-28 max-w-7xl items-center gap-3 px-3 py-4 sm:px-6",
+            "relative mx-auto min-h-28 max-w-7xl items-center gap-4 px-4 py-5 sm:px-6",
             layout === "inline" && "grid grid-cols-[minmax(0,1fr)_auto]",
             layout === "stacked" && "flex flex-col items-stretch gap-4",
             layout === "centred" && "flex flex-col items-center gap-4",
@@ -97,10 +97,10 @@ export function SiteHeader() {
             aria-label={`${pageName} home`}
             className={cn("min-w-0", layout === "centred" && "flex justify-center")}
           >
-            <span className="block font-display text-xl font-bold uppercase text-foreground sm:text-2xl">
+            <span className="block font-display text-2xl font-bold uppercase text-foreground drop-shadow-sm sm:text-3xl">
               {headerTitle}
             </span>
-            <span className="mt-1 block text-[0.5rem] font-bold uppercase text-accent">
+            <span className="mt-1 block text-[0.58rem] font-bold uppercase tracking-[0.12em] text-accent">
               {homeValue(content, "header_tagline")}
             </span>
           </Link>
