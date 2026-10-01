@@ -424,7 +424,7 @@ const startStripeCardPayment = useMutation({
       <div className="bg-hero min-h-screen">
         <SiteHeader />
         <main className="page-shell py-10 sm:py-12">
-          <div className="mx-auto max-w-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
+          <div className="mx-auto max-w-2xl rounded-2xl border border-primary/30 bg-card/90 p-6 shadow-glow sm:p-8">
             <div className="flex items-center gap-3">
               <CheckCircle2 className="h-7 w-7 text-accent" />
               <h1 className="text-2xl font-medium uppercase sm:text-3xl">Order received</h1>
@@ -489,13 +489,13 @@ const startStripeCardPayment = useMutation({
     <div className="bg-hero min-h-screen">
       <SiteHeader />
       <main className="page-shell py-10 sm:py-12">
-        <h1 className="text-3xl font-medium uppercase sm:text-4xl">Order Summary</h1>
+        <h1 className="font-display text-4xl font-black uppercase tracking-[0.08em] text-foreground sm:text-5xl">Order Summary</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Confirm your delivery details and review your order.
         </p>
 
         {items.length === 0 ? (
-          <div className="mt-8 border border-border bg-card p-8 text-center">
+          <div className="mt-8 rounded-2xl border border-border bg-card/90 p-8 text-center shadow-glow">
             <p className="text-muted-foreground">Your cart is empty.</p>
             <Button asChild className="mt-6 font-bold uppercase">
               <Link to="/range">Browse {catalogueName(content)}</Link>
@@ -504,7 +504,7 @@ const startStripeCardPayment = useMutation({
         ) : (
           <div className="mt-8 grid gap-6 lg:grid-cols-12 lg:items-start">
             {/* Left: customer + delivery details */}
-            <section className="border border-border bg-card p-6 shadow-sm sm:p-8 lg:col-span-7">
+            <section className="rounded-2xl border border-primary/25 bg-card/90 p-6 shadow-glow sm:p-8 lg:col-span-7">
               <h2 className="technical-label text-foreground">Customer details</h2>
 
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -658,7 +658,7 @@ const startStripeCardPayment = useMutation({
             </section>
 
             {/* Right: order breakdown */}
-            <aside className="border border-border bg-card p-6 shadow-sm sm:p-8 lg:col-span-5 lg:sticky lg:top-6">
+            <aside className="rounded-2xl border border-accent/25 bg-card/90 p-6 shadow-gold sm:p-8 lg:col-span-5 lg:sticky lg:top-6">
               <h2 className="technical-label text-foreground">Your order</h2>
               <ul className="mt-5 divide-y divide-border">
                 {items.map((item) => {
