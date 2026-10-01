@@ -53,8 +53,8 @@ export function ChangePasswordCard() {
   }
 
   return (
-    <div className="mt-7 border border-border bg-card p-6 shadow-sm sm:p-8">
-      <div className="border-b border-border pb-5">
+    <div className="mt-7 rounded-2xl border border-primary/25 bg-card/90 p-6 shadow-glow sm:p-8">
+      <div className="border-b border-primary/20 pb-5">
         <h2 className="technical-label text-foreground">Security &amp; password</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           Change the password you use to log in to your account.
