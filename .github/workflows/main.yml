@@ -5,6 +5,7 @@ on:
     branches:
       - eway-sandbox
       - stripe-sandbox
+      - research-lab-v2
   workflow_dispatch:
 
 jobs:
