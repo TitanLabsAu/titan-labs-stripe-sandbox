@@ -240,7 +240,7 @@ export function ProductEditor({
   }
 
   return (
-    <div className="space-y-5 rounded-xl border border-border bg-card/80 p-6">
+    <div className="space-y-5 rounded-2xl border border-primary/25 bg-card/90 p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 className="text-lg font-extrabold uppercase text-foreground">
           {title ?? (draft.id ? "Edit product" : "New product")}
@@ -405,7 +405,7 @@ export function ProductEditor({
               return (
                 <div
                   key={variant.id}
-                  className="space-y-2 rounded-lg border border-border bg-card/60 p-3"
+                  className="space-y-2 rounded-xl border border-primary/20 bg-background/45 p-3"
                 >
                   <div className="grid gap-2 md:grid-cols-[1.3fr_1fr_1fr_1fr_0.8fr_auto_auto]">
                     <div>
@@ -747,7 +747,7 @@ export function AdminProducts() {
         visibleProducts.map((p) => (
           <article
             key={p.id}
-            className="flex flex-wrap items-start justify-between gap-4 rounded-xl border border-border bg-card/80 p-5"
+            className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-primary/25 bg-card/90 p-5"
           >
             <div className="flex gap-4">
               {p.image_url ? (
