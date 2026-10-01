@@ -16,5 +16,6 @@
 - [x] Checkout research-use acknowledgement, recorded per order, shown in Admin
 - [x] Titan's Research Lab: admin editor + public /research pages
 - [x] Calculator upgrade (neutral maths, U-100 scale visualiser)
-- [ ] Add real Research Lab entries (owner content)
+- [x] Add real Research Lab entries (owner content)
+- [x] Add separate member-facing Research Lab summaries, evidence-first pages, and protected draft previews.
 - [ ] Owner to review legal wording

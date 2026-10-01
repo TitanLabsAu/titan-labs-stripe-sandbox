@@ -23,9 +23,9 @@ export function SiteFooter() {
         <div className="grid gap-10 border-b border-border pb-10 md:grid-cols-[1.15fr_0.85fr_1fr]">
           <div>
             <TitanLogo size={72} />
-            <p className={cn("mt-5 max-w-sm whitespace-pre-wrap text-sm leading-6", TEXT_ALIGN_CLASS[contentAlign(content, "footer_about")])}>
+            <div className={cn("mt-5 max-w-sm whitespace-pre-wrap text-sm leading-6", TEXT_ALIGN_CLASS[contentAlign(content, "footer_about")])}>
               <RichText text={label("footer_about")} />
-            </p>
+            </div>
           </div>
           <div>
             <p className="font-display text-xs font-black uppercase text-foreground">{label("footer_nav_title")}</p>
@@ -52,10 +52,10 @@ export function SiteFooter() {
         </nav>
         {siteLinks && siteLinks.length > 0 ? <p className="mt-8 flex flex-wrap gap-x-5 gap-y-2">{siteLinks.map((l) => <a key={l.id} href={l.url} target="_blank" rel="noopener noreferrer" className="font-bold text-accent hover:text-primary">{l.label}</a>)}</p> : null}
         <div className="mt-8 grid gap-3 border-t border-border pt-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
-          <p className={cn("whitespace-pre-wrap", TEXT_ALIGN_CLASS[contentAlign(content, "home_footer_text")])}><RichText text={homeValue(content, "home_footer_text")} /></p>
-          <p className={cn("whitespace-pre-wrap font-bold uppercase text-foreground", TEXT_ALIGN_CLASS[contentAlign(content, "footer_notice")])}>
+          <div className={cn("whitespace-pre-wrap", TEXT_ALIGN_CLASS[contentAlign(content, "home_footer_text")])}><RichText text={homeValue(content, "home_footer_text")} /></div>
+          <div className={cn("whitespace-pre-wrap font-bold uppercase text-foreground", TEXT_ALIGN_CLASS[contentAlign(content, "footer_notice")])}>
             <RichText text={label("footer_notice")} />
-          </p>
+          </div>
         </div>
       </div>
     </footer>

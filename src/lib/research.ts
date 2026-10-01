@@ -73,6 +73,16 @@ export const BLEND_NOTICE =
 export const VERIFIED_EXPLANATION =
   "Verified means the Research Lab entry has been checked against its cited sources. It does not mean the compound has been proven safe or effective for human use.";
 
+export const EVIDENCE_EXPLANATIONS: Record<EvidenceStatus, string> = {
+  not_reviewed: "This entry has not yet received an evidence classification.",
+  preclinical: "Studied mainly in laboratory or animal research. Human effectiveness has not been established.",
+  limited_human: "Some human research exists, but the evidence is still limited and does not establish broad effects.",
+  human_clinical: "Studied in humans, but findings should be understood in the context of the specific studies and populations.",
+  established_clinical: "Supported by established clinical literature for specific studied or recognised contexts; this does not imply every claimed use is established.",
+  mixed: "Human or other relevant findings are mixed, inconsistent or do not support a single clear conclusion.",
+  insufficient: "There is not enough direct evidence to establish the claimed effect or formulation.",
+};
+
 export const label = (list: readonly (readonly [string, string])[], v: string) =>
   list.find(([k]) => k === v)?.[1] ?? v;
 
@@ -82,6 +92,7 @@ export type ResearchEntry = {
   title: string;
   category: string;
   tags: string[];
+  at_a_glance: string;
   summary: string;
   content: ResearchSection[];
   synonyms: string[];
@@ -131,6 +142,7 @@ export function toResearchEntry(row: any): ResearchEntry {
     title: str(row.title),
     category: str(row.category),
     tags: Array.isArray(row.tags) ? row.tags.map(str).filter(Boolean) : [],
+    at_a_glance: str(row.at_a_glance),
     summary: str(row.summary),
     content: sections
       .map((s: any) => ({ heading: str(s?.heading), body: str(s?.body) }))

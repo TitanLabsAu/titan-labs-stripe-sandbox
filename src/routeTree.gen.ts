@@ -26,6 +26,8 @@ import { Route as AuthSignupRouteImport } from './routes/auth.signup'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as ResearchIndexRouteImport } from './routes/research.index'
 import { Route as ResearchSlugRouteImport } from './routes/research.$slug'
+import { Route as AuthenticatedResearchPreviewIndexRouteImport } from './routes/_authenticated/research-preview.index'
+import { Route as AuthenticatedResearchPreviewSlugRouteImport } from './routes/_authenticated/research-preview.$slug'
 import { Route as ApiPublicAuspostPollRouteImport } from './routes/api/public/auspost-poll'
 import { Route as ApiPublicProductImageRouteImport } from './routes/api/public/product-image'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe-webhook'
@@ -116,6 +118,18 @@ const ResearchSlugRoute = ResearchSlugRouteImport.update({
   path: '/research/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedResearchPreviewIndexRoute =
+  AuthenticatedResearchPreviewIndexRouteImport.update({
+    id: '/research-preview/',
+    path: '/research-preview/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedResearchPreviewSlugRoute =
+  AuthenticatedResearchPreviewSlugRouteImport.update({
+    id: '/research-preview/$slug',
+    path: '/research-preview/$slug',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiPublicAuspostPollRoute = ApiPublicAuspostPollRouteImport.update({
   id: '/api/public/auspost-poll',
   path: '/api/public/auspost-poll',
@@ -155,9 +169,11 @@ export interface FileRoutesByFullPath {
   '/research/$slug': typeof ResearchSlugRoute
   '/auth/': typeof AuthIndexRoute
   '/research/': typeof ResearchIndexRoute
+  '/research-preview/$slug': typeof AuthenticatedResearchPreviewSlugRoute
   '/api/public/auspost-poll': typeof ApiPublicAuspostPollRoute
   '/api/public/product-image': typeof ApiPublicProductImageRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
+  '/research-preview/': typeof AuthenticatedResearchPreviewIndexRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesByTo {
@@ -177,9 +193,11 @@ export interface FileRoutesByTo {
   '/research/$slug': typeof ResearchSlugRoute
   '/auth': typeof AuthIndexRoute
   '/research': typeof ResearchIndexRoute
+  '/research-preview/$slug': typeof AuthenticatedResearchPreviewSlugRoute
   '/api/public/auspost-poll': typeof ApiPublicAuspostPollRoute
   '/api/public/product-image': typeof ApiPublicProductImageRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
+  '/research-preview': typeof AuthenticatedResearchPreviewIndexRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesById {
@@ -201,9 +219,11 @@ export interface FileRoutesById {
   '/research/$slug': typeof ResearchSlugRoute
   '/auth/': typeof AuthIndexRoute
   '/research/': typeof ResearchIndexRoute
+  '/_authenticated/research-preview/$slug': typeof AuthenticatedResearchPreviewSlugRoute
   '/api/public/auspost-poll': typeof ApiPublicAuspostPollRoute
   '/api/public/product-image': typeof ApiPublicProductImageRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
+  '/_authenticated/research-preview/': typeof AuthenticatedResearchPreviewIndexRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRouteTypes {
@@ -225,9 +245,11 @@ export interface FileRouteTypes {
     | '/research/$slug'
     | '/auth/'
     | '/research/'
+    | '/research-preview/$slug'
     | '/api/public/auspost-poll'
     | '/api/public/product-image'
     | '/api/public/stripe-webhook'
+    | '/research-preview/'
     | '/lovable/email/transactional/preview'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -247,9 +269,11 @@ export interface FileRouteTypes {
     | '/research/$slug'
     | '/auth'
     | '/research'
+    | '/research-preview/$slug'
     | '/api/public/auspost-poll'
     | '/api/public/product-image'
     | '/api/public/stripe-webhook'
+    | '/research-preview'
     | '/lovable/email/transactional/preview'
   id:
     | '__root__'
@@ -270,9 +294,11 @@ export interface FileRouteTypes {
     | '/research/$slug'
     | '/auth/'
     | '/research/'
+    | '/_authenticated/research-preview/$slug'
     | '/api/public/auspost-poll'
     | '/api/public/product-image'
     | '/api/public/stripe-webhook'
+    | '/_authenticated/research-preview/'
     | '/lovable/email/transactional/preview'
   fileRoutesById: FileRoutesById
 }
@@ -417,6 +443,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResearchSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/research-preview/': {
+      id: '/_authenticated/research-preview/'
+      path: '/research-preview'
+      fullPath: '/research-preview/'
+      preLoaderRoute: typeof AuthenticatedResearchPreviewIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/research-preview/$slug': {
+      id: '/_authenticated/research-preview/$slug'
+      path: '/research-preview/$slug'
+      fullPath: '/research-preview/$slug'
+      preLoaderRoute: typeof AuthenticatedResearchPreviewSlugRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/auspost-poll': {
       id: '/api/public/auspost-poll'
       path: '/api/public/auspost-poll'
@@ -453,6 +493,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedOrderHistoryRoute: typeof AuthenticatedOrderHistoryRoute
   AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRoute
+  AuthenticatedResearchPreviewSlugRoute: typeof AuthenticatedResearchPreviewSlugRoute
+  AuthenticatedResearchPreviewIndexRoute: typeof AuthenticatedResearchPreviewIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -460,6 +502,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedOrderHistoryRoute: AuthenticatedOrderHistoryRoute,
   AuthenticatedOrdersRoute: AuthenticatedOrdersRoute,
+  AuthenticatedResearchPreviewSlugRoute: AuthenticatedResearchPreviewSlugRoute,
+  AuthenticatedResearchPreviewIndexRoute:
+    AuthenticatedResearchPreviewIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

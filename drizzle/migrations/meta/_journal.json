@@ -99,6 +99,13 @@
       "when": 1790823930179,
       "tag": "0013_research_claim_check_safeguard",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1790825008871,
+      "tag": "0014_research_member_at_a_glance",
+      "breakpoints": true
     }
   ]
 }
