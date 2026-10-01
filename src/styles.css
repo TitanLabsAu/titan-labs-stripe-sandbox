@@ -248,26 +248,6 @@
 }
 
 @layer components {
-  /* Keep the original futuristic chrome visible while maintaining text contrast. */
-  .titan-future-art {
-    opacity: 0.62;
-    filter: saturate(1.18) contrast(1.12) brightness(0.82) hue-rotate(2deg);
-  }
-  .titan-future-art-footer {
-    opacity: 0.68;
-    filter: saturate(1.2) contrast(1.12) brightness(0.8) hue-rotate(2deg);
-  }
-  .titan-header-surface {
-    background:
-      linear-gradient(90deg, color-mix(in oklab, var(--background) 88%, transparent) 0%, color-mix(in oklab, var(--background) 48%, transparent) 50%, color-mix(in oklab, var(--background) 76%, transparent) 100%),
-      linear-gradient(180deg, color-mix(in oklab, var(--primary) 10%, transparent), transparent 58%, color-mix(in oklab, var(--background) 58%, transparent));
-  }
-  .titan-footer-surface {
-    background:
-      linear-gradient(90deg, color-mix(in oklab, var(--background) 82%, transparent), color-mix(in oklab, var(--background) 46%, transparent) 50%, color-mix(in oklab, var(--background) 78%, transparent)),
-      linear-gradient(0deg, color-mix(in oklab, var(--background) 84%, transparent), transparent 74%);
-  }
-
   /* The home mark is blended rather than presented as a rectangular image. */
   .home-logo-field {
     background:
