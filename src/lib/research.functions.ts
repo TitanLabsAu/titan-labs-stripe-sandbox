@@ -5,7 +5,13 @@ import type { Database } from "@/integrations/supabase/types";
 import { toResearchEntry, type ResearchEntry } from "@/lib/research";
 
 const PUBLIC_COLS =
-  "id, slug, title, category, tags, summary, content, synonyms, molecular_formula, sequence, cas_number, pubchem_cid, research_findings, source_references, published, published_at, sort_order, created_at, updated_at";
+  "id, slug, title, category, tags, summary, content, synonyms, molecular_formula, sequence, cas_number, pubchem_cid, research_findings, source_references, published, published_at, sort_order, created_at, updated_at, evidence_status, verification_status, blend_notice";
+
+/** Strip admin-only metadata (claim checks, reference notes) before sending to the public. */
+function toPublic(row: any): ResearchEntry {
+  const e = toResearchEntry(row);
+  return { ...e, claim_checks: {}, source_references: e.source_references.map((r) => ({ ...r, note: "" })) };
+}
 
 function publicClient() {
   const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
