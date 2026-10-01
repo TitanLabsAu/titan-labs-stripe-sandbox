@@ -69,7 +69,7 @@ function Index() {
       <main className="relative">
         <div className="home-logo-field pointer-events-none absolute inset-x-0 top-0 flex h-[34rem] items-center justify-center overflow-hidden" aria-hidden="true">
           <img src={logoAsset.url} alt="" width={768} height={768} className="home-watermark h-full w-full scale-110 object-contain sm:scale-125" />
-          <div className="home-logo-wash absolute inset-0" />
+          
         </div>
         <div className="h-20 sm:h-28" />
         {sectionOrder.map((section) => {
