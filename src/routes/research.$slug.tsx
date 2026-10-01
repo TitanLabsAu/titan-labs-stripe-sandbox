@@ -4,7 +4,7 @@ import { ArrowLeft, ExternalLink } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { getPublishedResearch } from "@/lib/research.functions";
-import { pubchemUrl, safeUrl } from "@/lib/research";
+import { BLEND_NOTICE, EVIDENCE_STATUSES, EVIDENCE_TYPES, doiUrl, label, pubchemUrl, pubmedUrl, safeUrl } from "@/lib/research";
 
 const entryQuery = (slug: string) =>
   queryOptions({
@@ -92,6 +92,12 @@ function EntryPage() {
 
       <div className="mt-8 grid gap-6 lg:grid-cols-12 lg:items-start">
         <div className="space-y-6 lg:col-span-8">
+          {e.blend_notice ? (
+            <section className="industrial-panel border-l-2 border-l-accent p-6">
+              <h2 className="technical-label text-accent">Combined formulation notice</h2>
+              <p className="mt-2 text-sm font-bold leading-6 text-foreground">{BLEND_NOTICE}</p>
+            </section>
+          ) : null}
           {e.summary ? (
             <section className="industrial-panel border-l-2 border-l-primary p-6">
               <h2 className="technical-label text-foreground">Summary</h2>
@@ -114,15 +120,31 @@ function EntryPage() {
               </ul>
             </section>
           ) : null}
+          {e.evidence_status !== "not_reviewed" ? (
+            <section className="industrial-panel p-6">
+              <h2 className="font-display text-lg font-extrabold uppercase text-foreground">Evidence overview</h2>
+              <p className="mt-3 text-sm font-bold text-foreground">{label(EVIDENCE_STATUSES, e.evidence_status)}</p>
+              <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                Laboratory (in vitro) and animal/preclinical findings do not establish effects or efficacy in humans.
+              </p>
+            </section>
+          ) : null}
           {e.source_references.length ? (
             <section className="industrial-panel p-6">
-              <h2 className="font-display text-lg font-extrabold uppercase text-foreground">References</h2>
-              <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm leading-6 text-muted-foreground">
+              <h2 className="font-display text-lg font-extrabold uppercase text-foreground">Research references</h2>
+              <ol className="mt-3 list-decimal space-y-3 pl-5 text-sm leading-6 text-muted-foreground">
                 {e.source_references.map((r, i) => {
                   const href = safeUrl(r.url);
-                  const meta = [r.source, r.year].filter(Boolean).join(", ");
+                  const meta = [r.authors, r.source, r.year].filter(Boolean).join(", ");
+                  const pm = pubmedUrl(r.pmid);
+                  const doi = doiUrl(r.doi);
                   return (
                     <li key={i}>
+                      {r.evidence_type ? (
+                        <span className="mr-2 border border-border bg-background px-1.5 py-0.5 text-[0.6rem] font-bold uppercase text-foreground">
+                          {label(EVIDENCE_TYPES, r.evidence_type)}
+                        </span>
+                      ) : null}
                       {href ? (
                         <a href={href} target="_blank" rel="noopener noreferrer" className="font-bold text-primary hover:underline">
                           {r.title || href} <ExternalLink className="inline h-3 w-3" />
@@ -131,6 +153,13 @@ function EntryPage() {
                         <span className="font-bold text-foreground">{r.title}</span>
                       )}
                       {meta ? <span> — {meta}</span> : null}
+                      {pm || doi ? (
+                        <span className="block text-xs">
+                          {pm ? <a href={pm} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">PMID {r.pmid}</a> : null}
+                          {pm && doi ? " · " : null}
+                          {doi ? <a href={doi} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">DOI {r.doi}</a> : null}
+                        </span>
+                      ) : null}
                     </li>
                   );
                 })}
