@@ -289,10 +289,16 @@
   }
   .home-watermark {
     opacity: 0.9;
+    mix-blend-mode: normal;
+    -webkit-mask-image: none;
+    mask-image: none;
     filter: drop-shadow(0 0 24px color-mix(in oklab, var(--primary) 30%, transparent));
   }
   .light .home-watermark {
     opacity: 0.92;
+    mix-blend-mode: normal;
+    -webkit-mask-image: none;
+    mask-image: none;
     filter: none;
   }
 }
