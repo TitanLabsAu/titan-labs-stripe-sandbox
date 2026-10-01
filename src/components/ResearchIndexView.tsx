@@ -90,6 +90,24 @@ export function ResearchIndexView({ entries, preview = false }: { entries: Resea
         </div>
       )}
 
+      <section id="learn" className="mt-14 border-t border-border pt-10">
+        <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+          <div>
+            <p className="technical-label text-accent">Understanding the evidence</p>
+            <h2 className="mt-2 font-display text-3xl font-bold uppercase text-foreground">Read the research with context</h2>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">Research level tells you what kind of evidence is cited for an entry. It is not a score for effectiveness, safety or suitability.</p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <EvidenceGuide title="Established clinical literature" body="A substantial clinical literature exists for specific studied or recognised contexts." />
+            <EvidenceGuide title="Human clinical evidence" body="The compound has been studied in humans, but conclusions remain specific to those studies and populations." />
+            <EvidenceGuide title="Limited human evidence" body="Some human research exists, but it is too limited to support broad conclusions." />
+            <EvidenceGuide title="Preclinical evidence" body="Evidence is mainly from laboratory or animal research. Human effectiveness has not been established." />
+            <EvidenceGuide title="Mixed / conflicting" body="Relevant findings are inconsistent or do not support one clear conclusion." />
+            <EvidenceGuide title="Insufficient evidence" body="There is not enough direct evidence to establish the claimed effect or formulation." />
+          </div>
+        </div>
+      </section>
+
       <section id="blends" className="mt-14 border-t border-border pt-10">
         <TitanBlendsView entries={entries} preview={preview} />
       </section>
@@ -97,6 +115,6 @@ export function ResearchIndexView({ entries, preview = false }: { entries: Resea
   );
 }
 
-function Stat({ label, value }: { label: string; value: number }) {
+function EvidenceGuide({ title, body }: { title: string; body: string }) {\n  return <div className="rounded-2xl border border-border bg-card p-4"><p className="font-display text-sm font-bold uppercase text-foreground">{title}</p><p className="mt-2 text-xs leading-5 text-muted-foreground">{body}</p></div>;\n}\n\nfunction Stat({ label, value }: { label: string; value: number }) {
   return <div><dt className="technical-label text-muted-foreground">{label}</dt><dd className="font-display text-2xl font-bold text-foreground">{value}</dd></div>;
 }
