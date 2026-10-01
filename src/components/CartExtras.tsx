@@ -16,7 +16,7 @@ export function FreeShippingMeter({ amount }: { amount: number }) {
   const progress = Math.min(100, (amount / FREE_SHIPPING_THRESHOLD) * 100);
   const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - amount);
   return (
-    <div className="border border-border bg-muted/30 p-3">
+    <div className="rounded-xl border border-border bg-muted/30 p-3">
       <div className="flex items-center gap-2 text-xs text-foreground">
         <Truck className="h-4 w-4 text-accent" />
         {remaining > 0 ? (
@@ -41,7 +41,7 @@ export function TitanStackBanner({ units }: { units: number }) {
   const active = stackPercentFor(units);
   const next = nextStackTier(units);
   return (
-    <div className="border border-border bg-muted/20 p-3">
+    <div className="rounded-xl border border-border bg-muted/20 p-3">
       <div className="flex items-center gap-2">
         <Layers className="h-4 w-4 text-accent" />
         <p className="technical-label text-foreground">The Titan Stack</p>
@@ -133,7 +133,7 @@ export function ShippingPicker({
         <label
           key={option.key}
           className={cn(
-            "flex cursor-pointer items-center gap-3 border px-4 py-3 transition-colors",
+            "flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition-colors",
             value === option.key
               ? "border-accent bg-accent/5"
               : "border-border hover:border-foreground/40",
