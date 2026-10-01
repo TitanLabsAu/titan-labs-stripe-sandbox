@@ -8,7 +8,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { CATEGORIES } from "@/lib/categories";
-import { formatPrice, kitPriceFor, LOW_STOCK_THRESHOLD, stockState } from "@/lib/products";
+import {
+  formatPrice,
+  kitPriceFor,
+  LOW_STOCK_THRESHOLD,
+  stockState,
+} from "@/lib/products";
 import {
   adminDeleteProduct,
   adminSetProductFlags,
@@ -84,17 +89,27 @@ const emptyDraft: Draft = {
 };
 
 function safeVariantId(label: string) {
-  const base = label.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const base = label
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
   return base || crypto.randomUUID();
 }
 
 function storagePathFor(file: File, draft: Draft) {
-  const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
-  const base = (draft.slug || draft.name || "product")
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "") || "product";
+  const ext =
+    file.name
+      .split(".")
+      .pop()
+      ?.toLowerCase()
+      .replace(/[^a-z0-9]/g, "") || "jpg";
+  const base =
+    (draft.slug || draft.name || "product")
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "") || "product";
   return `${base}/${crypto.randomUUID()}.${ext}`;
 }
 
@@ -139,7 +154,8 @@ export function toDraft(p: AdminProduct): Draft {
 }
 
 export function draftToPayload(d: Draft) {
-  const num = (v: string) => (v.trim() === "" || Number.isNaN(Number(v)) ? null : Number(v));
+  const num = (v: string) =>
+    v.trim() === "" || Number.isNaN(Number(v)) ? null : Number(v);
   const variants = d.variants
     .map((v) => ({
       id: v.id || safeVariantId(v.label),
@@ -160,7 +176,10 @@ export function draftToPayload(d: Draft) {
     ...(d.id ? { id: d.id } : {}),
     slug: d.slug || d.name,
     name: d.name,
-    price: variantPrices.length > 0 ? Math.min(...variantPrices) : Number(d.price) || 0,
+    price:
+      variantPrices.length > 0
+        ? Math.min(...variantPrices)
+        : Number(d.price) || 0,
     sale_price: num(d.sale_price),
     promo_label: d.promo_label,
     kit_price: num(d.kit_price),
@@ -217,30 +236,42 @@ export function ProductEditor({
         : [...draft.categories, c],
     });
   const setLink = (i: number, patch: Partial<AdminProductLink>) =>
-    set({ links: draft.links.map((l, idx) => (idx === i ? { ...l, ...patch } : l)) });
+    set({
+      links: draft.links.map((l, idx) => (idx === i ? { ...l, ...patch } : l)),
+    });
   const setVariant = (i: number, patch: Partial<DraftVariant>) =>
-    set({ variants: draft.variants.map((v, idx) => (idx === i ? { ...v, ...patch } : v)) });
+    set({
+      variants: draft.variants.map((v, idx) =>
+        idx === i ? { ...v, ...patch } : v,
+      ),
+    });
 
   async function uploadImage(file: File) {
     setUploading(true);
     try {
       const path = storagePathFor(file, draft);
-      const { error } = await supabase.storage.from("product-images").upload(path, file, {
-        upsert: true,
-        contentType: file.type || "application/octet-stream",
-      });
+      const { error } = await supabase.storage
+        .from("product-images")
+        .upload(path, file, {
+          upsert: true,
+          contentType: file.type || "application/octet-stream",
+        });
       if (error) throw error;
-      set({ image_url: `/api/public/product-image?path=${encodeURIComponent(path)}` });
+      set({
+        image_url: `/api/public/product-image?path=${encodeURIComponent(path)}`,
+      });
       toast.success("Product image uploaded");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Could not upload the image");
+      toast.error(
+        error instanceof Error ? error.message : "Could not upload the image",
+      );
     } finally {
       setUploading(false);
     }
   }
 
   return (
-    <div className="space-y-5 rounded-2xl border border-primary/25 bg-card/90 p-6">
+    <div className="space-y-5 rounded-xl border border-border bg-card p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 className="text-lg font-extrabold uppercase text-foreground">
           {title ?? (draft.id ? "Edit product" : "New product")}
@@ -254,18 +285,24 @@ export function ProductEditor({
             {uploading ? "Uploading" : "Save product"}
           </Button>
           {onCancel ? (
-            <Button variant="outline" className="font-bold uppercase" onClick={onCancel}>
+            <Button
+              variant="outline"
+              className="font-bold uppercase"
+              onClick={onCancel}
+            >
               Cancel
             </Button>
           ) : null}
         </div>
       </div>
 
-
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <Label>Product name</Label>
-          <Input value={draft.name} onChange={(e) => set({ name: e.target.value })} />
+          <Input
+            value={draft.name}
+            onChange={(e) => set({ name: e.target.value })}
+          />
         </div>
         <div>
           <Label>Web address name (slug)</Label>
@@ -328,7 +365,10 @@ export function ProductEditor({
         ) : null}
         <div className="sm:col-span-2">
           <Label>Image description (for accessibility)</Label>
-          <Input value={draft.alt} onChange={(e) => set({ alt: e.target.value })} />
+          <Input
+            value={draft.alt}
+            onChange={(e) => set({ alt: e.target.value })}
+          />
         </div>
         <div className="sm:col-span-2">
           <Label>Full description</Label>
@@ -362,9 +402,10 @@ export function ProductEditor({
           <div>
             <Label>Vial sizes, prices and stock</Label>
             <p className="mt-1 text-xs text-muted-foreground">
-              Add every vial size you sell, even if there is only one. Leave kit price blank to use the
-              automatic 20% off. Stock is counted per size — under {LOW_STOCK_THRESHOLD} shows a low stock
-              warning, 0 shows out of stock for that size.
+              Add every vial size you sell, even if there is only one. Leave kit
+              price blank to use the automatic 20% off. Stock is counted per
+              size — under {LOW_STOCK_THRESHOLD} shows a low stock warning, 0
+              shows out of stock for that size.
             </p>
           </div>
           <Button
@@ -396,7 +437,8 @@ export function ProductEditor({
         </div>
         {draft.variants.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No vial sizes yet — add at least one size with its price so this product can be ordered.
+            No vial sizes yet — add at least one size with its price so this
+            product can be ordered.
           </p>
         ) : (
           <div className="space-y-2">
@@ -434,7 +476,9 @@ export function ProductEditor({
                         value={variant.price}
                         placeholder="Single price"
                         aria-label="Single vial price"
-                        onChange={(e) => setVariant(i, { price: e.target.value })}
+                        onChange={(e) =>
+                          setVariant(i, { price: e.target.value })
+                        }
                       />
                     </div>
                     <div>
@@ -445,9 +489,17 @@ export function ProductEditor({
                         type="number"
                         min={0}
                         value={variant.kitPrice}
-                        placeholder={variant.price ? formatPrice(kitPriceFor(Number(variant.price) || 0)) : "Kit price"}
+                        placeholder={
+                          variant.price
+                            ? formatPrice(
+                                kitPriceFor(Number(variant.price) || 0),
+                              )
+                            : "Kit price"
+                        }
                         aria-label="10x Kit price"
-                        onChange={(e) => setVariant(i, { kitPrice: e.target.value })}
+                        onChange={(e) =>
+                          setVariant(i, { kitPrice: e.target.value })
+                        }
                       />
                     </div>
                     <div>
@@ -460,7 +512,9 @@ export function ProductEditor({
                         value={variant.cost}
                         placeholder="What you pay"
                         aria-label="Cost price for this size"
-                        onChange={(e) => setVariant(i, { cost: e.target.value })}
+                        onChange={(e) =>
+                          setVariant(i, { cost: e.target.value })
+                        }
                       />
                     </div>
                     <div>
@@ -473,7 +527,9 @@ export function ProductEditor({
                         value={variant.stock}
                         placeholder="0"
                         aria-label="Stock on hand for this size"
-                        onChange={(e) => setVariant(i, { stock: e.target.value })}
+                        onChange={(e) =>
+                          setVariant(i, { stock: e.target.value })
+                        }
                       />
                     </div>
                     <div className="flex items-end">
@@ -481,7 +537,9 @@ export function ProductEditor({
                         <input
                           type="checkbox"
                           checked={variant.comingSoon}
-                          onChange={(e) => setVariant(i, { comingSoon: e.target.checked })}
+                          onChange={(e) =>
+                            setVariant(i, { comingSoon: e.target.checked })
+                          }
                           aria-label="This size is coming soon"
                         />
                         Coming soon
@@ -492,7 +550,13 @@ export function ProductEditor({
                         variant="destructive"
                         size="icon"
                         aria-label="Remove size"
-                        onClick={() => set({ variants: draft.variants.filter((_, idx) => idx !== i) })}
+                        onClick={() =>
+                          set({
+                            variants: draft.variants.filter(
+                              (_, idx) => idx !== i,
+                            ),
+                          })
+                        }
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -541,7 +605,9 @@ export function ProductEditor({
       </div>
 
       <div>
-        <Label>Links for this product (Certificates of Authenticity, guides…)</Label>
+        <Label>
+          Links for this product (Certificates of Authenticity, guides…)
+        </Label>
         <div className="mt-2 space-y-2">
           {draft.links.map((l, i) => (
             <div key={i} className="flex flex-wrap gap-2">
@@ -561,7 +627,9 @@ export function ProductEditor({
                 variant="destructive"
                 size="icon"
                 aria-label="Remove link"
-                onClick={() => set({ links: draft.links.filter((_, idx) => idx !== i) })}
+                onClick={() =>
+                  set({ links: draft.links.filter((_, idx) => idx !== i) })
+                }
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -570,7 +638,9 @@ export function ProductEditor({
           <Button
             variant="outline"
             className="font-bold uppercase"
-            onClick={() => set({ links: [...draft.links, { label: "", url: "" }] })}
+            onClick={() =>
+              set({ links: [...draft.links, { label: "", url: "" }] })
+            }
           >
             Add link
           </Button>
@@ -601,7 +671,11 @@ export function ProductEditor({
           )}
         </Button>
         {onCancel ? (
-          <Button variant="outline" className="font-bold uppercase" onClick={onCancel}>
+          <Button
+            variant="outline"
+            className="font-bold uppercase"
+            onClick={onCancel}
+          >
             Cancel
           </Button>
         ) : null}
@@ -628,13 +702,15 @@ export function AdminProducts() {
   };
 
   const save = useMutation({
-    mutationFn: (d: Draft) => adminSaveProduct({ data: draftToPayload(d) as any }),
+    mutationFn: (d: Draft) =>
+      adminSaveProduct({ data: draftToPayload(d) as any }),
     onSuccess: () => {
       toast.success("Product saved");
       setDraft(null);
       refresh();
     },
-    onError: (e: any) => toast.error(e?.message ?? "Could not save the product"),
+    onError: (e: any) =>
+      toast.error(e?.message ?? "Could not save the product"),
   });
 
   const flags = useMutation({
@@ -671,7 +747,8 @@ export function AdminProducts() {
   const term = search.trim().toLowerCase();
   const visibleProducts = (data ?? [])
     .filter((product) => {
-      const inCategory = category === "All" || (product.categories ?? []).includes(category);
+      const inCategory =
+        category === "All" || (product.categories ?? []).includes(category);
       if (!inCategory) return false;
       if (!term) return true;
       return [product.name, product.description, ...(product.categories ?? [])]
@@ -697,7 +774,10 @@ export function AdminProducts() {
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <Button className="font-bold uppercase" onClick={() => setDraft({ ...emptyDraft })}>
+        <Button
+          className="font-bold uppercase"
+          onClick={() => setDraft({ ...emptyDraft })}
+        >
           Add product
         </Button>
       </div>
@@ -747,7 +827,7 @@ export function AdminProducts() {
         visibleProducts.map((p) => (
           <article
             key={p.id}
-            className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-primary/25 bg-card/90 p-5"
+            className="flex flex-wrap items-start justify-between gap-4 rounded-xl border border-border bg-card p-5"
           >
             <div className="flex gap-4">
               {p.image_url ? (
@@ -759,11 +839,15 @@ export function AdminProducts() {
                 />
               ) : null}
               <div className="text-sm text-muted-foreground">
-                <p className="text-base font-extrabold uppercase text-foreground">{p.name}</p>
+                <p className="text-base font-extrabold uppercase text-foreground">
+                  {p.name}
+                </p>
                 <p>
                   {p.sale_price != null ? (
                     <>
-                      <span className="line-through">{formatPrice(Number(p.price))}</span>{" "}
+                      <span className="line-through">
+                        {formatPrice(Number(p.price))}
+                      </span>{" "}
                       <span className="font-bold text-accent">
                         {formatPrice(Number(p.sale_price))}
                       </span>
@@ -783,7 +867,10 @@ export function AdminProducts() {
                 <div className="mt-1 flex flex-wrap gap-1">
                   {(p.product_variants ?? []).length > 0 ? (
                     (p.product_variants ?? []).map((v) => {
-                      const qty = Math.max(0, Math.trunc(Number(v.stock ?? 0)) || 0);
+                      const qty = Math.max(
+                        0,
+                        Math.trunc(Number(v.stock ?? 0)) || 0,
+                      );
                       const state = stockState(qty);
                       return (
                         <span
@@ -796,7 +883,8 @@ export function AdminProducts() {
                                 : "inline-flex border border-border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground"
                           }
                         >
-                          {v.label || "Size"}: {state === "out" ? "Out of stock" : `${qty} in stock`}
+                          {v.label || "Size"}:{" "}
+                          {state === "out" ? "Out of stock" : `${qty} in stock`}
                           {v.price ? ` · ${formatPrice(Number(v.price))}` : ""}
                         </span>
                       );
@@ -834,7 +922,9 @@ export function AdminProducts() {
                 variant={p.coming_soon ? "default" : "outline"}
                 className="font-bold uppercase"
                 disabled={flags.isPending}
-                onClick={() => flags.mutate({ id: p.id, coming_soon: !p.coming_soon })}
+                onClick={() =>
+                  flags.mutate({ id: p.id, coming_soon: !p.coming_soon })
+                }
               >
                 {p.coming_soon ? "Coming soon ✓" : "Coming soon"}
               </Button>
@@ -843,7 +933,8 @@ export function AdminProducts() {
                 className="font-bold uppercase"
                 disabled={remove.isPending}
                 onClick={() => {
-                  if (confirm(`Remove ${p.name} from the website?`)) remove.mutate(p.id);
+                  if (confirm(`Remove ${p.name} from the website?`))
+                    remove.mutate(p.id);
                 }}
               >
                 Remove

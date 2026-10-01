@@ -41,10 +41,16 @@ function formatDate(value: string) {
   });
 }
 
-export function OrderList({ orders, emptyMessage }: { orders: OrderRow[]; emptyMessage: string }) {
+export function OrderList({
+  orders,
+  emptyMessage,
+}: {
+  orders: OrderRow[];
+  emptyMessage: string;
+}) {
   if (orders.length === 0) {
     return (
-      <div className="rounded-2xl border border-primary/25 bg-card/80 p-8 text-center shadow-glow">
+      <div className="rounded-xl border border-border bg-card p-8 text-center">
         <p className="text-sm text-muted-foreground">{emptyMessage}</p>
       </div>
     );
@@ -53,7 +59,10 @@ export function OrderList({ orders, emptyMessage }: { orders: OrderRow[]; emptyM
   return (
     <div className="space-y-6">
       {orders.map((order) => (
-        <article key={order.id} className="rounded-xl border border-primary/20 bg-card/75 p-6 shadow-glow">
+        <article
+          key={order.id}
+          className="rounded-xl border border-border bg-card p-6"
+        >
           <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border pb-4">
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
@@ -61,7 +70,9 @@ export function OrderList({ orders, emptyMessage }: { orders: OrderRow[]; emptyM
               </p>
               <p className="mt-1 text-sm text-muted-foreground">
                 Placed {formatDate(order.created_at)}
-                {order.delivered_at ? ` · Delivered ${formatDate(order.delivered_at)}` : ""}
+                {order.delivered_at
+                  ? ` · Delivered ${formatDate(order.delivered_at)}`
+                  : ""}
               </p>
             </div>
             <span className="brand-cut border border-accent/50 px-3 py-1 text-xs font-bold uppercase text-accent">
@@ -71,9 +82,14 @@ export function OrderList({ orders, emptyMessage }: { orders: OrderRow[]; emptyM
 
           <ul className="divide-y divide-border">
             {order.order_items.map((item) => (
-              <li key={item.id} className="flex items-center justify-between gap-4 py-3">
+              <li
+                key={item.id}
+                className="flex items-center justify-between gap-4 py-3"
+              >
                 <div>
-                  <p className="font-bold uppercase text-foreground">{item.product_name}</p>
+                  <p className="font-bold uppercase text-foreground">
+                    {item.product_name}
+                  </p>
                   <p className="text-xs text-muted-foreground">
                     {item.quantity} × {formatPrice(Number(item.unit_price))}
                   </p>
@@ -95,7 +111,9 @@ export function OrderList({ orders, emptyMessage }: { orders: OrderRow[]; emptyM
               <span>{formatPrice(Number(order.shipping))}</span>
             </div>
             <div className="flex items-center justify-between pt-1">
-              <span className="font-bold uppercase tracking-wide text-foreground">Total</span>
+              <span className="font-bold uppercase tracking-wide text-foreground">
+                Total
+              </span>
               <span className="text-xl font-extrabold text-accent">
                 {formatPrice(Number(order.total))}
               </span>

@@ -12,12 +12,21 @@ type Props = {
   onChange?: (v: { vialMg: string; waterMl: string; doseMg: string }) => void;
 };
 
-export function ReconstitutionCalculator({ title, vialMg, waterMl, doseMg, readOnly = false, onChange }: Props) {
+export function ReconstitutionCalculator({
+  title,
+  vialMg,
+  waterMl,
+  doseMg,
+  readOnly = false,
+  onChange,
+}: Props) {
   const [vial, setVial] = useState(vialMg != null ? String(vialMg) : "10");
   const [water, setWater] = useState(waterMl != null ? String(waterMl) : "2");
   const [dose, setDose] = useState(doseMg != null ? String(doseMg) : "0.25");
 
-  const update = (patch: Partial<{ vial: string; water: string; dose: string }>) => {
+  const update = (
+    patch: Partial<{ vial: string; water: string; dose: string }>,
+  ) => {
     const next = { vial, water, dose, ...patch };
     setVial(next.vial);
     setWater(next.water);
@@ -36,7 +45,7 @@ export function ReconstitutionCalculator({ title, vialMg, waterMl, doseMg, readO
   const dosesPerVial = valid && doseNum > 0 ? mg / doseNum : 0;
 
   return (
-    <div className="rounded-2xl border border-primary/25 border-l-2 border-l-primary bg-card/90 p-6 shadow-glow">
+    <div className="rounded-xl border border-border border-l-2 border-l-primary bg-card p-6">
       <h3 className="font-display text-lg font-extrabold uppercase text-foreground">
         {title ?? "Recommended Reconstitution"}
       </h3>
@@ -112,7 +121,8 @@ export function ReconstitutionCalculator({ title, vialMg, waterMl, doseMg, readO
       )}
 
       <p className="mt-4 text-xs text-muted-foreground">
-        Units shown are for a standard 100-unit insulin syringe (1 mL). Research use only.
+        Units shown are for a standard 100-unit insulin syringe (1 mL). Research
+        use only.
       </p>
     </div>
   );

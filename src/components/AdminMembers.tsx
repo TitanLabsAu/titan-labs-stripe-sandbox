@@ -23,14 +23,21 @@ function trackingUrl(tracking: string) {
 }
 
 function memberName(m: AdminMember) {
-  return [m.first_name, m.last_name].filter(Boolean).join(" ") || m.email || "Unnamed member";
+  return (
+    [m.first_name, m.last_name].filter(Boolean).join(" ") ||
+    m.email ||
+    "Unnamed member"
+  );
 }
 
 function topProducts(orders: AdminOrder[]): { name: string; qty: number }[] {
   const tally = new Map<string, number>();
   for (const order of orders) {
     for (const item of order.order_items) {
-      tally.set(item.product_name, (tally.get(item.product_name) ?? 0) + item.quantity);
+      tally.set(
+        item.product_name,
+        (tally.get(item.product_name) ?? 0) + item.quantity,
+      );
     }
   }
   return [...tally.entries()]
@@ -41,7 +48,7 @@ function topProducts(orders: AdminOrder[]): { name: string; qty: number }[] {
 
 function MemberOrderCard({ order }: { order: AdminOrder }) {
   return (
-    <article className="rounded-2xl border border-primary/25 bg-card/90 p-5">
+    <article className="rounded-xl border border-border bg-card p-5">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
         <div>
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
@@ -49,7 +56,9 @@ function MemberOrderCard({ order }: { order: AdminOrder }) {
           </p>
           <p className="mt-1 text-sm text-muted-foreground">
             Placed {formatDate(order.created_at)}
-            {order.delivered_at ? ` · Delivered ${formatDate(order.delivered_at)}` : ""}
+            {order.delivered_at
+              ? ` · Delivered ${formatDate(order.delivered_at)}`
+              : ""}
           </p>
         </div>
         <span className="rounded-full border border-accent/50 px-3 py-1 text-xs font-bold uppercase tracking-wide text-accent">
@@ -59,9 +68,14 @@ function MemberOrderCard({ order }: { order: AdminOrder }) {
 
       <ul className="mt-3 divide-y divide-border">
         {order.order_items.map((item) => (
-          <li key={item.id} className="flex items-center justify-between gap-4 py-2 text-sm">
+          <li
+            key={item.id}
+            className="flex items-center justify-between gap-4 py-2 text-sm"
+          >
             <div>
-              <p className="font-bold uppercase text-foreground">{item.product_name}</p>
+              <p className="font-bold uppercase text-foreground">
+                {item.product_name}
+              </p>
               <p className="text-xs text-muted-foreground">
                 {item.quantity} × {formatPrice(Number(item.unit_price))}
               </p>
@@ -108,24 +122,40 @@ function MemberOrderCard({ order }: { order: AdminOrder }) {
   );
 }
 
-function MemberDetail({ member, onBack }: { member: AdminMember; onBack: () => void }) {
+function MemberDetail({
+  member,
+  onBack,
+}: {
+  member: AdminMember;
+  onBack: () => void;
+}) {
   const { data, isLoading } = useQuery({
     queryKey: ["admin-member-orders", member.id],
     queryFn: () => adminGetMemberOrders({ data: { userId: member.id } }),
   });
 
   const orders = data ?? [];
-  const live = orders.filter((o) => o.status === "processing" || o.status === "shipped");
-  const closed = orders.filter((o) => o.status === "delivered" || o.status === "cancelled");
+  const live = orders.filter(
+    (o) => o.status === "processing" || o.status === "shipped",
+  );
+  const closed = orders.filter(
+    (o) => o.status === "delivered" || o.status === "cancelled",
+  );
 
   return (
     <div className="space-y-6">
-      <Button variant="outline" className="font-bold uppercase" onClick={onBack}>
+      <Button
+        variant="outline"
+        className="font-bold uppercase"
+        onClick={onBack}
+      >
         ← All members
       </Button>
 
-      <div className="rounded-2xl border border-primary/25 bg-card/90 p-6">
-        <h2 className="text-2xl font-extrabold uppercase text-foreground">{memberName(member)}</h2>
+      <div className="rounded-xl border border-border bg-card p-6">
+        <h2 className="text-2xl font-extrabold uppercase text-foreground">
+          {memberName(member)}
+        </h2>
         <div className="mt-3 grid gap-1 text-sm text-muted-foreground sm:grid-cols-2">
           <p>{member.email ?? "No email"}</p>
           <p>{member.phone_number ?? "No phone number"}</p>
@@ -137,8 +167,8 @@ function MemberDetail({ member, onBack }: { member: AdminMember; onBack: () => v
               "No address on file"}
           </p>
           <p className="sm:col-span-2">
-            Member since {formatDate(member.created_at)} · {member.order_count} order(s) ·{" "}
-            {formatPrice(member.total_spent)} spent
+            Member since {formatDate(member.created_at)} · {member.order_count}{" "}
+            order(s) · {formatPrice(member.total_spent)} spent
           </p>
         </div>
       </div>
@@ -147,41 +177,61 @@ function MemberDetail({ member, onBack }: { member: AdminMember; onBack: () => v
         <p className="text-sm text-muted-foreground">Loading orders…</p>
       ) : (
         <>
-          <section className="grid gap-4 rounded-2xl border border-primary/25 bg-card/90 p-6 sm:grid-cols-4">
+          <section className="grid gap-4 rounded-xl border border-border bg-card p-6 sm:grid-cols-4">
             <div>
-              <p className="text-2xl font-extrabold text-accent">{orders.length}</p>
-              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Purchases</p>
+              <p className="text-2xl font-extrabold text-accent">
+                {orders.length}
+              </p>
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                Purchases
+              </p>
             </div>
             <div>
               <p className="text-2xl font-extrabold text-accent">
-                {formatPrice(orders.reduce((s, o) => s + Number(o.total ?? 0), 0))}
+                {formatPrice(
+                  orders.reduce((s, o) => s + Number(o.total ?? 0), 0),
+                )}
               </p>
-              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Spent</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                Spent
+              </p>
             </div>
             <div>
-              <p className="text-2xl font-extrabold text-accent">{live.length}</p>
-              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Live</p>
+              <p className="text-2xl font-extrabold text-accent">
+                {live.length}
+              </p>
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                Live
+              </p>
             </div>
             <div>
               <p className="text-2xl font-extrabold text-accent">
                 {orders.filter((o) => o.status === "delivered").length}
               </p>
-              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Delivered</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                Delivered
+              </p>
             </div>
           </section>
 
-          <section className="rounded-2xl border border-primary/25 bg-card/90 p-6">
+          <section className="rounded-xl border border-border bg-card p-6">
             <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">
               Top 3 peptides purchased
             </h3>
             {topProducts(orders).length === 0 ? (
-              <p className="mt-3 text-sm text-muted-foreground">No purchases yet.</p>
+              <p className="mt-3 text-sm text-muted-foreground">
+                No purchases yet.
+              </p>
             ) : (
               <ul className="mt-3 space-y-2">
                 {topProducts(orders).map((t) => (
                   <li key={t.name} className="flex justify-between text-sm">
-                    <span className="font-bold uppercase text-foreground">{t.name}</span>
-                    <span className="font-extrabold text-accent">× {t.qty}</span>
+                    <span className="font-bold uppercase text-foreground">
+                      {t.name}
+                    </span>
+                    <span className="font-extrabold text-accent">
+                      × {t.qty}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -204,7 +254,9 @@ function MemberDetail({ member, onBack }: { member: AdminMember; onBack: () => v
               Delivered &amp; closed orders ({closed.length})
             </h3>
             {closed.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No delivered orders yet.</p>
+              <p className="text-sm text-muted-foreground">
+                No delivered orders yet.
+              </p>
             ) : (
               closed.map((o) => <MemberOrderCard key={o.id} order={o} />)
             )}
@@ -222,14 +274,18 @@ export function AdminMembers() {
     queryFn: () => adminListMembers({}),
   });
 
-  if (selected) return <MemberDetail member={selected} onBack={() => setSelected(null)} />;
-  if (isLoading) return <p className="text-sm text-muted-foreground">Loading members…</p>;
+  if (selected)
+    return <MemberDetail member={selected} onBack={() => setSelected(null)} />;
+  if (isLoading)
+    return <p className="text-sm text-muted-foreground">Loading members…</p>;
 
   const members = data ?? [];
   if (members.length === 0) {
     return (
-      <div className="rounded-2xl border border-primary/25 bg-card/80 p-8 text-center">
-        <p className="text-sm text-muted-foreground">No customers have signed up yet.</p>
+      <div className="rounded-xl border border-border bg-card p-8 text-center">
+        <p className="text-sm text-muted-foreground">
+          No customers have signed up yet.
+        </p>
       </div>
     );
   }
@@ -241,7 +297,7 @@ export function AdminMembers() {
           key={m.id}
           type="button"
           onClick={() => setSelected(m)}
-          className="w-full rounded-2xl border border-primary/25 bg-card/90 p-5 text-left transition hover:border-accent/60"
+          className="w-full rounded-xl border border-border bg-card p-5 text-left transition hover:border-accent/60"
         >
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="text-sm text-muted-foreground">
@@ -251,13 +307,17 @@ export function AdminMembers() {
               <p>{m.email ?? "No email"}</p>
               <p>{m.phone_number ?? "No phone number"}</p>
               <p>
-                {[m.address_line, m.city, m.state, m.postcode].filter(Boolean).join(", ") ||
+                {[m.address_line, m.city, m.state, m.postcode]
+                  .filter(Boolean)
+                  .join(", ") ||
                   m.postal_address ||
                   "No address on file"}
               </p>
               <p className="mt-1 text-xs">
                 Member since {formatDate(m.created_at)}
-                {m.last_order_at ? ` · last order ${formatDate(m.last_order_at)}` : ""}
+                {m.last_order_at
+                  ? ` · last order ${formatDate(m.last_order_at)}`
+                  : ""}
               </p>
               <p className="mt-2 text-xs uppercase tracking-[0.2em] text-muted-foreground">
                 Top peptides
@@ -266,12 +326,16 @@ export function AdminMembers() {
                 <p className="text-xs">No purchases yet</p>
               ) : (
                 <p className="text-xs">
-                  {m.top_products.map((t) => `${t.name} × ${t.qty}`).join(" · ")}
+                  {m.top_products
+                    .map((t) => `${t.name} × ${t.qty}`)
+                    .join(" · ")}
                 </p>
               )}
             </div>
             <div className="text-right text-sm text-muted-foreground">
-              <p className="text-2xl font-extrabold text-accent">{m.order_count}</p>
+              <p className="text-2xl font-extrabold text-accent">
+                {m.order_count}
+              </p>
               <p className="text-xs uppercase tracking-[0.2em]">orders</p>
               <p className="mt-1 text-xs">
                 {m.live_count} live · {m.delivered_count} delivered

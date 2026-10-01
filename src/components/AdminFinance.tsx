@@ -33,13 +33,15 @@ function isoDay(d: Date) {
 function rangeFor(preset: string) {
   const now = new Date();
   const to = isoDay(now);
-  if (preset === "month") return { from: isoDay(new Date(now.getFullYear(), now.getMonth(), 1)), to };
+  if (preset === "month")
+    return { from: isoDay(new Date(now.getFullYear(), now.getMonth(), 1)), to };
   if (preset === "quarter") {
     const start = new Date(now);
     start.setDate(start.getDate() - 89);
     return { from: isoDay(start), to };
   }
-  if (preset === "year") return { from: isoDay(new Date(now.getFullYear(), 0, 1)), to };
+  if (preset === "year")
+    return { from: isoDay(new Date(now.getFullYear(), 0, 1)), to };
   return { from: "2020-01-01", to };
 }
 
@@ -62,12 +64,18 @@ function Stat({
       <p
         className={
           "mt-1 text-2xl font-black tabular-nums " +
-          (tone === "good" ? "text-emerald-500" : tone === "bad" ? "text-destructive" : "")
+          (tone === "good"
+            ? "text-emerald-500"
+            : tone === "bad"
+              ? "text-destructive"
+              : "")
         }
       >
         {value}
       </p>
-      {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
+      {hint ? (
+        <p className="mt-1 text-xs text-muted-foreground">{hint}</p>
+      ) : null}
     </div>
   );
 }
@@ -122,8 +130,16 @@ export function AdminFinance() {
         },
       }),
     onSuccess: (res) => {
-      toast.success(res.restocked ? "Spend saved and stock topped up." : "Spend saved.");
-      setForm((f) => ({ ...f, supplier: "", description: "", amount: "", quantity: "" }));
+      toast.success(
+        res.restocked ? "Spend saved and stock topped up." : "Spend saved.",
+      );
+      setForm((f) => ({
+        ...f,
+        supplier: "",
+        description: "",
+        amount: "",
+        quantity: "",
+      }));
       void queryClient.invalidateQueries({ queryKey: ["admin-expenses"] });
       void queryClient.invalidateQueries({ queryKey: ["admin-finance"] });
       void queryClient.invalidateQueries({ queryKey: ["admin-products"] });
@@ -156,7 +172,7 @@ export function AdminFinance() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-primary/25 bg-card/90 p-4 shadow-glow space-y-4">
+      <div className="rounded-xl border border-border bg-card p-4 space-y-4">
         <div className="flex flex-wrap items-center gap-2">
           {[
             { key: "month", label: "This month" },
@@ -200,8 +216,16 @@ export function AdminFinance() {
       {s ? (
         <>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <Stat label="Sales" value={formatPrice(s.revenue)} hint={`${s.orders} order(s)`} />
-            <Stat label="Items sold" value={String(s.units)} hint={`Avg order ${formatPrice(s.averageOrder)}`} />
+            <Stat
+              label="Sales"
+              value={formatPrice(s.revenue)}
+              hint={`${s.orders} order(s)`}
+            />
+            <Stat
+              label="Items sold"
+              value={String(s.units)}
+              hint={`Avg order ${formatPrice(s.averageOrder)}`}
+            />
             <Stat
               label="Gross profit"
               value={formatPrice(s.grossProfit)}
@@ -219,21 +243,33 @@ export function AdminFinance() {
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Stat label="Spent on stock" value={formatPrice(s.stockSpend)} />
             <Stat label="Other spending" value={formatPrice(s.otherSpend)} />
-            <Stat label="Stock on hand" value={`${s.inventoryUnits} vials`} hint={`Cost ${formatPrice(s.inventoryCost)}`} />
-            <Stat label="Stock sale value" value={formatPrice(s.inventoryRetail)} />
+            <Stat
+              label="Stock on hand"
+              value={`${s.inventoryUnits} vials`}
+              hint={`Cost ${formatPrice(s.inventoryCost)}`}
+            />
+            <Stat
+              label="Stock sale value"
+              value={formatPrice(s.inventoryRetail)}
+            />
           </div>
 
           {s.missingCosts > 0 ? (
             <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
-              {s.missingCosts} item(s) sold have no cost price set yet, so profit is overstated. Add a
-              “Cost each” for those vial sizes in Products.
+              {s.missingCosts} item(s) sold have no cost price set yet, so
+              profit is overstated. Add a “Cost each” for those vial sizes in
+              Products.
             </p>
           ) : null}
 
-          <div className="rounded-2xl border border-primary/25 bg-card/90 p-4 shadow-glow">
-            <h3 className="mb-3 text-sm font-black uppercase tracking-[0.18em]">Profit by product</h3>
+          <div className="rounded-xl border border-border bg-card p-4">
+            <h3 className="mb-3 text-sm font-black uppercase tracking-[0.18em]">
+              Profit by product
+            </h3>
             {s.products.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No sales in this period.</p>
+              <p className="text-sm text-muted-foreground">
+                No sales in this period.
+              </p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -251,14 +287,24 @@ export function AdminFinance() {
                     {s.products.map((p) => (
                       <tr key={p.key} className="border-t border-border/60">
                         <td className="py-2 font-semibold">{p.name}</td>
-                        <td className="py-2 text-muted-foreground">{p.variant || "—"}</td>
-                        <td className="py-2 text-right tabular-nums">{p.units}</td>
-                        <td className="py-2 text-right tabular-nums">{formatPrice(p.revenue)}</td>
-                        <td className="py-2 text-right tabular-nums">{formatPrice(p.cost)}</td>
+                        <td className="py-2 text-muted-foreground">
+                          {p.variant || "—"}
+                        </td>
+                        <td className="py-2 text-right tabular-nums">
+                          {p.units}
+                        </td>
+                        <td className="py-2 text-right tabular-nums">
+                          {formatPrice(p.revenue)}
+                        </td>
+                        <td className="py-2 text-right tabular-nums">
+                          {formatPrice(p.cost)}
+                        </td>
                         <td
                           className={
                             "py-2 text-right font-bold tabular-nums " +
-                            (p.profit >= 0 ? "text-emerald-500" : "text-destructive")
+                            (p.profit >= 0
+                              ? "text-emerald-500"
+                              : "text-destructive")
                           }
                         >
                           {formatPrice(p.profit)}
@@ -275,11 +321,14 @@ export function AdminFinance() {
         <p className="text-sm text-muted-foreground">Loading figures…</p>
       )}
 
-      <div className="rounded-2xl border border-primary/25 bg-card/90 p-4 shadow-glow space-y-4">
+      <div className="rounded-xl border border-border bg-card p-4 space-y-4">
         <div>
-          <h3 className="text-sm font-black uppercase tracking-[0.18em]">Record money spent</h3>
+          <h3 className="text-sm font-black uppercase tracking-[0.18em]">
+            Record money spent
+          </h3>
           <p className="mt-1 text-xs text-muted-foreground">
-            Stock purchases can top up the vial size you bought, so your counts stay right.
+            Stock purchases can top up the vial size you bought, so your counts
+            stay right.
           </p>
         </div>
 
@@ -289,7 +338,9 @@ export function AdminFinance() {
             <Input
               type="date"
               value={form.occurred_on}
-              onChange={(e) => setForm({ ...form, occurred_on: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, occurred_on: e.target.value })
+              }
             />
           </div>
           <div>
@@ -342,7 +393,13 @@ export function AdminFinance() {
               <select
                 className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                 value={form.product_slug}
-                onChange={(e) => setForm({ ...form, product_slug: e.target.value, variant_label: "" })}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    product_slug: e.target.value,
+                    variant_label: "",
+                  })
+                }
               >
                 <option value="">Not linked to a product</option>
                 {products.map((p) => (
@@ -358,7 +415,9 @@ export function AdminFinance() {
                 className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                 value={form.variant_label}
                 disabled={!selectedProduct}
-                onChange={(e) => setForm({ ...form, variant_label: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, variant_label: e.target.value })
+                }
               >
                 <option value="">Choose size</option>
                 {variants.map((v) => (
@@ -382,7 +441,9 @@ export function AdminFinance() {
               <Button
                 variant={form.addToStock ? "default" : "outline"}
                 className="w-full font-bold uppercase tracking-wide"
-                onClick={() => setForm({ ...form, addToStock: !form.addToStock })}
+                onClick={() =>
+                  setForm({ ...form, addToStock: !form.addToStock })
+                }
               >
                 {form.addToStock ? "Adds to stock" : "Stock unchanged"}
               </Button>
@@ -399,12 +460,14 @@ export function AdminFinance() {
         </Button>
       </div>
 
-      <div className="rounded-2xl border border-primary/25 bg-card/90 p-4 shadow-glow">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="mb-3 text-sm font-black uppercase tracking-[0.18em]">
           Spending in this period
         </h3>
         {inRange.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nothing recorded for these dates yet.</p>
+          <p className="text-sm text-muted-foreground">
+            Nothing recorded for these dates yet.
+          </p>
         ) : (
           <div className="space-y-2">
             {inRange.map((e) => (
@@ -427,7 +490,9 @@ export function AdminFinance() {
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="font-black tabular-nums">{formatPrice(e.amount)}</span>
+                  <span className="font-black tabular-nums">
+                    {formatPrice(e.amount)}
+                  </span>
                   <Button
                     variant="destructive"
                     size="icon"

@@ -9,7 +9,10 @@ import { cn } from "@/lib/utils";
 
 type Mode = "mg" | "iu";
 
-const DEFAULTS: Record<Mode, { strength: string; diluent: string; amount: string; amountUnit: AmountUnit }> = {
+const DEFAULTS: Record<
+  Mode,
+  { strength: string; diluent: string; amount: string; amountUnit: AmountUnit }
+> = {
   mg: { strength: "10", diluent: "2", amount: "250", amountUnit: "mcg" },
   iu: { strength: "100", diluent: "1", amount: "10", amountUnit: "iu" },
 };
@@ -43,12 +46,16 @@ function NumberField({
 }) {
   const id = useId();
   const n = Number(value);
-  const sliderValue = Number.isFinite(n) ? Math.min(Math.max(n, min), max) : min;
+  const sliderValue = Number.isFinite(n)
+    ? Math.min(Math.max(n, min), max)
+    : min;
   return (
     <div className="space-y-2">
       <div className="flex items-baseline justify-between gap-2">
         <Label htmlFor={id}>{label}</Label>
-        {hint ? <span className="text-[0.65rem] text-muted-foreground">{hint}</span> : null}
+        {hint ? (
+          <span className="text-[0.65rem] text-muted-foreground">{hint}</span>
+        ) : null}
       </div>
       <div className="relative">
         <Input
@@ -78,7 +85,13 @@ function NumberField({
 }
 
 /** U-100 scale drawing — a measurement aid only. */
-function SyringeScale({ units, capacityUnits }: { units: number; capacityUnits: number }) {
+function SyringeScale({
+  units,
+  capacityUnits,
+}: {
+  units: number;
+  capacityUnits: number;
+}) {
   const W = 560;
   const H = 96;
   const x0 = 60;
@@ -96,9 +109,22 @@ function SyringeScale({ units, capacityUnits }: { units: number; capacityUnits: 
     const major = u % majorEvery === 0;
     ticks.push(
       <g key={u}>
-        <line x1={x} x2={x} y1={28} y2={major ? 50 : 40} className="stroke-foreground" strokeWidth={major ? 1.4 : 0.7} />
+        <line
+          x1={x}
+          x2={x}
+          y1={28}
+          y2={major ? 50 : 40}
+          className="stroke-foreground"
+          strokeWidth={major ? 1.4 : 0.7}
+        />
         {major ? (
-          <text x={x} y={66} textAnchor="middle" className="fill-muted-foreground font-mono" fontSize={10}>
+          <text
+            x={x}
+            y={66}
+            textAnchor="middle"
+            className="fill-muted-foreground font-mono"
+            fontSize={10}
+          >
             {u}
           </text>
         ) : null}
@@ -106,21 +132,79 @@ function SyringeScale({ units, capacityUnits }: { units: number; capacityUnits: 
     );
   }
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label={`Scale reading ${round(fill, 1)} of ${capacityUnits} units`}>
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      className="h-auto w-full"
+      role="img"
+      aria-label={`Scale reading ${round(fill, 1)} of ${capacityUnits} units`}
+    >
       {/* plunger rod and fixed barrel */}
-      <rect x={10} y={40} width={Math.max(0, liquidX - 18)} height={8} className="fill-muted" />
+      <rect
+        x={10}
+        y={40}
+        width={Math.max(0, liquidX - 18)}
+        height={8}
+        className="fill-muted"
+      />
       {/* barrel */}
-      <rect x={x0} y={22} width={barrelW} height={44} rx={3} className="fill-background stroke-foreground" strokeWidth={1.4} />
+      <rect
+        x={x0}
+        y={22}
+        width={barrelW}
+        height={44}
+        rx={3}
+        className="fill-background stroke-foreground"
+        strokeWidth={1.4}
+      />
       {/* liquid occupies the needle end of the barrel */}
-      <rect x={liquidX} y={23} width={fillW} height={42} className="fill-primary/30" />
+      <rect
+        x={liquidX}
+        y={23}
+        width={fillW}
+        height={42}
+        className="fill-primary/30"
+      />
       {/* moving plunger face marks the selected scale reading */}
-      <rect x={liquidX - 4} y={22} width={8} height={44} className="fill-foreground/70" />
-      {fillW > 0 ? <line x1={liquidX} x2={liquidX} y1={18} y2={70} className="stroke-accent" strokeWidth={2.5} /> : null}
+      <rect
+        x={liquidX - 4}
+        y={22}
+        width={8}
+        height={44}
+        className="fill-foreground/70"
+      />
+      {fillW > 0 ? (
+        <line
+          x1={liquidX}
+          x2={liquidX}
+          y1={18}
+          y2={70}
+          className="stroke-accent"
+          strokeWidth={2.5}
+        />
+      ) : null}
       {ticks}
       {/* tip */}
-      <polygon points={`${x1},34 ${x1 + 22},40 ${x1 + 22},48 ${x1},54`} className="fill-muted stroke-foreground" strokeWidth={1} />
-      <line x1={x1 + 22} x2={W - 6} y1={44} y2={44} className="stroke-muted-foreground" strokeWidth={1.2} />
-      <text x={x0} y={88} className="fill-muted-foreground font-mono" fontSize={10}>U-100 SCALE · UNITS FROM NEEDLE END</text>
+      <polygon
+        points={`${x1},34 ${x1 + 22},40 ${x1 + 22},48 ${x1},54`}
+        className="fill-muted stroke-foreground"
+        strokeWidth={1}
+      />
+      <line
+        x1={x1 + 22}
+        x2={W - 6}
+        y1={44}
+        y2={44}
+        className="stroke-muted-foreground"
+        strokeWidth={1.2}
+      />
+      <text
+        x={x0}
+        y={88}
+        className="fill-muted-foreground font-mono"
+        fontSize={10}
+      >
+        U-100 SCALE · UNITS FROM NEEDLE END
+      </text>
     </svg>
   );
 }
@@ -130,7 +214,9 @@ export function ConcentrationCalculator() {
   const [strength, setStrength] = useState(DEFAULTS.mg.strength);
   const [diluent, setDiluent] = useState(DEFAULTS.mg.diluent);
   const [amount, setAmount] = useState(DEFAULTS.mg.amount);
-  const [amountUnit, setAmountUnit] = useState<AmountUnit>(DEFAULTS.mg.amountUnit);
+  const [amountUnit, setAmountUnit] = useState<AmountUnit>(
+    DEFAULTS.mg.amountUnit,
+  );
   const [syringeMl, setSyringeMl] = useState(1);
 
   const reset = (m: Mode) => {
@@ -142,7 +228,8 @@ export function ConcentrationCalculator() {
   };
 
   const strengthUnit = mode === "iu" ? "IU" : "mg";
-  const amountLabel = amountUnit === "mcg" ? "mcg" : amountUnit === "iu" ? "IU" : "mg";
+  const amountLabel =
+    amountUnit === "mcg" ? "mcg" : amountUnit === "iu" ? "IU" : "mg";
   const result = calculate({
     strength: Number(strength),
     diluentMl: Number(diluent),
@@ -156,17 +243,30 @@ export function ConcentrationCalculator() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-12 lg:items-start">
-      <section className="rounded-2xl border border-primary/25 border-l-2 border-l-primary bg-card/90 p-5 shadow-glow sm:p-6 lg:col-span-5">
+      <section className="rounded-xl border border-border border-l-2 border-l-primary bg-card p-5 sm:p-6 lg:col-span-5">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="font-display text-lg font-extrabold uppercase text-foreground">Inputs</h2>
-          <Button size="sm" variant="outline" onClick={() => reset(mode)} aria-label="Reset inputs">
+          <h2 className="font-display text-lg font-extrabold uppercase text-foreground">
+            Inputs
+          </h2>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => reset(mode)}
+            aria-label="Reset inputs"
+          >
             <RotateCcw /> Reset
           </Button>
         </div>
 
         <div className="mt-4">
-          <p className="technical-label text-muted-foreground">Vial is labelled in</p>
-          <div className="mt-2 grid grid-cols-2 border border-border" role="group" aria-label="Vial unit">
+          <p className="technical-label text-muted-foreground">
+            Vial is labelled in
+          </p>
+          <div
+            className="mt-2 grid grid-cols-2 border border-border"
+            role="group"
+            aria-label="Vial unit"
+          >
             {(["mg", "iu"] as Mode[]).map((m) => (
               <button
                 key={m}
@@ -175,7 +275,9 @@ export function ConcentrationCalculator() {
                 onClick={() => reset(m)}
                 className={cn(
                   "py-2 text-xs font-bold uppercase transition-colors",
-                  mode === m ? "bg-primary text-primary-foreground" : "bg-background text-foreground hover:bg-muted",
+                  mode === m
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-background text-foreground hover:bg-muted",
                 )}
               >
                 {m === "mg" ? "Milligrams (mg)" : "International units (IU)"}
@@ -208,7 +310,14 @@ export function ConcentrationCalculator() {
             />
             <div className="mt-2 flex flex-wrap gap-1.5">
               {DILUENT_CHIPS.map((c) => (
-                <Button key={c} size="sm" variant={Number(diluent) === Number(c) ? "default" : "outline"} onClick={() => setDiluent(c)}>
+                <Button
+                  key={c}
+                  size="sm"
+                  variant={
+                    Number(diluent) === Number(c) ? "default" : "outline"
+                  }
+                  onClick={() => setDiluent(c)}
+                >
                   {c} mL
                 </Button>
               ))}
@@ -226,7 +335,11 @@ export function ConcentrationCalculator() {
               hint="amount per measurement"
             />
             {mode === "mg" ? (
-              <div className="mt-2 grid grid-cols-2 border border-border" role="group" aria-label="Target amount unit">
+              <div
+                className="mt-2 grid grid-cols-2 border border-border"
+                role="group"
+                aria-label="Target amount unit"
+              >
                 {(["mcg", "mg"] as AmountUnit[]).map((u) => (
                   <button
                     key={u}
@@ -235,12 +348,15 @@ export function ConcentrationCalculator() {
                     onClick={() => {
                       if (u === amountUnit) return;
                       const n = Number(amount);
-                      if (Number.isFinite(n)) setAmount(round(u === "mg" ? n / 1000 : n * 1000, 4));
+                      if (Number.isFinite(n))
+                        setAmount(round(u === "mg" ? n / 1000 : n * 1000, 4));
                       setAmountUnit(u);
                     }}
                     className={cn(
                       "py-1.5 text-xs font-bold uppercase",
-                      amountUnit === u ? "bg-accent text-accent-foreground" : "bg-background text-foreground hover:bg-muted",
+                      amountUnit === u
+                        ? "bg-accent text-accent-foreground"
+                        : "bg-background text-foreground hover:bg-muted",
                     )}
                   >
                     {u}
@@ -251,7 +367,11 @@ export function ConcentrationCalculator() {
           </div>
           <div className="space-y-2">
             <Label>Syringe scale (U-100)</Label>
-            <div className="grid grid-cols-3 border border-border" role="group" aria-label="Syringe capacity">
+            <div
+              className="grid grid-cols-3 border border-border"
+              role="group"
+              aria-label="Syringe capacity"
+            >
               {SYRINGES.map((s) => (
                 <button
                   key={s.ml}
@@ -260,7 +380,9 @@ export function ConcentrationCalculator() {
                   onClick={() => setSyringeMl(s.ml)}
                   className={cn(
                     "px-1 py-2 text-[0.65rem] font-bold uppercase sm:text-xs",
-                    syringeMl === s.ml ? "bg-primary text-primary-foreground" : "bg-background text-foreground hover:bg-muted",
+                    syringeMl === s.ml
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-background text-foreground hover:bg-muted",
                   )}
                 >
                   {s.label}
@@ -274,15 +396,21 @@ export function ConcentrationCalculator() {
       <section className="space-y-4 lg:col-span-7">
         {result.ok ? (
           <>
-            <div className="rounded-2xl border border-primary/25 bg-card/90 p-5 shadow-glow sm:p-6">
-              <p className="technical-label text-muted-foreground">Scale reading</p>
+            <div className="rounded-xl border border-border bg-card p-5 sm:p-6">
+              <p className="technical-label text-muted-foreground">
+                Scale reading
+              </p>
               <div className="mt-3">
-                <SyringeScale units={result.units} capacityUnits={syringeMl * 100} />
+                <SyringeScale
+                  units={result.units}
+                  capacityUnits={syringeMl * 100}
+                />
               </div>
               {result.exceedsSyringe ? (
                 <p className="mt-3 flex items-start gap-2 text-xs font-bold text-accent">
                   <AlertTriangle className="h-4 w-4 shrink-0" />
-                  The calculated volume ({round(result.volumeMl, 3)} mL) is larger than the selected {syringeMl} mL scale.
+                  The calculated volume ({round(result.volumeMl, 3)} mL) is
+                  larger than the selected {syringeMl} mL scale.
                 </p>
               ) : null}
               {result.exceedsVial ? (
@@ -298,7 +426,11 @@ export function ConcentrationCalculator() {
                 label="Concentration"
                 note={`strength ÷ diluent`}
                 value={`${round(result.concentration, 3)} ${strengthUnit}/mL`}
-                sub={amountUnit === "mcg" ? `${round(result.concentrationInAmountUnit, 1)} mcg/mL` : undefined}
+                sub={
+                  amountUnit === "mcg"
+                    ? `${round(result.concentrationInAmountUnit, 1)} mcg/mL`
+                    : undefined
+                }
               />
               <ResultCard
                 label="Volume for target amount"
@@ -321,18 +453,25 @@ export function ConcentrationCalculator() {
             </div>
 
             <div className="rounded-xl border border-primary/20 bg-background/45 p-4 font-mono text-xs leading-6 text-muted-foreground">
-              {strength} {strengthUnit} ÷ {diluent} mL = {round(result.concentration, 3)} {strengthUnit}/mL · {amount} {amountLabel} ÷{" "}
-              {round(result.concentrationInAmountUnit, 3)} {amountLabel}/mL = {round(result.volumeMl, 3)} mL ({round(result.units, 1)} units)
+              {strength} {strengthUnit} ÷ {diluent} mL ={" "}
+              {round(result.concentration, 3)} {strengthUnit}/mL · {amount}{" "}
+              {amountLabel} ÷ {round(result.concentrationInAmountUnit, 3)}{" "}
+              {amountLabel}/mL = {round(result.volumeMl, 3)} mL (
+              {round(result.units, 1)} units)
             </div>
           </>
         ) : (
-          <div className="rounded-2xl border border-primary/25 bg-card/90 p-6 text-sm text-muted-foreground shadow-glow" role="status">
+          <div
+            className="rounded-xl border border-border bg-card p-6 text-sm text-muted-foreground"
+            role="status"
+          >
             {result.reason}
           </div>
         )}
         <p className="text-xs leading-5 text-muted-foreground">
-          A neutral mathematical tool for laboratory concentration and volume calculations. The scale drawing is a
-          measurement aid only. Results are not instructions or recommendations for use. Research use only.
+          A neutral mathematical tool for laboratory concentration and volume
+          calculations. The scale drawing is a measurement aid only. Results are
+          not instructions or recommendations for use. Research use only.
         </p>
       </section>
     </div>
@@ -353,11 +492,25 @@ function ResultCard({
   highlight?: boolean;
 }) {
   return (
-    <div className={cn("rounded-2xl border border-primary/25 bg-card/90 p-4 shadow-glow", highlight && "border-l-2 border-l-accent")}>
+    <div
+      className={cn(
+        "rounded-xl border border-border bg-card p-4",
+        highlight && "border-l-2 border-l-accent",
+      )}
+    >
       <p className="technical-label text-muted-foreground">{label}</p>
       <p className="text-[0.65rem] text-muted-foreground">{note}</p>
-      <p className={cn("mt-2 font-display text-2xl font-extrabold", highlight ? "text-accent" : "text-foreground")}>{value}</p>
-      {sub ? <p className="mt-1 font-mono text-xs text-muted-foreground">{sub}</p> : null}
+      <p
+        className={cn(
+          "mt-2 font-display text-2xl font-extrabold",
+          highlight ? "text-accent" : "text-foreground",
+        )}
+      >
+        {value}
+      </p>
+      {sub ? (
+        <p className="mt-1 font-mono text-xs text-muted-foreground">{sub}</p>
+      ) : null}
     </div>
   );
 }

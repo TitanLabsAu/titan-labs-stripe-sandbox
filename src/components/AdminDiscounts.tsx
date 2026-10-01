@@ -19,9 +19,12 @@ function randomCode() {
   const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ";
   const digits = "23456789";
   let out = "";
-  for (let i = 0; i < 2; i++) out += letters[Math.floor(Math.random() * letters.length)];
-  for (let i = 0; i < 2; i++) out += digits[Math.floor(Math.random() * digits.length)];
-  for (let i = 0; i < 2; i++) out += letters[Math.floor(Math.random() * letters.length)];
+  for (let i = 0; i < 2; i++)
+    out += letters[Math.floor(Math.random() * letters.length)];
+  for (let i = 0; i < 2; i++)
+    out += digits[Math.floor(Math.random() * digits.length)];
+  for (let i = 0; i < 2; i++)
+    out += letters[Math.floor(Math.random() * letters.length)];
   return `TITAN-${out}`;
 }
 
@@ -39,7 +42,8 @@ export function AdminDiscounts() {
     queryFn: () => adminListDiscountCodes({}),
   });
 
-  const refresh = () => queryClient.invalidateQueries({ queryKey: ["admin-discounts"] });
+  const refresh = () =>
+    queryClient.invalidateQueries({ queryKey: ["admin-discounts"] });
 
   const create = useMutation({
     mutationFn: () =>
@@ -82,13 +86,14 @@ export function AdminDiscounts() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-primary/25 bg-card/90 p-6">
+      <div className="rounded-xl border border-border bg-card p-6">
         <h3 className="flex items-center gap-2 text-lg font-extrabold uppercase text-foreground">
           <Tag className="h-5 w-5 text-accent" /> Discount codes
         </h3>
         <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-          Create a code for a customer or vendor: take a set number of dollars off, a percentage
-          off, or cover their whole order with a full discount.
+          Create a code for a customer or vendor: take a set number of dollars
+          off, a percentage off, or cover their whole order with a full
+          discount.
         </p>
 
         <div className="mt-5 grid gap-4 sm:grid-cols-3">
@@ -196,11 +201,13 @@ export function AdminDiscounts() {
           <ul className="mt-3 space-y-3">
             {codes.map((c) => {
               const uses =
-                c.max_uses >= 1000000 ? `${c.times_used} used` : `${c.times_used}/${c.max_uses} used`;
+                c.max_uses >= 1000000
+                  ? `${c.times_used} used`
+                  : `${c.times_used}/${c.max_uses} used`;
               return (
                 <li
                   key={c.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/25 bg-card/90 p-4"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4"
                 >
                   <div className="text-sm text-muted-foreground">
                     <p className="text-base font-extrabold uppercase tracking-wide text-foreground">
@@ -217,14 +224,18 @@ export function AdminDiscounts() {
                       {c.active ? "" : " · disabled"}
                     </p>
                     {c.milestone ? (
-                      <p className="text-xs">Milestone reward at {c.milestone} orders</p>
+                      <p className="text-xs">
+                        Milestone reward at {c.milestone} orders
+                      </p>
                     ) : null}
                   </div>
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
                       className="font-bold uppercase"
-                      onClick={() => toggle.mutate({ id: c.id, active: !c.active })}
+                      onClick={() =>
+                        toggle.mutate({ id: c.id, active: !c.active })
+                      }
                     >
                       {c.active ? "Disable" : "Enable"}
                     </Button>
