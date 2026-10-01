@@ -510,6 +510,7 @@ export type Database = {
       }
       research_entries: {
         Row: {
+          at_a_glance: string
           blend_notice: boolean
           cas_number: string | null
           category: string
@@ -535,6 +536,7 @@ export type Database = {
           verification_status: string
         }
         Insert: {
+          at_a_glance?: string
           blend_notice?: boolean
           cas_number?: string | null
           category?: string
@@ -560,6 +562,7 @@ export type Database = {
           verification_status?: string
         }
         Update: {
+          at_a_glance?: string
           blend_notice?: boolean
           cas_number?: string | null
           category?: string
