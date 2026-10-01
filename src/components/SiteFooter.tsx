@@ -16,11 +16,11 @@ export function SiteFooter() {
   const tabOrder = pageSectionOrder(content, "footer_layout_order", FOOTER_TABS);
 
   return (
-    <footer className="relative overflow-hidden border-t border-border bg-secondary text-xs text-muted-foreground">
-      <img src={footerImage} alt="" width={1920} height={768} loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-50" />
-       <div className="brand-footer-shade absolute inset-0" />
+    <footer className="relative overflow-hidden border-t border-primary/30 bg-background text-xs text-muted-foreground">
+      <img src={footerImage} alt="" width={1920} height={768} loading="lazy" className="titan-future-art titan-future-art-footer absolute inset-0 h-full w-full object-cover" />
+       <div className="titan-footer-surface absolute inset-0" />
        <div className="relative mx-auto max-w-7xl px-5 py-20 sm:px-6 sm:py-24">
-        <div className="grid gap-10 border-b border-border pb-10 md:grid-cols-[1.15fr_0.85fr_1fr]">
+        <div className="grid gap-10 border-b border-primary/25 pb-10 md:grid-cols-[1.15fr_0.85fr_1fr]">
           <div>
             <TitanLogo size={72} />
             <div className={cn("mt-5 max-w-sm whitespace-pre-wrap text-sm leading-6", TEXT_ALIGN_CLASS[contentAlign(content, "footer_about")])}>
@@ -52,7 +52,7 @@ export function SiteFooter() {
           <Link to="/privacy" className="text-foreground hover:text-primary">Privacy Policy</Link>
         </nav>
         {siteLinks && siteLinks.length > 0 ? <p className="mt-8 flex flex-wrap gap-x-5 gap-y-2">{siteLinks.map((l) => <a key={l.id} href={l.url} target="_blank" rel="noopener noreferrer" className="font-bold text-accent hover:text-primary">{l.label}</a>)}</p> : null}
-        <div className="mt-8 grid gap-3 border-t border-border pt-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+        <div className="mt-8 grid gap-3 border-t border-primary/25 pt-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
           <div className={cn("whitespace-pre-wrap", TEXT_ALIGN_CLASS[contentAlign(content, "home_footer_text")])}><RichText text={homeValue(content, "home_footer_text")} /></div>
           <div className={cn("whitespace-pre-wrap font-bold uppercase text-foreground", TEXT_ALIGN_CLASS[contentAlign(content, "footer_notice")])}>
             <RichText text={label("footer_notice")} />
