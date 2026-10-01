@@ -161,7 +161,7 @@ function StripePaymentForm({
       </Button>
 
       <p className="text-center text-xs text-muted-foreground">
-        Sandbox mode. Payment details are securely handled by Stripe.
+        Payment details are securely handled by Stripe.
       </p>
     </div>
   );
@@ -436,7 +436,7 @@ const startStripeCardPayment = useMutation({
             </p>
             <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">
               {confirmed.paymentMethod === "card"
-                ? "Your sandbox card payment was approved and verified with Stripe. Your order is confirmed."
+                ? "Your card payment was approved and verified with Stripe. Your order is confirmed."
                 : homeValue(content, "payment_confirmation_note")}
             </p>
 
@@ -619,7 +619,7 @@ const startStripeCardPayment = useMutation({
 
         {!stripePromise ? (
           <p className="mt-3 text-xs text-destructive">
-            Stripe sandbox is not configured.
+            Secure card payments are not currently available.
           </p>
         ) : null}
       </div>
