@@ -288,20 +288,17 @@
     background: transparent;
   }
   .home-watermark {
-    opacity: 0.34;
-    mix-blend-mode: screen;
-    filter:
-      saturate(1.75)
-      contrast(1.32)
-      brightness(0.72)
-      drop-shadow(0 0 18px color-mix(in oklab, var(--primary) 48%, transparent))
-      drop-shadow(0 0 34px color-mix(in oklab, var(--accent) 20%, transparent));
-    -webkit-mask-image: radial-gradient(ellipse 52% 48% at 50% 50%, #000 48%, rgba(0,0,0,.92) 67%, transparent 94%);
-    mask-image: radial-gradient(ellipse 52% 48% at 50% 50%, #000 48%, rgba(0,0,0,.92) 67%, transparent 94%);
+    opacity: 0.9;
+    mix-blend-mode: normal;
+    -webkit-mask-image: none;
+    mask-image: none;
+    filter: drop-shadow(0 0 24px color-mix(in oklab, var(--primary) 30%, transparent));
   }
   .light .home-watermark {
-    opacity: 0.2;
-    mix-blend-mode: multiply;
-    filter: saturate(1.2) contrast(1.12);
+    opacity: 0.92;
+    mix-blend-mode: normal;
+    -webkit-mask-image: none;
+    mask-image: none;
+    filter: none;
   }
 }
