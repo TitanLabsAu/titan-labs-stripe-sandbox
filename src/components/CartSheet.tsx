@@ -32,7 +32,7 @@ export function CartSheet() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="relative" aria-label="View cart">
+        <Button variant="outline" size="icon" className="titan-nav-icon relative" aria-label="View cart">
           <ShoppingCart className="h-5 w-5" />
           {count > 0 && (
             <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-xs font-bold text-accent-foreground">
@@ -41,7 +41,7 @@ export function CartSheet() {
           )}
         </Button>
       </SheetTrigger>
-      <SheetContent className="flex w-full flex-col border-l-border bg-background sm:max-w-md">
+      <SheetContent className="flex w-full flex-col border-l-primary/30 bg-background sm:max-w-md">
         <SheetHeader>
           <SheetTitle className="uppercase tracking-wide">Your cart</SheetTitle>
           <SheetDescription>Review your items before checkout.</SheetDescription>
@@ -60,7 +60,7 @@ export function CartSheet() {
                   if (!product) return null;
                   const linePrice = getLinePrice(item);
                   return (
-                    <li key={item.key} className="flex gap-3 border border-border bg-card p-3">
+                    <li key={item.key} className="flex gap-3 rounded-xl border border-border bg-card p-3 shadow-sm">
                       <img
                         src={product.image}
                         alt={product.alt}
