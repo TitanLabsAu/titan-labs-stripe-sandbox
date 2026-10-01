@@ -6,6 +6,8 @@ export interface OrderConfirmationProps {
   orderNumber?: string
   customerName?: string
   total?: string
+  paymentConfirmed?: boolean
+  shippingMethod?: string
   items?: string[]
 }
 
@@ -13,6 +15,8 @@ export function OrderConfirmation({
   orderNumber = 'TL-0000',
   customerName = 'there',
   total = '$0.00',
+  paymentConfirmed = false,
+  shippingMethod = 'Australia Post Express',
   items = [],
 }: OrderConfirmationProps) {
   return (
@@ -33,7 +37,9 @@ export function OrderConfirmation({
               Hi {customerName}, we have your order {orderNumber}
             </Text>
             <Text style={{ color: '#3c4a5c', fontSize: '14px', margin: '0 0 12px' }}>
-              Your order has been received and is being prepared for dispatch with Australia Post Express.
+              {paymentConfirmed
+                ? `Payment confirmed. Your order is being prepared for dispatch with ${shippingMethod}.`
+                : 'Your order has been received and is awaiting payment confirmation. We will prepare it once payment is confirmed.'}
             </Text>
             {items.map((line) => (
               <Text key={line} style={{ color: '#3c4a5c', fontSize: '14px', margin: '0 0 4px' }}>
@@ -64,3 +70,4 @@ export const template = {
     items: ['2 × Retatrutide 10mg', '1 × BPC-157'],
   },
 } satisfies TemplateEntry
+

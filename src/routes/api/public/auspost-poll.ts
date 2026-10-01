@@ -16,6 +16,12 @@ export const Route = createFileRoute("/api/public/auspost-poll")({
 
 
         try {
+          try {
+            const { sendPendingOrderConfirmations } = await import("@/lib/order-confirmation.server");
+            await sendPendingOrderConfirmations();
+          } catch (error) {
+            console.error("[order-confirmation] retry failed", error);
+          }
           const { syncAustraliaPostTracking } = await import("@/lib/auspost.server");
           const summary = await syncAustraliaPostTracking();
           let milestoneEmails = 0;
@@ -34,3 +40,4 @@ export const Route = createFileRoute("/api/public/auspost-poll")({
     },
   },
 });
+

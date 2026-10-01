@@ -549,6 +549,9 @@ export const verifyStripeSandboxPayment = createServerFn({
         );
       }
 
+      const { tryOrderConfirmation } = await import("@/lib/order-confirmation.server");
+      await tryOrderConfirmation(result.id);
+
       return {
         id: result.id,
         orderNumber: Number(result.order_number),
@@ -563,3 +566,4 @@ export const verifyStripeSandboxPayment = createServerFn({
 
     },
   );
+

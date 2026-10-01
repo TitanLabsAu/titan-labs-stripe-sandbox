@@ -237,6 +237,9 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
           );
         }
 
+        const { tryOrderConfirmation } = await import("@/lib/order-confirmation.server");
+        await tryOrderConfirmation(result.id);
+
         return ok({
           status: "finalised",
           orderNumber: result.order_number ?? null,
@@ -245,3 +248,4 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
     },
   },
 });
+

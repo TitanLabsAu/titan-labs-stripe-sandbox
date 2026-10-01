@@ -178,6 +178,9 @@ export const submitOrder = createServerFn({ method: "POST" })
       })
       .eq("id", context.userId);
 
+    const { tryOrderConfirmation } = await import("@/lib/order-confirmation.server");
+    await tryOrderConfirmation(order.id);
+
     return {
       id: order.id as string,
       orderNumber: Number(order.order_number),
@@ -205,3 +208,4 @@ export const saveOrderPaymentReference = createServerFn({ method: "POST" })
     if (error) throw error;
     return { ok: true };
   });
+

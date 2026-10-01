@@ -314,6 +314,9 @@ export const verifyEwaySandboxPayment = createServerFn({ method: "POST" })
       order_id: order.id,
     }).eq("id", attempt.id);
 
+    const { tryOrderConfirmation } = await import("@/lib/order-confirmation.server");
+    await tryOrderConfirmation(order.id);
+
     return {
       id: order.id,
       orderNumber: Number(order.order_number),
@@ -326,3 +329,4 @@ export const verifyEwaySandboxPayment = createServerFn({ method: "POST" })
       shippingMethod: payload.shippingMethod,
     };
   });
+

@@ -151,7 +151,7 @@ export const adminSendOrderEmail = createServerFn({ method: "POST" })
     const { data: order, error } = await context.supabase
       .from("orders")
       .select(
-        "id, user_id, order_number, total, tracking_number, order_items(product_name, quantity, unit_price)",
+        "id, user_id, order_number, total, tracking_number, contact_email, contact_name, payment_confirmed, notes, order_items(product_name, quantity, unit_price)",
       )
       .eq("id", data.orderId)
       .maybeSingle();
@@ -164,13 +164,15 @@ export const adminSendOrderEmail = createServerFn({ method: "POST" })
       .eq("id", (order as any).user_id)
       .maybeSingle();
 
-    const email = (profile as any)?.email as string | undefined;
+    const email = (order as any).contact_email || (profile as any)?.email;
     if (!email) throw new Error("This customer has no email address on file.");
 
-    const money = (cents: number) => `$${(Number(cents) / 100).toFixed(2)}`;
+    const money = (amount: number) => `$${Number(amount).toFixed(2)} AUD`;
     const templateData: Record<string, any> = {
       orderNumber: orderReference(order as any),
-      customerName: (profile as any)?.first_name ?? "there",
+      customerName: (order as any).contact_name || (profile as any)?.first_name || "there",
+      paymentConfirmed: Boolean((order as any).payment_confirmed),
+      shippingMethod: /Shipping: Standard/.test((order as any).notes ?? "") ? "Standard tracked" : "Australia Post Express",
       total: money((order as any).total),
       trackingNumber: (order as any).tracking_number ?? "",
       items: ((order as any).order_items ?? []).map(
@@ -635,3 +637,4 @@ export const adminDeleteDiscountCode = createServerFn({ method: "POST" })
     if (error) throw error;
     return { ok: true };
   });
+
