@@ -2,10 +2,11 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { toResearchEntry, type ResearchEntry } from "@/lib/research";
 
 const PUBLIC_COLS =
-  "id, slug, title, category, tags, summary, content, synonyms, molecular_formula, sequence, cas_number, pubchem_cid, research_findings, source_references, published, published_at, sort_order, created_at, updated_at, evidence_status, verification_status, blend_notice";
+  "id, slug, title, category, tags, at_a_glance, summary, content, synonyms, molecular_formula, sequence, cas_number, pubchem_cid, research_findings, source_references, published, published_at, sort_order, created_at, updated_at, evidence_status, verification_status, blend_notice";
 
 /** Strip admin-only metadata (claim checks, reference notes) before sending to the public. */
 function toPublic(row: any): ResearchEntry {
@@ -41,7 +42,7 @@ export const listPublishedResearch = createServerFn({ method: "GET" }).handler(
       console.error("listPublishedResearch", error.message);
       return [];
     }
-    return (data ?? []).map(toResearchEntry);
+    return (data ?? []).map(toPublic);
   },
 );
 
@@ -58,5 +59,35 @@ export const getPublishedResearch = createServerFn({ method: "GET" })
       console.error("getPublishedResearch", error.message);
       return null;
     }
-    return row ? toResearchEntry(row) : null;
+    return row ? toPublic(row) : null;
+  });
+
+/** Admin-only draft preview reads. Publication state and content remain unchanged. */
+export const listResearchPreview = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<ResearchEntry[]> => {
+    const { data: role } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    if (!role) throw new Response("Forbidden", { status: 403 });
+    const { data, error } = await context.supabase
+      .from("research_entries")
+      .select(PUBLIC_COLS)
+      .order("sort_order", { ascending: true })
+      .order("title", { ascending: true });
+    if (error) throw error;
+    return (data ?? []).map(toPublic);
+  });
+
+export const getResearchPreview = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ slug: z.string().min(1).max(120) }).parse(input))
+  .handler(async ({ context, data }): Promise<ResearchEntry | null> => {
+    const { data: role } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    if (!role) throw new Response("Forbidden", { status: 403 });
+    const { data: row, error } = await context.supabase
+      .from("research_entries")
+      .select(PUBLIC_COLS)
+      .eq("slug", data.slug)
+      .maybeSingle();
+    if (error) throw error;
+    return row ? toPublic(row) : null;
   });
