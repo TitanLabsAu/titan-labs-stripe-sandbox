@@ -41,6 +41,7 @@ function EntryUnavailable() {
 function EntryPage() {
   const { slug } = Route.useParams();
   const { data: entry } = useSuspenseQuery(entryQuery(slug));
+  const { data: entries } = useSuspenseQuery(queryOptions({ queryKey: ["research", "list"], queryFn: () => listPublishedResearch(), staleTime: 30_000 }));
   if (!entry) return <EntryUnavailable />;
-  const { data: entries } = useSuspenseQuery(queryOptions({ queryKey: ["research", "list"], queryFn: () => listPublishedResearch(), staleTime: 30_000 }));\n  return <ResearchLabShell><ResearchEntryView entry={entry} entries={entries} /></ResearchLabShell>;
+  return <ResearchLabShell><ResearchEntryView entry={entry} entries={entries} /></ResearchLabShell>;
 }
