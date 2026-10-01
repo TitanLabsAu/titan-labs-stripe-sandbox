@@ -192,6 +192,76 @@ export type Database = {
           },
         ]
       }
+      order_checkpoint_email_queue: {
+        Row: {
+          attempts: number
+          completed_at: string | null
+          created_at: string
+          kind: string
+          last_error: string | null
+          next_attempt_at: string
+          order_id: string
+          outcome: string | null
+        }
+        Insert: {
+          attempts?: number
+          completed_at?: string | null
+          created_at?: string
+          kind: string
+          last_error?: string | null
+          next_attempt_at?: string
+          order_id: string
+          outcome?: string | null
+        }
+        Update: {
+          attempts?: number
+          completed_at?: string | null
+          created_at?: string
+          kind?: string
+          last_error?: string | null
+          next_attempt_at?: string
+          order_id?: string
+          outcome?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_checkpoint_email_queue_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_confirmation_queue: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          order_id: string
+          outcome: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          order_id: string
+          outcome?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          order_id?: string
+          outcome?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_confirmation_queue_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: true
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           created_at: string
