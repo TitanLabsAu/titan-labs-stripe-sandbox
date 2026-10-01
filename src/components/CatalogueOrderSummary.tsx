@@ -14,8 +14,8 @@ export function CatalogueOrderSummary() {
   const total = items.length ? subtotal + shipping : 0;
 
   return (
-    <aside className="border border-border bg-card p-5 shadow-sm lg:sticky lg:top-5">
-      <h2 className="text-xs font-semibold uppercase text-foreground">Order summary</h2>
+    <aside className="rounded-xl border border-primary/30 bg-card/90 p-5 shadow-glow lg:sticky lg:top-5">
+      <h2 className="font-display text-sm font-bold uppercase tracking-wider text-foreground">Order summary</h2>
       {items.length === 0 ? (
         <p className="mt-5 text-sm text-muted-foreground">Nothing selected yet.</p>
       ) : (
