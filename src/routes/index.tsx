@@ -68,7 +68,7 @@ function Index() {
 
       <main className="relative">
         <div className="pointer-events-none absolute inset-x-0 top-0 flex h-[34rem] items-center justify-center overflow-hidden" aria-hidden="true">
-          <img src={logoAsset.url} alt="" width={768} height={768} className="h-full w-full scale-110 object-contain opacity-15 sm:scale-125" />
+          <img src={logoAsset.url} alt="" width={768} height={768} className="home-watermark h-full w-full scale-110 object-contain opacity-10 sm:scale-125" />
           <div className="absolute inset-0 bg-background/35" />
         </div>
         <div className="h-20 sm:h-28" />
