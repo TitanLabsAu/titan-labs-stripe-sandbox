@@ -55,7 +55,7 @@ function Stat({
   hint?: string;
 }) {
   return (
-    <div className="rounded-lg border border-border bg-card/60 p-4">
+    <div className="rounded-xl border border-primary/20 bg-card/70 p-4">
       <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
         {label}
       </p>
@@ -410,7 +410,7 @@ export function AdminFinance() {
             {inRange.map((e) => (
               <div
                 key={e.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card/60 p-3"
+                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/20 bg-card/70 p-3"
               >
                 <div>
                   <p className="font-semibold">
