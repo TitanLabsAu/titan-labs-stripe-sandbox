@@ -156,7 +156,7 @@ export function ConcentrationCalculator() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-12 lg:items-start">
-      <section className="industrial-panel border-l-2 border-l-primary p-5 sm:p-6 lg:col-span-5">
+      <section className="rounded-2xl border border-primary/25 border-l-2 border-l-primary bg-card/90 p-5 shadow-glow sm:p-6 lg:col-span-5">
         <div className="flex items-center justify-between gap-3">
           <h2 className="font-display text-lg font-extrabold uppercase text-foreground">Inputs</h2>
           <Button size="sm" variant="outline" onClick={() => reset(mode)} aria-label="Reset inputs">
@@ -274,7 +274,7 @@ export function ConcentrationCalculator() {
       <section className="space-y-4 lg:col-span-7">
         {result.ok ? (
           <>
-            <div className="industrial-panel p-5 sm:p-6">
+            <div className="rounded-2xl border border-primary/25 bg-card/90 p-5 shadow-glow sm:p-6">
               <p className="technical-label text-muted-foreground">Scale reading</p>
               <div className="mt-3">
                 <SyringeScale units={result.units} capacityUnits={syringeMl * 100} />
@@ -320,13 +320,13 @@ export function ConcentrationCalculator() {
               />
             </div>
 
-            <div className="border border-border bg-card p-4 font-mono text-xs leading-6 text-muted-foreground">
+            <div className="rounded-xl border border-primary/20 bg-background/45 p-4 font-mono text-xs leading-6 text-muted-foreground">
               {strength} {strengthUnit} ÷ {diluent} mL = {round(result.concentration, 3)} {strengthUnit}/mL · {amount} {amountLabel} ÷{" "}
               {round(result.concentrationInAmountUnit, 3)} {amountLabel}/mL = {round(result.volumeMl, 3)} mL ({round(result.units, 1)} units)
             </div>
           </>
         ) : (
-          <div className="industrial-panel p-6 text-sm text-muted-foreground" role="status">
+          <div className="rounded-2xl border border-primary/25 bg-card/90 p-6 text-sm text-muted-foreground shadow-glow" role="status">
             {result.reason}
           </div>
         )}
@@ -353,7 +353,7 @@ function ResultCard({
   highlight?: boolean;
 }) {
   return (
-    <div className={cn("industrial-panel p-4", highlight && "border-l-2 border-l-accent")}>
+    <div className={cn("rounded-2xl border border-primary/25 bg-card/90 p-4 shadow-glow", highlight && "border-l-2 border-l-accent")}>
       <p className="technical-label text-muted-foreground">{label}</p>
       <p className="text-[0.65rem] text-muted-foreground">{note}</p>
       <p className={cn("mt-2 font-display text-2xl font-extrabold", highlight ? "text-accent" : "text-foreground")}>{value}</p>
