@@ -133,8 +133,8 @@ function ResetPasswordPage() {
       <SiteHeader />
       <main className="page-shell py-12">
         <div className="w-full max-w-md">
-          <div className="border border-border bg-card p-8 shadow-sm">
-            <h1 className="text-left text-3xl font-medium uppercase text-foreground">
+          <div className="rounded-2xl border border-primary/25 bg-card/90 p-8 shadow-glow">
+            <h1 className="font-display text-left text-3xl font-black uppercase tracking-[0.08em] text-foreground">
               Reset Password
             </h1>
             <p className="mt-2 text-left text-sm text-muted-foreground">
