@@ -156,7 +156,7 @@ export function AdminFinance() {
 
   return (
     <div className="space-y-6">
-      <div className="industrial-panel space-y-4 p-4">
+      <div className="rounded-2xl border border-primary/25 bg-card/90 p-4 shadow-glow space-y-4">
         <div className="flex flex-wrap items-center gap-2">
           {[
             { key: "month", label: "This month" },
@@ -230,7 +230,7 @@ export function AdminFinance() {
             </p>
           ) : null}
 
-          <div className="industrial-panel p-4">
+          <div className="rounded-2xl border border-primary/25 bg-card/90 p-4 shadow-glow">
             <h3 className="mb-3 text-sm font-black uppercase tracking-[0.18em]">Profit by product</h3>
             {s.products.length === 0 ? (
               <p className="text-sm text-muted-foreground">No sales in this period.</p>
@@ -275,7 +275,7 @@ export function AdminFinance() {
         <p className="text-sm text-muted-foreground">Loading figures…</p>
       )}
 
-      <div className="industrial-panel space-y-4 p-4">
+      <div className="rounded-2xl border border-primary/25 bg-card/90 p-4 shadow-glow space-y-4">
         <div>
           <h3 className="text-sm font-black uppercase tracking-[0.18em]">Record money spent</h3>
           <p className="mt-1 text-xs text-muted-foreground">
@@ -399,7 +399,7 @@ export function AdminFinance() {
         </Button>
       </div>
 
-      <div className="industrial-panel p-4">
+      <div className="rounded-2xl border border-primary/25 bg-card/90 p-4 shadow-glow">
         <h3 className="mb-3 text-sm font-black uppercase tracking-[0.18em]">
           Spending in this period
         </h3>
