@@ -41,7 +41,7 @@ function topProducts(orders: AdminOrder[]): { name: string; qty: number }[] {
 
 function MemberOrderCard({ order }: { order: AdminOrder }) {
   return (
-    <article className="rounded-xl border border-border bg-card/80 p-5">
+    <article className="rounded-2xl border border-primary/25 bg-card/90 p-5">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
         <div>
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
@@ -124,7 +124,7 @@ function MemberDetail({ member, onBack }: { member: AdminMember; onBack: () => v
         ← All members
       </Button>
 
-      <div className="rounded-xl border border-border bg-card/80 p-6">
+      <div className="rounded-2xl border border-primary/25 bg-card/90 p-6">
         <h2 className="text-2xl font-extrabold uppercase text-foreground">{memberName(member)}</h2>
         <div className="mt-3 grid gap-1 text-sm text-muted-foreground sm:grid-cols-2">
           <p>{member.email ?? "No email"}</p>
@@ -147,7 +147,7 @@ function MemberDetail({ member, onBack }: { member: AdminMember; onBack: () => v
         <p className="text-sm text-muted-foreground">Loading orders…</p>
       ) : (
         <>
-          <section className="grid gap-4 rounded-xl border border-border bg-card/80 p-6 sm:grid-cols-4">
+          <section className="grid gap-4 rounded-2xl border border-primary/25 bg-card/90 p-6 sm:grid-cols-4">
             <div>
               <p className="text-2xl font-extrabold text-accent">{orders.length}</p>
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Purchases</p>
@@ -170,7 +170,7 @@ function MemberDetail({ member, onBack }: { member: AdminMember; onBack: () => v
             </div>
           </section>
 
-          <section className="rounded-xl border border-border bg-card/80 p-6">
+          <section className="rounded-2xl border border-primary/25 bg-card/90 p-6">
             <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">
               Top 3 peptides purchased
             </h3>
@@ -228,7 +228,7 @@ export function AdminMembers() {
   const members = data ?? [];
   if (members.length === 0) {
     return (
-      <div className="rounded-xl border border-border bg-card/70 p-8 text-center">
+      <div className="rounded-2xl border border-primary/25 bg-card/80 p-8 text-center">
         <p className="text-sm text-muted-foreground">No customers have signed up yet.</p>
       </div>
     );
@@ -241,7 +241,7 @@ export function AdminMembers() {
           key={m.id}
           type="button"
           onClick={() => setSelected(m)}
-          className="w-full rounded-xl border border-border bg-card/80 p-5 text-left transition hover:border-accent/60"
+          className="w-full rounded-2xl border border-primary/25 bg-card/90 p-5 text-left transition hover:border-accent/60"
         >
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="text-sm text-muted-foreground">
