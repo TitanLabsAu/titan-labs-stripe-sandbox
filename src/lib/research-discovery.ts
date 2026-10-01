@@ -1,4 +1,4 @@
-import { BookOpen, Brain, Dumbbell, Flame, HeartPulse, Sparkles, type LucideIcon } from "lucide-react";
+import { BookOpen, Brain, Dumbbell, Flame, HeartPulse, Shield, Sparkles, type LucideIcon } from "lucide-react";
 import type { ResearchEntry } from "@/lib/research";
 
 export type ResearchCollection = {
@@ -56,6 +56,15 @@ export const RESEARCH_COLLECTIONS: ResearchCollection[] = [
     icon: Brain,
     categories: ["Cognitive & Mood"],
     terms: ["adamax", "dsip", "selank", "semax"],
+  },
+  {
+    slug: "androgen",
+    title: "Androgen Research",
+    shortTitle: "Androgen",
+    description: "Research involving androgen-receptor biology and anabolic-androgenic compounds, with human and preclinical evidence clearly separated.",
+    icon: Shield,
+    categories: ["Anabolics"],
+    terms: ["testosterone", "nandrolone", "methenolone", "primobolan", "trenbolone"],
   },
   {
     slug: "hormonal",
