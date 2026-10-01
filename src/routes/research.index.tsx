@@ -13,9 +13,9 @@ const researchQuery = queryOptions({
 export const Route = createFileRoute("/research/")({
   head: () => ({
     meta: [
-      { title: "Titan's Research Lab | Titan Labs Australia" },
+      { title: "Titan Research Lab | Titan Labs Australia" },
       { name: "description", content: "Browse plain-language compound research summaries with evidence context, technical details and cited sources." },
-      { property: "og:title", content: "Titan's Research Lab | Titan Labs Australia" },
+      { property: "og:title", content: "Titan Research Lab | Titan Labs Australia" },
       { property: "og:description", content: "Compound research summaries with evidence context, technical details and cited sources." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
