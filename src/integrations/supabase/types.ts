@@ -510,10 +510,13 @@ export type Database = {
       }
       research_entries: {
         Row: {
+          blend_notice: boolean
           cas_number: string | null
           category: string
+          claim_checks: Json
           content: Json
           created_at: string
+          evidence_status: string
           id: string
           molecular_formula: string | null
           pubchem_cid: string | null
@@ -529,12 +532,16 @@ export type Database = {
           tags: string[]
           title: string
           updated_at: string
+          verification_status: string
         }
         Insert: {
+          blend_notice?: boolean
           cas_number?: string | null
           category?: string
+          claim_checks?: Json
           content?: Json
           created_at?: string
+          evidence_status?: string
           id?: string
           molecular_formula?: string | null
           pubchem_cid?: string | null
@@ -550,12 +557,16 @@ export type Database = {
           tags?: string[]
           title: string
           updated_at?: string
+          verification_status?: string
         }
         Update: {
+          blend_notice?: boolean
           cas_number?: string | null
           category?: string
+          claim_checks?: Json
           content?: Json
           created_at?: string
+          evidence_status?: string
           id?: string
           molecular_formula?: string | null
           pubchem_cid?: string | null
@@ -571,6 +582,7 @@ export type Database = {
           tags?: string[]
           title?: string
           updated_at?: string
+          verification_status?: string
         }
         Relationships: []
       }
