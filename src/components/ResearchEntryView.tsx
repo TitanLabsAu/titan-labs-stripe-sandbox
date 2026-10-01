@@ -3,7 +3,8 @@ import { AlertTriangle, ArrowLeft, ArrowRight, BookOpen, ExternalLink, Info, Lay
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ResearchEvidenceBadge } from "@/components/ResearchEvidenceBadge";
 import { RichText } from "@/components/RichText";
-import { BLEND_NOTICE, EVIDENCE_EXPLANATIONS, EVIDENCE_TYPES, VERIFIED_EXPLANATION, doiUrl, label, pubchemUrl, pubmedUrl, safeUrl, type ResearchEntry, type ResearchSection } from "@/lib/research";\nimport { blendsForEntry, relatedResearch } from "@/lib/research-discovery";
+import { BLEND_NOTICE, EVIDENCE_EXPLANATIONS, EVIDENCE_TYPES, VERIFIED_EXPLANATION, doiUrl, label, pubchemUrl, pubmedUrl, safeUrl, type ResearchEntry, type ResearchSection } from "@/lib/research";
+import { blendsForEntry, relatedResearch } from "@/lib/research-discovery";
 
 const compositionHeading = /composition|identifier/i;
 const crossRegHeading = /cross[- ]?reference|regulatory/i;
@@ -13,7 +14,9 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
   const identifiers = [["Molecular formula", entry.molecular_formula], ["CAS number", entry.cas_number], ["PubChem CID", entry.pubchem_cid]].filter((item): item is [string, string] => Boolean(item[1]));
   const composition = entry.content.filter((section) => compositionHeading.test(section.heading));
   const crossReg = entry.content.filter((section) => crossRegHeading.test(section.heading));
-  const details = entry.content.filter((section) => !compositionHeading.test(section.heading) && !crossRegHeading.test(section.heading));\n  const related = relatedResearch(entry, entries);\n  const blends = blendsForEntry(entry);
+  const details = entry.content.filter((section) => !compositionHeading.test(section.heading) && !crossRegHeading.test(section.heading));
+  const related = relatedResearch(entry, entries);
+  const blends = blendsForEntry(entry);
 
   return (
     <article className="mx-auto max-w-5xl">
