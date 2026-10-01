@@ -114,7 +114,7 @@ function ProductPage() {
           </div>
 
           <div>
-            <h1 className="text-4xl font-medium uppercase text-foreground sm:text-5xl">
+            <h1 className="font-display text-4xl font-black uppercase tracking-[0.08em] text-foreground sm:text-5xl">
               {product.name}
             </h1>
             <p className="mt-3 flex flex-wrap items-baseline gap-3">
@@ -276,7 +276,7 @@ function ProductPage() {
             ) : null}
 
             {product.protocol ? (
-               <div className="mt-6 border border-border bg-card p-5">
+               <div className="mt-6 rounded-xl border border-primary/25 bg-card/90 p-5 shadow-glow">
                 <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
                   How to use this product
                 </h2>
@@ -305,7 +305,7 @@ function ProductPage() {
         </div>
 
         <section className="mt-16">
-          <h2 className="text-2xl font-extrabold uppercase tracking-tight text-foreground">
+          <h2 className="font-display text-2xl font-black uppercase tracking-[0.08em] text-foreground">
              More from {catalogueName(content)}
           </h2>
           <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
