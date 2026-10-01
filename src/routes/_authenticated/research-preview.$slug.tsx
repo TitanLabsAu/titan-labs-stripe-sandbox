@@ -2,7 +2,7 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { ResearchEntryView } from "@/components/ResearchEntryView";
 import { ResearchLabShell } from "@/components/ResearchLabShell";
-import { getResearchPreview } from "@/lib/research.functions";
+import { getResearchPreview, listResearchPreview } from "@/lib/research.functions";
 
 const previewEntryQuery = (slug: string) => queryOptions({
   queryKey: ["research", "admin-preview", "entry", slug],
@@ -37,5 +37,5 @@ function ResearchEntryPreview() {
   const { slug } = Route.useParams();
   const { data: entry } = useSuspenseQuery(previewEntryQuery(slug));
   if (!entry) return <EntryPreviewUnavailable />;
-  return <ResearchLabShell preview><ResearchEntryView entry={entry} preview /></ResearchLabShell>;
+  const { data: entries } = useSuspenseQuery(queryOptions({ queryKey: ["research", "admin-preview", "list"], queryFn: () => listResearchPreview(), staleTime: 15_000 }));\n  return <ResearchLabShell preview><ResearchEntryView entry={entry} entries={entries} preview /></ResearchLabShell>;
 }
