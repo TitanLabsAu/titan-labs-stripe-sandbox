@@ -78,7 +78,7 @@ export function ResearchIndexView({ entries, preview = false }: { entries: Resea
       <div className="mt-8 flex items-center gap-2"><Layers3 className="h-5 w-5 text-primary" /><h2 className="font-display text-xl font-bold uppercase text-foreground">Compound Library</h2></div>
 
       {visible.length === 0 ? (
-        <div className="mt-8 border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+        <div className="mt-8 rounded-2xl border border-primary/25 bg-card/90 p-8 text-center shadow-glow text-sm text-muted-foreground">
           {entries.length === 0 ? "Research entries are being prepared. Check back soon." : "No entries match your search."}
         </div>
       ) : (
@@ -88,7 +88,7 @@ export function ResearchIndexView({ entries, preview = false }: { entries: Resea
               key={entry.id}
               to={preview ? "/research-preview/$slug" : "/research/$slug"}
               params={{ slug: entry.slug }}
-              className="group flex min-h-72 flex-col border border-border bg-card p-5 shadow-sm transition-[border-color,transform,box-shadow] hover:-translate-y-0.5 hover:border-primary hover:shadow-glow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="group flex min-h-72 flex-col rounded-2xl border border-primary/25 bg-card/90 p-5 shadow-glow shadow-sm transition-[border-color,transform,box-shadow] hover:-translate-y-0.5 hover:border-primary hover:shadow-glow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <p className="technical-label text-accent">{entry.category || "Research"}</p>
               <h2 className="mt-2 font-display text-xl font-bold uppercase text-foreground group-hover:text-primary">{entry.title}</h2>
@@ -128,7 +128,7 @@ export function ResearchIndexView({ entries, preview = false }: { entries: Resea
 }
 
 function EvidenceGuide({ title, body }: { title: string; body: string }) {
-  return <div className="rounded-2xl border border-border bg-card p-4"><p className="font-display text-sm font-bold uppercase text-foreground">{title}</p><p className="mt-2 text-xs leading-5 text-muted-foreground">{body}</p></div>;
+  return <div className="rounded-2xl border border-primary/20 bg-card/90 p-4"><p className="font-display text-sm font-bold uppercase text-foreground">{title}</p><p className="mt-2 text-xs leading-5 text-muted-foreground">{body}</p></div>;
 }
 
 function Stat({ label, value }: { label: string; value: number }) {
