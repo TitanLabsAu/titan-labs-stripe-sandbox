@@ -44,7 +44,7 @@ function formatDate(value: string) {
 export function OrderList({ orders, emptyMessage }: { orders: OrderRow[]; emptyMessage: string }) {
   if (orders.length === 0) {
     return (
-      <div className="rounded-xl border border-border bg-card/70 p-8 text-center">
+      <div className="rounded-2xl border border-primary/25 bg-card/80 p-8 text-center shadow-glow">
         <p className="text-sm text-muted-foreground">{emptyMessage}</p>
       </div>
     );
