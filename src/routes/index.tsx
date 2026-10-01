@@ -21,6 +21,7 @@ import {
 } from "@/lib/homeContent";
 import { cn } from "@/lib/utils";
 import logoAsset from "@/assets/titan-labs-new-logo.png.asset.json";
+import emblemAsset from "@/assets/titan-australia-metallic-emblem.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -68,7 +69,7 @@ function Index() {
 
       <main className="relative">
         <div className="home-logo-field pointer-events-none absolute inset-x-0 top-0 flex h-[34rem] items-center justify-center overflow-hidden" aria-hidden="true">
-          <img src={logoAsset.url} alt="" width={768} height={768} className="home-watermark h-full w-full scale-110 object-contain sm:scale-125" />
+          <img src={emblemAsset.url} alt="" width={768} height={768} className="home-watermark h-full w-full scale-110 object-contain sm:scale-125" />
           
         </div>
         <div className="h-20 sm:h-28" />
