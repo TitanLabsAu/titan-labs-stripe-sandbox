@@ -1,3 +1,4 @@
+import { TitanPageHeading } from "@/components/TitanPageHeading";
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -9,7 +10,7 @@ import {
   useStripe,
 } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,28 +19,46 @@ import { Textarea } from "@/components/ui/textarea";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { AddressFields, type AddressValue } from "@/components/AddressFields";
-import { PaymentDetails, PaymentMethodPicker } from "@/components/PaymentDetails";
+import {
+  PaymentDetails,
+  PaymentMethodPicker,
+} from "@/components/PaymentDetails";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/products";
 import { useProducts, useSiteContent } from "@/lib/useCatalog";
-import { catalogueName, homeValue, termsVersion, type PaymentMethodKey } from "@/lib/homeContent";
+import {
+  catalogueName,
+  homeValue,
+  termsVersion,
+  type PaymentMethodKey,
+} from "@/lib/homeContent";
 import { ResearchAcknowledgement } from "@/components/ResearchAcknowledgement";
-import { linkAcknowledgement, recordAcknowledgement } from "@/lib/acknowledgement";
-import { submitOrder, saveOrderPaymentReference, type SubmittedOrder } from "@/lib/orders.functions";
+import {
+  linkAcknowledgement,
+  recordAcknowledgement,
+} from "@/lib/acknowledgement";
+import {
+  submitOrder,
+  saveOrderPaymentReference,
+  type SubmittedOrder,
+} from "@/lib/orders.functions";
 import {
   createStripeSandboxPayment,
   verifyStripeSandboxPayment,
 } from "@/lib/stripe.functions";
-import { ShippingPicker, TitanStackBanner, TitanTrustStrip } from "@/components/CartExtras";
+import {
+  ShippingPicker,
+  TitanStackBanner,
+  TitanTrustStrip,
+} from "@/components/CartExtras";
 import {
   FREE_SHIPPING_THRESHOLD,
   computeTotals,
   type ShippingMethodKey,
 } from "@/lib/pricing";
 
-const stripePublishableKey =
-  import.meta.env["VITE_STRIPE_PUBLISHABLE_KEY"];
+const stripePublishableKey = import.meta.env["VITE_STRIPE_PUBLISHABLE_KEY"];
 
 const stripePromise = stripePublishableKey
   ? loadStripe(stripePublishableKey)
@@ -68,38 +87,32 @@ function StripePaymentForm({
     setSubmitting(true);
 
     try {
-      const { error: submitError } =
-        await elements.submit();
+      const { error: submitError } = await elements.submit();
 
       if (submitError) {
         toast.error(
-          submitError.message ??
-            "Please check your payment details.",
+          submitError.message ?? "Please check your payment details.",
         );
         return;
       }
 
-      const { error, paymentIntent } =
-        await stripe.confirmPayment({
-          elements,
-          confirmParams: {
-            return_url: `${window.location.origin}/checkout`,
-          },
-          redirect: "if_required",
-        });
+      const { error, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/checkout`,
+        },
+        redirect: "if_required",
+      });
 
       if (error) {
         toast.error(
-          error.message ??
-            "The card payment could not be completed.",
+          error.message ?? "The card payment could not be completed.",
         );
         return;
       }
 
       if (!paymentIntent) {
-        toast.error(
-          "Stripe did not return the payment result.",
-        );
+        toast.error("Stripe did not return the payment result.");
         return;
       }
 
@@ -108,14 +121,9 @@ function StripePaymentForm({
         return;
       }
 
-      toast.error(
-        `Payment status: ${paymentIntent.status}`,
-      );
+      toast.error(`Payment status: ${paymentIntent.status}`);
     } catch (error: any) {
-      toast.error(
-        error?.message ??
-          "The card payment could not be completed.",
-      );
+      toast.error(error?.message ?? "The card payment could not be completed.");
     } finally {
       setSubmitting(false);
     }
@@ -145,9 +153,7 @@ function StripePaymentForm({
         disabled={!stripe || !elements || submitting || !acknowledged}
         onClick={handlePayment}
       >
-        {submitting
-          ? "Processing payment…"
-          : "Pay securely with Stripe"}
+        {submitting ? "Processing payment…" : "Pay securely with Stripe"}
       </Button>
 
       <Button
@@ -172,12 +178,14 @@ export const Route = createFileRoute("/checkout")({
       { title: "Order Summary | Titan Labs Aus" },
       {
         name: "description",
-        content: "Review your Titan Labs order and confirm your delivery details.",
+        content:
+          "Review your Titan Labs order and confirm your delivery details.",
       },
       { property: "og:title", content: "Order Summary | Titan Labs Aus" },
       {
         property: "og:description",
-        content: "Review your Titan Labs order and confirm your delivery details.",
+        content:
+          "Review your Titan Labs order and confirm your delivery details.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -188,19 +196,19 @@ export const Route = createFileRoute("/checkout")({
 });
 
 function CheckoutPage() {
-  const { items, count, subtotal, getLinePrice, getLineLabel, clear } = useCart();
+  const { items, count, subtotal, getLinePrice, getLineLabel, clear } =
+    useCart();
   const { getProduct } = useProducts();
   const { data: content } = useSiteContent();
   const submit = useServerFn(submitOrder);
   const saveReference = useServerFn(saveOrderPaymentReference);
-  const createStripePayment =
-  useServerFn(createStripeSandboxPayment);
+  const createStripePayment = useServerFn(createStripeSandboxPayment);
 
-const verifyStripePayment =
-  useServerFn(verifyStripeSandboxPayment);
+  const verifyStripePayment = useServerFn(verifyStripeSandboxPayment);
 
-const [stripeClientSecret, setStripeClientSecret] =
-  useState<string | null>(null);
+  const [stripeClientSecret, setStripeClientSecret] = useState<string | null>(
+    null,
+  );
 
   const { data: session } = useQuery({
     queryKey: ["checkout-session"],
@@ -216,7 +224,8 @@ const [stripeClientSecret, setStripeClientSecret] =
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
   const [method, setMethod] = useState<PaymentMethodKey>("payid");
-  const [shippingMethod, setShippingMethod] = useState<ShippingMethodKey>("express");
+  const [shippingMethod, setShippingMethod] =
+    useState<ShippingMethodKey>("express");
   const [address, setAddress] = useState<AddressValue>({
     address_line: "",
     city: "",
@@ -235,7 +244,9 @@ const [stripeClientSecret, setStripeClientSecret] =
     let cancelled = false;
     void supabase
       .from("profiles")
-      .select("first_name, last_name, email, phone_number, address_line, city, state, postcode")
+      .select(
+        "first_name, last_name, email, phone_number, address_line, city, state, postcode",
+      )
       .eq("id", session.id)
       .maybeSingle()
       .then(({ data }) => {
@@ -287,33 +298,28 @@ const [stripeClientSecret, setStripeClientSecret] =
       quantity: i.quantity,
     })),
   });
-const verifyStripeCardPayment = useMutation({
-  mutationFn: (paymentIntentId: string) =>
-    verifyStripePayment({
-      data: { paymentIntentId },
-    }),
+  const verifyStripeCardPayment = useMutation({
+    mutationFn: (paymentIntentId: string) =>
+      verifyStripePayment({
+        data: { paymentIntentId },
+      }),
 
-  onSuccess: (result) => {
-    setConfirmed(result);
-    setStripeClientSecret(null);
-    clear();
-    void linkAcknowledgement(result.id);
+    onSuccess: (result) => {
+      setConfirmed(result);
+      setStripeClientSecret(null);
+      clear();
+      void linkAcknowledgement(result.id);
 
-    toast.success(
-      `Payment approved — order ${result.reference} confirmed`,
-    );
+      toast.success(`Payment approved — order ${result.reference} confirmed`);
 
-    if (typeof window !== "undefined") {
-      window.history.replaceState({}, "", "/checkout");
-    }
-  },
+      if (typeof window !== "undefined") {
+        window.history.replaceState({}, "", "/checkout");
+      }
+    },
 
-  onError: (error: any) =>
-    toast.error(
-      error?.message ??
-        "We could not verify the Stripe payment.",
-    ),
-});
+    onError: (error: any) =>
+      toast.error(error?.message ?? "We could not verify the Stripe payment."),
+  });
 
   /*
    * Redirect-based payment methods (Zip, Klarna) send the
@@ -347,33 +353,34 @@ const verifyStripeCardPayment = useMutation({
     runStripeReturn(paymentIntentId);
   }, [runStripeReturn]);
 
-const startStripeCardPayment = useMutation({
-  mutationFn: async () => {
-    if (!acknowledged) {
-      throw new Error("Please tick the Research Use Acknowledgement to continue.");
-    }
-    // Acknowledgement is recorded before any payment is initiated.
-    await recordAcknowledgement(ackVersion);
-    return createStripePayment({
-      data: cardCheckoutData(),
-    });
-  },
+  const startStripeCardPayment = useMutation({
+    mutationFn: async () => {
+      if (!acknowledged) {
+        throw new Error(
+          "Please tick the Research Use Acknowledgement to continue.",
+        );
+      }
+      // Acknowledgement is recorded before any payment is initiated.
+      await recordAcknowledgement(ackVersion);
+      return createStripePayment({
+        data: cardCheckoutData(),
+      });
+    },
 
-  onSuccess: ({ clientSecret }) => {
-    setStripeClientSecret(clientSecret);
-  },
+    onSuccess: ({ clientSecret }) => {
+      setStripeClientSecret(clientSecret);
+    },
 
-  onError: (error: any) =>
-    toast.error(
-      error?.message ??
-        "Could not start the Stripe payment.",
-    ),
-});
-  
+    onError: (error: any) =>
+      toast.error(error?.message ?? "Could not start the Stripe payment."),
+  });
+
   const placeOrder = useMutation({
     mutationFn: async () => {
       if (!acknowledged) {
-        throw new Error("Please tick the Research Use Acknowledgement to continue.");
+        throw new Error(
+          "Please tick the Research Use Acknowledgement to continue.",
+        );
       }
       await recordAcknowledgement(ackVersion);
       const result = await submit({
@@ -406,7 +413,9 @@ const startStripeCardPayment = useMutation({
       toast.success(`Order ${result.reference} received`);
     },
     onError: (error: any) =>
-      toast.error(error?.message ?? "We could not submit that order. Please try again."),
+      toast.error(
+        error?.message ?? "We could not submit that order. Please try again.",
+      ),
   });
 
   const submitReference = useMutation({
@@ -416,23 +425,32 @@ const startStripeCardPayment = useMutation({
       setReferenceSaved(true);
       toast.success("Thanks — we'll confirm your payment shortly.");
     },
-    onError: (error: any) => toast.error(error?.message ?? "Could not save that reference."),
+    onError: (error: any) =>
+      toast.error(error?.message ?? "Could not save that reference."),
   });
 
   if (confirmed) {
     return (
       <div className="bg-hero min-h-screen">
         <SiteHeader />
-        <main className="page-shell py-10 sm:py-12">
-          <div className="mx-auto max-w-2xl rounded-2xl border border-primary/30 bg-card/90 p-6 shadow-glow sm:p-8">
+        <main className="page-shell py-8 sm:py-12">
+          <div className="mx-auto max-w-2xl rounded-xl border border-border bg-card p-6 sm:p-8">
             <div className="flex items-center gap-3">
               <CheckCircle2 className="h-7 w-7 text-accent" />
-              <h1 className="font-display text-2xl font-black uppercase tracking-[0.08em] sm:text-3xl">Order received</h1>
+              <h1 className="font-display text-2xl font-black uppercase tracking-[0.08em] sm:text-3xl">
+                Order received
+              </h1>
             </div>
             <p className="mt-3 text-sm text-muted-foreground">
               Your order number is{" "}
-              <span className="font-bold text-foreground">{confirmed.reference}</span>. Order total{" "}
-              <span className="font-bold text-foreground">{formatPrice(confirmed.total)}</span>.
+              <span className="font-bold text-foreground">
+                {confirmed.reference}
+              </span>
+              . Order total{" "}
+              <span className="font-bold text-foreground">
+                {formatPrice(confirmed.total)}
+              </span>
+              .
             </p>
             <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">
               {confirmed.paymentMethod === "card"
@@ -440,7 +458,9 @@ const startStripeCardPayment = useMutation({
                 : homeValue(content, "payment_confirmation_note")}
             </p>
 
-            <h2 className="technical-label mt-8 text-foreground">Payment details</h2>
+            <h2 className="technical-label mt-8 text-foreground">
+              Payment details
+            </h2>
             <PaymentDetails
               method={confirmed.paymentMethod}
               content={content}
@@ -488,14 +508,19 @@ const startStripeCardPayment = useMutation({
   return (
     <div className="bg-hero min-h-screen">
       <SiteHeader />
-      <main className="page-shell py-10 sm:py-12">
-        <h1 className="font-display text-4xl font-black uppercase tracking-[0.08em] text-foreground sm:text-5xl">Order Summary</h1>
+      <main className="page-shell py-8 sm:py-12">
+        <TitanPageHeading
+          as="h1"
+          icon={ShoppingBag}
+          eyebrow="Review · Confirm · Complete"
+          title="Order summary"
+        />
         <p className="mt-2 text-sm text-muted-foreground">
           Confirm your delivery details and review your order.
         </p>
 
         {items.length === 0 ? (
-          <div className="mt-8 rounded-2xl border border-primary/25 bg-card/90 p-8 text-center shadow-glow">
+          <div className="mt-8 rounded-xl border border-border bg-card p-8 text-center">
             <p className="text-muted-foreground">Your cart is empty.</p>
             <Button asChild className="mt-6 font-bold uppercase">
               <Link to="/range">Browse {catalogueName(content)}</Link>
@@ -504,8 +529,10 @@ const startStripeCardPayment = useMutation({
         ) : (
           <div className="mt-8 grid gap-6 lg:grid-cols-12 lg:items-start">
             {/* Left: customer + delivery details */}
-            <section className="rounded-2xl border border-primary/25 bg-card/90 p-6 shadow-glow sm:p-8 lg:col-span-7">
-              <h2 className="technical-label text-foreground">Customer details</h2>
+            <section className="rounded-xl border border-border bg-card p-6 sm:p-8 lg:col-span-7">
+              <h2 className="technical-label text-foreground">
+                Customer details
+              </h2>
 
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
@@ -553,7 +580,9 @@ const startStripeCardPayment = useMutation({
                 </div>
               </div>
 
-              <h2 className="technical-label mt-8 text-foreground">Delivery address</h2>
+              <h2 className="technical-label mt-8 text-foreground">
+                Delivery address
+              </h2>
               <div className="mt-5">
                 <AddressFields value={address} onChange={setAddress} />
               </div>
@@ -570,7 +599,9 @@ const startStripeCardPayment = useMutation({
                 />
               </div>
 
-              <h2 className="technical-label mt-8 text-foreground">Shipping method</h2>
+              <h2 className="technical-label mt-8 text-foreground">
+                Shipping method
+              </h2>
               <div className="mt-4">
                 <ShippingPicker
                   value={shippingMethod}
@@ -579,12 +610,18 @@ const startStripeCardPayment = useMutation({
                 />
               </div>
 
-              <h2 className="technical-label mt-8 text-foreground">Payment method</h2>
+              <h2 className="technical-label mt-8 text-foreground">
+                Payment method
+              </h2>
               <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">
                 {homeValue(content, "payment_intro")}
               </p>
               <div className="mt-4">
-                <PaymentMethodPicker value={method} onChange={setMethod} content={content} />
+                <PaymentMethodPicker
+                  value={method}
+                  onChange={setMethod}
+                  content={content}
+                />
               </div>
               <ResearchAcknowledgement
                 className="mt-4"
@@ -592,73 +629,67 @@ const startStripeCardPayment = useMutation({
                 onChange={setAcknowledged}
                 disabled={Boolean(stripeClientSecret)}
               />
-             {method === "card" ? (
-  <div className="mt-4">
-    {!stripeClientSecret ? (
-      <div className="rounded border border-border bg-background p-4">
-        <p className="text-sm text-muted-foreground">
-          Pay securely by card using Stripe.
-        </p>
+              {method === "card" ? (
+                <div className="mt-4">
+                  {!stripeClientSecret ? (
+                    <div className="rounded border border-border bg-background p-4">
+                      <p className="text-sm text-muted-foreground">
+                        Pay securely by card using Stripe.
+                      </p>
 
-        <Button
-          type="button"
-          className="mt-4 w-full font-bold uppercase"
-          disabled={
-            startStripeCardPayment.isPending ||
-            !stripePromise ||
-            !acknowledged
-          }
-          onClick={() =>
-            startStripeCardPayment.mutate()
-          }
-        >
-          {startStripeCardPayment.isPending
-            ? "Connecting securely…"
-            : "Continue to secure payment"}
-        </Button>
+                      <Button
+                        type="button"
+                        className="mt-4 w-full font-bold uppercase"
+                        disabled={
+                          startStripeCardPayment.isPending ||
+                          !stripePromise ||
+                          !acknowledged
+                        }
+                        onClick={() => startStripeCardPayment.mutate()}
+                      >
+                        {startStripeCardPayment.isPending
+                          ? "Connecting securely…"
+                          : "Continue to secure payment"}
+                      </Button>
 
-        {!stripePromise ? (
-          <p className="mt-3 text-xs text-destructive">
-            Secure card payments are not currently available.
-          </p>
-        ) : null}
-      </div>
-    ) : stripePromise ? (
-      <Elements
-        stripe={stripePromise}
-        options={{
-          clientSecret: stripeClientSecret,
-          appearance: {
-            theme: "stripe",
-          },
-        }}
-      >
-        <StripePaymentForm
-          onPaid={(paymentIntentId) =>
-            verifyStripeCardPayment.mutate(
-              paymentIntentId,
-            )
-          }
-          onCancel={() =>
-            setStripeClientSecret(null)
-          }
-          acknowledged={acknowledged}
-        />
-      </Elements>
-    ) : null}
-  </div>
-) : (
-  <PaymentDetails
-    method={method}
-    content={content}
-    amountAud={totals.total}
-    className="mt-4"
-  />
-)}
+                      {!stripePromise ? (
+                        <p className="mt-3 text-xs text-destructive">
+                          Secure card payments are not currently available.
+                        </p>
+                      ) : null}
+                    </div>
+                  ) : stripePromise ? (
+                    <Elements
+                      stripe={stripePromise}
+                      options={{
+                        clientSecret: stripeClientSecret,
+                        appearance: {
+                          theme: "stripe",
+                        },
+                      }}
+                    >
+                      <StripePaymentForm
+                        onPaid={(paymentIntentId) =>
+                          verifyStripeCardPayment.mutate(paymentIntentId)
+                        }
+                        onCancel={() => setStripeClientSecret(null)}
+                        acknowledged={acknowledged}
+                      />
+                    </Elements>
+                  ) : null}
+                </div>
+              ) : (
+                <PaymentDetails
+                  method={method}
+                  content={content}
+                  amountAud={totals.total}
+                  className="mt-4"
+                />
+              )}
             </section>
 
             {/* Right: order breakdown */}
-            <aside className="rounded-2xl border border-accent/25 bg-card/90 p-6 shadow-gold sm:p-8 lg:col-span-5 lg:sticky lg:top-6">
+            <aside className="rounded-xl border border-border bg-card p-6 sm:p-8 lg:col-span-5 lg:sticky lg:top-6">
               <h2 className="technical-label text-foreground">Your order</h2>
               <ul className="mt-5 divide-y divide-border">
                 {items.map((item) => {
@@ -692,7 +723,9 @@ const startStripeCardPayment = useMutation({
               </ul>
 
               <div className="mt-6">
-                <p className="technical-label text-foreground">The Titan Stack</p>
+                <p className="technical-label text-foreground">
+                  The Titan Stack
+                </p>
                 <p className="mt-1 text-xs text-muted-foreground">
                   2 items = 10% off · 3 items = 15% off · 4 items = 20% off
                 </p>
@@ -720,11 +753,15 @@ const startStripeCardPayment = useMutation({
                 ) : null}
                 <div className="flex justify-between text-muted-foreground">
                   <span>
-                    {shippingMethod === "standard" ? "Standard tracked" : "Express + insurance"}{" "}
+                    {shippingMethod === "standard"
+                      ? "Standard tracked"
+                      : "Express + insurance"}{" "}
                     shipping
                   </span>
                   {freeShipping ? (
-                    <span className="font-bold uppercase text-accent">Free</span>
+                    <span className="font-bold uppercase text-accent">
+                      Free
+                    </span>
                   ) : (
                     <span>{formatPrice(totals.shipping)}</span>
                   )}
@@ -736,64 +773,65 @@ const startStripeCardPayment = useMutation({
                   </p>
                 ) : (
                   <p className="text-xs text-muted-foreground">
-                    Spend {formatPrice(remaining)} more for free express shipping.
+                    Spend {formatPrice(remaining)} more for free express
+                    shipping.
                   </p>
                 )}
                 <div className="flex items-center justify-between pt-2 text-base">
-                  <span className="font-bold uppercase tracking-wide text-foreground">Total</span>
+                  <span className="font-bold uppercase tracking-wide text-foreground">
+                    Total
+                  </span>
                   <span className="text-2xl font-extrabold text-accent">
                     {formatPrice(totals.total)}
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground">All prices displayed in AUD.</p>
+                <p className="text-xs text-muted-foreground">
+                  All prices displayed in AUD.
+                </p>
               </div>
 
               <div className="mt-5 border-t border-border pt-5">
                 <TitanTrustStrip />
               </div>
 
-             {session ? (
-  method === "card" ? (
-    <p className="mt-6 text-center text-xs text-muted-foreground">
-      Complete your secure Stripe payment in the payment section.
-    </p>
-  ) : (
-    <>
-      <Button
-        size="lg"
-        className="mt-6 w-full font-bold uppercase tracking-wide"
-        disabled={placeOrder.isPending || !acknowledged}
-        onClick={() => placeOrder.mutate()}
-      >
-        {placeOrder.isPending
-          ? "Submitting…"
-          : "Submit order"}
-      </Button>
+              {session ? (
+                method === "card" ? (
+                  <p className="mt-6 text-center text-xs text-muted-foreground">
+                    Complete your secure Stripe payment in the payment section.
+                  </p>
+                ) : (
+                  <>
+                    <Button
+                      size="lg"
+                      className="mt-6 w-full font-bold uppercase tracking-wide"
+                      disabled={placeOrder.isPending || !acknowledged}
+                      onClick={() => placeOrder.mutate()}
+                    >
+                      {placeOrder.isPending ? "Submitting…" : "Submit order"}
+                    </Button>
 
-      <p className="mt-3 text-center text-xs text-muted-foreground">
-        {acknowledged
-          ? "No payment is taken on this website."
-          : "Tick the Research Use Acknowledgement to submit your order."}
-      </p>
-    </>
-  )
-) : (
-  <>
-    <Button
-      asChild
-      size="lg"
-      className="mt-6 w-full font-bold uppercase tracking-wide"
-    >
-      <Link to="/auth">
-        Log in to submit your order
-      </Link>
-    </Button>
+                    <p className="mt-3 text-center text-xs text-muted-foreground">
+                      {acknowledged
+                        ? "No payment is taken on this website."
+                        : "Tick the Research Use Acknowledgement to submit your order."}
+                    </p>
+                  </>
+                )
+              ) : (
+                <>
+                  <Button
+                    asChild
+                    size="lg"
+                    className="mt-6 w-full font-bold uppercase tracking-wide"
+                  >
+                    <Link to="/auth">Log in to submit your order</Link>
+                  </Button>
 
-    <p className="mt-3 text-center text-xs text-muted-foreground">
-      Your cart is saved while you log in.
-    </p>
-  </>
-)}
+                  <p className="mt-3 text-center text-xs text-muted-foreground">
+                    Your cart is saved while you log in.
+                  </p>
+                </>
+              )}
             </aside>
           </div>
         )}

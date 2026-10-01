@@ -9,7 +9,10 @@ import { toast } from "sonner";
 const passwordSchema = z
   .object({
     current: z.string().min(1, "Enter your current password"),
-    next: z.string().min(6, "New password must be at least 6 characters").max(72),
+    next: z
+      .string()
+      .min(6, "New password must be at least 6 characters")
+      .max(72),
     confirm: z.string(),
   })
   .refine((v) => v.next === v.confirm, {
@@ -25,7 +28,9 @@ export function ChangePasswordCard() {
     e.preventDefault();
     const parsed = passwordSchema.safeParse(form);
     if (!parsed.success) {
-      toast.error(parsed.error.issues[0]?.message ?? "Please check your passwords.");
+      toast.error(
+        parsed.error.issues[0]?.message ?? "Please check your passwords.",
+      );
       return;
     }
     setSaving(true);
@@ -41,21 +46,27 @@ export function ChangePasswordCard() {
       });
       if (verifyError) throw new Error("Your current password is incorrect.");
 
-      const { error } = await supabase.auth.updateUser({ password: parsed.data.next });
+      const { error } = await supabase.auth.updateUser({
+        password: parsed.data.next,
+      });
       if (error) throw error;
       setForm({ current: "", next: "", confirm: "" });
       toast.success("Password updated.");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not update your password.");
+      toast.error(
+        err instanceof Error ? err.message : "Could not update your password.",
+      );
     } finally {
       setSaving(false);
     }
   }
 
   return (
-    <div className="mt-7 rounded-2xl border border-primary/25 bg-card/90 p-6 shadow-glow sm:p-8">
+    <div className="mt-7 rounded-xl border border-border bg-card p-6 sm:p-8">
       <div className="border-b border-primary/20 pb-5">
-        <h2 className="technical-label text-foreground">Security &amp; password</h2>
+        <h2 className="technical-label text-foreground">
+          Security &amp; password
+        </h2>
         <p className="mt-2 text-sm text-muted-foreground">
           Change the password you use to log in to your account.
         </p>
@@ -84,7 +95,9 @@ export function ChangePasswordCard() {
             onChange={(e) => setForm({ ...form, next: e.target.value })}
             required
           />
-          <p className="text-xs text-muted-foreground">At least 6 characters.</p>
+          <p className="text-xs text-muted-foreground">
+            At least 6 characters.
+          </p>
         </div>
         <div className="space-y-2">
           <Label htmlFor="confirm_password">Confirm new password</Label>

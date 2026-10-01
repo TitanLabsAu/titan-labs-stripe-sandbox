@@ -6,11 +6,14 @@ export function TitanPageHeading({
   icon: Icon,
   eyebrow,
   title,
+  as = "p",
 }: {
   icon: LucideIcon;
   eyebrow: string;
   title: ReactNode;
+  as?: "p" | "h1";
 }) {
+  const Heading = as;
   return (
     <div className="titan-page-heading">
       <span className="titan-page-icon">
@@ -18,9 +21,9 @@ export function TitanPageHeading({
       </span>
       <div className="min-w-0">
         <p className="technical-label text-accent">{eyebrow}</p>
-        <p className="font-display text-2xl font-bold uppercase text-foreground sm:text-3xl">
+        <Heading className="font-display text-2xl font-bold uppercase text-foreground sm:text-3xl">
           {title}
-        </p>
+        </Heading>
       </div>
     </div>
   );

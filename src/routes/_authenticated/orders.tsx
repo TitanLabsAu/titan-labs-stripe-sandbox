@@ -42,6 +42,7 @@ function CurrentOrdersPage() {
       <SiteHeader />
       <main className="page-shell py-8 sm:py-12">
         <TitanPageHeading
+          as="h1"
           icon={Package}
           eyebrow="Titan member area"
           title="Current orders"

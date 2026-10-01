@@ -1,3 +1,5 @@
+import { TitanPageHeading } from "@/components/TitanPageHeading";
+import { UserPlus } from "lucide-react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
@@ -69,7 +71,9 @@ function SignupPage() {
     e.preventDefault();
     const parsed = signupSchema.safeParse(form);
     if (!parsed.success) {
-      toast.error(parsed.error.issues[0]?.message ?? "Please check your details.");
+      toast.error(
+        parsed.error.issues[0]?.message ?? "Please check your details.",
+      );
       return;
     }
     setLoading(true);
@@ -102,115 +106,132 @@ function SignupPage() {
   return (
     <div className="bg-hero min-h-screen">
       <SiteHeader />
-      <main className="page-shell py-12">
-      <div className="w-full max-w-3xl">
-        <div className="rounded-2xl border border-primary/25 bg-card/90 p-8 shadow-glow">
-          {sent ? (
-            <div className="space-y-4 text-center">
-              <h1 className="font-display text-2xl font-black uppercase tracking-[0.08em] text-foreground">Check your email</h1>
-              <p className="text-sm text-muted-foreground">
-                We've sent a confirmation link to{" "}
-                <span className="text-foreground">{form.email}</span>. Click it to confirm your
-                account, then log in here.
-              </p>
-              <Button asChild variant="outline" className="w-full">
-                <Link to="/auth">Back to log in</Link>
-              </Button>
-            </div>
-          ) : (
-            <>
-               <h1 className="font-display text-left text-3xl font-black uppercase tracking-[0.08em] text-foreground">
-                Create Account
-              </h1>
-               <p className="mt-2 text-left text-sm text-muted-foreground">
-                Enter your details, then confirm your email to unlock ordering.
-              </p>
-
-              <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="first_name">First name</Label>
-                    <Input
-                      id="first_name"
-                      autoComplete="given-name"
-                      value={form.first_name}
-                      maxLength={60}
-                      onChange={(e) => setForm({ ...form, first_name: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="last_name">Last name</Label>
-                    <Input
-                      id="last_name"
-                      autoComplete="family-name"
-                      value={form.last_name}
-                      maxLength={60}
-                      onChange={(e) => setForm({ ...form, last_name: e.target.value })}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <AddressFields
-                  value={{
-                    address_line: form.address_line,
-                    city: form.city,
-                    state: form.state,
-                    postcode: form.postcode,
-                  }}
-                  onChange={(next) => setForm({ ...form, ...next })}
-                />
-
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    autoComplete="email"
-                    value={form.email}
-                    maxLength={255}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    autoComplete="new-password"
-                    value={form.password}
-                    maxLength={72}
-                    onChange={(e) => setForm({ ...form, password: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <Button type="submit" className="w-full font-bold uppercase" disabled={loading}>
-                  {loading ? "Please wait…" : "Create account"}
+      <main className="page-shell py-8 sm:py-12">
+        <div className="w-full max-w-3xl">
+          <div className="rounded-xl border border-border bg-card p-5 sm:p-8">
+            {sent ? (
+              <div className="space-y-4 text-center">
+                <h1 className="font-display text-2xl font-black uppercase tracking-[0.08em] text-foreground">
+                  Check your email
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  We've sent a confirmation link to{" "}
+                  <span className="text-foreground">{form.email}</span>. Click
+                  it to confirm your account, then log in here.
+                </p>
+                <Button asChild variant="outline" className="w-full">
+                  <Link to="/auth">Back to log in</Link>
                 </Button>
-              </form>
+              </div>
+            ) : (
+              <>
+                <TitanPageHeading
+                  as="h1"
+                  icon={UserPlus}
+                  eyebrow="Titan member access"
+                  title="Create account"
+                />
+                <p className="mt-2 text-left text-sm text-muted-foreground">
+                  Enter your details, then confirm your email to unlock
+                  ordering.
+                </p>
 
-              <Link
-                to="/auth"
-                className="mt-6 block w-full text-center text-sm text-muted-foreground underline-offset-4 hover:text-accent hover:underline"
-              >
-                Already have an account? Log in
-              </Link>
-            </>
-          )}
+                <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="first_name">First name</Label>
+                      <Input
+                        id="first_name"
+                        autoComplete="given-name"
+                        value={form.first_name}
+                        maxLength={60}
+                        onChange={(e) =>
+                          setForm({ ...form, first_name: e.target.value })
+                        }
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="last_name">Last name</Label>
+                      <Input
+                        id="last_name"
+                        autoComplete="family-name"
+                        value={form.last_name}
+                        maxLength={60}
+                        onChange={(e) =>
+                          setForm({ ...form, last_name: e.target.value })
+                        }
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <AddressFields
+                    value={{
+                      address_line: form.address_line,
+                      city: form.city,
+                      state: form.state,
+                      postcode: form.postcode,
+                    }}
+                    onChange={(next) => setForm({ ...form, ...next })}
+                  />
+
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      autoComplete="email"
+                      value={form.email}
+                      maxLength={255}
+                      onChange={(e) =>
+                        setForm({ ...form, email: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      autoComplete="new-password"
+                      value={form.password}
+                      maxLength={72}
+                      onChange={(e) =>
+                        setForm({ ...form, password: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
+
+                  <Button
+                    type="submit"
+                    className="w-full font-bold uppercase"
+                    disabled={loading}
+                  >
+                    {loading ? "Please wait…" : "Create account"}
+                  </Button>
+                </form>
+
+                <Link
+                  to="/auth"
+                  className="mt-6 block w-full text-center text-sm text-muted-foreground underline-offset-4 hover:text-accent hover:underline"
+                >
+                  Already have an account? Log in
+                </Link>
+              </>
+            )}
+          </div>
+
+          <Link
+            to="/"
+            className="mt-6 block text-center text-sm text-muted-foreground underline-offset-4 hover:text-accent hover:underline"
+          >
+            ← Back to home
+          </Link>
         </div>
-
-        <Link
-          to="/"
-          className="mt-6 block text-center text-sm text-muted-foreground underline-offset-4 hover:text-accent hover:underline"
-        >
-          ← Back to home
-        </Link>
-
-      </div>
       </main>
       <SiteFooter />
     </div>

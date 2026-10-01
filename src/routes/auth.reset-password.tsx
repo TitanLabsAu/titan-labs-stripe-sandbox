@@ -1,3 +1,5 @@
+import { TitanPageHeading } from "@/components/TitanPageHeading";
+import { KeyRound } from "lucide-react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -112,7 +114,9 @@ function ResetPasswordPage() {
       return;
     }
     if (verifiedRef.current !== true) {
-      toast.error("This reset link is invalid or has expired. Request a new one.");
+      toast.error(
+        "This reset link is invalid or has expired. Request a new one.",
+      );
       return;
     }
     setSaving(true);
@@ -122,7 +126,9 @@ function ResetPasswordPage() {
       toast.success("Password updated — you're logged in.");
       navigate({ to: "/account", replace: true });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not update your password.");
+      toast.error(
+        err instanceof Error ? err.message : "Could not update your password.",
+      );
     } finally {
       setSaving(false);
     }
@@ -131,12 +137,15 @@ function ResetPasswordPage() {
   return (
     <div className="bg-hero min-h-screen">
       <SiteHeader />
-      <main className="page-shell py-12">
+      <main className="page-shell py-8 sm:py-12">
         <div className="w-full max-w-md">
-          <div className="rounded-2xl border border-primary/25 bg-card/90 p-8 shadow-glow">
-            <h1 className="font-display text-left text-3xl font-black uppercase tracking-[0.08em] text-foreground">
-              Reset Password
-            </h1>
+          <div className="rounded-xl border border-border bg-card p-5 sm:p-8">
+            <TitanPageHeading
+              as="h1"
+              icon={KeyRound}
+              eyebrow="Titan member access"
+              title="Reset password"
+            />
             <p className="mt-2 text-left text-sm text-muted-foreground">
               Choose a new password for your account.
             </p>
@@ -144,8 +153,8 @@ function ResetPasswordPage() {
             {verified === false ? (
               <div className="mt-6 space-y-4">
                 <p className="text-sm text-muted-foreground">
-                  This reset link is invalid or has expired. Reset links can only be
-                  used once and expire after a short time.
+                  This reset link is invalid or has expired. Reset links can
+                  only be used once and expire after a short time.
                 </p>
                 <Link to="/auth" className="block">
                   <Button type="button" className="w-full font-bold uppercase">

@@ -10,7 +10,11 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { FreeShippingMeter, TitanStackBanner, TitanTrustStrip } from "@/components/CartExtras";
+import {
+  FreeShippingMeter,
+  TitanStackBanner,
+  TitanTrustStrip,
+} from "@/components/CartExtras";
 import { CryptoEstimate } from "@/components/CryptoEstimate";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/products";
@@ -19,7 +23,15 @@ import { useProducts } from "@/lib/useCatalog";
 
 export function CartSheet() {
   const [open, setOpen] = useState(false);
-  const { items, count, subtotal, setQuantity, removeItem, getLinePrice, getLineLabel } = useCart();
+  const {
+    items,
+    count,
+    subtotal,
+    setQuantity,
+    removeItem,
+    getLinePrice,
+    getLineLabel,
+  } = useCart();
   const { getProduct } = useProducts();
 
   const totals = computeTotals({
@@ -32,7 +44,12 @@ export function CartSheet() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="titan-nav-icon relative" aria-label="View cart">
+        <Button
+          variant="outline"
+          size="icon"
+          className="titan-nav-icon relative"
+          aria-label="View cart"
+        >
           <ShoppingCart className="h-5 w-5" />
           {count > 0 && (
             <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-xs font-bold text-accent-foreground">
@@ -44,12 +61,16 @@ export function CartSheet() {
       <SheetContent className="flex w-full flex-col border-l-primary/30 bg-background sm:max-w-md">
         <SheetHeader>
           <SheetTitle className="uppercase tracking-wide">Your cart</SheetTitle>
-          <SheetDescription>Review your items before checkout.</SheetDescription>
+          <SheetDescription>
+            Review your items before checkout.
+          </SheetDescription>
         </SheetHeader>
 
         <div className="flex-1 space-y-4 overflow-y-auto px-4 pb-2">
           {items.length === 0 ? (
-            <p className="py-10 text-center text-sm text-muted-foreground">Your cart is empty.</p>
+            <p className="py-10 text-center text-sm text-muted-foreground">
+              Your cart is empty.
+            </p>
           ) : (
             <>
               <FreeShippingMeter amount={totals.itemsTotal} />
@@ -60,7 +81,10 @@ export function CartSheet() {
                   if (!product) return null;
                   const linePrice = getLinePrice(item);
                   return (
-                    <li key={item.key} className="flex gap-3 rounded-xl border border-primary/20 bg-card/90 p-3 shadow-glow">
+                    <li
+                      key={item.key}
+                      className="flex gap-3 rounded-xl border border-border bg-card p-3"
+                    >
                       <img
                         src={product.image}
                         alt={product.alt}
@@ -96,7 +120,9 @@ export function CartSheet() {
                               size="icon"
                               className="h-7 w-7"
                               aria-label="Decrease quantity"
-                              onClick={() => setQuantity(item.key, item.quantity - 1)}
+                              onClick={() =>
+                                setQuantity(item.key, item.quantity - 1)
+                              }
                             >
                               <Minus className="h-3 w-3" />
                             </Button>
@@ -108,7 +134,9 @@ export function CartSheet() {
                               size="icon"
                               className="h-7 w-7"
                               aria-label="Increase quantity"
-                              onClick={() => setQuantity(item.key, item.quantity + 1)}
+                              onClick={() =>
+                                setQuantity(item.key, item.quantity + 1)
+                              }
                             >
                               <Plus className="h-3 w-3" />
                             </Button>
@@ -142,10 +170,14 @@ export function CartSheet() {
               </div>
             ) : null}
             <div className="flex items-center justify-between pt-1">
-              <span className="uppercase tracking-wide text-muted-foreground">Total</span>
+              <span className="uppercase tracking-wide text-muted-foreground">
+                Total
+              </span>
               <span className="text-xl font-extrabold text-accent">
                 {formatPrice(totals.itemsTotal)}{" "}
-                <span className="text-xs font-bold text-muted-foreground">AUD</span>
+                <span className="text-xs font-bold text-muted-foreground">
+                  AUD
+                </span>
               </span>
             </div>
             <p className="text-xs text-muted-foreground">

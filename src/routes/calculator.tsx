@@ -36,6 +36,7 @@ function CalculatorPage() {
       <SiteHeader />
       <main className="page-shell py-8 sm:py-12">
         <TitanPageHeading
+          as="h1"
           icon={Calculator}
           eyebrow="Research tool"
           title="Reconstitution Calculator"

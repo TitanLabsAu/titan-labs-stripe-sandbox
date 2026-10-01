@@ -685,6 +685,7 @@ function AdminPage() {
       <SiteHeader />
       <main className="page-shell flex-1 pb-24 pt-8 sm:pt-12">
         <TitanPageHeading
+          as="h1"
           icon={Settings2}
           eyebrow="Titan management"
           title="Admin"
