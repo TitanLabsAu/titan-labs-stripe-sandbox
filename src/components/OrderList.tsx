@@ -44,7 +44,7 @@ function formatDate(value: string) {
 export function OrderList({ orders, emptyMessage }: { orders: OrderRow[]; emptyMessage: string }) {
   if (orders.length === 0) {
     return (
-      <div className="border border-border bg-background p-8 text-center">
+      <div className="rounded-xl border border-border bg-card/70 p-8 text-center">
         <p className="text-sm text-muted-foreground">{emptyMessage}</p>
       </div>
     );
@@ -53,7 +53,7 @@ export function OrderList({ orders, emptyMessage }: { orders: OrderRow[]; emptyM
   return (
     <div className="space-y-6">
       {orders.map((order) => (
-        <article key={order.id} className="border border-border bg-background p-6">
+        <article key={order.id} className="rounded-xl border border-primary/20 bg-card/75 p-6 shadow-glow">
           <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border pb-4">
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
@@ -102,7 +102,7 @@ export function OrderList({ orders, emptyMessage }: { orders: OrderRow[]; emptyM
             </div>
           </div>
 
-          <div className="mt-4 border border-border bg-background/40 p-4">
+          <div className="mt-4 rounded-xl border border-border bg-background/40 p-4">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
               Australia Post Express tracking
             </p>
