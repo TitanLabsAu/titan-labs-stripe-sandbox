@@ -82,11 +82,11 @@ export function SiteHeader() {
   return (
     <header className="border-b border-primary/25 bg-background shadow-lg">
       <div className="relative overflow-hidden">
-        <img src={headerImage} alt="" width={1920} height={768} className="absolute inset-0 h-full w-full object-cover object-center opacity-25" />
+        <img src={headerImage} alt="" width={1920} height={768} className="titan-future-art absolute inset-0 h-full w-full object-cover object-center" />
         <div className="titan-header-surface absolute inset-0" />
         <div
           className={cn(
-            "relative mx-auto min-h-28 max-w-7xl items-center gap-4 px-4 py-5 sm:px-6",
+            "relative mx-auto min-h-32 max-w-7xl items-center gap-4 px-4 py-6 sm:min-h-36 sm:px-6",
             layout === "inline" && "grid grid-cols-[minmax(0,1fr)_auto]",
             layout === "stacked" && "flex flex-col items-stretch gap-4",
             layout === "centred" && "flex flex-col items-center gap-4",
@@ -97,7 +97,7 @@ export function SiteHeader() {
             aria-label={`${pageName} home`}
             className={cn("min-w-0", layout === "centred" && "flex justify-center")}
           >
-            <span className="block font-display text-2xl font-bold uppercase text-foreground drop-shadow-sm sm:text-3xl">
+            <span className="block font-display text-2xl font-black uppercase tracking-wide text-foreground drop-shadow-md sm:text-3xl">
               {headerTitle}
             </span>
             <span className="mt-1 block text-[0.58rem] font-bold uppercase tracking-[0.12em] text-accent">
