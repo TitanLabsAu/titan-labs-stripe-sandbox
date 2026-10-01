@@ -117,7 +117,7 @@ function RangePage() {
                     TEXT_ALIGN_CLASS[contentAlign(content, "home_range_title")],
                   )}
                 >
-                  <RichText text={catalogueName(content)} />
+                  <RichText inline text={catalogueName(content)} />
                 </h1>
                 <p className="mt-3 text-sm text-muted-foreground">
                   All prices displayed in AUD.
@@ -134,7 +134,7 @@ function RangePage() {
                     TEXT_ALIGN_CLASS[contentAlign(content, "range_intro")],
                   )}
                 >
-                  <RichText text={homeValue(content, "range_intro")} />
+                  <RichText inline text={homeValue(content, "range_intro")} />
                 </p>
               </section>
             ) : null;
@@ -158,7 +158,10 @@ function RangePage() {
                       ],
                     )}
                   >
-                    <RichText text={homeValue(content, "range_disclaimer")} />
+                    <RichText
+                      inline
+                      text={homeValue(content, "range_disclaimer")}
+                    />
                   </p>
                 </div>
               </section>
@@ -265,7 +268,10 @@ function RangePage() {
                     TEXT_ALIGN_CLASS[contentAlign(content, "home_range_note")],
                   )}
                 >
-                  <RichText text={homeValue(content, "home_range_note")} />
+                  <RichText
+                    inline
+                    text={homeValue(content, "home_range_note")}
+                  />
                 </p>
               </section>
             );

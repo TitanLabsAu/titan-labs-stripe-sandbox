@@ -2,6 +2,7 @@ import { Fragment } from "react";
 
 type RichTextProps = {
   text: string;
+  inline?: boolean;
 };
 
 const TOKEN = /(\*\*[^*]+\*\*|__[^_]+__|\*[^*]+\*)/g;
@@ -28,7 +29,9 @@ function richSegments(line: string) {
 const BULLET = /^\s*[-•]\s+/;
 
 function isNumberedHeading(line: string) {
-  return /^\d+[.)]\s+\S/.test(line) && line.length <= 80 && !/[.;:]$/.test(line);
+  return (
+    /^\d+[.)]\s+\S/.test(line) && line.length <= 80 && !/[.;:]$/.test(line)
+  );
 }
 
 /** Short line with no sentence punctuation reads as a sub-heading. */
@@ -71,7 +74,19 @@ function parseBlocks(text: string): Block[] {
   return blocks;
 }
 
-export function RichText({ text }: RichTextProps) {
+export function RichText({ text, inline = false }: RichTextProps) {
+  if (inline) {
+    return (
+      <>
+        {text.split("\n").map((line, index) => (
+          <Fragment key={index}>
+            {index > 0 ? <br /> : null}
+            {richSegments(line)}
+          </Fragment>
+        ))}
+      </>
+    );
+  }
   const blocks = parseBlocks(text);
 
   return (
@@ -90,7 +105,10 @@ export function RichText({ text }: RichTextProps) {
 
         if (block.kind === "list") {
           return (
-            <ul key={index} className="list-disc space-y-1.5 pl-5 marker:text-primary">
+            <ul
+              key={index}
+              className="list-disc space-y-1.5 pl-5 marker:text-primary"
+            >
               {block.items.map((item, i) => (
                 <li key={i} className="leading-7">
                   {richSegments(item)}

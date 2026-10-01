@@ -106,7 +106,7 @@ function Index() {
                     TEXT_ALIGN_CLASS[contentAlign(content, "home_tagline")],
                   )}
                 >
-                  <RichText text={homeValue(content, "home_tagline")} />
+                  <RichText inline text={homeValue(content, "home_tagline")} />
                 </p>
               </section>
             );
@@ -119,7 +119,7 @@ function Index() {
                     TEXT_ALIGN_CLASS[contentAlign(content, "home_headline")],
                   )}
                 >
-                  <RichText text={homeValue(content, "home_headline")} />
+                  <RichText inline text={homeValue(content, "home_headline")} />
                 </h1>
               </section>
             );
@@ -133,7 +133,7 @@ function Index() {
                     TEXT_ALIGN_CLASS[contentAlign(content, "home_subtext")],
                   )}
                 >
-                  <RichText text={homeValue(content, "home_subtext")} />
+                  <RichText inline text={homeValue(content, "home_subtext")} />
                 </p>
               </section>
             );
@@ -211,7 +211,10 @@ function Index() {
                       ],
                     )}
                   >
-                    <RichText text={homeValue(content, "home_featured_note")} />
+                    <RichText
+                      inline
+                      text={homeValue(content, "home_featured_note")}
+                    />
                   </p>
                   <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {featured.map((p) => (
@@ -239,7 +242,7 @@ function Index() {
                           TEXT_ALIGN_CLASS[contentAlign(content, p.titleKey)],
                         )}
                       >
-                        <RichText text={p.title} />
+                        <RichText inline text={p.title} />
                       </h3>
                       <p
                         className={cn(
@@ -247,7 +250,7 @@ function Index() {
                           TEXT_ALIGN_CLASS[contentAlign(content, p.bodyKey)],
                         )}
                       >
-                        <RichText text={p.body} />
+                        <RichText inline text={p.body} />
                       </p>
                     </div>
                   ))}
@@ -264,7 +267,10 @@ function Index() {
                       TEXT_ALIGN_CLASS[contentAlign(content, "home_cta_title")],
                     )}
                   >
-                    <RichText text={homeValue(content, "home_cta_title")} />
+                    <RichText
+                      inline
+                      text={homeValue(content, "home_cta_title")}
+                    />
                   </h2>
                   <p
                     className={cn(
@@ -273,7 +279,10 @@ function Index() {
                       TEXT_ALIGN_CLASS[contentAlign(content, "home_cta_body")],
                     )}
                   >
-                    <RichText text={homeValue(content, "home_cta_body")} />
+                    <RichText
+                      inline
+                      text={homeValue(content, "home_cta_body")}
+                    />
                   </p>
                   <div
                     className={cn(
