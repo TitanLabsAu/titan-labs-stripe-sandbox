@@ -23,7 +23,8 @@ export function ResearchIndexView({ entries, preview = false }: { entries: Resea
     <>
       <div className="grid gap-6 border-b border-border pb-7 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div className="max-w-3xl">
-          <p className="technical-label text-accent">Explore · Understand · Go deeper</p>\n          <h1 className="mt-2 text-3xl font-medium uppercase text-foreground sm:text-5xl">Understand the research. Faster.</h1>
+          <p className="technical-label text-accent">Explore · Understand · Go deeper</p>
+          <h1 className="mt-2 text-3xl font-medium uppercase text-foreground sm:text-5xl">Understand the research. Faster.</h1>
           <p className="mt-3 text-base leading-7 text-muted-foreground">
             Start with a simple explanation, explore what researchers are studying, then open the science and references only when you want more detail.
           </p>
@@ -35,7 +36,20 @@ export function ResearchIndexView({ entries, preview = false }: { entries: Resea
         </dl>
       </div>
 
-      <section id="collections" className="mt-8">\n        <div className="flex items-end justify-between gap-4"><div><p className="technical-label text-primary">Research Collections</p><h2 className="mt-1 font-display text-2xl font-bold uppercase text-foreground">Browse by research area</h2></div></div>\n        <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-3">\n          {RESEARCH_COLLECTIONS.map((collection) => { const Icon = collection.icon; const count = entriesForCollection(entries, collection).length; return (\n            <button key={collection.slug} type="button" onClick={() => setCategory(collection.categories[0] ?? "All")} className="group min-h-36 rounded-2xl border border-border bg-card p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-primary hover:shadow-glow sm:p-5">\n              <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/30 bg-primary/10"><Icon className="h-5 w-5 text-primary" /></span>\n              <span className="mt-3 block font-display text-base font-bold uppercase text-foreground group-hover:text-primary">{collection.shortTitle}</span>\n              <span className="mt-1 block text-xs leading-5 text-muted-foreground">{count} entries</span>\n            </button>\n          ); })}\n        </div>\n      </section>\n\n      <div className="mt-8 grid gap-4 lg:grid-cols-[minmax(16rem,24rem)_1fr] lg:items-start">
+      <section id="collections" className="mt-8">
+        <div className="flex items-end justify-between gap-4"><div><p className="technical-label text-primary">Research Collections</p><h2 className="mt-1 font-display text-2xl font-bold uppercase text-foreground">Browse by research area</h2></div></div>
+        <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-3">
+          {RESEARCH_COLLECTIONS.map((collection) => { const Icon = collection.icon; const count = entriesForCollection(entries, collection).length; return (
+            <button key={collection.slug} type="button" onClick={() => setCategory(collection.categories[0] ?? "All")} className="group min-h-36 rounded-2xl border border-border bg-card p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-primary hover:shadow-glow sm:p-5">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/30 bg-primary/10"><Icon className="h-5 w-5 text-primary" /></span>
+              <span className="mt-3 block font-display text-base font-bold uppercase text-foreground group-hover:text-primary">{collection.shortTitle}</span>
+              <span className="mt-1 block text-xs leading-5 text-muted-foreground">{count} entries</span>
+            </button>
+          ); })}
+        </div>
+      </section>
+
+      <div className="mt-8 grid gap-4 lg:grid-cols-[minmax(16rem,24rem)_1fr] lg:items-start">
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
           <Input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search compounds or research areas" className="h-11 pl-9" aria-label="Search the Research Lab" />
@@ -49,7 +63,9 @@ export function ResearchIndexView({ entries, preview = false }: { entries: Resea
         </div>
       </div>
 
-      <div className="mt-8 flex items-center gap-2"><Layers3 className="h-5 w-5 text-primary" /><h2 className="font-display text-xl font-bold uppercase text-foreground">Compound Library</h2></div>\n\n      {visible.length === 0 ? (
+      <div className="mt-8 flex items-center gap-2"><Layers3 className="h-5 w-5 text-primary" /><h2 className="font-display text-xl font-bold uppercase text-foreground">Compound Library</h2></div>
+
+      {visible.length === 0 ? (
         <div className="mt-8 border border-border bg-card p-8 text-center text-sm text-muted-foreground">
           {entries.length === 0 ? "Research entries are being prepared. Check back soon." : "No entries match your search."}
         </div>
@@ -73,6 +89,10 @@ export function ResearchIndexView({ entries, preview = false }: { entries: Resea
           ))}
         </div>
       )}
+
+      <section id="blends" className="mt-14 border-t border-border pt-10">
+        <TitanBlendsView entries={entries} preview={preview} />
+      </section>
     </>
   );
 }
