@@ -63,7 +63,8 @@
   --font-display: "Rajdhani", ui-sans-serif, system-ui, sans-serif;
 }
 
-:root, .dark {
+:root,
+.dark {
   --radius: 0.08rem;
   --background: oklch(0.145 0.025 245);
   --foreground: oklch(0.965 0.008 235);
@@ -97,10 +98,31 @@
   --sidebar-accent-foreground: oklch(0.965 0.008 235);
   --sidebar-border: oklch(0.34 0.04 240);
   --sidebar-ring: oklch(0.66 0.18 235);
-  --gradient-steel: linear-gradient(105deg, oklch(0.64 0.09 235), oklch(0.88 0.025 235) 42%, oklch(0.66 0.12 235) 62%, oklch(0.76 0.14 78));
-  --gradient-hero: radial-gradient(circle at 75% 0%, oklch(0.25 0.075 235 / 0.55), transparent 34%), linear-gradient(180deg, oklch(0.145 0.025 245), oklch(0.17 0.03 245) 58%, oklch(0.135 0.022 245));
-  --shadow-glow: 0 0 0 1px oklch(0.66 0.18 235 / 0.24), 0 20px 52px -28px oklch(0.58 0.17 235 / 0.5);
-  --shadow-gold: 0 0 0 1px oklch(0.76 0.14 78 / 0.24), 0 20px 48px -30px oklch(0.7 0.12 78 / 0.32);
+  --gradient-steel: linear-gradient(
+    105deg,
+    oklch(0.64 0.09 235),
+    oklch(0.88 0.025 235) 42%,
+    oklch(0.66 0.12 235) 62%,
+    oklch(0.76 0.14 78)
+  );
+  --gradient-hero:
+    radial-gradient(
+      circle at 75% 0%,
+      oklch(0.25 0.075 235 / 0.55),
+      transparent 34%
+    ),
+    linear-gradient(
+      180deg,
+      oklch(0.145 0.025 245),
+      oklch(0.17 0.03 245) 58%,
+      oklch(0.135 0.022 245)
+    );
+  --shadow-glow:
+    0 0 0 1px oklch(0.66 0.18 235 / 0.24),
+    0 20px 52px -28px oklch(0.58 0.17 235 / 0.5);
+  --shadow-gold:
+    0 0 0 1px oklch(0.76 0.14 78 / 0.24),
+    0 20px 48px -30px oklch(0.7 0.12 78 / 0.32);
 }
 
 .light {
@@ -121,10 +143,25 @@
   --border: oklch(0.68 0.035 235);
   --input: oklch(0.66 0.04 235);
   --ring: oklch(0.56 0.16 233);
-  --gradient-steel: linear-gradient(105deg, oklch(0.22 0.045 245), oklch(0.48 0.035 238) 40%, oklch(0.28 0.055 245) 62%, oklch(0.63 0.12 76));
-  --gradient-hero: linear-gradient(180deg, oklch(0.94 0.018 235), oklch(0.88 0.035 232) 58%, oklch(0.92 0.02 235));
-  --shadow-glow: 0 0 0 1px oklch(0.56 0.16 233 / 0.2), 0 20px 48px -28px oklch(0.42 0.13 233 / 0.36);
-  --shadow-gold: 0 0 0 1px oklch(0.68 0.135 76 / 0.26), 0 20px 48px -30px oklch(0.60 0.12 76 / 0.35);
+  --gradient-steel: linear-gradient(
+    105deg,
+    oklch(0.22 0.045 245),
+    oklch(0.48 0.035 238) 40%,
+    oklch(0.28 0.055 245) 62%,
+    oklch(0.63 0.12 76)
+  );
+  --gradient-hero: linear-gradient(
+    180deg,
+    oklch(0.94 0.018 235),
+    oklch(0.88 0.035 232) 58%,
+    oklch(0.92 0.02 235)
+  );
+  --shadow-glow:
+    0 0 0 1px oklch(0.56 0.16 233 / 0.2),
+    0 20px 48px -28px oklch(0.42 0.13 233 / 0.36);
+  --shadow-gold:
+    0 0 0 1px oklch(0.68 0.135 76 / 0.26),
+    0 20px 48px -30px oklch(0.6 0.12 76 / 0.35);
 }
 
 @utility text-steel {
@@ -156,14 +193,33 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     letter-spacing: 0;
-    background-image: linear-gradient(90deg, transparent 0, transparent calc(50% - 0.5px), color-mix(in oklab, var(--border) 18%, transparent) 50%, transparent calc(50% + 0.5px));
+    background-image: linear-gradient(
+      90deg,
+      transparent 0,
+      transparent calc(50% - 0.5px),
+      color-mix(in oklab, var(--border) 18%, transparent) 50%,
+      transparent calc(50% + 0.5px)
+    );
   }
 
-  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: 0.1em; }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: 0.1em;
+  }
 }
 
 @utility brand-cut {
-  clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+  clip-path: polygon(
+    7px 0,
+    100% 0,
+    100% calc(100% - 7px),
+    calc(100% - 7px) 100%,
+    0 100%,
+    0 7px
+  );
 }
 
 @utility logo-cutout {
@@ -171,17 +227,37 @@
 }
 
 @utility brand-image-shade {
-  background: linear-gradient(90deg, color-mix(in oklab, var(--background) 92%, transparent) 0%, color-mix(in oklab, var(--background) 67%, transparent) 48%, color-mix(in oklab, var(--background) 28%, transparent) 100%);
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--background) 92%, transparent) 0%,
+    color-mix(in oklab, var(--background) 67%, transparent) 48%,
+    color-mix(in oklab, var(--background) 28%, transparent) 100%
+  );
 }
 
 @utility brand-footer-shade {
-  background: linear-gradient(180deg, color-mix(in oklab, var(--background) 26%, transparent), color-mix(in oklab, var(--background) 78%, transparent) 90%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--background) 26%, transparent),
+    color-mix(in oklab, var(--background) 78%, transparent) 90%
+  );
 }
 
 @utility industrial-panel {
-  background: linear-gradient(145deg, color-mix(in oklab, var(--card) 90%, var(--secondary) 10%), var(--card));
+  background: linear-gradient(
+    145deg,
+    color-mix(in oklab, var(--card) 90%, var(--secondary) 10%),
+    var(--card)
+  );
   border: 1px solid var(--border);
-  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  clip-path: polygon(
+    10px 0,
+    100% 0,
+    100% calc(100% - 10px),
+    calc(100% - 10px) 100%,
+    0 100%,
+    0 10px
+  );
 }
 
 @utility page-shell {
@@ -208,6 +284,40 @@
 }
 
 @layer components {
+  .titan-page-heading {
+    @apply flex items-center gap-3 border-b border-border pb-6;
+  }
+  .titan-page-icon {
+    @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/35 bg-primary/10;
+  }
+  .titan-hero-heading {
+    @apply font-display text-[clamp(2rem,9vw,3rem)] font-black uppercase leading-none tracking-[0.055em] text-foreground sm:text-5xl sm:tracking-[0.08em];
+  }
+  .titan-home .home-watermark {
+    opacity: 0.07;
+  }
+  .light .titan-home .home-watermark {
+    opacity: 0.05;
+  }
+  .titan-home .home-logo-field {
+    background: none;
+  }
+  .titan-home h1 {
+    font-size: clamp(2rem, 9vw, 3rem);
+    line-height: 1;
+    letter-spacing: 0.055em;
+  }
+  @media (min-width: 640px) {
+    .titan-home h1 {
+      letter-spacing: 0.08em;
+    }
+  }
+  a:focus-visible,
+  button:focus-visible,
+  select:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+  }
   .titan-nav-icon {
     @apply border-primary/40 bg-card/80 text-foreground shadow-sm backdrop-blur-sm hover:border-primary hover:bg-primary/15 hover:text-primary;
   }
@@ -225,15 +335,35 @@
 
   .titan-header-surface {
     background:
-      linear-gradient(90deg, color-mix(in oklab, var(--background) 88%, transparent) 0%, color-mix(in oklab, var(--background) 48%, transparent) 50%, color-mix(in oklab, var(--background) 76%, transparent) 100%),
-      linear-gradient(180deg, color-mix(in oklab, var(--primary) 10%, transparent), transparent 58%, color-mix(in oklab, var(--background) 58%, transparent));
-    box-shadow: inset 0 -1px 0 color-mix(in oklab, var(--primary) 28%, transparent);
+      linear-gradient(
+        90deg,
+        color-mix(in oklab, var(--background) 88%, transparent) 0%,
+        color-mix(in oklab, var(--background) 48%, transparent) 50%,
+        color-mix(in oklab, var(--background) 76%, transparent) 100%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in oklab, var(--primary) 10%, transparent),
+        transparent 58%,
+        color-mix(in oklab, var(--background) 58%, transparent)
+      );
+    box-shadow: inset 0 -1px 0
+      color-mix(in oklab, var(--primary) 28%, transparent);
   }
 
   .titan-footer-surface {
     background:
-      linear-gradient(90deg, color-mix(in oklab, var(--background) 82%, transparent), color-mix(in oklab, var(--background) 46%, transparent) 50%, color-mix(in oklab, var(--background) 78%, transparent)),
-      linear-gradient(0deg, color-mix(in oklab, var(--background) 84%, transparent), transparent 74%);
+      linear-gradient(
+        90deg,
+        color-mix(in oklab, var(--background) 82%, transparent),
+        color-mix(in oklab, var(--background) 46%, transparent) 50%,
+        color-mix(in oklab, var(--background) 78%, transparent)
+      ),
+      linear-gradient(
+        0deg,
+        color-mix(in oklab, var(--background) 84%, transparent),
+        transparent 74%
+      );
   }
 
   .light .titan-future-art {
@@ -251,18 +381,43 @@
   /* The home mark is blended rather than presented as a rectangular image. */
   .home-logo-field {
     background:
-      radial-gradient(circle at 50% 38%, color-mix(in oklab, var(--primary) 18%, transparent), transparent 46%),
-      radial-gradient(circle at 60% 48%, color-mix(in oklab, var(--accent) 8%, transparent), transparent 34%);
+      radial-gradient(
+        circle at 50% 38%,
+        color-mix(in oklab, var(--primary) 18%, transparent),
+        transparent 46%
+      ),
+      radial-gradient(
+        circle at 60% 48%,
+        color-mix(in oklab, var(--accent) 8%, transparent),
+        transparent 34%
+      );
   }
   .home-watermark {
     opacity: 0.22;
     mix-blend-mode: screen;
-    filter: saturate(1.45) contrast(1.16) brightness(0.72) sepia(0.08) drop-shadow(0 0 28px color-mix(in oklab, var(--primary) 34%, transparent)) drop-shadow(0 0 46px color-mix(in oklab, var(--accent) 12%, transparent));
-    -webkit-mask-image: radial-gradient(ellipse 48% 46% at 50% 50%, #000 42%, rgba(0,0,0,.76) 63%, transparent 88%);
-    mask-image: radial-gradient(ellipse 48% 46% at 50% 50%, #000 42%, rgba(0,0,0,.76) 63%, transparent 88%);
+    filter: saturate(1.45) contrast(1.16) brightness(0.72) sepia(0.08)
+      drop-shadow(0 0 28px color-mix(in oklab, var(--primary) 34%, transparent))
+      drop-shadow(0 0 46px color-mix(in oklab, var(--accent) 12%, transparent));
+    -webkit-mask-image: radial-gradient(
+      ellipse 48% 46% at 50% 50%,
+      #000 42%,
+      rgba(0, 0, 0, 0.76) 63%,
+      transparent 88%
+    );
+    mask-image: radial-gradient(
+      ellipse 48% 46% at 50% 50%,
+      #000 42%,
+      rgba(0, 0, 0, 0.76) 63%,
+      transparent 88%
+    );
   }
   .home-logo-wash {
-    background: radial-gradient(ellipse 58% 58% at 50% 48%, transparent 34%, color-mix(in oklab, var(--background) 38%, transparent) 72%, var(--background) 100%);
+    background: radial-gradient(
+      ellipse 58% 58% at 50% 48%,
+      transparent 34%,
+      color-mix(in oklab, var(--background) 38%, transparent) 72%,
+      var(--background) 100%
+    );
   }
   .light .home-watermark {
     opacity: 0.13;
@@ -270,4 +425,3 @@
     filter: saturate(1.05) contrast(1.04);
   }
 }
-
