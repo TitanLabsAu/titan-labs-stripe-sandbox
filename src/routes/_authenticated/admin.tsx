@@ -143,7 +143,7 @@ function OrdersTab() {
   const isLoading = liveQuery.isLoading || closedQuery.isLoading;
 
   return (
-    <div className="industrial-panel p-5">
+    <div className="rounded-2xl border border-primary/25 bg-card/90 p-5 shadow-glow">
       <div className="mb-4 flex gap-1 border border-border p-1 md:w-fit">
         {(
           [
@@ -444,7 +444,7 @@ function OrderDetail({ order, live }: { order: AdminOrder; live: boolean }) {
         <span className="font-bold text-foreground">{formatPrice(Number(order.total))}</span>
       </p>
 
-      <div className="border border-border bg-background/40 p-4">
+      <div className="rounded-xl border border-border bg-background/40 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-[11px] tracking-[0.18em] text-muted-foreground">PAYMENT</p>
@@ -472,7 +472,7 @@ function OrderDetail({ order, live }: { order: AdminOrder; live: boolean }) {
         </div>
       </div>
 
-      <div className="border border-border bg-background/40 p-4">
+      <div className="rounded-xl border border-border bg-background/40 p-4">
         <p className="text-[11px] tracking-[0.18em] text-muted-foreground">
           AUSTRALIA POST EXPRESS TRACKING
         </p>
@@ -546,7 +546,7 @@ function NotificationsPanel() {
   const items = data ?? [];
 
   return (
-    <div className="industrial-panel p-5">
+    <div className="rounded-2xl border border-primary/25 bg-card/90 p-5 shadow-glow">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-xs tracking-[0.2em] text-steel">NOTIFICATIONS</h2>
         <Button
