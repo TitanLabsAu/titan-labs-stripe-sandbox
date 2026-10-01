@@ -23,11 +23,11 @@ function CalculatorPage() {
     <div className="bg-hero min-h-screen">
       <SiteHeader />
       <main className="page-shell py-10 sm:py-14">
-        <div className="mb-7 flex items-center gap-3">
+        <div className="mb-7 flex items-center gap-3 border-b border-primary/20 pb-6">
           <Calculator className="h-7 w-7 text-primary" />
           <div>
             <p className="technical-label text-accent">Research tool</p>
-            <h1 className="text-3xl font-medium uppercase text-foreground sm:text-4xl">Reconstitution Calculator</h1>
+            <h1 className="font-display text-3xl font-black uppercase tracking-[0.08em] text-foreground sm:text-4xl">Reconstitution Calculator</h1>
           </div>
         </div>
         <ConcentrationCalculator />
