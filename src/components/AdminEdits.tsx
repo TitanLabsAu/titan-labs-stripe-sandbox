@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode, RefObject } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlignCenter, AlignLeft, AlignRight, ArrowDown, ArrowUp, Bold, GripVertical, Italic, Plus, Trash2, Underline } from "lucide-react";
+import { AlignCenter, AlignLeft, AlignRight, ArrowDown, ArrowUp, Bold, GripVertical, Italic, Plus, Trash2, Underline, Moon, Sun } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,6 +41,7 @@ import {
 import { formatPrice } from "@/lib/products";
 import { DEFAULT_CRYPTO_LINES, serialiseCryptoOptions } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
+import { applySiteTheme, getStoredTheme, type SiteTheme } from "@/lib/site-theme";
 
 
 const ALIGN_OPTIONS: { value: TextAlign; label: string; Icon: typeof AlignLeft }[] = [
@@ -490,6 +491,10 @@ export function AdminEdits() {
   });
 
   const [values, setValues] = useState<Record<string, string>>({});
+  const [siteTheme, setSiteTheme] = useState<SiteTheme>("dark");
+
+  useEffect(() => { setSiteTheme(getStoredTheme()); }, []);
+  const chooseTheme = (theme: SiteTheme) => { setSiteTheme(theme); applySiteTheme(theme); toast.success(`${theme === "dark" ? "Dark" : "Light"} theme preview applied on this device`); };
   const [featured, setFeatured] = useState<string[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [draft, setDraft] = useState<Draft | null>(null);
@@ -673,6 +678,7 @@ export function AdminEdits() {
     <div className="space-y-6">
       <Tabs defaultValue="home">
         <TabsList className="flex flex-wrap">
+          <TabsTrigger value="appearance" className="font-bold uppercase">Appearance</TabsTrigger>
           <TabsTrigger value="home" className="font-bold uppercase">
             Home
           </TabsTrigger>
@@ -695,6 +701,29 @@ export function AdminEdits() {
             Research Lab
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="appearance" className="mt-6 space-y-6">
+          <div className="rounded-xl border border-border bg-card/80 p-6">
+            <p className="technical-label text-accent">Site appearance</p>
+            <h3 className="mt-2 text-xl font-extrabold uppercase text-foreground">Titan theme</h3>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+              Preview the premium dark Titan design or switch back to the original light design. This choice is saved on this browser only while the new design is being reviewed; it does not change production settings.
+            </p>
+            <div className="mt-5 grid max-w-2xl gap-3 sm:grid-cols-2">
+              <button type="button" aria-pressed={siteTheme === "dark"} onClick={() => chooseTheme("dark")} className={cn("rounded-xl border p-5 text-left transition", siteTheme === "dark" ? "border-primary bg-primary/10 shadow-glow" : "border-border bg-background/40 hover:border-primary/60")}>
+                <Moon className="h-6 w-6 text-primary" />
+                <p className="mt-4 font-display text-lg font-bold uppercase tracking-wider text-foreground">Dark</p>
+                <p className="mt-1 text-sm text-muted-foreground">Deep navy, Titan Blue, white and gold. Recommended new design.</p>
+              </button>
+              <button type="button" aria-pressed={siteTheme === "light"} onClick={() => chooseTheme("light")} className={cn("rounded-xl border p-5 text-left transition", siteTheme === "light" ? "border-primary bg-primary/10 shadow-glow" : "border-border bg-background/40 hover:border-primary/60")}>
+                <Sun className="h-6 w-6 text-accent" />
+                <p className="mt-4 font-display text-lg font-bold uppercase tracking-wider text-foreground">Light</p>
+                <p className="mt-1 text-sm text-muted-foreground">Original lighter Titan palette retained as a reversible fallback.</p>
+              </button>
+            </div>
+            <p className="mt-4 text-xs text-muted-foreground">A site-wide saved Admin setting can be enabled later once the dark redesign is approved for production.</p>
+          </div>
+        </TabsContent>
 
         <TabsContent value="legal" className="mt-6 space-y-6">
           <div className="rounded-xl border border-border bg-card/80 p-6">
