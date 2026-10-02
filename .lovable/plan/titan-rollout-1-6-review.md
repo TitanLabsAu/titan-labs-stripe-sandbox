@@ -28,3 +28,13 @@ The prepared branch was based on `main` at 902f34b and diverged from the current
 - Product photos are illustrations; Admin can replace them with actual hardware photos. White slim pen and blue end reference, black Titan branding on laser-silver label, tall yellow/white-cap sharps container reference.
 - Run desktop/mobile preview and authenticated Calendar/Admin smoke checks before publishing. No live payments, orders, credits or emails are part of this review.
 - Stock validation checks requested quantities against current stock; this does not add transactional stock reservations or prove concurrent inventory settlement.
+
+## Final rollout review
+
+- GitHub rollout branch saved at 62feccb; PR #2 targets research-lab-v2 and is mergeable. main remains 902f34b.
+- GitHub CI passed tests, build and types on the reviewed commit and migration rename.
+- Lovable applied 0022 to its connected database. Its generated SELECT 1 companion was renamed to 0023 preserving the already-applied timestamp and snapshot identity. Do not reapply SQL.
+- Lovable reports rolled-back live calendar owner CRUD, cross-member read/write denial, anonymous protection and invalid-date/frequency tests passed. Calendar remains empty, existing orders/codes/credits unchanged, BAC stock remains 30×3ml and 40×10ml.
+- Desktop 1280px and mobile 390px catalogue/pen/product/guide and signed-out calendar redirect smoke checks passed. Corrected pen and Range kit assets load.
+- Signed-in Calendar UI CRUD and Admin starter-kit toggle smoke checks remain blocked by absence of an authenticated app session. Keep PR unmerged and frontend unpublished until those checks are complete.
+- New products remain zero stock. A pre-existing blank BAC Water catalogue photo was reported by Lovable. The generated pen photo retains blue separator slashes despite black-ink edit attempts; other label lettering/logo are black on silver. These visual details remain for final review.
