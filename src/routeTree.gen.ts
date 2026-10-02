@@ -22,6 +22,7 @@ import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedOrderHistoryRouteImport } from './routes/_authenticated/order-history'
 import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
+import { Route as ApiAdminGenerateImageRouteImport } from './routes/api/admin-generate-image'
 import { Route as AuthIndexRouteImport } from './routes/auth.index'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
 import { Route as AuthSignupRouteImport } from './routes/auth.signup'
@@ -99,6 +100,11 @@ const AuthenticatedOrdersRoute = AuthenticatedOrdersRouteImport.update({
   id: '/orders',
   path: '/orders',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const ApiAdminGenerateImageRoute = ApiAdminGenerateImageRouteImport.update({
+  id: '/api/admin-generate-image',
+  path: '/api/admin-generate-image',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthIndexRoute = AuthIndexRouteImport.update({
   id: '/auth/',
@@ -178,6 +184,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/order-history': typeof AuthenticatedOrderHistoryRoute
   '/orders': typeof AuthenticatedOrdersRoute
+  '/api/admin-generate-image': typeof ApiAdminGenerateImageRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -204,6 +211,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/order-history': typeof AuthenticatedOrderHistoryRoute
   '/orders': typeof AuthenticatedOrdersRoute
+  '/api/admin-generate-image': typeof ApiAdminGenerateImageRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -232,6 +240,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/order-history': typeof AuthenticatedOrderHistoryRoute
   '/_authenticated/orders': typeof AuthenticatedOrdersRoute
+  '/api/admin-generate-image': typeof ApiAdminGenerateImageRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -260,6 +269,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/order-history'
     | '/orders'
+    | '/api/admin-generate-image'
     | '/auth/reset-password'
     | '/auth/signup'
     | '/product/$slug'
@@ -286,6 +296,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/order-history'
     | '/orders'
+    | '/api/admin-generate-image'
     | '/auth/reset-password'
     | '/auth/signup'
     | '/product/$slug'
@@ -313,6 +324,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/order-history'
     | '/_authenticated/orders'
+    | '/api/admin-generate-image'
     | '/auth/reset-password'
     | '/auth/signup'
     | '/product/$slug'
@@ -337,6 +349,7 @@ export interface RootRouteChildren {
   RangeRoute: typeof RangeRoute
   StacksRoute: typeof StacksRoute
   TermsRoute: typeof TermsRoute
+  ApiAdminGenerateImageRoute: typeof ApiAdminGenerateImageRoute
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
   AuthSignupRoute: typeof AuthSignupRoute
   ProductSlugRoute: typeof ProductSlugRoute
@@ -441,6 +454,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/orders'
       preLoaderRoute: typeof AuthenticatedOrdersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/admin-generate-image': {
+      id: '/api/admin-generate-image'
+      path: '/api/admin-generate-image'
+      fullPath: '/api/admin-generate-image'
+      preLoaderRoute: typeof ApiAdminGenerateImageRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/auth/': {
       id: '/auth/'
@@ -561,6 +581,7 @@ const rootRouteChildren: RootRouteChildren = {
   RangeRoute: RangeRoute,
   StacksRoute: StacksRoute,
   TermsRoute: TermsRoute,
+  ApiAdminGenerateImageRoute: ApiAdminGenerateImageRoute,
   AuthResetPasswordRoute: AuthResetPasswordRoute,
   AuthSignupRoute: AuthSignupRoute,
   ProductSlugRoute: ProductSlugRoute,
