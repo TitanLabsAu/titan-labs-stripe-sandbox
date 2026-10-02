@@ -52,3 +52,12 @@ describe("referral pricing", () => {
     expect(s.milestoneThresholds).toEqual([5, 10, 25, 50, 100]);
   });
 });
+
+describe("kit savings inside the cap", () => {
+  test("a 20%-off kit leaves no room for crypto or multi-buy", () => {
+    const r = quoteOrder({ shippingMethod: "standard", paymentMethod: "crypto", lines: [{ unitCents: 80000, baseCents: 100000, quantity: 2 }] }, S);
+    expect(r.kitSavingsCents).toBe(40000);
+    expect(r.multibuyCents + r.cryptoCents).toBe(0);
+    expect(r.kitSavingsCents + r.multibuyCents + r.cryptoCents).toBeLessThanOrEqual(r.baseCents * 0.2);
+  });
+});
