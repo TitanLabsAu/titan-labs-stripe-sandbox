@@ -31,10 +31,10 @@
 - [x] Move Referral Program footer link under Navigate
 - [x] Verify kit savings count toward 20% combined cap
 - [x] Rolled-back DB tests: concurrency, idempotency, refund, release; RPC privilege review
-- [ ] Rename referral migration to 0019 (journal tag only, no reapply)
-- [ ] DB-aggregated credit summaries (no LIMIT-based balances)
-- [ ] Fix credit unit at AUD10 (no admin edit, DB enforced)
-- [ ] Settlement uses order snapshot reward units
-- [ ] Zero-value referral keeps attribution when multi-buy wins
-- [ ] Reservations: no TTL consumption after release/respend; no negative balance
-- [ ] Tests for all above + concurrency
+- [x] Rename referral migration to 0019 (journal tag only, no reapply)
+- [x] DB-aggregated credit summaries (no LIMIT-based balances)
+- [x] Fix credit unit at AUD10 (no admin edit, DB enforced)
+- [x] Settlement uses order snapshot reward units
+- [x] Zero-value referral keeps attribution when multi-buy wins
+- [x] Reservations: no TTL consumption after release/respend; no negative balance
+- [x] Tests for all above + concurrency
