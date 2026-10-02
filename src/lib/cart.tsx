@@ -55,7 +55,7 @@ function normalizeItem(raw: unknown): CartItem | null {
   const pack: ProductPack = item.pack === "kit" ? "kit" : "single";
   const variantId = typeof item.variantId === "string" && item.variantId ? item.variantId : null;
   return {
-    key: typeof item.key === "string" && item.key ? item.key : cartLineKey(item.slug, variantId, pack),
+    key: typeof item.key === "string" && item.key ? item.key : cartLineKey(item.slug, variantId, pack, Boolean(item.starterKit)),
     slug: item.slug,
     quantity: clampQuantity(Number(item.quantity ?? 1)),
     variantId,
