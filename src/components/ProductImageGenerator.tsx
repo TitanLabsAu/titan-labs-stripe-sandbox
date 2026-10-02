@@ -47,10 +47,15 @@ export function ProductImageGenerator({
   async function use() {
     if (!preview) return;
     setSaving(true);
+    setError(null);
     try {
       const blob = await (await fetch(preview)).blob();
       await onUse(blob);
       setPreview(null);
+    } catch (e) {
+      setError(
+        `Could not save this photo: ${e instanceof Error ? e.message : "upload failed"}. Your preview is kept — press "Use image" to try again.`,
+      );
     } finally {
       setSaving(false);
     }

@@ -257,7 +257,8 @@ export function ProductEditor({
       ),
     });
 
-  async function uploadImage(file: File) {
+  /** Uploads to storage. Resolves only on success; rejects on failure. */
+  async function uploadImage(file: File): Promise<void> {
     setUploading(true);
     try {
       const path = storagePathFor(file, draft);
@@ -276,6 +277,7 @@ export function ProductEditor({
       toast.error(
         error instanceof Error ? error.message : "Could not upload the image",
       );
+      throw error instanceof Error ? error : new Error("Could not upload the image");
     } finally {
       setUploading(false);
     }
@@ -392,7 +394,7 @@ export function ProductEditor({
               disabled={uploading}
               onChange={(e) => {
                 const file = e.target.files?.[0];
-                if (file) void uploadImage(file);
+                if (file) uploadImage(file).catch(() => undefined);
               }}
             />
           </div>
