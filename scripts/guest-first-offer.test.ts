@@ -55,3 +55,43 @@ describe("guest capability", () => {
     expect(checkoutErrorCode(new Error("nothing"))).toBeNull();
   });
 });
+
+import { cancelUnboundIntent } from "../src/lib/stripe-recovery";
+
+describe("checkout regression checks", () => {
+  test("expired member requires a choice; valid member cannot be downgraded", () => {
+    expect(decideBuyer({ mode: "member", bearerValid: false, guestSessionValid: true })).toEqual({ error: "AUTH_EXPIRED" });
+    expect(decideBuyer({ mode: "guest", bearerValid: true, guestSessionValid: true })).toEqual({ kind: "member" });
+    expect(decideBuyer({ mode: "guest", bearerValid: false, guestSessionValid: false })).toEqual({ error: "GUEST_SESSION_INVALID" });
+  });
+  test("another guest and stale, unaccepted or linked acknowledgements are rejected", () => {
+    const g = { kind: "guest", userId: null, guestSessionId: "g1" } as const;
+    const ack = { guest_session_id: "g1", accepted: true, accepted_at: new Date().toISOString() };
+    expect(ownsRow(g, { guest_session_id: "g2" })).toBe(false);
+    expect(ackIsUsable(g, ack)).toBe(true);
+    expect(ackIsUsable(g, { ...ack, guest_session_id: "g2" })).toBe(false);
+    expect(ackIsUsable(g, { ...ack, accepted: false })).toBe(false);
+    expect(ackIsUsable(g, { ...ack, order_id: "order" })).toBe(false);
+    expect(ackIsUsable(g, { ...ack, accepted_at: new Date(Date.now() - 3 * 3600000).toISOString() })).toBe(false);
+  });
+  test("stacked welcome/code savings share the cap, with only two credits", () => {
+    const settings = { ...S, allowCodeCrypto: true, allowCodeMultibuy: true, firstOffer: { ...S.firstOffer, combineCode: true, combineMultibuy: true, combineCrypto: true, combineCredit: true } };
+    for (let units = 1; units <= 5; units++) {
+      const r = quoteOrder({ shippingMethod: "express", paymentMethod: "crypto", lines: [line(100, units)], firstOfferEligible: true, creditUnits: 9, availableCreditUnits: 9, code: { code: "TEST", kind: "member", discountType: "percent", value: 5, minSpendCents: 0, combineMultibuy: true, combineCrypto: true, combineCredit: true } }, settings);
+      if (r.firstOfferApplied) expect(r.multibuyCents + r.cryptoCents + r.codeCents + r.firstOfferCents + r.kitSavingsCents).toBeLessThanOrEqual(r.baseCents * .2);
+      expect(r.creditCents).toBeLessThanOrEqual(2000);
+    }
+  });
+  test("a created intent must be canceled before rewards can be released", async () => {
+    let canceled = 0;
+    const stripe = { paymentIntents: { cancel: async () => { canceled++; return { status: "canceled" }; }, retrieve: async () => ({ status: "succeeded" }) } };
+    expect(await cancelUnboundIntent(stripe, null)).toBe(true);
+    expect(canceled).toBe(0);
+    expect(await cancelUnboundIntent(stripe, "pi_created")).toBe(true);
+    expect(canceled).toBe(1);
+    stripe.paymentIntents.cancel = async () => { throw new Error("unavailable"); };
+    expect(await cancelUnboundIntent(stripe, "pi_paid")).toBe(false);
+    stripe.paymentIntents.retrieve = async () => { throw new Error("unavailable"); };
+    expect(await cancelUnboundIntent(stripe, "pi_unknown")).toBe(false);
+  });
+});

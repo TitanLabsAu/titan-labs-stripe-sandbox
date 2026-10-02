@@ -211,6 +211,7 @@ function evaluate(
       codeCents = Math.min(toCents(Math.max(0, code.value)), afterOffer);
     }
   }
+  if (offer) codeCents = Math.min(codeCents, Math.max(0, room - pctCents - offerCents));
   const afterCode = afterOffer - codeCents;
 
   let creditUnits = 0;

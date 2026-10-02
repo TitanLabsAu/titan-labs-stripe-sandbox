@@ -222,6 +222,7 @@ export const createStripeSandboxPayment = createServerFn({
       });
     }
 
+    let createdIntentId: string | null = null;
     try {
       const paymentIntent =
         await stripe.paymentIntents.create({
@@ -243,6 +244,7 @@ export const createStripeSandboxPayment = createServerFn({
           description: "Titan Labs order",
         });
 
+      createdIntentId = paymentIntent.id;
       if (!paymentIntent.client_secret) {
         throw new Error(
           "Stripe did not return a client secret.",
@@ -269,13 +271,18 @@ export const createStripeSandboxPayment = createServerFn({
         amountCents,
       };
        } catch (error) {
-      // No PaymentIntent is bound yet, so nothing can be paid: safe to release.
-      await (supabaseAdmin as any).rpc("release_store_credit_for_attempt", { _payment_attempt_id: attempt.id });
-      await (supabaseAdmin as any).rpc("release_first_offer_for_attempt", { _payment_attempt_id: attempt.id });
+      // An intent may exist even if saving its id failed. Cancel it before releasing rewards.
+      const { cancelUnboundIntent } = await import("@/lib/stripe-recovery");
+      const safeToRelease = await cancelUnboundIntent(stripe, createdIntentId);
+      if (safeToRelease) {
+        await (supabaseAdmin as any).rpc("release_store_credit_for_attempt", { _payment_attempt_id: attempt.id });
+        await (supabaseAdmin as any).rpc("release_first_offer_for_attempt", { _payment_attempt_id: attempt.id });
+      }
       await (supabaseAdmin as any)
         .from("payment_attempts")
         .update({
-          status: "failed",
+          status: safeToRelease ? "failed" : "ready",
+          ...(createdIntentId ? { transaction_id: createdIntentId } : {}),
         })
         .eq("id", attempt.id);
 
