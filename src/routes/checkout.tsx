@@ -39,6 +39,7 @@ import {
   quoteCheckoutAny,
   recordCheckoutAcknowledgement,
   startGuestCheckout,
+  getGuestCheckoutStatus,
 } from "@/lib/checkout.functions";
 import { checkoutErrorCode, checkoutErrorText, type CheckoutMode } from "@/lib/guest-capability";
 import {
@@ -215,6 +216,7 @@ function CheckoutPage() {
   const cancelStripe = useServerFn(cancelStripeCheckout);
   const recordAck = useServerFn(recordCheckoutAcknowledgement);
   const startGuest = useServerFn(startGuestCheckout);
+  const guestStatus = useServerFn(getGuestCheckoutStatus);
   const [stripeIntentId, setStripeIntentId] = useState<string | null>(null);
   const [guestMode, setGuestModeState] = useState(false);
   const [authLost, setAuthLost] = useState(false);
@@ -549,7 +551,8 @@ function CheckoutPage() {
     setStartingGuest(true);
     setGuestError(null);
     try {
-      const res = await startGuest();
+      await startGuest();
+      const res = await guestStatus();
       if (!res?.active) {
         // The server issued the cookie but the browser didn't send it back
         // (e.g. cookies blocked or the shop is embedded in another site).

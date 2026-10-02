@@ -75,6 +75,10 @@ export async function resolveBuyer(mode: CheckoutMode): Promise<ResolvedBuyer> {
   return { kind: "guest", userId: null, guestSessionId: guestId!, email: null, emailVerified: false };
 }
 
+export async function hasActiveGuestSession(): Promise<boolean> {
+  return Boolean(await guestSessionFromCookie());
+}
+
 /** Creates (or keeps) a short-lived guest capability in an httpOnly cookie. */
 export async function startGuestSession(): Promise<void> {
   if (await guestSessionFromCookie()) return;
