@@ -406,6 +406,15 @@ export const verifyStripeSandboxPayment = createServerFn({
           })
           .eq("id", attempt.id);
 
+        // Only release credit when Stripe says this payment can no longer succeed.
+        if (
+          !amountMatches || !currencyMatches || !metadataMatches ||
+          paymentIntent.status === "canceled" || paymentIntent.status === "requires_payment_method"
+        ) {
+          await (supabaseAdmin as any).rpc("release_store_credit_for_attempt", { _payment_attempt_id: attempt.id });
+        }
+
+
         throw new Error(
           paymentIntent.status === "succeeded"
             ? "The Stripe payment could not be verified."
