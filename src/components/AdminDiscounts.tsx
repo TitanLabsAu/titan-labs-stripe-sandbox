@@ -124,7 +124,6 @@ function ProgramSettings() {
             .map(([units, percent]: number[]) => ({ units, percent })),
           crypto_percent: Number(f.crypto),
           combined_cap_percent: Number(f.cap),
-          credit_unit_cents: Math.round(Number(f.unit) * 100),
           max_credit_units: Number(f.maxUnits),
           referral_reward_units: Number(f.reward),
           milestone_thresholds: String(f.milestones).split(",").map((x: string) => Number(x.trim())),
@@ -167,15 +166,15 @@ function ProgramSettings() {
           <Input className="mt-2" type="number" min={0} max={100} value={f.cap} onChange={(e) => set("cap")(e.target.value)} />
         </div>
         <div>
-          <Label>Credit unit value (AUD)</Label>
-          <Input className="mt-2" type="number" min={1} value={f.unit} onChange={(e) => set("unit")(e.target.value)} />
+          <Label>Credit unit value</Label>
+          <p className="mt-2 flex h-10 items-center text-sm text-muted-foreground">Fixed at $10 per unit</p>
         </div>
         <div>
           <Label>Max credit units per order</Label>
           <Input className="mt-2" type="number" min={0} max={20} value={f.maxUnits} onChange={(e) => set("maxUnits")(e.target.value)} />
         </div>
         <div>
-          <Label>Units earned per paid referral</Label>
+          <Label>Units earned per paid referral ($10 each)</Label>
           <Input className="mt-2" type="number" min={0} max={20} value={f.reward} onChange={(e) => set("reward")(e.target.value)} />
         </div>
         <div className="sm:col-span-2">

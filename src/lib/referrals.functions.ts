@@ -127,7 +127,6 @@ export const adminSaveReferralSettings = createServerFn({ method: "POST" })
       allow_code_crypto: Boolean(data.allow_code_crypto),
       allow_credit_code: Boolean(data.allow_credit_code),
       allow_credit_discounts: Boolean(data.allow_credit_discounts),
-      credit_unit_cents: Math.max(100, Math.min(100000, Math.round(Number(data.credit_unit_cents) || 1000))),
       max_credit_units: Math.max(0, Math.min(20, Math.floor(Number(data.max_credit_units) || 0))),
       referral_reward_units: Math.max(0, Math.min(20, Math.floor(Number(data.referral_reward_units) || 0))),
       milestone_thresholds: thresholds,
