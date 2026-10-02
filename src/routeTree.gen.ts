@@ -16,6 +16,7 @@ import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RangeRouteImport } from './routes/range'
+import { Route as ReferralsRouteImport } from './routes/referrals'
 import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as StacksRouteImport } from './routes/stacks'
 import { Route as TermsRouteImport } from './routes/terms'
@@ -69,6 +70,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const RangeRoute = RangeRouteImport.update({
   id: '/range',
   path: '/range',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReferralsRoute = ReferralsRouteImport.update({
+  id: '/referrals',
+  path: '/referrals',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReviewsRoute = ReviewsRouteImport.update({
@@ -184,6 +190,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/privacy': typeof PrivacyRoute
   '/range': typeof RangeRoute
+  '/referrals': typeof ReferralsRoute
   '/reviews': typeof ReviewsRoute
   '/stacks': typeof StacksRoute
   '/terms': typeof TermsRoute
@@ -212,6 +219,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/privacy': typeof PrivacyRoute
   '/range': typeof RangeRoute
+  '/referrals': typeof ReferralsRoute
   '/reviews': typeof ReviewsRoute
   '/stacks': typeof StacksRoute
   '/terms': typeof TermsRoute
@@ -242,6 +250,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/privacy': typeof PrivacyRoute
   '/range': typeof RangeRoute
+  '/referrals': typeof ReferralsRoute
   '/reviews': typeof ReviewsRoute
   '/stacks': typeof StacksRoute
   '/terms': typeof TermsRoute
@@ -272,6 +281,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/privacy'
     | '/range'
+    | '/referrals'
     | '/reviews'
     | '/stacks'
     | '/terms'
@@ -300,6 +310,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/privacy'
     | '/range'
+    | '/referrals'
     | '/reviews'
     | '/stacks'
     | '/terms'
@@ -329,6 +340,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/privacy'
     | '/range'
+    | '/referrals'
     | '/reviews'
     | '/stacks'
     | '/terms'
@@ -359,6 +371,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   PrivacyRoute: typeof PrivacyRoute
   RangeRoute: typeof RangeRoute
+  ReferralsRoute: typeof ReferralsRoute
   ReviewsRoute: typeof ReviewsRoute
   StacksRoute: typeof StacksRoute
   TermsRoute: typeof TermsRoute
@@ -424,6 +437,13 @@ declare module '@tanstack/react-router' {
       path: '/range'
       fullPath: '/range'
       preLoaderRoute: typeof RangeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/referrals': {
+      id: '/referrals'
+      path: '/referrals'
+      fullPath: '/referrals'
+      preLoaderRoute: typeof ReferralsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reviews': {
@@ -599,6 +619,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   PrivacyRoute: PrivacyRoute,
   RangeRoute: RangeRoute,
+  ReferralsRoute: ReferralsRoute,
   ReviewsRoute: ReviewsRoute,
   StacksRoute: StacksRoute,
   TermsRoute: TermsRoute,
