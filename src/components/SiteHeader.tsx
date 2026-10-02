@@ -67,7 +67,10 @@ export function SiteHeader() {
       {[...tabOrder, "research", "pens", ...(signedIn ? ["calendar"] : [])].map((tab) => {
         if (tab === "home") return navButton(tab, "/", "header_nav_home", Home);
         if (tab === "range") return <Button key={tab} asChild variant="outline" size="icon"><Link to="/range" aria-label={catalogueName(content)} title={catalogueName(content)}><FlaskConical /></Link></Button>;
-        if (tab === "calculator") return navButton(tab, "/calculator", "header_nav_calculator", Calculator, "outline");\n        if (tab === "pens") return <Button key={tab} asChild variant="outline" size="icon"><Link to="/pens" aria-label="Disposable Pens" title="Disposable Pens"><PenTool /></Link></Button>;\n        if (tab === "research") return <Button key={tab} asChild variant="outline" size="icon"><Link to="/research-lab" aria-label="Titan Research Lab" title="Titan Research Lab"><BookOpen /></Link></Button>;\n        if (tab === "calendar" && signedIn) return <Button key={tab} asChild variant="outline" size="icon"><Link to="/calendar" aria-label="My Calendar" title="My Calendar"><CalendarDays /></Link></Button>;
+        if (tab === "calculator") return navButton(tab, "/calculator", "header_nav_calculator", Calculator, "outline");
+        if (tab === "pens") return <Button key={tab} asChild variant="outline" size="icon"><Link to="/pens" aria-label="Disposable Pens" title="Disposable Pens"><PenTool /></Link></Button>;
+        if (tab === "research") return <Button key={tab} asChild variant="outline" size="icon"><Link to="/research-lab" aria-label="Titan Research Lab" title="Titan Research Lab"><BookOpen /></Link></Button>;
+        if (tab === "calendar" && signedIn) return <Button key={tab} asChild variant="outline" size="icon"><Link to="/calendar" aria-label="My Calendar" title="My Calendar"><CalendarDays /></Link></Button>;
         if (tab === "admin" && signedIn && isAdmin) return navButton(tab, "/admin", "header_nav_admin", Shield, "outline");
         if (tab === "account" && signedIn) return navButton(tab, "/account", "header_nav_account", UserRound, "outline");
         if (tab === "login" && !signedIn) return navButton(tab, "/auth", "header_nav_login", LogIn, "outline");
