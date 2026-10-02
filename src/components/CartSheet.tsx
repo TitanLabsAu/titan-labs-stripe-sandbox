@@ -257,30 +257,6 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
                   </div>
                 ) : null}
 
-                <div className="grid gap-2 border-t border-primary/20 p-3 sm:grid-cols-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="h-auto min-h-10 justify-between whitespace-normal px-3 py-2 text-left text-xs font-bold"
-                    onClick={() => {
-                      setOpen(false);
-                      void navigate({ to: "/range", search: { section: "equipment" } });
-                    }}
-                  >
-                    Yes, browse Equipment
-                    <ChevronRight className="h-4 w-4 shrink-0" />
-                  </Button>
-                  <Button
-                    type="button"
-                    className="h-auto min-h-10 whitespace-normal px-3 py-2 text-xs font-bold"
-                    onClick={() => {
-                      setOpen(false);
-                      void navigate({ to: "/checkout" });
-                    }}
-                  >
-                    No, continue to checkout
-                  </Button>
-                </div>
               </section>
 
               <TitanStackBanner units={count} />
