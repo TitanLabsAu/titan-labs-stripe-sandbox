@@ -757,6 +757,7 @@ export type Database = {
           sort_order: number
           starter_kit_enabled: boolean
           stock_quantity: number
+          unlimited_stock: boolean
           updated_at: string
         }
         Insert: {
@@ -788,6 +789,7 @@ export type Database = {
           sort_order?: number
           starter_kit_enabled?: boolean
           stock_quantity?: number
+          unlimited_stock?: boolean
           updated_at?: string
         }
         Update: {
@@ -819,6 +821,7 @@ export type Database = {
           sort_order?: number
           starter_kit_enabled?: boolean
           stock_quantity?: number
+          unlimited_stock?: boolean
           updated_at?: string
         }
         Relationships: []
