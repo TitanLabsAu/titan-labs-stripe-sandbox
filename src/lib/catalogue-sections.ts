@@ -33,3 +33,11 @@ export function filterBySection<T extends { catalogueSection?: CatalogueSection 
 ): T[] {
   return items.filter((item) => normalizeCatalogueSection(item.catalogueSection) === section);
 }
+
+export function resolveCatalogueSection(
+  requested: unknown,
+  available: readonly CatalogueSection[],
+): CatalogueSection {
+  if (isCatalogueSection(requested) && available.includes(requested)) return requested;
+  return available[0] ?? DEFAULT_CATALOGUE_SECTION;
+}

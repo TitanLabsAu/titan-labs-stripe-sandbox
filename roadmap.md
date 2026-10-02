@@ -20,3 +20,4 @@
 - [x] Add separate member-facing Research Lab summaries, evidence-first pages, and protected draft previews.
 - [ ] Owner to review legal wording
 - [x] Add a mobile floating cart shortcut and show numeric-only catalogue quantities.
+- [x] Add the shared cart Equipment/BAC Water upsell and URL-addressable Equipment catalogue navigation.
