@@ -445,6 +445,9 @@ export const verifyStripeSandboxPayment = createServerFn({
           paymentIntent.status === "canceled" || paymentIntent.status === "requires_payment_method"
         ) {
           await (supabaseAdmin as any).rpc("release_store_credit_for_attempt", { _payment_attempt_id: attempt.id });
+        }
+        // The first-offer claim is only released when the intent can never be paid.
+        if (!amountMatches || !currencyMatches || !metadataMatches || paymentIntent.status === "canceled") {
           await (supabaseAdmin as any).rpc("release_first_offer_for_attempt", { _payment_attempt_id: attempt.id });
         }
 

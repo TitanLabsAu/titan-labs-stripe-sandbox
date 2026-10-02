@@ -146,7 +146,7 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
             .eq("id", attempt.id)
             .is("order_id", null);
           await (supabaseAdmin as any).rpc("release_store_credit_for_attempt", { _payment_attempt_id: attempt.id });
-          await (supabaseAdmin as any).rpc("release_first_offer_for_attempt", { _payment_attempt_id: attempt.id });
+          // First-offer claim stays held: a failed intent can still be retried and paid.
 
           return ok({ status: "failed" });
         }
