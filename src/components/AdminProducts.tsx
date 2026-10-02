@@ -20,6 +20,7 @@ import {
   kitPriceFor,
   LOW_STOCK_THRESHOLD,
   stockState,
+  isUnlimitedStock,
 } from "@/lib/products";
 import {
   adminDeleteProduct,
@@ -70,6 +71,7 @@ export type Draft = {
   stock_quantity: string;
   catalogue_section: CatalogueSection;
   starter_kit_enabled: boolean;
+  unlimited_stock: boolean;
 };
 
 const emptyDraft: Draft = {
@@ -97,6 +99,7 @@ const emptyDraft: Draft = {
   stock_quantity: "0",
   catalogue_section: "range",
   starter_kit_enabled: true,
+  unlimited_stock: false,
 };
 
 function safeVariantId(label: string) {
@@ -163,6 +166,7 @@ export function toDraft(p: AdminProduct): Draft {
     stock_quantity: String(p.stock_quantity ?? 0),
     catalogue_section: normalizeCatalogueSection(p.catalogue_section),
     starter_kit_enabled: p.starter_kit_enabled !== false,
+    unlimited_stock: Boolean(p.unlimited_stock) && normalizeCatalogueSection(p.catalogue_section) === "equipment",
   };
 }
 
@@ -223,6 +227,7 @@ export function draftToPayload(d: Draft) {
         : Math.max(0, Math.trunc(Number(d.stock_quantity)) || 0),
     catalogue_section: d.catalogue_section,
     starter_kit_enabled: d.starter_kit_enabled,
+    unlimited_stock: d.catalogue_section === "equipment" && d.unlimited_stock,
   };
 }
 
@@ -341,6 +346,8 @@ export function ProductEditor({
             <div>
               <Label htmlFor="single-product-stock">Stock quantity</Label>
               <Input id="single-product-stock" type="number" min={0} step="1"
+                disabled={draft.unlimited_stock}
+                title={draft.unlimited_stock ? "Unlimited stock — quantity is not tracked" : undefined}
                 value={draft.stock_quantity}
                 onChange={(e) => set({ stock_quantity: e.target.value })} />
             </div>
@@ -383,7 +390,11 @@ export function ProductEditor({
           <select
             id="catalogue-section"
             value={draft.catalogue_section}
-            onChange={(e) => set({ catalogue_section: normalizeCatalogueSection(e.target.value) })}
+            onChange={(e) => {
+              const next = normalizeCatalogueSection(e.target.value);
+              // Unlimited stock is Equipment-only; changing section always resets it.
+              set({ catalogue_section: next, unlimited_stock: false });
+            }}
             className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"
           >
             {CATALOGUE_SECTIONS.map((s) => (
@@ -392,6 +403,22 @@ export function ProductEditor({
               </option>
             ))}
           </select>
+          {draft.catalogue_section === "equipment" ? (
+            <label className="mt-3 flex items-start gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={draft.unlimited_stock}
+                onChange={(e) => set({ unlimited_stock: e.target.checked })}
+                aria-describedby="unlimited-stock-help"
+              />
+              <span>
+                Unlimited stock — don’t track quantity
+                <span id="unlimited-stock-help" className="block text-xs text-muted-foreground">
+                  Customers can order 1–99 per line even when stock is 0. No stock or low-stock labels are shown, and stock is never adjusted for this item.
+                </span>
+              </span>
+            </label>
+          ) : null}
         </div>
         <div className="space-y-3 sm:col-span-2 rounded-lg border border-border p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -596,6 +623,8 @@ export function ProductEditor({
                         type="number"
                         min={0}
                         value={variant.stock}
+                        disabled={draft.unlimited_stock}
+                        title={draft.unlimited_stock ? "Unlimited stock — quantity is not tracked" : undefined}
                         placeholder="0"
                         aria-label="Stock on hand for this size"
                         onChange={(e) =>
@@ -642,7 +671,9 @@ export function ProductEditor({
                           : "text-xs uppercase tracking-[0.14em] text-muted-foreground"
                     }
                   >
-                    {state === "out"
+                    {draft.unlimited_stock
+                      ? "Unlimited stock — quantity not tracked"
+                      : state === "out"
                       ? "Out of stock — customers cannot order this size"
                       : state === "low"
                         ? `Low stock — only ${Number(variant.stock) || 0} left`
@@ -971,7 +1002,7 @@ export function AdminProducts() {
                         0,
                         Math.trunc(Number(v.stock ?? 0)) || 0,
                       );
-                      const state = stockState(qty);
+                      const state = isUnlimitedStock(p) ? "ok" : stockState(qty);
                       return (
                         <span
                           key={v.id || v.label}
@@ -984,7 +1015,7 @@ export function AdminProducts() {
                           }
                         >
                           {v.label || "Size"}:{" "}
-                          {state === "out" ? "Out of stock" : `${qty} in stock`}
+                          {isUnlimitedStock(p) ? "Unlimited" : state === "out" ? "Out of stock" : `${qty} in stock`}
                           {v.price ? ` · ${formatPrice(Number(v.price))}` : ""}
                         </span>
                       );

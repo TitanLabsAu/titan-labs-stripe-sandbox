@@ -190,6 +190,13 @@
       "when": 1790979701675,
       "tag": "0028_revoke_guest_table_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1790982737094,
+      "tag": "0029_equipment_unlimited_stock",
+      "breakpoints": true
     }
   ]
 }

@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { normalizeCatalogueSection } from "@/lib/catalogue-sections";
-import type { Product, ProductLink, ProductVariant } from "@/lib/products";
+import { isUnlimitedStock, type Product, type ProductLink, type ProductVariant } from "@/lib/products";
 
 export type SiteLink = { id: string; label: string; url: string; sort_order: number };
 
@@ -24,6 +24,7 @@ function publicClient() {
 }
 
 function toProduct(row: any): Product {
+  const unlimited = isUnlimitedStock(row);
   const links = Array.isArray(row.product_links) ? (row.product_links as ProductLink[]) : [];
   const rawVariants = Array.isArray(row.product_variants) ? row.product_variants : [];
   const optNum = (value: any) =>
@@ -36,7 +37,7 @@ function toProduct(row: any): Product {
       label: String(v?.label || "").trim(),
       price: Number(v?.price ?? 0),
       kitPrice: optNum(v?.kitPrice),
-      stock: v?.stock === null || v?.stock === undefined ? null : Math.max(0, Math.trunc(Number(v.stock) || 0)),
+      stock: unlimited ? null : v?.stock === null || v?.stock === undefined ? null : Math.max(0, Math.trunc(Number(v.stock) || 0)),
       comingSoon: Boolean(v?.comingSoon),
       reconVialMg: optNum(v?.reconVialMg),
       reconWaterMl: optNum(v?.reconWaterMl),
@@ -73,7 +74,8 @@ function toProduct(row: any): Product {
     reconWaterMl: row.recon_water_ml === null || row.recon_water_ml === undefined ? null : Number(row.recon_water_ml),
     reconDoseMg: row.recon_dose_mg === null || row.recon_dose_mg === undefined ? null : Number(row.recon_dose_mg),
     reconNotes: row.recon_notes ?? "",
-    stock: row.stock_quantity === null || row.stock_quantity === undefined ? null : Number(row.stock_quantity),
+    unlimitedStock: unlimited,
+    stock: unlimited ? null : row.stock_quantity === null || row.stock_quantity === undefined ? null : Number(row.stock_quantity),
     comingSoon: Boolean(row.coming_soon),
     catalogueSection: normalizeCatalogueSection(row.catalogue_section),
     starterKitEnabled: row.starter_kit_enabled !== false,
@@ -82,7 +84,7 @@ function toProduct(row: any): Product {
 }
 
 const PRODUCT_COLUMNS =
-  "slug, name, price, sale_price, promo_label, kit_price, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, stock_quantity, coming_soon, catalogue_section, starter_kit_enabled";
+  "slug, name, price, sale_price, promo_label, kit_price, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, stock_quantity, coming_soon, catalogue_section, starter_kit_enabled, unlimited_stock";
 
 export const listProducts = createServerFn({ method: "GET" }).handler(
   async (): Promise<Product[]> => {

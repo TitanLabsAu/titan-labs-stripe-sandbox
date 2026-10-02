@@ -98,7 +98,7 @@ export function ProductCard({ product: p }: { product: Product }) {
         {variants.length > 0 ? (
           <div className="mt-2 flex flex-wrap gap-1" aria-label={kitAllowed ? "Vial size" : "Size"}>
             {variants.map((variant) => {
-              const soldOut = stockState(variant.stock ?? 0) === "out";
+              const soldOut = stockState(variantStockFor(p, variant.id)) === "out";
               const vSoon = Boolean(variant.comingSoon) && !p.comingSoon;
               return (
                 <Button

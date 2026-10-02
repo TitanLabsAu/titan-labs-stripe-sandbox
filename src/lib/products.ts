@@ -50,6 +50,8 @@ export type Product = {
   catalogueSection?: CatalogueSection;
   /** Disable the universal starter-kit offer for this product. */
   starterKitEnabled?: boolean;
+  /** Equipment only: quantity is not tracked (server-derived, never trusted from a client). */
+  unlimitedStock?: boolean;
 };
 
 /** True when the whole product, or the chosen vial size, is coming soon. */
@@ -79,6 +81,29 @@ export function effectivePack(
   return pack === "kit" && allowsKit(product) ? "kit" : "single";
 }
 
+/**
+ * Single rule for untracked inventory: only Equipment can be unlimited.
+ * Accepts both catalogue rows and storefront products so every path agrees.
+ */
+export function isUnlimitedStock(product: {
+  catalogueSection?: unknown;
+  catalogue_section?: unknown;
+  unlimitedStock?: unknown;
+  unlimited_stock?: unknown;
+}) {
+  const flag = product.unlimitedStock ?? product.unlimited_stock;
+  return flag === true && normalizeCatalogueSection(product.catalogueSection ?? product.catalogue_section) === "equipment";
+}
+
+/** Effective stock for limit checks: null (untracked) for unlimited Equipment. */
+export function effectiveStock(
+  product: Parameters<typeof isUnlimitedStock>[0],
+  stock: number | null | undefined,
+): number | null {
+  if (isUnlimitedStock(product)) return null;
+  return stock == null ? null : Number(stock);
+}
+
 /** Label for the size picker / single option, generic for Equipment. */
 export function sizeLabelFor(product: { catalogueSection?: unknown }) {
   return allowsKit(product) ? "Vial size" : "Size";
@@ -99,6 +124,7 @@ export function stockState(stock?: number | null): "out" | "low" | "ok" {
 
 /** Units on hand for a given vial size, falling back to the product-wide count. */
 export function variantStockFor(product: Product, variantId?: string | null) {
+  if (isUnlimitedStock(product)) return null;
   const variants = product.variants ?? [];
   if (variants.length === 0) return product.stock ?? null;
   const variant = variants.find((v) => v.id === variantId) ?? null;
@@ -108,6 +134,7 @@ export function variantStockFor(product: Product, variantId?: string | null) {
 
 /** Units on hand across every vial size (or the product-wide count when no sizes exist). */
 export function totalStockFor(product: Product) {
+  if (isUnlimitedStock(product)) return null;
   const variants = product.variants ?? [];
   if (variants.length === 0) return product.stock ?? null;
   return variants.reduce((sum, v) => sum + Math.max(0, Number(v.stock ?? 0)), 0);
@@ -177,7 +204,7 @@ export function getProductOption(
     variantLabel,
     pack,
     unitPrice,
-    stock: variant ? (variant.stock ?? null) : (product.stock ?? null),
+    stock: effectiveStock(product, variant ? (variant.stock ?? null) : (product.stock ?? null)),
     label: pack === "kit" ? `${variantLabel} · 10x Kit` : variantLabel,
   };
 }
@@ -198,7 +225,7 @@ export function firstAvailableVariant(product: Product) {
   const variants = sortedProductVariants(product);
   if (variants.length === 0) return null;
   return (
-    variants.find((v) => !v.comingSoon && stockState(v.stock ?? null) !== "out") ?? variants[0]
+    variants.find((v) => !v.comingSoon && stockState(variantStockFor(product, v.id)) !== "out") ?? variants[0]
   );
 }
 

@@ -376,10 +376,11 @@ export type AdminProduct = {
   stock_quantity: number;
   catalogue_section?: CatalogueSection;
   starter_kit_enabled?: boolean;
+  unlimited_stock?: boolean;
 };
 
 const PRODUCT_COLS =
-  "id, slug, name, price, sale_price, promo_label, kit_price, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, active, coming_soon, sort_order, stock_quantity, catalogue_section, starter_kit_enabled";
+  "id, slug, name, price, sale_price, promo_label, kit_price, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, active, coming_soon, sort_order, stock_quantity, catalogue_section, starter_kit_enabled, unlimited_stock";
 
 export const adminListProducts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -457,6 +458,9 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
       stock_quantity: totalStock,
       catalogue_section: parseCatalogueSection(data.catalogue_section),
       starter_kit_enabled: data.starter_kit_enabled ?? true,
+      // Server enforces Equipment-only; Range/Pens always remain tracked.
+      unlimited_stock:
+        data.unlimited_stock === true && parseCatalogueSection(data.catalogue_section) === "equipment",
     };
     if (!row.image_url.trim() && !data.id) throw new Error("A product photo is required");
     if (data.id) {
