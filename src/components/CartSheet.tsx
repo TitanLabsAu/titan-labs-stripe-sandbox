@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { Check, ChevronRight, Minus, Plus, ShoppingCart, Trash2, Wrench } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,6 @@ import { useProducts } from "@/lib/useCatalog";
 
 export function CartSheet({ floating = false }: { floating?: boolean }) {
   const [open, setOpen] = useState(false);
-  const navigate = useNavigate();
   const {
     items,
     count,
@@ -176,19 +175,26 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
               </ul>
 
               <section className="overflow-hidden rounded-lg border border-primary/35 bg-secondary/45">
-                <div className="flex items-center gap-3 border-b border-primary/20 bg-primary/10 px-4 py-3">
+                <Link
+                  to="/range"
+                  search={{ section: "equipment" }}
+                  onClick={() => setOpen(false)}
+                  aria-label="Need Equipment? Tap to browse the Equipment catalogue"
+                  className="group flex w-full items-center gap-3 border-b border-primary/20 bg-primary/10 px-4 py-3 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring hover:bg-primary/20"
+                >
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-primary/30 bg-background text-primary">
                     <Wrench className="h-4 w-4" />
                   </span>
-                  <div className="min-w-0">
-                    <h3 className="font-display text-sm font-black uppercase text-foreground">
-                      Need any Equipment?
-                    </h3>
-                    <p className="text-xs text-muted-foreground">
-                      Browse Equipment or add BAC Water below before checkout.
-                    </p>
-                  </div>
-                </div>
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-display text-sm font-black uppercase text-foreground">
+                      Need Equipment? Tap to browse
+                    </span>
+                    <span className="block text-xs text-muted-foreground">
+                      Or add BAC Water below before checkout.
+                    </span>
+                  </span>
+                  <ChevronRight className="h-4 w-4 shrink-0 text-primary transition-transform group-hover:translate-x-0.5" />
+                </Link>
 
                 {bacWater && bacWaterVariants.length > 0 ? (
                   <div className="divide-y divide-border">
@@ -250,30 +256,6 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
                   </div>
                 ) : null}
 
-                <div className="grid gap-2 border-t border-primary/20 p-3 sm:grid-cols-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="h-auto min-h-10 justify-between whitespace-normal px-3 py-2 text-left text-xs font-bold"
-                    onClick={() => {
-                      setOpen(false);
-                      void navigate({ to: "/range", search: { section: "equipment" } });
-                    }}
-                  >
-                    Yes, browse Equipment
-                    <ChevronRight className="h-4 w-4 shrink-0" />
-                  </Button>
-                  <Button
-                    type="button"
-                    className="h-auto min-h-10 whitespace-normal px-3 py-2 text-xs font-bold"
-                    onClick={() => {
-                      setOpen(false);
-                      void navigate({ to: "/checkout" });
-                    }}
-                  >
-                    No, continue to checkout
-                  </Button>
-                </div>
               </section>
 
               <TitanStackBanner units={count} />
