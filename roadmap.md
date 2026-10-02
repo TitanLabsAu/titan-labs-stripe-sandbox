@@ -51,4 +51,4 @@
 ## Guest start fix (no publish)
 - [x] Keep guest cookie httpOnly/Secure/SameSite=Lax; no CSRF/auth weakening
 - [x] Inline guest error + visible guest-active state; server-side session check after start
-- [ ] Unlimited Equipment stock: finance inventory/restock exclusion + live stock trigger audit
+- [x] Unlimited Equipment stock: finance inventory/restock exclusion + live stock trigger audit
