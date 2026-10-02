@@ -13,6 +13,12 @@ export const startGuestCheckout = createServerFn({ method: "POST" }).handler(asy
   return { ok: true };
 });
 
+/** Reports whether the browser presented a live guest capability (no data exposed). */
+export const getGuestCheckoutStatus = createServerFn({ method: "POST" }).handler(async () => {
+  const { hasActiveGuestSession } = await import("@/lib/checkout-buyer.server");
+  return { active: await hasActiveGuestSession() };
+});
+
 /**
  * Records the Research Use & Terms acknowledgement server side, for members and
  * guests, before any order or payment is created. Returns the id that the

@@ -47,3 +47,7 @@
 - [ ] Guest cookie works across server fns and Stripe redirect
 - [ ] Server-side acknowledgement both paths; Stripe/webhook/PayID wired
 - [ ] Banner, Admin settings, guest labels, tests, build
+
+## Guest start fix (no publish)
+- [x] Keep guest cookie httpOnly/Secure/SameSite=Lax; no CSRF/auth weakening
+- [x] Inline guest error + visible guest-active state; server-side session check after start
