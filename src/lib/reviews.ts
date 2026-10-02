@@ -10,7 +10,7 @@ export type CustomerReview = {
 };
 
 export type ReviewInput = {
-  id?: string;
+  id?: string | undefined;
   reviewer_name: string;
   review_text: string;
   location?: string | null;

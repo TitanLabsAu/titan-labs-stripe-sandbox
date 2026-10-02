@@ -3,8 +3,8 @@ import {
   filterBySection,
   normalizeCatalogueSection,
   parseCatalogueSection,
-} from "./catalogue-sections";
-import { validateReviewInput } from "./reviews";
+} from "../src/lib/catalogue-sections";
+import { validateReviewInput } from "../src/lib/reviews";
 
 describe("catalogue sections", () => {
   test("legacy/missing values fall back to range", () => {
