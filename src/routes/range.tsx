@@ -232,6 +232,7 @@ function RangePage() {
                     </button>
                   ))}
                 </div>
+                )}
                 <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_13rem_auto]">
                   <label className="relative">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -245,13 +246,13 @@ function RangePage() {
                     />
                   </label>
                   <select
-                    value={category}
+                    value={activeCategory}
                     onChange={(e) => setCategory(e.target.value)}
                     aria-label="Filter by category"
                     className="h-11 rounded-xl border border-input bg-card px-3 text-sm text-foreground"
                   >
                     <option value="All">All categories</option>
-                    {CATEGORIES.map((c) => (
+                    {availableCategories.map((c) => (
                       <option key={c} value={c}>
                         {c}
                       </option>
@@ -301,8 +302,8 @@ function RangePage() {
                     </p>
                     {visible.length === 0 ? (
                       <p className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-                        {activeSection !== "range" && filterBySection(products, activeSection).length === 0
-                          ? `No ${CATALOGUE_SECTION_LABELS[activeSection].toLowerCase()} are available yet — check back soon, or browse the Range.`
+                        {products.length === 0
+                          ? "No products are available yet — check back soon."
                           : "No products match your search — try another word or category."}
                       </p>
                     ) : (
