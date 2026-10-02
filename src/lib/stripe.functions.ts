@@ -497,3 +497,44 @@ export const verifyStripeSandboxPayment = createServerFn({
     },
   );
 
+
+/**
+ * Customer abandons the card step: cancel the PaymentIntent at Stripe first, so
+ * it can never be paid later, and only then release held credit and offer.
+ */
+export const cancelStripeCheckout = createServerFn({ method: "POST" })
+  .inputValidator((input: { paymentIntentId: string; mode: CheckoutMode }) => input)
+  .handler(async ({ data }) => {
+    const paymentIntentId = clean(data.paymentIntentId, 255);
+    if (!paymentIntentId) return { ok: false };
+    const secretKey = process.env["STRIPE_SECRET_KEY"];
+    if (!secretKey) throw new Error("Stripe sandbox credentials are not configured.");
+    const { resolveBuyer } = await import("@/lib/checkout-buyer.server");
+    const { ownsRow } = await import("@/lib/guest-capability");
+    const buyer = await resolveBuyer(data.mode === "guest" ? "guest" : "member");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const db = supabaseAdmin as any;
+    const { data: attempt } = await db
+      .from("payment_attempts")
+      .select("id, user_id, guest_session_id, order_id")
+      .eq("provider", "stripe")
+      .eq("transaction_id", paymentIntentId)
+      .maybeSingle();
+    if (!ownsRow(buyer, attempt) || attempt.order_id) return { ok: false };
+    const Stripe = (await import("stripe")).default;
+    const stripe = new Stripe(secretKey);
+    let canceled = false;
+    try {
+      const pi = await stripe.paymentIntents.cancel(paymentIntentId);
+      canceled = pi.status === "canceled";
+    } catch (error) {
+      const pi = await stripe.paymentIntents.retrieve(paymentIntentId);
+      canceled = pi.status === "canceled";
+      if (!canceled) console.warn("Stripe cancel refused", pi.status, (error as Error)?.message);
+    }
+    if (!canceled) return { ok: false };
+    await db.from("payment_attempts").update({ status: "cancelled", error_code: "CUSTOMER_CANCELLED" }).eq("id", attempt.id).is("order_id", null);
+    await db.rpc("release_store_credit_for_attempt", { _payment_attempt_id: attempt.id });
+    await db.rpc("release_first_offer_for_attempt", { _payment_attempt_id: attempt.id });
+    return { ok: true };
+  });
