@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { useState } from "react";\nimport { BookOpen } from "lucide-react";
+import { useState } from "react";
+import { BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
 import { allComingSoon, firstAvailableVariant, isComingSoon, formatPrice, getProductOption, sortedProductVariants, stockState, totalStockFor, variantStockFor, STARTER_KIT_CONTENTS, STARTER_KIT_PRICE, type Product, type ProductPack } from "@/lib/products";
@@ -8,7 +9,8 @@ export function ProductCard({ product: p }: { product: Product }) {
   const { addItem, items, setQuantity } = useCart();
   const variants = sortedProductVariants(p);
   const [variantId, setVariantId] = useState<string | null>(firstAvailableVariant(p)?.id ?? null);
-  const [pack, setPack] = useState<ProductPack>("single");\n  const [starterKit, setStarterKit] = useState(false);
+  const [pack, setPack] = useState<ProductPack>("single");
+  const [starterKit, setStarterKit] = useState(false);
   const singleOption = getProductOption(p, variantId, "single");
   const kitOption = getProductOption(p, variantId, "kit");
   const option = getProductOption(p, variantId, pack, starterKit);
@@ -40,7 +42,8 @@ export function ProductCard({ product: p }: { product: Product }) {
           <Link to="/product/$slug" params={{ slug: p.slug }} className="min-w-0 text-sm font-semibold text-foreground hover:text-primary">{p.name}</Link>
           {(p.categories ?? []).length ? <span className="self-start border border-border px-2 py-1 text-[8px] text-primary">{p.categories?.[0]}</span> : null}
         </div>
-        <Link to="/product/$slug" params={{ slug: p.slug }} className="mt-1 inline-flex w-fit items-center gap-1 text-[10px] font-semibold text-primary hover:underline"><BookOpen className="h-3 w-3" /> Product Info</Link>\n        {soon && !bannerSoon ? (
+        <Link to="/product/$slug" params={{ slug: p.slug }} className="mt-1 inline-flex w-fit items-center gap-1 text-[10px] font-semibold text-primary hover:underline"><BookOpen className="h-3 w-3" /> Product Info</Link>
+        {soon && !bannerSoon ? (
           <span className="mt-2 inline-flex w-fit items-center border border-primary bg-primary px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-primary-foreground">This size coming soon</span>
         ) : soon ? null : stock === "out" ? (
           <span className="mt-2 inline-flex w-fit items-center border border-destructive bg-destructive/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-destructive">Out of stock</span>
@@ -74,7 +77,8 @@ export function ProductCard({ product: p }: { product: Product }) {
             </button>
           ))}
         </div>
-        {!(p.categories ?? []).includes("Disposable Pens") ? <label className="mt-2 flex cursor-pointer items-start gap-2 border border-border bg-muted/30 p-2 text-[10px] text-muted-foreground"><input type="checkbox" checked={starterKit} onChange={(e)=>setStarterKit(e.target.checked)} /><span><strong className="text-foreground">Starter Kit (+{formatPrice(STARTER_KIT_PRICE)})</strong><br/>{STARTER_KIT_CONTENTS.join(" · ")}</span></label> : null}\n        <div className="mt-3 flex items-baseline gap-1">
+        {!(p.categories ?? []).includes("Disposable Pens") ? <label className="mt-2 flex cursor-pointer items-start gap-2 border border-border bg-muted/30 p-2 text-[10px] text-muted-foreground"><input type="checkbox" checked={starterKit} onChange={(e)=>setStarterKit(e.target.checked)} /><span><strong className="text-foreground">Starter Kit (+{formatPrice(STARTER_KIT_PRICE)})</strong><br/>{STARTER_KIT_CONTENTS.join(" · ")}</span></label> : null}
+        <div className="mt-3 flex items-baseline gap-1">
           {p.wasPrice && pack === "single" ? (
             <span className="text-xs text-muted-foreground line-through">
               {formatPrice(p.wasPrice)}
