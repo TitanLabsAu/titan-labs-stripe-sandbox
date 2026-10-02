@@ -166,12 +166,13 @@ export function toDraft(p: AdminProduct): Draft {
 export function draftToPayload(d: Draft) {
   const num = (v: string) =>
     v.trim() === "" || Number.isNaN(Number(v)) ? null : Number(v);
+  const equipment = d.catalogue_section === "equipment";
   const variants = d.variants
     .map((v) => ({
       id: v.id || safeVariantId(v.label),
       label: v.label.trim(),
       price: Number(v.price) || 0,
-      kitPrice: num(v.kitPrice),
+      kitPrice: equipment ? null : num(v.kitPrice),
       stock: Math.max(0, Math.trunc(Number(v.stock)) || 0),
       cost: num(v.cost),
       comingSoon: v.comingSoon,
@@ -192,7 +193,7 @@ export function draftToPayload(d: Draft) {
         : Number(d.price) || 0,
     sale_price: num(d.sale_price),
     promo_label: d.promo_label,
-    kit_price: num(d.kit_price),
+    kit_price: equipment ? null : num(d.kit_price),
     product_variants: variants,
     image_url: d.image_url,
     alt: d.alt || d.name,
@@ -444,10 +445,12 @@ export function ProductEditor({
       <div className="space-y-3 rounded-xl border border-primary/20 bg-background/45 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <Label>Vial sizes, prices and stock</Label>
+            <Label>{draft.catalogue_section === "equipment" ? "Sizes, prices and stock" : "Vial sizes, prices and stock"}</Label>
             <p className="mt-1 text-xs text-muted-foreground">
-              Add every vial size you sell, even if there is only one. Leave kit
-              price blank to use the automatic 20% off. Stock is counted per
+              {draft.catalogue_section === "equipment"
+                ? "Equipment is sold as single items only — no kits. "
+                : "Add every vial size you sell, even if there is only one. Leave kit price blank to use the automatic 20% off. "}
+              Stock is counted per
               size — under {LOW_STOCK_THRESHOLD} shows a low stock warning, 0
               shows out of stock for that size.
             </p>
@@ -525,6 +528,7 @@ export function ProductEditor({
                         }
                       />
                     </div>
+                    {draft.catalogue_section !== "equipment" ? (
                     <div>
                       <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
                         10x kit price
@@ -561,6 +565,7 @@ export function ProductEditor({
                         }
                       />
                     </div>
+                    ) : null}
                     <div>
                       <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
                         Stock

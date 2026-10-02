@@ -1,3 +1,4 @@
+import { allowsKit } from "@/lib/products";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { parseCatalogueSection, type CatalogueSection } from "@/lib/catalogue-sections";
@@ -400,6 +401,7 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
       value === null || value === undefined || value === "" || Number.isNaN(Number(value))
         ? null
         : Number(value);
+    const isEquipment = !allowsKit({ catalogue_section: data.catalogue_section });
     const variants = (data.product_variants ?? [])
       .map((v) => ({
         id: String(v.id || crypto.randomUUID()),
@@ -414,7 +416,8 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
         reconDoseMg: optNum(v.reconDoseMg),
         reconNotes: String(v.reconNotes ?? ""),
       }))
-      .filter((v) => v.label && v.price > 0);
+      .filter((v) => v.label && v.price > 0)
+      .map((v) => (isEquipment ? { ...v, kitPrice: null } : v));
     const variantPrices = variants.map((v) => v.price).filter((p) => p > 0);
     const basePrice = variantPrices.length > 0 ? Math.min(...variantPrices) : Number(data.price ?? 0);
     const totalStock =
@@ -430,8 +433,9 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
           ? null
           : Number(data.sale_price),
       promo_label: data.promo_label ?? "",
-      kit_price:
-        data.kit_price === null || data.kit_price === undefined || Number.isNaN(Number(data.kit_price))
+      kit_price: isEquipment
+        ? null
+        : data.kit_price === null || data.kit_price === undefined || Number.isNaN(Number(data.kit_price))
           ? null
           : Number(data.kit_price),
       product_variants: variants,

@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { kitPriceFor } from "@/lib/products";
+import { effectivePack, kitPriceFor } from "@/lib/products";
 import { computeTotals, type ShippingMethodKey } from "@/lib/pricing";
 import type {
   SubmitOrderItem,
@@ -88,7 +88,7 @@ async function prepareStripeOrder(
 
   const { data: products, error: productError } = await supabase
     .from("products")
-    .select("slug, name, price, sale_price, kit_price, product_variants")
+    .select("slug, name, price, sale_price, kit_price, product_variants, catalogue_section")
     .in("slug", slugs)
     .eq("active", true);
 
@@ -135,7 +135,7 @@ async function prepareStripeOrder(
       ? Number(variant.price)
       : basePrice;
 
-    const pack = item.pack === "kit" ? "kit" : "single";
+    const pack = effectivePack(product, item.pack);
 
     const unitPrice =
       pack === "kit"
