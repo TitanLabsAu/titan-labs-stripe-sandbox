@@ -108,7 +108,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       addItem: (slug, quantity = 1, option) => {
         const pack = option?.pack ?? "single";
         const variantId = option?.variantId ?? null;
-        const starterKit = Boolean(option?.starterKit);\n        const key = cartLineKey(slug, variantId, pack, starterKit);
+        const starterKit = Boolean(option?.starterKit);
+        const key = cartLineKey(slug, variantId, pack, starterKit);
         setItems((prev) => {
           const existing = prev.find((i) => i.key === key);
           if (existing) {
