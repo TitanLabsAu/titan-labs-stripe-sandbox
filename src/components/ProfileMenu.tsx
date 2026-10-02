@@ -8,7 +8,8 @@ import { cn } from "@/lib/utils";
 const tabs = [
   { to: "/account" as const, label: "My details" },
   { to: "/orders" as const, label: "Current orders" },
-  { to: "/order-history" as const, label: "Order history" },\n  { to: "/calendar" as const, label: "My calendar" },
+  { to: "/order-history" as const, label: "Order history" },
+  { to: "/calendar" as const, label: "My calendar" },
 ];
 
 export function ProfileMenu({ email }: { email?: string | null | undefined }) {
