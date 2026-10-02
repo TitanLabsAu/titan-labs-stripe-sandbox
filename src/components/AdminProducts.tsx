@@ -730,6 +730,7 @@ export function AdminProducts() {
   const queryClient = useQueryClient();
   const [draft, setDraft] = useState<Draft | null>(null);
   const [category, setCategory] = useState("All");
+  const [section, setSection] = useState<"all" | CatalogueSection>("all");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("name-asc");
 
@@ -786,9 +787,12 @@ export function AdminProducts() {
     );
   }
 
+  const missingPhotos = (data ?? []).filter((p) => !p.image_url?.trim()).length;
   const term = search.trim().toLowerCase();
   const visibleProducts = (data ?? [])
     .filter((product) => {
+      if (section !== "all" && normalizeCatalogueSection(product.catalogue_section) !== section)
+        return false;
       const inCategory =
         category === "All" || (product.categories ?? []).includes(category);
       if (!inCategory) return false;
@@ -822,6 +826,26 @@ export function AdminProducts() {
         >
           Add product
         </Button>
+      </div>
+
+      {missingPhotos > 0 ? (
+        <p className="rounded-lg border border-destructive bg-destructive/10 p-3 text-sm font-bold text-destructive">
+          {missingPhotos} product{missingPhotos === 1 ? " is" : "s are"} missing a photo — edit to upload or generate one.
+        </p>
+      ) : null}
+
+      <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by catalogue section">
+        {(["all", ...CATALOGUE_SECTIONS] as const).map((item) => (
+          <Button
+            key={item}
+            type="button"
+            variant={section === item ? "default" : "outline"}
+            className="px-5 text-xs font-bold uppercase tracking-[0.15em]"
+            onClick={() => setSection(item)}
+          >
+            {item === "all" ? "All sections" : CATALOGUE_SECTION_LABELS[item]}
+          </Button>
+        ))}
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -879,7 +903,11 @@ export function AdminProducts() {
                   className="h-16 w-16 rounded object-cover"
                   loading="lazy"
                 />
-              ) : null}
+              ) : (
+                <span className="flex h-16 w-16 items-center justify-center rounded border border-destructive bg-destructive/10 text-center text-[10px] font-bold uppercase text-destructive">
+                  No photo
+                </span>
+              )}
               <div className="text-sm text-muted-foreground">
                 <p className="text-base font-extrabold uppercase text-foreground">
                   {p.name}
@@ -897,7 +925,8 @@ export function AdminProducts() {
                   ) : (
                     formatPrice(Number(p.price))
                   )}{" "}
-                  · {p.active ? "Visible" : "Hidden"}
+                  · {CATALOGUE_SECTION_LABELS[normalizeCatalogueSection(p.catalogue_section)]}
+                  {" "}· {p.active ? "Visible" : "Hidden"}
                   {p.coming_soon ? " · Coming soon" : ""}
                   {p.promo_label ? ` · ${p.promo_label}` : ""}
                 </p>
