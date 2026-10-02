@@ -1,7 +1,7 @@
 import { TitanPageHeading } from "@/components/TitanPageHeading";
 import { FlaskConical } from "lucide-react";
 import { useEffect, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   ArrowDownAZ,
   ArrowDownWideNarrow,
@@ -35,11 +35,16 @@ import {
   CATALOGUE_SECTIONS,
   CATALOGUE_SECTION_LABELS,
   filterBySection,
+  isCatalogueSection,
+  resolveCatalogueSection,
   type CatalogueSection,
 } from "@/lib/catalogue-sections";
 import { CatalogueOrderSummary } from "@/components/CatalogueOrderSummary";
 
 export const Route = createFileRoute("/range")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    section: isCatalogueSection(search.section) ? search.section : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Catalogue | Titan Labs Aus Research Peptides" },
@@ -62,11 +67,12 @@ export const Route = createFileRoute("/range")({
 });
 
 function RangePage() {
+  const routeSearch = Route.useSearch();
+  const navigate = useNavigate({ from: "/range" });
   const { products } = useProducts();
   const { data: content } = useSiteContent();
   const [mounted, setMounted] = useState(false);
   const [category, setCategory] = useState<string>("All");
-  const [section, setSection] = useState<CatalogueSection>("range");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("name-asc");
   const pictures = pageImageSlots(content, RANGE_IMAGE_SLOTS);
@@ -87,10 +93,10 @@ function RangePage() {
   const availableSections = CATALOGUE_SECTIONS.filter(
     (s) => filterBySection(products, s).length > 0,
   );
-  const requestedSection: CatalogueSection = mounted ? section : "range";
-  const activeSection: CatalogueSection = availableSections.includes(requestedSection)
-    ? requestedSection
-    : (availableSections[0] ?? "range");
+  const activeSection = resolveCatalogueSection(
+    mounted ? routeSearch.section : "range",
+    availableSections,
+  );
   const sectionProducts = filterBySection(products, activeSection);
   const availableCategories = CATEGORIES.filter((c) =>
     sectionProducts.some((p) => (p.categories ?? []).includes(c)),
@@ -98,8 +104,13 @@ function RangePage() {
   const categoryValid = category === "All" || (availableCategories as string[]).includes(category);
 
   useEffect(() => {
-    if (activeSection !== section) setSection(activeSection);
-  }, [activeSection, section]);
+    if (mounted && routeSearch.section !== activeSection) {
+      void navigate({
+        replace: true,
+        search: (previous) => ({ ...previous, section: activeSection }),
+      });
+    }
+  }, [activeSection, mounted, navigate, routeSearch.section]);
   useEffect(() => {
     if (!categoryValid) setCategory("All");
   }, [categoryValid]);
@@ -220,7 +231,12 @@ function RangePage() {
                       type="button"
                       role="tab"
                       aria-selected={activeSection === s}
-                      onClick={() => setSection(s)}
+                      onClick={() => {
+                        setCategory("All");
+                        void navigate({
+                          search: (previous) => ({ ...previous, section: s }),
+                        });
+                      }}
                       className={cn(
                         "h-12 rounded-xl border font-display text-sm font-black uppercase tracking-[0.14em] transition-colors",
                         activeSection === s

@@ -1,5 +1,5 @@
-import { Link } from "@tanstack/react-router";
-import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Check, ChevronRight, Minus, Plus, ShoppingCart, Trash2, Wrench } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,22 +17,31 @@ import {
 } from "@/components/CartExtras";
 import { CryptoEstimate } from "@/components/CryptoEstimate";
 import { useCart } from "@/lib/cart";
-import { formatPrice } from "@/lib/products";
+import { equipmentUpsellState } from "@/lib/cart-upsell";
+import { formatPrice, sortedProductVariants } from "@/lib/products";
 import { computeTotals } from "@/lib/pricing";
 import { useProducts } from "@/lib/useCatalog";
 
 export function CartSheet({ floating = false }: { floating?: boolean }) {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
   const {
     items,
     count,
     subtotal,
+    addItem,
     setQuantity,
     removeItem,
     getLinePrice,
     getLineLabel,
   } = useCart();
   const { getProduct } = useProducts();
+  const bacWater = getProduct("bac-water");
+  const bacWaterVariants = bacWater
+    ? sortedProductVariants(bacWater).filter(
+        (variant) => variant.id === "3ml" || variant.id === "10ml",
+      )
+    : [];
 
   const totals = computeTotals({
     subtotal,
@@ -165,6 +174,107 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
                   );
                 })}
               </ul>
+
+              <section className="overflow-hidden rounded-lg border border-primary/35 bg-secondary/45">
+                <div className="flex items-center gap-3 border-b border-primary/20 bg-primary/10 px-4 py-3">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-primary/30 bg-background text-primary">
+                    <Wrench className="h-4 w-4" />
+                  </span>
+                  <div className="min-w-0">
+                    <h3 className="font-display text-sm font-black uppercase text-foreground">
+                      Need any Equipment?
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      Browse Equipment or add BAC Water below before checkout.
+                    </p>
+                  </div>
+                </div>
+
+                {bacWater && bacWaterVariants.length > 0 ? (
+                  <div className="divide-y divide-border">
+                    {bacWaterVariants.map((variant) => {
+                      const state = equipmentUpsellState(bacWater, variant.id, items);
+                      const comingSoon = Boolean(bacWater.comingSoon || variant.comingSoon);
+                      return (
+                        <div
+                          key={variant.id}
+                          className="grid grid-cols-[2.75rem_minmax(0,1fr)_auto] items-center gap-3 px-3 py-2.5"
+                        >
+                          <img
+                            src={bacWater.image}
+                            alt={bacWater.alt}
+                            className="h-11 w-11 rounded-md border border-border bg-card object-cover"
+                          />
+                          <div className="min-w-0">
+                            <p className="truncate text-xs font-bold uppercase text-foreground">
+                              BAC Water {variant.label}
+                            </p>
+                            <p className="text-xs font-semibold text-accent">
+                              {formatPrice(state.option.unitPrice)} AUD
+                            </p>
+                          </div>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant={state.quantity > 0 ? "outline" : "default"}
+                            className="h-8 min-w-[5.5rem] gap-1 px-2 text-[10px] font-bold uppercase"
+                            disabled={!state.canAdd}
+                            aria-label={`Add BAC Water ${variant.label} to cart`}
+                            onClick={() =>
+                              addItem(bacWater.slug, 1, {
+                                variantId: variant.id,
+                                variantLabel: variant.label,
+                                pack: "single",
+                              })
+                            }
+                          >
+                            {comingSoon ? (
+                              "Coming soon"
+                            ) : state.unavailable ? (
+                              "Out of stock"
+                            ) : state.atMaximum ? (
+                              "Stock max"
+                            ) : state.quantity > 0 ? (
+                              <>
+                                <Check className="h-3.5 w-3.5" /> Added {state.quantity}
+                              </>
+                            ) : (
+                              <>
+                                <Plus className="h-3.5 w-3.5" /> Add
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : null}
+
+                <div className="grid gap-2 border-t border-primary/20 p-3 sm:grid-cols-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-auto min-h-10 justify-between whitespace-normal px-3 py-2 text-left text-xs font-bold"
+                    onClick={() => {
+                      setOpen(false);
+                      void navigate({ to: "/range", search: { section: "equipment" } });
+                    }}
+                  >
+                    Yes, browse Equipment
+                    <ChevronRight className="h-4 w-4 shrink-0" />
+                  </Button>
+                  <Button
+                    type="button"
+                    className="h-auto min-h-10 whitespace-normal px-3 py-2 text-xs font-bold"
+                    onClick={() => {
+                      setOpen(false);
+                      void navigate({ to: "/checkout" });
+                    }}
+                  >
+                    No, continue to checkout
+                  </Button>
+                </div>
+              </section>
 
               <TitanStackBanner units={count} />
               <TitanTrustStrip />
