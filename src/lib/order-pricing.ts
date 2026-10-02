@@ -60,7 +60,7 @@ export function settingsFromRow(row: any | null | undefined): PricingSettings {
     allowCodeCrypto: row.allow_code_crypto ?? d.allowCodeCrypto,
     allowCreditCode: row.allow_credit_code ?? d.allowCreditCode,
     allowCreditDiscounts: row.allow_credit_discounts ?? d.allowCreditDiscounts,
-    creditUnitCents: num(row.credit_unit_cents, d.creditUnitCents),
+    creditUnitCents: 1000, // fixed AUD10 denomination
     maxCreditUnits: num(row.max_credit_units, d.maxCreditUnits),
     referralRewardUnits: num(row.referral_reward_units, d.referralRewardUnits),
     milestoneThresholds: Array.isArray(row.milestone_thresholds)
