@@ -18,6 +18,17 @@ export type PricingSettings = {
   referralRewardUnits: number;
   milestoneThresholds: number[];
   programEnabled: boolean;
+  firstOffer: FirstOfferSettings;
+};
+
+/** New-member first-purchase offer (admin configurable). */
+export type FirstOfferSettings = {
+  enabled: boolean;
+  percent: number;
+  combineMultibuy: boolean;
+  combineCrypto: boolean;
+  combineCode: boolean;
+  combineCredit: boolean;
 };
 
 export const DEFAULT_PRICING_SETTINGS: PricingSettings = {
@@ -38,6 +49,14 @@ export const DEFAULT_PRICING_SETTINGS: PricingSettings = {
   referralRewardUnits: 1,
   milestoneThresholds: [5, 10, 25, 50, 100],
   programEnabled: true,
+  firstOffer: {
+    enabled: true,
+    percent: 10,
+    combineMultibuy: false,
+    combineCrypto: false,
+    combineCode: false,
+    combineCredit: false,
+  },
 };
 
 /** Map a referral_settings row (snake_case) to PricingSettings. */
@@ -67,6 +86,14 @@ export function settingsFromRow(row: any | null | undefined): PricingSettings {
       ? row.milestone_thresholds.map(Number).filter((n: number) => n > 0)
       : d.milestoneThresholds,
     programEnabled: row.program_enabled ?? d.programEnabled,
+    firstOffer: {
+      enabled: row.first_offer_enabled ?? d.firstOffer.enabled,
+      percent: Math.min(100, Math.max(0, num(row.first_offer_percent, d.firstOffer.percent))),
+      combineMultibuy: row.first_offer_combine_multibuy ?? d.firstOffer.combineMultibuy,
+      combineCrypto: row.first_offer_combine_crypto ?? d.firstOffer.combineCrypto,
+      combineCode: row.first_offer_combine_code ?? d.firstOffer.combineCode,
+      combineCredit: row.first_offer_combine_credit ?? d.firstOffer.combineCredit,
+    },
   };
 }
 
@@ -105,6 +132,9 @@ export type Quote = {
   codeApplied: boolean;
   code: string | null;
   codeCents: number;
+  firstOfferApplied: boolean;
+  firstOfferPercent: number;
+  firstOfferCents: number;
   creditUnits: number;
   creditCents: number;
   merchandiseCents: number;
@@ -128,6 +158,7 @@ function evaluate(
   input: QuoteInput,
   s: PricingSettings,
   code: CodeRule | null,
+  offer: FirstOfferSettings | null = null,
 ): Quote & { codeError?: string | undefined } {
   const notices: string[] = [];
   const itemsCents = input.lines.reduce((a, l) => a + Math.round(l.unitCents) * l.quantity, 0);
@@ -148,6 +179,10 @@ function evaluate(
     if (!(s.allowCodeMultibuy && code.combineMultibuy)) mb = 0;
     if (!(s.allowCodeCrypto && code.combineCrypto)) cr = 0;
   }
+  if (offer) {
+    if (!offer.combineMultibuy) mb = 0;
+    if (!offer.combineCrypto) cr = 0;
+  }
   const pct = mb + cr;
   const raw = Math.round((itemsCents * pct) / 100);
   const room = Math.max(0, Math.floor((baseCents * s.combinedCapPercent) / 100) - kitSavingsCents);
@@ -157,18 +192,26 @@ function evaluate(
   const cryptoCents = pctCents - multibuyCents;
   const afterPct = itemsCents - pctCents;
 
+  // First-purchase offer: item subtotal only, and it shares the combined cap.
+  let offerCents = 0;
+  if (offer) {
+    const want = Math.round((afterPct * Math.min(100, Math.max(0, offer.percent))) / 100);
+    offerCents = Math.max(0, Math.min(want, room - pctCents));
+  }
+  const afterOffer = afterPct - offerCents;
+
   let codeCents = 0;
   let codeError: string | undefined;
   if (code) {
     if (itemsCents < code.minSpendCents) {
       codeError = `Code ${code.code} needs a minimum spend of $${(code.minSpendCents / 100).toFixed(2)}.`;
     } else if (code.discountType === "percent") {
-      codeCents = Math.round((afterPct * Math.min(100, Math.max(0, code.value))) / 100);
+      codeCents = Math.round((afterOffer * Math.min(100, Math.max(0, code.value))) / 100);
     } else {
-      codeCents = Math.min(toCents(Math.max(0, code.value)), afterPct);
+      codeCents = Math.min(toCents(Math.max(0, code.value)), afterOffer);
     }
   }
-  const afterCode = afterPct - codeCents;
+  const afterCode = afterOffer - codeCents;
 
   let creditUnits = 0;
   let creditCents = 0;
@@ -176,7 +219,8 @@ function evaluate(
   if (requested > 0) {
     const codeOk = !code || (s.allowCreditCode && code.combineCredit);
     const discountsOk = pctCents === 0 || s.allowCreditDiscounts;
-    if (!codeOk) notices.push("Store credit can't be combined with this code.");
+    if (offer && offerCents > 0 && !offer.combineCredit) notices.push("Store credit can't be combined with the first-purchase offer.");
+    else if (!codeOk) notices.push("Store credit can't be combined with this code.");
     else if (!discountsOk) notices.push("Store credit can't be combined with multi-buy or crypto discounts.");
     else {
       const maxByMerch = Math.floor(afterCode / s.creditUnitCents);
@@ -206,6 +250,9 @@ function evaluate(
     codeApplied: Boolean(code) && !codeError,
     code: code && !codeError ? code.code : null,
     codeCents,
+    firstOfferApplied: offerCents > 0,
+    firstOfferPercent: offerCents > 0 && offer ? offer.percent : 0,
+    firstOfferCents: offerCents,
     creditUnits,
     creditCents,
     merchandiseCents,
@@ -225,6 +272,8 @@ export type QuoteInput = {
   code?: CodeRule | null;
   creditUnits?: number;
   availableCreditUnits?: number;
+  /** Server-verified only: the buyer is a member eligible for the first-purchase offer. */
+  firstOfferEligible?: boolean;
 };
 
 /**
@@ -232,6 +281,32 @@ export type QuoteInput = {
  * cheaper outcome for the customer wins and a notice explains why.
  */
 export function quoteOrder(input: QuoteInput, settings: PricingSettings = DEFAULT_PRICING_SETTINGS): Quote {
+  const base = quoteWithoutOffer(input, settings);
+  const offer = settings.firstOffer;
+  if (!input.firstOfferEligible || !offer?.enabled || !(offer.percent > 0)) return base;
+  let offerCode = input.code && offer.combineCode ? input.code : null;
+  let w = evaluate(input, settings, offerCode, offer);
+  if (offerCode && w.codeError) {
+    offerCode = null;
+    w = evaluate(input, settings, null, offer);
+  }
+  // Better-of: the offer is only used when it beats the customer's other discounts.
+  if (!w.firstOfferApplied || w.totalCents >= base.totalCents) return base;
+  const { codeError: _e, ...q } = w;
+  const notices = [...q.notices];
+  if (input.code && !offerCode) {
+    const keepReferral = input.code.kind === "referral";
+    notices.push(
+      keepReferral
+        ? `Code ${input.code.code} is recorded, but your first-purchase offer saves more, so it was applied.`
+        : `Your first-purchase offer saves more than code ${input.code.code}, so the offer was applied.`,
+    );
+    if (keepReferral) return { ...q, code: input.code.code, codeApplied: true, codeCents: 0, notices };
+  }
+  return { ...q, notices };
+}
+
+function quoteWithoutOffer(input: QuoteInput, settings: PricingSettings): Quote {
   const without = evaluate(input, settings, null);
   if (!input.code) {
     const { codeError: _e, ...q } = without;
