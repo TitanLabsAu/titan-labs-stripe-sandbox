@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   cartLineKey,
+  effectivePack,
   getProductOption,
   type ProductPack,
   type Product,
@@ -64,6 +65,29 @@ function normalizeItem(raw: unknown): CartItem | null {
   };
 }
 
+/** Force kit lines to single for products that disallow kits, merging duplicates. Returns same array if unchanged. */
+export function coerceCartItems(
+  items: CartItem[],
+  getProduct: (slug: string) => Product | null | undefined,
+): CartItem[] {
+  let changed = false;
+  const out: CartItem[] = [];
+  for (const item of items) {
+    const product = getProduct(item.slug);
+    let line = item;
+    if (product && item.pack === "kit" && effectivePack(product, "kit") === "single") {
+      changed = true;
+      line = { ...item, pack: "single", key: cartLineKey(item.slug, item.variantId ?? null, "single") };
+    }
+    const dup = out.find((o) => o.key === line.key);
+    if (dup) {
+      changed = true;
+      dup.quantity = clampQuantity(dup.quantity + line.quantity);
+    } else out.push({ ...line });
+  }
+  return changed ? out : items;
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const { getProduct } = useProducts();
@@ -88,6 +112,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [items]);
 
+  // Repair restored/stale lines: products that disallow kits are forced to single.
+  useEffect(() => {
+    setItems((prev) => coerceCartItems(prev, getProduct));
+  }, [getProduct, items]);
+
   const value = useMemo<CartContextValue>(() => {
     const getLinePrice = (item: CartItem) => {
       const product = getProduct(item.slug);
@@ -106,7 +135,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       count,
       subtotal,
       addItem: (slug, quantity = 1, option) => {
-        const pack = option?.pack ?? "single";
+        const product = getProduct(slug);
+        const pack = product ? effectivePack(product, option?.pack) : (option?.pack ?? "single");
         const variantId = option?.variantId ?? null;
         const key = cartLineKey(slug, variantId, pack);
         setItems((prev) => {

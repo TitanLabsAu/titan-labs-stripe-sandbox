@@ -15,6 +15,8 @@ import {
   getProductOption,
   isComingSoon,
   kitPriceFor,
+  allowsKit,
+  singleLabelFor,
   productBasePrice,
   sortedProductVariants,
   stockState,
@@ -175,7 +177,7 @@ function ProductPage() {
               {variants.length > 0 ? (
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
-                    Vial size
+                    {allowsKit(product) ? "Vial size" : "Size"}
                   </p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {variants.map((variant) => {
@@ -208,6 +210,7 @@ function ProductPage() {
                 </div>
               ) : null}
 
+              {allowsKit(product) ? (
               <div className={variants.length > 0 ? "mt-5" : ""}>
                 <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
                   Buy option
@@ -231,6 +234,11 @@ function ProductPage() {
                   </Button>
                 </div>
               </div>
+              ) : (
+                <p className={`${variants.length > 0 ? "mt-5" : ""} text-xs font-bold uppercase tracking-[0.2em] text-accent`}>
+                  {singleLabelFor(product)} · {formatPrice(singleOption.unitPrice)}
+                </p>
+              )}
 
               <label className="mt-6 block text-xs font-bold uppercase tracking-[0.2em] text-accent">
                 Quantity

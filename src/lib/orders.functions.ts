@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { kitPriceFor } from "@/lib/products";
+import { effectivePack, kitPriceFor } from "@/lib/products";
 import { computeTotals, type ShippingMethodKey } from "@/lib/pricing";
 
 export type SubmitOrderItem = {
@@ -67,7 +67,7 @@ export const submitOrder = createServerFn({ method: "POST" })
     const slugs = [...new Set(items.map((i) => i.slug))];
     const { data: products, error: productError } = await context.supabase
       .from("products")
-      .select("slug, name, price, sale_price, kit_price, product_variants")
+      .select("slug, name, price, sale_price, kit_price, product_variants, catalogue_section")
       .in("slug", slugs)
       .eq("active", true);
     if (productError) throw productError;
@@ -93,7 +93,7 @@ export const submitOrder = createServerFn({ method: "POST" })
       const sale = product.sale_price == null ? null : Number(product.sale_price);
       const basePrice = sale != null && sale > 0 && sale < listPrice ? sale : listPrice;
       const singlePrice = variant ? Number(variant.price) : basePrice;
-      const pack = item.pack === "kit" ? "kit" : "single";
+      const pack = effectivePack(product, item.pack);
       const unitPrice =
         pack === "kit"
           ? kitPriceFor(singlePrice, variant?.kitPrice ?? product.kit_price)

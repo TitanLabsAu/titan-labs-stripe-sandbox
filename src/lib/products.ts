@@ -1,4 +1,4 @@
-import type { CatalogueSection } from "@/lib/catalogue-sections";
+import { normalizeCatalogueSection, type CatalogueSection } from "@/lib/catalogue-sections";
 import klow80 from "@/assets/klow80.asset.json";
 import wolverine from "@/assets/wolverine.asset.json";
 import nad1000 from "@/assets/nad1000.asset.json";
@@ -62,6 +62,27 @@ export function allComingSoon(product: Product) {
   if (product.comingSoon) return true;
   const vs = product.variants ?? [];
   return vs.length > 0 && vs.every((v) => v.comingSoon);
+}
+
+/** Central rule: Equipment is sold individually — no 10x kits, no kit pricing. */
+export function allowsKit(product: { catalogueSection?: unknown; catalogue_section?: unknown }) {
+  return normalizeCatalogueSection(product.catalogueSection ?? product.catalogue_section) !== "equipment";
+}
+
+/** Coerce any requested pack to one the product actually supports. */
+export function effectivePack(
+  product: { catalogueSection?: unknown; catalogue_section?: unknown },
+  pack: unknown,
+): ProductPack {
+  return pack === "kit" && allowsKit(product) ? "kit" : "single";
+}
+
+/** Label for the size picker / single option, generic for Equipment. */
+export function sizeLabelFor(product: { catalogueSection?: unknown }) {
+  return allowsKit(product) ? "Vial size" : "Size";
+}
+export function singleLabelFor(product: { catalogueSection?: unknown }) {
+  return allowsKit(product) ? "Single vial" : "Single item";
 }
 
 export const LOW_STOCK_THRESHOLD = 7;
@@ -141,12 +162,13 @@ export function cartLineKey(slug: string, variantId?: string | null, pack: Produ
 export function getProductOption(
   product: Product,
   variantId?: string | null,
-  pack: ProductPack = "single",
+  requestedPack: ProductPack = "single",
 ) {
+  const pack = effectivePack(product, requestedPack);
   const variant = (product.variants ?? []).find((v) => v.id === variantId) ?? null;
   const singlePrice = variant ? variant.price : product.price;
   const unitPrice = pack === "kit" ? kitPriceFor(singlePrice, variant?.kitPrice ?? product.kitPrice) : singlePrice;
-  const variantLabel = variant?.label ?? "Single vial";
+  const variantLabel = variant?.label ?? singleLabelFor(product);
   return {
     key: cartLineKey(product.slug, variant?.id ?? null, pack),
     variantId: variant?.id ?? null,

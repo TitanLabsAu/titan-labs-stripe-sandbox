@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
 import {
   allComingSoon,
+  allowsKit,
+  singleLabelFor,
   firstAvailableVariant,
   isComingSoon,
   formatPrice,
@@ -25,14 +27,15 @@ export function ProductCard({ product: p }: { product: Product }) {
   const [pack, setPack] = useState<ProductPack>("single");
   const singleOption = getProductOption(p, variantId, "single");
   const kitOption = getProductOption(p, variantId, "kit");
-  const option = pack === "kit" ? kitOption : singleOption;
+  const kitAllowed = allowsKit(p);
+  const option = pack === "kit" && kitAllowed ? kitOption : singleOption;
   const stockCount = variantStockFor(p, variantId);
   const stock = stockState(stockCount);
   const allOut = stockState(totalStockFor(p)) === "out";
   const soon = isComingSoon(p, variantId);
   const bannerSoon = allComingSoon(p);
   const inCart = items.find((i) => i.key === option.key);
-  const vialsPer = pack === "kit" ? 10 : 1;
+  const vialsPer = option.pack === "kit" ? 10 : 1;
   const atMax =
     Boolean(inCart) &&
     ((stockCount != null && (inCart!.quantity + 1) * vialsPer > stockCount) ||
@@ -90,7 +93,7 @@ export function ProductCard({ product: p }: { product: Product }) {
           </span>
         ) : null}
         {variants.length > 0 ? (
-          <div className="mt-2 flex flex-wrap gap-1" aria-label="Vial size">
+          <div className="mt-2 flex flex-wrap gap-1" aria-label={kitAllowed ? "Vial size" : "Size"}>
             {variants.map((variant) => {
               const soldOut = stockState(variant.stock ?? 0) === "out";
               const vSoon = Boolean(variant.comingSoon) && !p.comingSoon;
@@ -111,9 +114,10 @@ export function ProductCard({ product: p }: { product: Product }) {
           </div>
         ) : (
           <p className="mt-2 text-[10px] font-semibold text-muted-foreground">
-            Single vial
+            {singleLabelFor(p)}
           </p>
         )}
+        {kitAllowed ? (
         <div
           className="mt-3 grid grid-cols-2 overflow-hidden border border-input divide-x divide-input"
           aria-label="Buy option"
@@ -138,6 +142,7 @@ export function ProductCard({ product: p }: { product: Product }) {
             </button>
           ))}
         </div>
+        ) : null}
         <div className="mt-3 flex items-baseline gap-1">
           {p.wasPrice && pack === "single" ? (
             <span className="text-xs text-muted-foreground line-through">
@@ -199,7 +204,7 @@ export function ProductCard({ product: p }: { product: Product }) {
               ? "Coming soon"
               : stock === "out"
                 ? "Out of stock"
-                : pack === "kit"
+                : option.pack === "kit"
                   ? "Add kit to order"
                   : "Add to order"}
           </Button>

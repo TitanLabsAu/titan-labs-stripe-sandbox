@@ -16,3 +16,4 @@
 - Storefront sections live in `products.catalogue_section` (range/pens/equipment, DB check, default range) — kept separate from scientific `categories`.
 - Customer reviews live in `customer_reviews` (public reads published-only via RLS + server fn; admin-only writes) — never seeded or invented.
 - AI product photos go through the admin-checked `/api/admin-generate-image` route and are only stored in `product-images` after the admin chooses "Use image".
+- Equipment is single-item only via `allowsKit`/`effectivePack` in `src/lib/products.ts`, applied in UI, cart restore and every server price path — one rule so tampered kit requests cannot be charged.
