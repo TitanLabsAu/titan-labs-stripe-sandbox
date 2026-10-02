@@ -61,3 +61,20 @@ describe("kit savings inside the cap", () => {
     expect(r.kitSavingsCents + r.multibuyCents + r.cryptoCents).toBeLessThanOrEqual(r.baseCents * 0.2);
   });
 });
+
+describe("referral attribution", () => {
+  test("0% referral keeps attribution when multi-buy wins", () => {
+    const r = quoteOrder({ shippingMethod: "standard", paymentMethod: "payid", lines: [{ unitCents: 10000, baseCents: 10000, quantity: 4 }], code: code({ value: 0, combineMultibuy: false }) }, S);
+    expect(r.code).toBe("EMMA10");
+    expect(r.codeApplied).toBe(true);
+    expect(r.codeCents).toBe(0);
+    expect(r.multibuyCents).toBeGreaterThan(0);
+  });
+  test("member-only code that loses is not attributed", () => {
+    const r = quoteOrder({ shippingMethod: "standard", paymentMethod: "payid", lines: [{ unitCents: 10000, baseCents: 10000, quantity: 4 }], code: code({ kind: "member", value: 1 }) }, S);
+    expect(r.codeApplied).toBe(false);
+  });
+  test("credit unit is fixed at $10 regardless of stored value", () => {
+    expect(settingsFromRow({ credit_unit_cents: 5000 }).creditUnitCents).toBe(1000);
+  });
+});
