@@ -565,10 +565,15 @@ export type AdminDiscountCode = {
   active: boolean;
   created_at: string;
   expires_at: string | null;
+  code_kind: "referral" | "member";
+  min_spend_cents: number;
+  combine_multibuy: boolean;
+  combine_crypto: boolean;
+  combine_credit: boolean;
 };
 
 const DISCOUNT_COLS =
-  "id, code, discount_type, value, max_uses, times_used, user_id, milestone, note, active, created_at, expires_at";
+  "id, code, discount_type, value, max_uses, times_used, user_id, milestone, note, active, created_at, expires_at, code_kind, min_spend_cents, combine_multibuy, combine_crypto, combine_credit";
 
 export const adminListDiscountCodes = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
