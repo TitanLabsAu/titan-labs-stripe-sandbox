@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { CheckoutMode } from "@/lib/guest-capability";
+import type { ResolvedBuyer } from "@/lib/checkout-buyer.server";
 import type { ShippingMethodKey } from "@/lib/pricing";
 import type {
   SubmitOrderItem,
@@ -7,6 +8,8 @@ import type {
 } from "@/lib/orders.functions";
 
 type StripeCheckoutInput = {
+  mode: CheckoutMode;
+  acknowledgementId: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -59,8 +62,8 @@ function clean(value: string | undefined, max: number) {
 
 async function prepareStripeOrder(
   data: StripeCheckoutInput,
-  userId: string,
-): Promise<{ payload: PreparedStripePayload; creditUnits: number }> {
+  buyer: ResolvedBuyer,
+): Promise<{ payload: PreparedStripePayload; creditUnits: number; firstOffer: any; emails: string[] }> {
   const firstName = clean(data.firstName, 80);
   const lastName = clean(data.lastName, 80);
   const email = clean(data.email, 160);
@@ -84,7 +87,9 @@ async function prepareStripeOrder(
   const { priceCheckout, pricingNote, pricingSnapshot, discountDollars } = await import(
     "@/lib/checkout-pricing.server"
   );
-  const priced = await priceCheckout(supabaseAdmin, userId, {
+  const { buyerEmails } = await import("@/lib/checkout-buyer.server");
+  const emails = buyerEmails(buyer, email);
+  const priced = await priceCheckout(supabaseAdmin, { userId: buyer.userId, emails, emailVerified: buyer.emailVerified }, {
     items: data.items,
     shippingMethod,
     paymentMethod: "card",
@@ -102,8 +107,11 @@ async function prepareStripeOrder(
   }`;
   const notes = [clean(data.notes, 500), shippingNote, pricingNote(q)].filter(Boolean).join("\n");
 
+  const snapshot = pricingSnapshot(priced, null);
   return {
-    creditUnits: q.creditUnits,
+    emails,
+    firstOffer: snapshot.first_purchase_offer,
+    creditUnits: buyer.userId ? q.creditUnits : 0,
     payload: {
       customer: { firstName, lastName, email, phone, addressLine, city, state, postcode, shippingAddress },
       notes,
@@ -116,7 +124,7 @@ async function prepareStripeOrder(
         stackPercent: q.multibuyPercent,
       },
       lines: priced.lines,
-      pricing: pricingSnapshot(priced, null),
+      pricing: snapshot,
     },
   };
 }
@@ -124,9 +132,8 @@ async function prepareStripeOrder(
 export const createStripeSandboxPayment = createServerFn({
   method: "POST",
 })
-  .middleware([requireSupabaseAuth])
   .inputValidator((input: StripeCheckoutInput) => input)
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data }) => {
     const secretKey = process.env["STRIPE_SECRET_KEY"];
 
     if (!secretKey) {
@@ -138,10 +145,10 @@ export const createStripeSandboxPayment = createServerFn({
     const Stripe = (await import("stripe")).default;
     const stripe = new Stripe(secretKey);
 
-    const { payload, creditUnits } = await prepareStripeOrder(
-      data,
-      context.userId,
-    );
+    const { resolveBuyer, requireAcknowledgement, ownerColumns } = await import("@/lib/checkout-buyer.server");
+    const buyer = await resolveBuyer(data.mode === "guest" ? "guest" : "member");
+    const acknowledgementId = await requireAcknowledgement(buyer, data.acknowledgementId);
+    const { payload, creditUnits, firstOffer, emails } = await prepareStripeOrder(data, buyer);
 
     const amountCents = Math.round(
       payload.totals.total * 100,
@@ -157,13 +164,24 @@ export const createStripeSandboxPayment = createServerFn({
       "@/integrations/supabase/client.server"
     );
 
+    // First-purchase offer: atomic one-time claim, held while the intent is payable.
+    let claimId: string | null = null;
+    if (firstOffer && buyer.userId) {
+      const { claimFirstOffer } = await import("@/lib/checkout-pricing.server");
+      claimId = await claimFirstOffer(supabaseAdmin, buyer.userId, emails, 60);
+    }
+    const releaseClaim = async () => {
+      if (claimId) await (supabaseAdmin as any).rpc("release_first_offer", { _claim_id: claimId });
+    };
+
     // Reserve store credit atomically before the attempt exists.
     let reservationId: string | null = null;
-    if (creditUnits > 0) {
+    if (creditUnits > 0 && buyer.userId) {
       const { data: rid, error: reserveError } = await (supabaseAdmin as any).rpc(
         "reserve_store_credit",
-        { _user_id: context.userId, _units: creditUnits, _payment_attempt_id: null, _ttl_minutes: 2880 },
+        { _user_id: buyer.userId, _units: creditUnits, _payment_attempt_id: null, _ttl_minutes: 2880 },
       );
+      if (reserveError) await releaseClaim();
       if (reserveError) throw new Error("Your store credit balance changed. Please review your order.");
       reservationId = String(rid);
       payload.pricing = { ...(payload.pricing ?? {}), credit_reservation_id: reservationId };
@@ -173,7 +191,10 @@ export const createStripeSandboxPayment = createServerFn({
       await (supabaseAdmin as any)
         .from("payment_attempts")
         .insert({
-          user_id: context.userId,
+          ...ownerColumns(buyer),
+          acknowledgement_id: acknowledgementId,
+          first_purchase_offer: firstOffer,
+          first_offer_claim_id: claimId,
           provider: "stripe",
           amount_cents: amountCents,
           currency: "AUD",
@@ -185,7 +206,14 @@ export const createStripeSandboxPayment = createServerFn({
 
     if (attemptError) {
       if (reservationId) await (supabaseAdmin as any).rpc("release_store_credit", { _reservation_id: reservationId });
+      await releaseClaim();
       throw attemptError;
+    }
+    if (claimId) {
+      await (supabaseAdmin as any).rpc("attach_first_offer_claim", {
+        _claim_id: claimId,
+        _payment_attempt_id: attempt.id,
+      });
     }
     if (reservationId) {
       await (supabaseAdmin as any).rpc("attach_store_credit_reservation", {
@@ -208,7 +236,8 @@ export const createStripeSandboxPayment = createServerFn({
 
           metadata: {
             payment_attempt_id: String(attempt.id),
-            user_id: String(context.userId),
+            user_id: String(buyer.userId ?? ""),
+            guest_session_id: String(buyer.guestSessionId ?? ""),
           },
 
           description: "Titan Labs order",
@@ -227,8 +256,7 @@ export const createStripeSandboxPayment = createServerFn({
             status: "ready",
             transaction_id: paymentIntent.id,
           })
-          .eq("id", attempt.id)
-          .eq("user_id", context.userId);
+          .eq("id", attempt.id);
 
       if (updateError) {
         throw updateError;
@@ -241,7 +269,9 @@ export const createStripeSandboxPayment = createServerFn({
         amountCents,
       };
        } catch (error) {
+      // No PaymentIntent is bound yet, so nothing can be paid: safe to release.
       await (supabaseAdmin as any).rpc("release_store_credit_for_attempt", { _payment_attempt_id: attempt.id });
+      await (supabaseAdmin as any).rpc("release_first_offer_for_attempt", { _payment_attempt_id: attempt.id });
       await (supabaseAdmin as any)
         .from("payment_attempts")
         .update({
@@ -256,12 +286,14 @@ export const createStripeSandboxPayment = createServerFn({
 export const verifyStripeSandboxPayment = createServerFn({
   method: "POST",
 })
-  .middleware([requireSupabaseAuth])
   .inputValidator(
-    (input: { paymentIntentId: string }) => input,
+    (input: { paymentIntentId: string; mode: CheckoutMode }) => input,
   )
   .handler(
-    async ({ data, context }): Promise<SubmittedOrder> => {
+    async ({ data }): Promise<SubmittedOrder> => {
+      const { resolveBuyer } = await import("@/lib/checkout-buyer.server");
+      const { ownsRow } = await import("@/lib/guest-capability");
+      const buyer = await resolveBuyer(data.mode === "guest" ? "guest" : "member");
       const paymentIntentId = clean(
         data.paymentIntentId,
         255,
@@ -310,14 +342,12 @@ export const verifyStripeSandboxPayment = createServerFn({
         );
       }
 
-      if (attempt.user_id !== context.userId) {
-        console.error("Stripe attempt user mismatch", {
-          paymentIntentId,
-          attemptUser: attempt.user_id,
-          sessionUser: context.userId,
-        });
+      if (!ownsRow(buyer, attempt)) {
+        console.error("Stripe attempt owner mismatch", { paymentIntentId, buyer: buyer.kind });
         throw new Error(
-          "This payment was started from a different account. Please log in with the account you used at checkout.",
+          attempt.user_id
+            ? "This payment was started from a different account. Please log in with the account you used at checkout."
+            : "This payment was started in a different guest checkout session.",
         );
       }
 
@@ -354,6 +384,7 @@ export const verifyStripeSandboxPayment = createServerFn({
           total: payload.totals.total,
           paymentMethod: "card",
           shippingMethod: payload.shippingMethod,
+          guest: !attempt.user_id,
         };
       }
 
@@ -381,7 +412,9 @@ export const verifyStripeSandboxPayment = createServerFn({
           paymentIntent.metadata?.["payment_attempt_id"] ?? "",
         ) === String(attempt.id) &&
         String(paymentIntent.metadata?.["user_id"] ?? "") ===
-          String(context.userId);
+          String(attempt.user_id ?? "") &&
+        String(paymentIntent.metadata?.["guest_session_id"] ?? "") ===
+          String(attempt.guest_session_id ?? "");
 
       if (
         paymentIntent.status !== "succeeded" ||
@@ -412,6 +445,7 @@ export const verifyStripeSandboxPayment = createServerFn({
           paymentIntent.status === "canceled" || paymentIntent.status === "requires_payment_method"
         ) {
           await (supabaseAdmin as any).rpc("release_store_credit_for_attempt", { _payment_attempt_id: attempt.id });
+          await (supabaseAdmin as any).rpc("release_first_offer_for_attempt", { _payment_attempt_id: attempt.id });
         }
 
 
@@ -428,35 +462,11 @@ export const verifyStripeSandboxPayment = createServerFn({
        * one PostgreSQL transaction, keyed on the
        * PaymentIntent id, and roll back together.
        */
-      const { data: result, error: rpcError } =
-        await (supabaseAdmin as any).rpc(
-          "finalize_stripe_order",
-          {
-            _payment_intent_id: paymentIntent.id,
-            _user_id: context.userId,
-            _attempt_id: attempt.id,
-            _subtotal:
-              payload.totals.total - payload.totals.shipping,
-            _shipping: payload.totals.shipping,
-            _total: payload.totals.total,
-            _contact_name:
-              `${payload.customer.firstName} ${payload.customer.lastName}`.trim(),
-            _contact_email: payload.customer.email,
-            _contact_phone: payload.customer.phone,
-            _shipping_address:
-              payload.customer.shippingAddress,
-            _notes: payload.notes,
-            _items: payload.lines,
-            _profile_first_name: payload.customer.firstName,
-            _profile_last_name: payload.customer.lastName,
-            _profile_phone: payload.customer.phone,
-            _profile_address_line:
-              payload.customer.addressLine,
-            _profile_city: payload.customer.city,
-            _profile_state: payload.customer.state,
-            _profile_postcode: payload.customer.postcode,
-          },
-        );
+      const { finalizeArgs } = await import("@/lib/stripe-finalize");
+      const { data: result, error: rpcError } = await (supabaseAdmin as any).rpc(
+        "finalize_checkout_order",
+        finalizeArgs(paymentIntent.id, attempt.id, payload),
+      );
 
       if (rpcError || !result) {
         throw (
@@ -478,6 +488,7 @@ export const verifyStripeSandboxPayment = createServerFn({
         total: payload.totals.total,
         paymentMethod: "card",
         shippingMethod: payload.shippingMethod,
+        guest: !attempt.user_id,
       };
 
     },
