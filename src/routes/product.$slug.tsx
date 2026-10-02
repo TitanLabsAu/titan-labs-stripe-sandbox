@@ -177,7 +177,7 @@ function ProductPage() {
               {variants.length > 0 ? (
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
-                    Vial size
+                    {allowsKit(product) ? "Vial size" : "Size"}
                   </p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {variants.map((variant) => {
