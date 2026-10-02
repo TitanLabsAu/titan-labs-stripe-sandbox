@@ -92,12 +92,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const getLinePrice = (item: CartItem) => {
       const product = getProduct(item.slug);
       if (!product) return 0;
-      return getProductOption(product, item.variantId ?? null, item.pack ?? "single").unitPrice;
+      return getProductOption(product, item.variantId ?? null, item.pack ?? "single", Boolean(item.starterKit)).unitPrice;
     };
     const getLineLabel = (item: CartItem, product?: Product | null) => {
       const found = product ?? getProduct(item.slug);
       if (!found) return item.variantLabel ?? "Selected option";
-      return getProductOption(found, item.variantId ?? null, item.pack ?? "single").label;
+      return getProductOption(found, item.variantId ?? null, item.pack ?? "single", Boolean(item.starterKit)).label;
     };
     const count = items.reduce((sum, i) => sum + i.quantity, 0);
     const subtotal = items.reduce((sum, i) => sum + getLinePrice(i) * i.quantity, 0);
@@ -108,7 +108,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       addItem: (slug, quantity = 1, option) => {
         const pack = option?.pack ?? "single";
         const variantId = option?.variantId ?? null;
-        const key = cartLineKey(slug, variantId, pack);
+        const starterKit = Boolean(option?.starterKit);\n        const key = cartLineKey(slug, variantId, pack, starterKit);
         setItems((prev) => {
           const existing = prev.find((i) => i.key === key);
           if (existing) {
