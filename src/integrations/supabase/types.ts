@@ -94,16 +94,54 @@ export type Database = {
         }
         Relationships: []
       }
+      discount_code_events: {
+        Row: {
+          action: string
+          actor: string | null
+          after: Json | null
+          before: Json | null
+          code: string
+          code_id: string | null
+          created_at: string
+          id: string
+        }
+        Insert: {
+          action: string
+          actor?: string | null
+          after?: Json | null
+          before?: Json | null
+          code: string
+          code_id?: string | null
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor?: string | null
+          after?: Json | null
+          before?: Json | null
+          code?: string
+          code_id?: string | null
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       discount_codes: {
         Row: {
           active: boolean
           code: string
+          code_kind: string
+          combine_credit: boolean
+          combine_crypto: boolean
+          combine_multibuy: boolean
           created_at: string
           discount_type: Database["public"]["Enums"]["discount_type"]
           expires_at: string | null
           id: string
           max_uses: number
           milestone: number | null
+          min_spend_cents: number
           note: string | null
           times_used: number
           updated_at: string
@@ -113,12 +151,17 @@ export type Database = {
         Insert: {
           active?: boolean
           code: string
+          code_kind?: string
+          combine_credit?: boolean
+          combine_crypto?: boolean
+          combine_multibuy?: boolean
           created_at?: string
           discount_type?: Database["public"]["Enums"]["discount_type"]
           expires_at?: string | null
           id?: string
           max_uses?: number
           milestone?: number | null
+          min_spend_cents?: number
           note?: string | null
           times_used?: number
           updated_at?: string
@@ -128,12 +171,17 @@ export type Database = {
         Update: {
           active?: boolean
           code?: string
+          code_kind?: string
+          combine_credit?: boolean
+          combine_crypto?: boolean
+          combine_multibuy?: boolean
           created_at?: string
           discount_type?: Database["public"]["Enums"]["discount_type"]
           expires_at?: string | null
           id?: string
           max_uses?: number
           milestone?: number | null
+          min_spend_cents?: number
           note?: string | null
           times_used?: number
           updated_at?: string
@@ -341,11 +389,18 @@ export type Database = {
       }
       orders: {
         Row: {
+          code_discount_cents: number
           contact_email: string | null
           contact_name: string | null
           contact_phone: string | null
           created_at: string
+          credit_cents: number
+          credit_reservation_id: string | null
+          credit_units: number
           delivered_at: string | null
+          discount_code: string | null
+          discount_code_id: string | null
+          discount_code_kind: string | null
           id: string
           notes: string | null
           order_number: number
@@ -356,6 +411,9 @@ export type Database = {
           payment_provider: string | null
           payment_reference: string | null
           payment_transaction_id: string | null
+          pricing_snapshot: Json | null
+          referrer_user_id: string | null
+          refunded_at: string | null
           shipping: number
           shipping_address: string | null
           status: Database["public"]["Enums"]["order_status"]
@@ -368,11 +426,18 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          code_discount_cents?: number
           contact_email?: string | null
           contact_name?: string | null
           contact_phone?: string | null
           created_at?: string
+          credit_cents?: number
+          credit_reservation_id?: string | null
+          credit_units?: number
           delivered_at?: string | null
+          discount_code?: string | null
+          discount_code_id?: string | null
+          discount_code_kind?: string | null
           id?: string
           notes?: string | null
           order_number?: number
@@ -383,6 +448,9 @@ export type Database = {
           payment_provider?: string | null
           payment_reference?: string | null
           payment_transaction_id?: string | null
+          pricing_snapshot?: Json | null
+          referrer_user_id?: string | null
+          refunded_at?: string | null
           shipping?: number
           shipping_address?: string | null
           status?: Database["public"]["Enums"]["order_status"]
@@ -395,11 +463,18 @@ export type Database = {
           user_id: string
         }
         Update: {
+          code_discount_cents?: number
           contact_email?: string | null
           contact_name?: string | null
           contact_phone?: string | null
           created_at?: string
+          credit_cents?: number
+          credit_reservation_id?: string | null
+          credit_units?: number
           delivered_at?: string | null
+          discount_code?: string | null
+          discount_code_id?: string | null
+          discount_code_kind?: string | null
           id?: string
           notes?: string | null
           order_number?: number
@@ -410,6 +485,9 @@ export type Database = {
           payment_provider?: string | null
           payment_reference?: string | null
           payment_transaction_id?: string | null
+          pricing_snapshot?: Json | null
+          referrer_user_id?: string | null
+          refunded_at?: string | null
           shipping?: number
           shipping_address?: string | null
           status?: Database["public"]["Enums"]["order_status"]
@@ -421,7 +499,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "orders_discount_code_id_fkey"
+            columns: ["discount_code_id"]
+            isOneToOne: false
+            referencedRelation: "discount_codes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       payment_attempts: {
         Row: {
@@ -617,6 +703,95 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_milestone_awards: {
+        Row: {
+          created_at: string
+          id: string
+          order_id: string | null
+          threshold: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          threshold: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          threshold?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_milestone_awards_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referral_settings: {
+        Row: {
+          allow_code_crypto: boolean
+          allow_code_multibuy: boolean
+          allow_credit_code: boolean
+          allow_credit_discounts: boolean
+          allow_multibuy_crypto: boolean
+          combined_cap_percent: number
+          credit_unit_cents: number
+          crypto_percent: number
+          id: number
+          max_credit_units: number
+          milestone_thresholds: number[]
+          multibuy_tiers: Json
+          program_enabled: boolean
+          referral_reward_units: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          allow_code_crypto?: boolean
+          allow_code_multibuy?: boolean
+          allow_credit_code?: boolean
+          allow_credit_discounts?: boolean
+          allow_multibuy_crypto?: boolean
+          combined_cap_percent?: number
+          credit_unit_cents?: number
+          crypto_percent?: number
+          id?: number
+          max_credit_units?: number
+          milestone_thresholds?: number[]
+          multibuy_tiers?: Json
+          program_enabled?: boolean
+          referral_reward_units?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          allow_code_crypto?: boolean
+          allow_code_multibuy?: boolean
+          allow_credit_code?: boolean
+          allow_credit_discounts?: boolean
+          allow_multibuy_crypto?: boolean
+          combined_cap_percent?: number
+          credit_unit_cents?: number
+          crypto_percent?: number
+          id?: number
+          max_credit_units?: number
+          milestone_thresholds?: number[]
+          multibuy_tiers?: Json
+          program_enabled?: boolean
+          referral_reward_units?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       research_entries: {
         Row: {
           at_a_glance: string
@@ -743,6 +918,101 @@ export type Database = {
         }
         Relationships: []
       }
+      store_credit_ledger: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          kind: string
+          order_id: string | null
+          reason: string | null
+          unit_cents: number
+          units: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind: string
+          order_id?: string | null
+          reason?: string | null
+          unit_cents: number
+          units: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind?: string
+          order_id?: string | null
+          reason?: string | null
+          unit_cents?: number
+          units?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_credit_ledger_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_credit_reservations: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          order_id: string | null
+          payment_attempt_id: string | null
+          status: string
+          units: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          order_id?: string | null
+          payment_attempt_id?: string | null
+          status?: string
+          units: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          order_id?: string | null
+          payment_attempt_id?: string | null
+          status?: string
+          units?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_credit_reservations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_credit_reservations_payment_attempt_id_fkey"
+            columns: ["payment_attempt_id"]
+            isOneToOne: false
+            referencedRelation: "payment_attempts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -769,6 +1039,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      attach_store_credit_reservation: {
+        Args: { _payment_attempt_id: string; _reservation_id: string }
+        Returns: undefined
+      }
       finalize_stripe_order: {
         Args: {
           _attempt_id: string
@@ -803,6 +1077,27 @@ export type Database = {
       link_order_acknowledgement: {
         Args: { _ack_id: string; _order_id: string }
         Returns: boolean
+      }
+      release_store_credit: {
+        Args: { _reservation_id: string }
+        Returns: boolean
+      }
+      release_store_credit_for_attempt: {
+        Args: { _payment_attempt_id: string }
+        Returns: number
+      }
+      reserve_store_credit: {
+        Args: {
+          _payment_attempt_id: string
+          _ttl_minutes: number
+          _units: number
+          _user_id: string
+        }
+        Returns: string
+      }
+      store_credit_available_units: {
+        Args: { _user_id: string }
+        Returns: number
       }
     }
     Enums: {
