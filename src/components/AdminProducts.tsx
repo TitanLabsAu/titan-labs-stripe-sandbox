@@ -129,7 +129,7 @@ export function toDraft(p: AdminProduct): Draft {
     id: p.id,
     slug: p.slug,
     name: p.name,
-    price: String(p.price),
+    price: Number(p.price) > 0 ? String(p.price) : "",
     sale_price: p.sale_price == null ? "" : String(p.sale_price),
     promo_label: p.promo_label ?? "",
     kit_price: p.kit_price == null ? "" : String(p.kit_price),
@@ -330,6 +330,22 @@ export function ProductEditor({
             onChange={(e) => set({ slug: e.target.value })}
           />
         </div>
+        {draft.catalogue_section !== "range" && draft.variants.length === 0 ? (
+          <>
+            <div>
+              <Label htmlFor="single-product-price">Price (AUD)</Label>
+              <Input id="single-product-price" type="number" min={0} step="0.01"
+                value={draft.price} placeholder="Add price when ready"
+                onChange={(e) => set({ price: e.target.value })} />
+            </div>
+            <div>
+              <Label htmlFor="single-product-stock">Stock quantity</Label>
+              <Input id="single-product-stock" type="number" min={0} step="1"
+                value={draft.stock_quantity}
+                onChange={(e) => set({ stock_quantity: e.target.value })} />
+            </div>
+          </>
+        ) : null}
         {showPromo ? (
           <>
             <div>
@@ -936,7 +952,7 @@ export function AdminProducts() {
                       </span>
                     </>
                   ) : (
-                    formatPrice(Number(p.price))
+                    Number(p.price) > 0 ? formatPrice(Number(p.price)) : "Price not set"
                   )}{" "}
                   · {CATALOGUE_SECTION_LABELS[normalizeCatalogueSection(p.catalogue_section)]}
                   {" "}· {p.active ? "Visible" : "Hidden"}
