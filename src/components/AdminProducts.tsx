@@ -670,7 +670,9 @@ export function ProductEditor({
                           : "text-xs uppercase tracking-[0.14em] text-muted-foreground"
                     }
                   >
-                    {state === "out"
+                    {draft.unlimited_stock
+                      ? "Unlimited stock — quantity not tracked"
+                      : state === "out"
                       ? "Out of stock — customers cannot order this size"
                       : state === "low"
                         ? `Low stock — only ${Number(variant.stock) || 0} left`
@@ -999,7 +1001,7 @@ export function AdminProducts() {
                         0,
                         Math.trunc(Number(v.stock ?? 0)) || 0,
                       );
-                      const state = stockState(qty);
+                      const state = isUnlimitedStock(p) ? "ok" : stockState(qty);
                       return (
                         <span
                           key={v.id || v.label}
@@ -1012,7 +1014,7 @@ export function AdminProducts() {
                           }
                         >
                           {v.label || "Size"}:{" "}
-                          {state === "out" ? "Out of stock" : `${qty} in stock`}
+                          {isUnlimitedStock(p) ? "Unlimited" : state === "out" ? "Out of stock" : `${qty} in stock`}
                           {v.price ? ` · ${formatPrice(Number(v.price))}` : ""}
                         </span>
                       );
