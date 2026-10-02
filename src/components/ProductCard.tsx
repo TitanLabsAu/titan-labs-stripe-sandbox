@@ -2,16 +2,16 @@ import { Link } from "@tanstack/react-router";
 import { useState } from "react";\nimport { BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
-import { allComingSoon, firstAvailableVariant, isComingSoon, formatPrice, getProductOption, sortedProductVariants, stockState, totalStockFor, variantStockFor, type Product, type ProductPack } from "@/lib/products";
+import { allComingSoon, firstAvailableVariant, isComingSoon, formatPrice, getProductOption, sortedProductVariants, stockState, totalStockFor, variantStockFor, STARTER_KIT_CONTENTS, STARTER_KIT_PRICE, type Product, type ProductPack } from "@/lib/products";
 
 export function ProductCard({ product: p }: { product: Product }) {
   const { addItem, items, setQuantity } = useCart();
   const variants = sortedProductVariants(p);
   const [variantId, setVariantId] = useState<string | null>(firstAvailableVariant(p)?.id ?? null);
-  const [pack, setPack] = useState<ProductPack>("single");
+  const [pack, setPack] = useState<ProductPack>("single");\n  const [starterKit, setStarterKit] = useState(false);
   const singleOption = getProductOption(p, variantId, "single");
   const kitOption = getProductOption(p, variantId, "kit");
-  const option = pack === "kit" ? kitOption : singleOption;
+  const option = getProductOption(p, variantId, pack, starterKit);
   const stockCount = variantStockFor(p, variantId);
   const stock = stockState(stockCount);
   const allOut = stockState(totalStockFor(p)) === "out";
@@ -74,7 +74,7 @@ export function ProductCard({ product: p }: { product: Product }) {
             </button>
           ))}
         </div>
-        <div className="mt-3 flex items-baseline gap-1">
+        <label className="mt-2 flex cursor-pointer items-start gap-2 border border-border bg-muted/30 p-2 text-[10px] text-muted-foreground"><input type="checkbox" checked={starterKit} onChange={(e)=>setStarterKit(e.target.checked)} /><span><strong className="text-foreground">Starter Kit (+{formatPrice(STARTER_KIT_PRICE)})</strong><br/>{STARTER_KIT_CONTENTS.join(" · ")}</span></label>\n        <div className="mt-3 flex items-baseline gap-1">
           {p.wasPrice && pack === "single" ? (
             <span className="text-xs text-muted-foreground line-through">
               {formatPrice(p.wasPrice)}
@@ -88,7 +88,7 @@ export function ProductCard({ product: p }: { product: Product }) {
           <div className="mt-auto grid h-10 w-full grid-cols-[2.5rem_minmax(0,1fr)_2.5rem] overflow-hidden border border-primary" aria-label="Quantity in order">
             <button type="button" aria-label="Remove one" onClick={() => setQuantity(inCart.key, inCart.quantity - 1)} className="bg-primary text-lg font-bold text-primary-foreground hover:opacity-90">−</button>
             <span className="flex items-center justify-center text-sm font-semibold text-foreground">{inCart.quantity} in order</span>
-            <button type="button" aria-label="Add one" disabled={atMax} onClick={() => addItem(p.slug, 1, { variantId: option.variantId, variantLabel: option.variantLabel, pack: option.pack })} className="bg-primary text-lg font-bold text-primary-foreground hover:opacity-90 disabled:opacity-40">+</button>
+            <button type="button" aria-label="Add one" disabled={atMax} onClick={() => addItem(p.slug, 1, { variantId: option.variantId, variantLabel: option.variantLabel, pack: option.pack, starterKit })} className="bg-primary text-lg font-bold text-primary-foreground hover:opacity-90 disabled:opacity-40">+</button>
           </div>
         ) : (
           <Button className="mt-auto w-full" disabled={soon || stock === "out"} onClick={() => addItem(p.slug, 1, { variantId: option.variantId, variantLabel: option.variantLabel, pack: option.pack })}>{soon ? "Coming soon" : stock === "out" ? "Out of stock" : pack === "kit" ? "Add kit to order" : "Add to order"}</Button>
