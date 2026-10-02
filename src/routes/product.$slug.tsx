@@ -17,7 +17,7 @@ import {
   sortedProductVariants,
   stockState,
   variantStockFor,
-  type ProductPack,
+  STARTER_KIT_CONTENTS,\n  STARTER_KIT_PRICE,\n  type ProductPack,
 } from "@/lib/products";
 import { getProductBySlug } from "@/lib/catalog.functions";
 import { useProducts, useSiteContent } from "@/lib/useCatalog";
@@ -62,12 +62,12 @@ function ProductPage() {
   const { addItem, items } = useCart();
   const variants = sortedProductVariants(product);
   const [variantId, setVariantId] = useState<string | null>(firstAvailableVariant(product)?.id ?? null);
-  const [pack, setPack] = useState<ProductPack>("single");
+  const [pack, setPack] = useState<ProductPack>("single");\n  const [starterKit, setStarterKit] = useState(false);
   const selected = useMemo(
     () => getProductOption(product, variantId, pack),
     [product, variantId, pack],
   );
-  const selectedKey = cartLineKey(product.slug, selected.variantId, selected.pack);
+  const selectedKey = cartLineKey(product.slug, selected.variantId, selected.pack, starterKit);
   const carted = items.find((i) => i.key === selectedKey)?.quantity ?? null;
 
   const [qty, setQty] = useState(1);
@@ -192,7 +192,7 @@ function ProductPage() {
                 </div>
               </div>
 
-              <label className="mt-6 block text-xs font-bold uppercase tracking-[0.2em] text-accent">
+              <label className="mt-5 flex cursor-pointer items-start gap-3 border border-border bg-muted/30 p-3 text-xs text-muted-foreground"><input type="checkbox" checked={starterKit} onChange={(e)=>setStarterKit(e.target.checked)} /><span><strong className="text-foreground">Add Starter Kit (+{formatPrice(STARTER_KIT_PRICE)})</strong><br/>{STARTER_KIT_CONTENTS.join(" · ")}</span></label>\n\n              <label className="mt-6 block text-xs font-bold uppercase tracking-[0.2em] text-accent">
                 Quantity
               </label>
               <div className="mt-3 flex items-center gap-3">
