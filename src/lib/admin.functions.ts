@@ -26,7 +26,7 @@ export type AdminCustomer = {
 
 export type AdminOrder = {
   id: string;
-  user_id: string;
+  user_id: string | null;
   status: "processing" | "shipped" | "delivered" | "cancelled";
   tracking_number: string | null;
   tracking_status: string | null;
@@ -76,7 +76,7 @@ export const adminListOrders = createServerFn({ method: "POST" })
     if (error) throw error;
 
     const rows = (orders ?? []) as unknown as AdminOrder[];
-    const userIds = [...new Set(rows.map((o) => o.user_id))];
+    const userIds = [...new Set(rows.map((o) => o.user_id).filter(Boolean))] as string[];
     if (userIds.length === 0) return [];
 
     const { data: profiles } = await context.supabase
@@ -92,7 +92,7 @@ export const adminListOrders = createServerFn({ method: "POST" })
       byId.set(id as string, rest as AdminCustomer);
     }
 
-    return rows.map((o) => ({ ...o, customer: byId.get(o.user_id) ?? null }));
+    return rows.map((o) => ({ ...o, customer: o.user_id ? byId.get(o.user_id) ?? null : null }));
   });
 
 export const adminSetTracking = createServerFn({ method: "POST" })
