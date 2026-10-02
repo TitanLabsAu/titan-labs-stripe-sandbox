@@ -77,14 +77,14 @@ export const adminListOrders = createServerFn({ method: "POST" })
 
     const rows = (orders ?? []) as unknown as AdminOrder[];
     const userIds = [...new Set(rows.map((o) => o.user_id).filter(Boolean))] as string[];
-    if (userIds.length === 0) return [];
-
-    const { data: profiles } = await context.supabase
-      .from("profiles")
-      .select(
-        "id, email, first_name, last_name, phone_number, address_line, city, state, postcode, postal_address",
-      )
-      .in("id", userIds);
+    const { data: profiles } = userIds.length
+      ? await context.supabase
+          .from("profiles")
+          .select(
+            "id, email, first_name, last_name, phone_number, address_line, city, state, postcode, postal_address",
+          )
+          .in("id", userIds)
+      : { data: [] as any[] };
 
     const byId = new Map<string, AdminCustomer>();
     for (const p of profiles ?? []) {
