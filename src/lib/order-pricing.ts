@@ -244,9 +244,20 @@ export function quoteOrder(input: QuoteInput, settings: PricingSettings = DEFAUL
   }
   if (without.totalCents < withCode.totalCents) {
     const { codeError: _e, ...q } = without;
+    // A valid referral code still credits the referrer even when the
+    // customer's other discounts beat the code's own discount.
+    const keepReferral = input.code.kind === "referral";
     return {
       ...q,
-      notices: [...q.notices, `Code ${input.code.code} doesn't combine with your current discounts, so the better saving was kept.`],
+      ...(keepReferral ? { code: input.code.code, codeApplied: true, codeCents: 0 } : {}),
+      notices: [
+        ...q.notices,
+        keepReferral && input.code.value > 0
+          ? `Code ${input.code.code} is recorded, but your current discounts save more, so they were kept.`
+          : keepReferral
+            ? `Code ${input.code.code} is recorded.`
+            : `Code ${input.code.code} doesn't combine with your current discounts, so the better saving was kept.`,
+      ],
     };
   }
   const { codeError: _e, ...q } = withCode;
