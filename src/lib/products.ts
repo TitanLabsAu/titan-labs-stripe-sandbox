@@ -142,16 +142,16 @@ export function getProductOption(
 ) {
   const variant = (product.variants ?? []).find((v) => v.id === variantId) ?? null;
   const singlePrice = variant ? variant.price : product.price;
-  const unitPrice = pack === "kit" ? kitPriceFor(singlePrice, variant?.kitPrice ?? product.kitPrice) : singlePrice;
+  const basePrice = pack === "kit" ? kitPriceFor(singlePrice, variant?.kitPrice ?? product.kitPrice) : singlePrice;\n  const unitPrice = basePrice + (starterKit ? STARTER_KIT_PRICE : 0);
   const variantLabel = variant?.label ?? "Single vial";
   return {
-    key: cartLineKey(product.slug, variant?.id ?? null, pack),
+    key: cartLineKey(product.slug, variant?.id ?? null, pack, starterKit),
     variantId: variant?.id ?? null,
     variantLabel,
     pack,
     unitPrice,
     stock: variant ? (variant.stock ?? null) : (product.stock ?? null),
-    label: pack === "kit" ? `${variantLabel} · 10x Kit` : variantLabel,
+    label: (pack === "kit" ? variantLabel + " · 10x Kit" : variantLabel) + (starterKit ? " · Starter Kit" : ""),
   };
 }
 
