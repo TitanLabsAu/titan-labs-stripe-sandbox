@@ -54,9 +54,11 @@ import {
 } from "@/components/CartExtras";
 import {
   FREE_SHIPPING_THRESHOLD,
-  computeTotals,
   type ShippingMethodKey,
 } from "@/lib/pricing";
+import { quoteOrder } from "@/lib/order-pricing";
+import { quoteCheckout } from "@/lib/referrals.functions";
+import { cartPriceLines, useReferralSettings } from "@/lib/useReferralSettings";
 
 const stripePublishableKey = import.meta.env["VITE_STRIPE_PUBLISHABLE_KEY"];
 
@@ -271,14 +273,56 @@ function CheckoutPage() {
     };
   }, [session]);
 
-  const totals = computeTotals({
-    subtotal,
-    units: count,
-    shippingMethod,
-    paymentMethod: method,
+  const { settings } = useReferralSettings();
+  const [codeInput, setCodeInput] = useState("");
+  const [appliedCode, setAppliedCode] = useState<string | null>(null);
+  const [creditUnits, setCreditUnits] = useState(0);
+  const runQuote = useServerFn(quoteCheckout);
+  const quoteItems = items.map((i) => ({
+    slug: i.slug,
+    variantId: i.variantId ?? null,
+    pack: i.pack ?? "single",
+    quantity: i.quantity,
+  }));
+  const quotePayment: "card" | "payid" | "crypto" =
+    method === "crypto" ? "crypto" : method === "card" ? "card" : "payid";
+  const serverQuote = useQuery({
+    queryKey: ["checkout-quote", session?.id, JSON.stringify(quoteItems), shippingMethod, quotePayment, appliedCode, creditUnits],
+    queryFn: () =>
+      runQuote({
+        data: { items: quoteItems, shippingMethod, paymentMethod: quotePayment, code: appliedCode, creditUnits },
+      }),
+    enabled: Boolean(session) && items.length > 0,
+    placeholderData: (prev) => prev,
   });
-  const freeShipping = items.length > 0 && totals.shipping === 0;
-  const remaining = totals.remainingForFreeShipping;
+  const localQuote = quoteOrder(
+    { lines: cartPriceLines(items, getProduct, getLinePrice), shippingMethod, paymentMethod: quotePayment },
+    settings,
+  );
+  const quote = session && serverQuote.data ? serverQuote.data.quote : localQuote;
+  const codeError = serverQuote.data?.codeError ?? null;
+  const availableCredit = serverQuote.data?.availableCreditUnits ?? 0;
+  const maxCredit = Math.min(serverQuote.data?.maxCreditUnits ?? settings.maxCreditUnits, availableCredit);
+  const unitDollars = (serverQuote.data?.creditUnitCents ?? settings.creditUnitCents) / 100;
+  useEffect(() => {
+    if (creditUnits > maxCredit && serverQuote.data) setCreditUnits(Math.max(0, maxCredit));
+  }, [creditUnits, maxCredit, serverQuote.data]);
+  useEffect(() => {
+    if (codeError && appliedCode) toast.error(codeError);
+  }, [codeError, appliedCode]);
+  const totals = {
+    subtotal: quote.itemsCents / 100,
+    shipping: quote.shippingCents / 100,
+    total: quote.totalCents / 100,
+  };
+  void subtotal;
+  void count;
+  const freeShipping = items.length > 0 && quote.shippingCents === 0;
+  const remaining = quote.remainingForFreeShippingCents / 100;
+  const pricingExtras = () => ({
+    code: appliedCode && !codeError ? appliedCode : null,
+    creditUnits: quote.creditUnits,
+  });
 
   const cardCheckoutData = () => ({
     firstName,
@@ -297,6 +341,7 @@ function CheckoutPage() {
       pack: i.pack ?? "single",
       quantity: i.quantity,
     })),
+    ...pricingExtras(),
   });
   const verifyStripeCardPayment = useMutation({
     mutationFn: (paymentIntentId: string) =>
@@ -402,6 +447,7 @@ function CheckoutPage() {
             pack: i.pack ?? "single",
             quantity: i.quantity,
           })),
+          ...pricingExtras(),
         },
       });
       return result;
@@ -727,28 +773,96 @@ function CheckoutPage() {
                   The Titan Stack
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  2 items = 10% off · 3 items = 15% off · 4 items = 20% off
+                  {settings.multibuyTiers.map((t) => `${t.units} items = ${t.percent}% off`).join(" · ")}
+                  {` · multi-buy, kit and crypto savings combined are capped at ${settings.combinedCapPercent}%`}
                 </p>
                 <div className="mt-3">
-                  <TitanStackBanner units={count} />
+                  <TitanStackBanner units={quote.units} />
                 </div>
+              </div>
+
+              <div className="mt-6 space-y-3 border-t border-border pt-4">
+                <p className="technical-label text-foreground">Code &amp; store credit</p>
+                {session ? (
+                  <>
+                    {appliedCode && !codeError ? (
+                      <div className="flex items-center justify-between rounded border border-accent/50 bg-accent/10 px-3 py-2 text-sm">
+                        <span className="font-bold uppercase tracking-wide">{appliedCode}</span>
+                        <Button type="button" variant="ghost" size="sm" disabled={Boolean(stripeClientSecret)} onClick={() => { setAppliedCode(null); setCodeInput(""); }}>
+                          Remove
+                        </Button>
+                      </div>
+                    ) : (
+                      <form
+                        className="flex gap-2"
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          const c = codeInput.trim().toUpperCase();
+                          if (c) setAppliedCode(c);
+                        }}
+                      >
+                        <Label htmlFor="discount-code" className="sr-only">Discount or referral code</Label>
+                        <Input id="discount-code" value={codeInput} maxLength={32} placeholder="Discount or referral code" disabled={Boolean(stripeClientSecret)} onChange={(e) => setCodeInput(e.target.value.toUpperCase())} />
+                        <Button type="submit" variant="outline" className="font-bold uppercase" disabled={!codeInput.trim() || Boolean(stripeClientSecret)}>Apply</Button>
+                      </form>
+                    )}
+                    {appliedCode && codeError ? <p className="text-xs text-destructive" role="alert">{codeError}</p> : null}
+                    {availableCredit > 0 && settings.maxCreditUnits > 0 ? (
+                      <div>
+                        <p className="text-xs text-muted-foreground">
+                          You have {availableCredit} × {formatPrice(unitDollars)} store credit available. Use up to {settings.maxCreditUnits} per order on products (not shipping).
+                        </p>
+                        <div className="mt-2 flex flex-wrap gap-2" role="radiogroup" aria-label="Store credit to use">
+                          {Array.from({ length: Math.max(0, maxCredit) + 1 }, (_, n) => (
+                            <Button key={n} type="button" size="sm" role="radio" aria-checked={creditUnits === n} variant={creditUnits === n ? "default" : "outline"} disabled={Boolean(stripeClientSecret)} onClick={() => setCreditUnits(n)}>
+                              {n === 0 ? "None" : `${n} × ${formatPrice(unitDollars)}`}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+                  </>
+                ) : (
+                  <p className="text-xs text-muted-foreground">Log in to apply a code or store credit.</p>
+                )}
+                {quote.notices.filter((n) => n !== codeError).map((n) => (
+                  <p key={n} className="text-xs text-muted-foreground">{n}</p>
+                ))}
               </div>
 
               <div className="mt-4 space-y-2 border-t border-border pt-4 text-sm">
                 <div className="flex justify-between text-muted-foreground">
                   <span>Subtotal</span>
-                  <span>{formatPrice(totals.subtotal)}</span>
+                  <span>{formatPrice(quote.itemsCents / 100)}</span>
                 </div>
-                {totals.stackDiscount > 0 ? (
+                {quote.kitSavingsCents > 0 ? (
+                  <p className="text-xs text-muted-foreground">Includes {formatPrice(quote.kitSavingsCents / 100)} kit savings (counts toward the {quote.capPercent}% cap).</p>
+                ) : null}
+                {quote.multibuyCents > 0 ? (
                   <div className="flex justify-between font-bold text-accent">
-                    <span>Titan Stack {totals.stackPercent}% off</span>
-                    <span>−{formatPrice(totals.stackDiscount)}</span>
+                    <span>Titan Stack {quote.multibuyPercent}% off</span>
+                    <span>−{formatPrice(quote.multibuyCents / 100)}</span>
                   </div>
                 ) : null}
-                {totals.cryptoDiscount > 0 ? (
+                {quote.cryptoCents > 0 ? (
                   <div className="flex justify-between font-bold text-accent">
-                    <span>Crypto payment {totals.cryptoPercent}% off</span>
-                    <span>−{formatPrice(totals.cryptoDiscount)}</span>
+                    <span>Crypto payment {quote.cryptoPercent}% off</span>
+                    <span>−{formatPrice(quote.cryptoCents / 100)}</span>
+                  </div>
+                ) : null}
+                {quote.capApplied ? (
+                  <p className="text-xs text-muted-foreground">Combined savings capped at {quote.capPercent}%.</p>
+                ) : null}
+                {quote.codeCents > 0 ? (
+                  <div className="flex justify-between font-bold text-accent">
+                    <span>Code {quote.code}</span>
+                    <span>−{formatPrice(quote.codeCents / 100)}</span>
+                  </div>
+                ) : null}
+                {quote.creditCents > 0 ? (
+                  <div className="flex justify-between font-bold text-accent">
+                    <span>Store credit ({quote.creditUnits}×)</span>
+                    <span>−{formatPrice(quote.creditCents / 100)}</span>
                   </div>
                 ) : null}
                 <div className="flex justify-between text-muted-foreground">
