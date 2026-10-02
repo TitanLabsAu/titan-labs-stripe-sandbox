@@ -28,3 +28,6 @@
 - [ ] /referrals page + footer link; member account rewards card
 - [ ] Checkout: code + credit, server quote, all payment paths reprice, 20% cap
 - [ ] Tests + typecheck/build + preview checks (no publish)
+- [ ] Move Referral Program footer link under Navigate
+- [ ] Verify kit savings count toward 20% combined cap
+- [ ] Rolled-back DB tests: concurrency, idempotency, refund, release; RPC privilege review
