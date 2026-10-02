@@ -70,37 +70,29 @@ export const quoteCheckout = createServerFn({ method: "POST" })
   });
 
 /* ---------- Member: own rewards ---------- */
-function summarize(ledger: any[], reservations: any[]) {
-  const now = Date.now();
-  let earned = 0;
-  let redeemed = 0;
-  let balance = 0;
-  const tallyByOrder = new Map<string, number>();
-  for (const e of ledger) {
-    balance += e.units;
-    if (e.kind === "referral_earned" || e.kind === "referral_reversed") {
-      earned += e.units;
-      if (e.order_id) tallyByOrder.set(e.order_id, (tallyByOrder.get(e.order_id) ?? 0) + e.units);
-    }
-    if (e.kind === "redeemed" || e.kind === "redemption_reversed") redeemed -= e.units;
-    if (e.kind === "adjustment" && e.units > 0) earned += e.units;
-    if (e.kind === "adjustment" && e.units < 0) redeemed -= e.units;
-  }
-  const reserved = reservations
-    .filter((r) => r.status === "reserved" && (!r.expires_at || new Date(r.expires_at).getTime() > now))
-    .reduce((a, r) => a + r.units, 0);
-  const tally = [...tallyByOrder.values()].filter((v) => v > 0).length;
-  return { earnedUnits: earned, redeemedUnits: redeemed, reservedUnits: reserved, balanceUnits: balance, availableUnits: Math.max(0, balance - reserved), paidReferralOrders: tally };
+/** Totals come from a database aggregate over ALL entries; the ledger lists above are display-only. */
+function toSummary(res: { data: any; error: any }) {
+  if (res.error) throw res.error;
+  const d = res.data ?? {};
+  const n = (k: string) => Number(d[k] ?? 0);
+  return {
+    earnedUnits: n("earnedUnits"),
+    redeemedUnits: n("redeemedUnits"),
+    reservedUnits: n("reservedUnits"),
+    balanceUnits: n("balanceUnits"),
+    availableUnits: n("availableUnits"),
+    paidReferralOrders: n("paidReferralOrders"),
+  };
 }
 
 export const getMyRewards = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const sb = context.supabase as any;
-    const [codes, ledger, reservations, settings] = await Promise.all([
+    const [codes, ledger, summary, settings] = await Promise.all([
       sb.from("discount_codes").select("id, code, code_kind, discount_type, value, active, expires_at, max_uses, times_used").eq("user_id", context.userId),
       sb.from("store_credit_ledger").select("id, kind, units, unit_cents, order_id, reason, created_at").eq("user_id", context.userId).order("created_at", { ascending: false }).limit(200),
-      sb.from("store_credit_reservations").select("units, status, expires_at").eq("user_id", context.userId),
+      sb.rpc("store_credit_summary", { _user_id: context.userId }),
       sb.from("referral_settings").select("credit_unit_cents, max_credit_units, referral_reward_units").eq("id", 1).maybeSingle(),
     ]);
     const l = (ledger.data ?? []) as any[];
@@ -108,7 +100,7 @@ export const getMyRewards = createServerFn({ method: "POST" })
       codes: (codes.data ?? []) as any[],
       // Never expose referred customers' order ids to the referrer.
       ledger: l.map((e) => ({ id: e.id, kind: e.kind, units: e.units, unit_cents: e.unit_cents, reason: e.reason, created_at: e.created_at })),
-      summary: summarize(l, reservations.data ?? []),
+      summary: toSummary(summary),
       unitCents: Number(settings.data?.credit_unit_cents ?? 1000),
       maxCreditUnits: Number(settings.data?.max_credit_units ?? 2),
     };
@@ -153,11 +145,12 @@ export const adminGetMemberRewards = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const sb = context.supabase as any;
-    const [codes, ledger, reservations, milestones] = await Promise.all([
+    const [codes, ledger, reservations, milestones, summary] = await Promise.all([
       sb.from("discount_codes").select("*").eq("user_id", data.userId).order("created_at"),
       sb.from("store_credit_ledger").select("*").eq("user_id", data.userId).order("created_at", { ascending: false }).limit(500),
       sb.from("store_credit_reservations").select("*").eq("user_id", data.userId).order("created_at", { ascending: false }).limit(100),
       sb.from("referral_milestone_awards").select("threshold, created_at").eq("user_id", data.userId).order("threshold"),
+      sb.rpc("store_credit_summary", { _user_id: data.userId }),
     ]);
     const codeIds = (codes.data ?? []).map((c: any) => c.id);
     const events = codeIds.length
@@ -169,7 +162,7 @@ export const adminGetMemberRewards = createServerFn({ method: "POST" })
       reservations: reservations.data ?? [],
       milestones: milestones.data ?? [],
       codeEvents: events.data ?? [],
-      summary: summarize(ledger.data ?? [], reservations.data ?? []),
+      summary: toSummary(summary),
     };
   });
 
