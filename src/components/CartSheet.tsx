@@ -24,7 +24,6 @@ import { useProducts } from "@/lib/useCatalog";
 
 export function CartSheet({ floating = false }: { floating?: boolean }) {
   const [open, setOpen] = useState(false);
-  const navigate = useNavigate();
   const {
     items,
     count,
