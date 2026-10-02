@@ -238,6 +238,48 @@ export type Database = {
         }
         Relationships: []
       }
+      member_calendar_entries: {
+        Row: {
+          created_at: string
+          dose_label: string
+          end_date: string | null
+          frequency: string
+          id: string
+          notes: string
+          product_name: string
+          start_date: string
+          time_of_day: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dose_label?: string
+          end_date?: string | null
+          frequency?: string
+          id?: string
+          notes?: string
+          product_name: string
+          start_date: string
+          time_of_day?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dose_label?: string
+          end_date?: string | null
+          frequency?: string
+          id?: string
+          notes?: string
+          product_name?: string
+          start_date?: string
+          time_of_day?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       order_acknowledgements: {
         Row: {
           accepted: boolean
@@ -565,54 +607,11 @@ export type Database = {
           },
         ]
       }
-      member_calendar_entries: {
-        Row: {
-          id: string;
-          user_id: string;
-          product_name: string;
-          dose_label: string;
-          start_date: string;
-          end_date: string | null;
-          frequency: string;
-          time_of_day: string | null;
-          notes: string;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          user_id: string;
-          product_name: string;
-          dose_label?: string;
-          start_date: string;
-          end_date?: string | null;
-          frequency?: string;
-          time_of_day?: string | null;
-          notes?: string;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          user_id?: string;
-          product_name?: string;
-          dose_label?: string;
-          start_date?: string;
-          end_date?: string | null;
-          frequency?: string;
-          time_of_day?: string | null;
-          notes?: string;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Relationships: [];
-      };
       products: {
         Row: {
           active: boolean
           alt: string
           blurb: string
-          starter_kit_enabled: boolean
           catalogue_section: string
           categories: string[]
           coming_soon: boolean
@@ -636,6 +635,7 @@ export type Database = {
           sale_price: number | null
           slug: string
           sort_order: number
+          starter_kit_enabled: boolean
           stock_quantity: number
           updated_at: string
         }
@@ -643,7 +643,6 @@ export type Database = {
           active?: boolean
           alt?: string
           blurb?: string
-          starter_kit_enabled?: boolean
           catalogue_section?: string
           categories?: string[]
           coming_soon?: boolean
@@ -667,6 +666,7 @@ export type Database = {
           sale_price?: number | null
           slug: string
           sort_order?: number
+          starter_kit_enabled?: boolean
           stock_quantity?: number
           updated_at?: string
         }
@@ -674,7 +674,6 @@ export type Database = {
           active?: boolean
           alt?: string
           blurb?: string
-          starter_kit_enabled?: boolean
           catalogue_section?: string
           categories?: string[]
           coming_soon?: boolean
@@ -698,6 +697,7 @@ export type Database = {
           sale_price?: number | null
           slug?: string
           sort_order?: number
+          starter_kit_enabled?: boolean
           stock_quantity?: number
           updated_at?: string
         }
@@ -1295,4 +1295,3 @@ export const Constants = {
     },
   },
 } as const
-
