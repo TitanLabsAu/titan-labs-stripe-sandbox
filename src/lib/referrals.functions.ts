@@ -117,7 +117,7 @@ export const getMyRewards = createServerFn({ method: "POST" })
 /* ---------- Admin ---------- */
 export const adminSaveReferralSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: Record<string, any>) => input)
+  .inputValidator((input: any) => input as any)
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const pct = (v: any) => Math.min(100, Math.max(0, Number(v) || 0));

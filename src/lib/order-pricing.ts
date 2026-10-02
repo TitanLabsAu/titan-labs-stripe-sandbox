@@ -128,7 +128,7 @@ function evaluate(
   input: QuoteInput,
   s: PricingSettings,
   code: CodeRule | null,
-): Quote & { codeError?: string } {
+): Quote & { codeError?: string | undefined } {
   const notices: string[] = [];
   const itemsCents = input.lines.reduce((a, l) => a + Math.round(l.unitCents) * l.quantity, 0);
   const baseCents = Math.max(
@@ -240,7 +240,7 @@ export function quoteOrder(input: QuoteInput, settings: PricingSettings = DEFAUL
   const withCode = evaluate(input, settings, input.code);
   if (withCode.codeError) {
     const { codeError, ...q } = without;
-    return { ...q, notices: [...q.notices, codeError] };
+    return { ...q, notices: codeError ? [...q.notices, codeError] : q.notices };
   }
   if (without.totalCents < withCode.totalCents) {
     const { codeError: _e, ...q } = without;
