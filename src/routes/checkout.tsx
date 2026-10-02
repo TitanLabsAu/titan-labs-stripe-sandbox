@@ -418,10 +418,8 @@ function CheckoutPage() {
     ...pricingExtras(),
   });
   const verifyStripeCardPayment = useMutation({
-    mutationFn: (paymentIntentId: string) =>
-      verifyStripePayment({
-        data: { paymentIntentId, mode: mode ?? (guestMode ? "guest" : "member") },
-      }),
+    mutationFn: (args: { paymentIntentId: string; mode: CheckoutMode }) =>
+      verifyStripePayment({ data: args }),
 
     onSuccess: (result) => {
       setConfirmed(result);
@@ -475,8 +473,7 @@ function CheckoutPage() {
         return "member";
       }
     })();
-    void returnMode;
-    runStripeReturn(paymentIntentId);
+    runStripeReturn({ paymentIntentId, mode: returnMode });
   }, [runStripeReturn]);
 
   const startStripeCardPayment = useMutation({
@@ -836,7 +833,7 @@ function CheckoutPage() {
                     >
                       <StripePaymentForm
                         onPaid={(paymentIntentId) =>
-                          verifyStripeCardPayment.mutate(paymentIntentId)
+                          verifyStripeCardPayment.mutate({ paymentIntentId, mode: mode ?? "member" })
                         }
                         onCancel={() => {
                           const id = stripeIntentId;
