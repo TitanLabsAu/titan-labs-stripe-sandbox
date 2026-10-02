@@ -37,6 +37,14 @@ export type PricedCheckout = {
   code: ResolvedCode | null;
   codeError: string | null;
   availableCreditUnits: number;
+  firstOfferEligible: boolean;
+};
+
+export type PricingBuyer = {
+  /** null for guests: no store credit, no member codes, no first-purchase offer. */
+  userId: string | null;
+  emails: string[];
+  emailVerified: boolean;
 };
 
 export function normalizeCode(raw: unknown) {
@@ -69,7 +77,7 @@ export function checkCodeRow(
 
 export async function priceCheckout(
   admin: any,
-  userId: string,
+  buyer: PricingBuyer,
   input: {
     items: CheckoutItemInput[];
     shippingMethod: ShippingMethodKey;
@@ -81,6 +89,7 @@ export async function priceCheckout(
   const items = (input.items ?? []).filter((i) => i && i.slug && i.quantity > 0).slice(0, 50);
   if (items.length === 0) throw new Error("Your order is empty.");
 
+  const userId = buyer.userId ?? "";
   const slugs = [...new Set(items.map((i) => String(i.slug)))];
   const [{ data: products, error: productError }, { data: settingsRow }] = await Promise.all([
     admin
@@ -186,8 +195,21 @@ export async function priceCheckout(
   }
 
   let availableCreditUnits = 0;
-  const { data: avail } = await admin.rpc("store_credit_available_units", { _user_id: userId });
-  availableCreditUnits = Math.max(0, Number(avail) || 0);
+  if (buyer.userId) {
+    const { data: avail } = await admin.rpc("store_credit_available_units", { _user_id: buyer.userId });
+    availableCreditUnits = Math.max(0, Number(avail) || 0);
+  }
+
+  // First-purchase offer: verified members with no prior order/claim by account or email.
+  let firstOfferEligible = false;
+  if (buyer.userId && buyer.emailVerified && settings.firstOffer.enabled && settings.firstOffer.percent > 0) {
+    const { data: eligible, error: eligibleError } = await admin.rpc("first_offer_eligible", {
+      _user_id: buyer.userId,
+      _emails: buyer.emails,
+    });
+    if (eligibleError) console.error("first_offer_eligible failed", eligibleError.message);
+    firstOfferEligible = eligible === true;
+  }
 
   const quote = quoteOrder(
     {
@@ -195,8 +217,9 @@ export async function priceCheckout(
       shippingMethod: input.shippingMethod,
       paymentMethod: input.paymentMethod,
       code: code?.rule ?? null,
-      creditUnits: input.creditUnits ?? 0,
+      creditUnits: buyer.userId ? (input.creditUnits ?? 0) : 0,
       availableCreditUnits,
+      firstOfferEligible,
     },
     settings,
   );
@@ -204,7 +227,7 @@ export async function priceCheckout(
     // Code didn't win or failed min spend: no attribution.
     code = null;
   }
-  return { lines, quote, settings, code, codeError, availableCreditUnits };
+  return { lines, quote, settings, code, codeError, availableCreditUnits, firstOfferEligible };
 }
 
 /** Human readable discount note stored on the order. */
@@ -215,6 +238,8 @@ export function pricingNote(q: Quote) {
   if (q.cryptoCents)
     parts.push(`crypto ${q.cryptoPercent}% (−$${fromCents(q.cryptoCents).toFixed(2)})`);
   if (q.capApplied) parts.push(`capped at ${q.capPercent}%`);
+  if (q.firstOfferCents)
+    parts.push(`first purchase ${q.firstOfferPercent}% (−$${fromCents(q.firstOfferCents).toFixed(2)})`);
   if (q.codeCents && q.code) parts.push(`code ${q.code} (−$${fromCents(q.codeCents).toFixed(2)})`);
   if (q.creditCents)
     parts.push(`store credit ${q.creditUnits}x (−$${fromCents(q.creditCents).toFixed(2)})`);
@@ -233,6 +258,7 @@ export function pricingSnapshot(p: PricedCheckout, reservationId: string | null)
     credit_units: q.creditUnits,
     credit_cents: q.creditCents,
     credit_reservation_id: reservationId,
+    first_purchase_offer: firstOfferSnapshot(q),
     quote: q,
     settings: p.settings,
   };
@@ -241,4 +267,26 @@ export function pricingSnapshot(p: PricedCheckout, reservationId: string | null)
 /** Discount total in dollars (everything except shipping). */
 export function discountDollars(q: Quote) {
   return fromCents(q.itemsCents - q.merchandiseCents);
+}
+
+/** Immutable record of the first-purchase offer as charged. */
+export function firstOfferSnapshot(q: Quote) {
+  return q.firstOfferApplied
+    ? { applied: true, percent: q.firstOfferPercent, cents: q.firstOfferCents }
+    : null;
+}
+
+/** Reserve the one-time offer atomically; throws a customer-safe message if already used. */
+export async function claimFirstOffer(admin: any, userId: string, emails: string[], ttlMinutes: number) {
+  const { data, error } = await admin.rpc("claim_first_offer", {
+    _user_id: userId,
+    _emails: emails,
+    _ttl_minutes: ttlMinutes,
+  });
+  if (error || !data) {
+    throw new Error(
+      "Your first-purchase offer is already in use on another checkout or order. Please refresh your order summary.",
+    );
+  }
+  return String(data);
 }
