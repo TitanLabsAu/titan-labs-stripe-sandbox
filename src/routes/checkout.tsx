@@ -34,16 +34,20 @@ import {
   type PaymentMethodKey,
 } from "@/lib/homeContent";
 import { ResearchAcknowledgement } from "@/components/ResearchAcknowledgement";
+import { FirstOfferBanner } from "@/components/FirstOfferBanner";
 import {
-  linkAcknowledgement,
-  recordAcknowledgement,
-} from "@/lib/acknowledgement";
+  quoteCheckoutAny,
+  recordCheckoutAcknowledgement,
+  startGuestCheckout,
+} from "@/lib/checkout.functions";
+import { checkoutErrorCode, checkoutErrorText, type CheckoutMode } from "@/lib/guest-capability";
 import {
   submitOrder,
   saveOrderPaymentReference,
   type SubmittedOrder,
 } from "@/lib/orders.functions";
 import {
+  cancelStripeCheckout,
   createStripeSandboxPayment,
   verifyStripeSandboxPayment,
 } from "@/lib/stripe.functions";
@@ -57,7 +61,8 @@ import {
   type ShippingMethodKey,
 } from "@/lib/pricing";
 import { quoteOrder } from "@/lib/order-pricing";
-import { quoteCheckout } from "@/lib/referrals.functions";
+
+const MODE_KEY = "titan_checkout_mode";
 import { cartPriceLines, useReferralSettings } from "@/lib/useReferralSettings";
 
 const stripePublishableKey = import.meta.env["VITE_STRIPE_PUBLISHABLE_KEY"];
@@ -207,18 +212,79 @@ function CheckoutPage() {
   const createStripePayment = useServerFn(createStripeSandboxPayment);
 
   const verifyStripePayment = useServerFn(verifyStripeSandboxPayment);
+  const cancelStripe = useServerFn(cancelStripeCheckout);
+  const recordAck = useServerFn(recordCheckoutAcknowledgement);
+  const startGuest = useServerFn(startGuestCheckout);
+  const [stripeIntentId, setStripeIntentId] = useState<string | null>(null);
+  const [guestMode, setGuestModeState] = useState(false);
+  const [authLost, setAuthLost] = useState(false);
+  const setGuestMode = (v: boolean) => {
+    setGuestModeState(v);
+    try {
+      if (v) window.sessionStorage.setItem(MODE_KEY, "guest");
+      else window.sessionStorage.removeItem(MODE_KEY);
+    } catch {
+      /* storage unavailable */
+    }
+  };
+  useEffect(() => {
+    try {
+      if (window.sessionStorage.getItem(MODE_KEY) === "guest") setGuestModeState(true);
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   const [stripeClientSecret, setStripeClientSecret] = useState<string | null>(
     null,
   );
 
-  const { data: session } = useQuery({
+  const { data: session, refetch: refetchSession } = useQuery({
     queryKey: ["checkout-session"],
     queryFn: async () => {
       const { data } = await supabase.auth.getUser();
       return data.user ?? null;
     },
   });
+  const wasMember = useRef(false);
+  useEffect(() => {
+    if (session) {
+      wasMember.current = true;
+      setAuthLost(false);
+      setGuestMode(false); // a signed-in member always checks out as a member
+    }
+  }, [session]);
+  // React to sign-in / sign-out / expiry straight away; never downgrade silently.
+  useEffect(() => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_OUT" && wasMember.current) {
+        wasMember.current = false;
+        setAuthLost(true);
+      }
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") void refetchSession();
+    });
+    return () => sub.subscription.unsubscribe();
+  }, [refetchSession]);
+  const mode: CheckoutMode | null = session ? "member" : guestMode ? "guest" : null;
+
+  /** Turns server auth/capability errors into an actionable next step. */
+  const handleCheckoutError = async (error: unknown, fallback: string) => {
+    const code = checkoutErrorCode(error);
+    if (code === "AUTH_EXPIRED") {
+      const { data } = await supabase.auth.refreshSession();
+      if (data.session) {
+        await refetchSession();
+        toast.message("Your login was refreshed. Please try again.");
+        return;
+      }
+      wasMember.current = false;
+      setAuthLost(true);
+      await refetchSession();
+    } else if (code === "GUEST_SESSION_INVALID") {
+      setGuestMode(false);
+    }
+    toast.error(checkoutErrorText(error, fallback));
+  };
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -277,7 +343,7 @@ function CheckoutPage() {
   const [codeInput, setCodeInput] = useState("");
   const [appliedCode, setAppliedCode] = useState<string | null>(null);
   const [creditUnits, setCreditUnits] = useState(0);
-  const runQuote = useServerFn(quoteCheckout);
+  const runQuote = useServerFn(quoteCheckoutAny);
   const quoteItems = items.map((i) => ({
     slug: i.slug,
     variantId: i.variantId ?? null,
@@ -286,20 +352,26 @@ function CheckoutPage() {
   }));
   const quotePayment: "card" | "payid" | "crypto" =
     method === "crypto" ? "crypto" : method === "card" ? "card" : "payid";
+  const quoteEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ? email.trim().toLowerCase() : "";
   const serverQuote = useQuery({
-    queryKey: ["checkout-quote", session?.id, JSON.stringify(quoteItems), shippingMethod, quotePayment, appliedCode, creditUnits],
+    queryKey: ["checkout-quote", mode, session?.id, JSON.stringify(quoteItems), shippingMethod, quotePayment, appliedCode, creditUnits, quoteEmail],
     queryFn: () =>
       runQuote({
-        data: { items: quoteItems, shippingMethod, paymentMethod: quotePayment, code: appliedCode, creditUnits },
+        data: { mode: mode!, items: quoteItems, shippingMethod, paymentMethod: quotePayment, code: appliedCode, creditUnits: session ? creditUnits : 0, contactEmail: quoteEmail },
       }),
-    enabled: Boolean(session) && items.length > 0,
+    enabled: Boolean(mode) && items.length > 0,
+    retry: false,
     placeholderData: (prev) => prev,
   });
   const localQuote = quoteOrder(
     { lines: cartPriceLines(items, getProduct, getLinePrice), shippingMethod, paymentMethod: quotePayment },
     settings,
   );
-  const quote = session && serverQuote.data ? serverQuote.data.quote : localQuote;
+  useEffect(() => {
+    if (serverQuote.error) void handleCheckoutError(serverQuote.error, "We couldn't price your order.");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serverQuote.error]);
+  const quote = mode && serverQuote.data ? serverQuote.data.quote : localQuote;
   const codeError = serverQuote.data?.codeError ?? null;
   const availableCredit = serverQuote.data?.availableCreditUnits ?? 0;
   const maxCredit = Math.min(serverQuote.data?.maxCreditUnits ?? settings.maxCreditUnits, availableCredit);
@@ -324,7 +396,9 @@ function CheckoutPage() {
     creditUnits: quote.creditUnits,
   });
 
-  const cardCheckoutData = () => ({
+  const cardCheckoutData = (acknowledgementId: string) => ({
+    mode: mode!,
+    acknowledgementId,
     firstName,
     lastName,
     email,
@@ -346,14 +420,14 @@ function CheckoutPage() {
   const verifyStripeCardPayment = useMutation({
     mutationFn: (paymentIntentId: string) =>
       verifyStripePayment({
-        data: { paymentIntentId },
+        data: { paymentIntentId, mode: mode ?? (guestMode ? "guest" : "member") },
       }),
 
     onSuccess: (result) => {
       setConfirmed(result);
       setStripeClientSecret(null);
+      setStripeIntentId(null);
       clear();
-      void linkAcknowledgement(result.id);
 
       toast.success(`Payment approved — order ${result.reference} confirmed`);
 
@@ -362,8 +436,7 @@ function CheckoutPage() {
       }
     },
 
-    onError: (error: any) =>
-      toast.error(error?.message ?? "We could not verify the Stripe payment."),
+    onError: (error: any) => void handleCheckoutError(error, "We could not verify the Stripe payment."),
   });
 
   /*
@@ -395,6 +468,14 @@ function CheckoutPage() {
       rest ? `/checkout?${rest}` : "/checkout",
     );
 
+    const returnMode: CheckoutMode = (() => {
+      try {
+        return window.sessionStorage.getItem(MODE_KEY) === "guest" ? "guest" : "member";
+      } catch {
+        return "member";
+      }
+    })();
+    void returnMode;
     runStripeReturn(paymentIntentId);
   }, [runStripeReturn]);
 
@@ -405,19 +486,20 @@ function CheckoutPage() {
           "Please tick the Research Use Acknowledgement to continue.",
         );
       }
-      // Acknowledgement is recorded before any payment is initiated.
-      await recordAcknowledgement(ackVersion);
+      if (!mode) throw new Error("Please log in, join, or choose Continue as guest.");
+      // Acknowledgement is recorded server side before any payment is initiated.
+      const { ackId } = await recordAck({ data: { version: ackVersion, mode } });
       return createStripePayment({
-        data: cardCheckoutData(),
+        data: cardCheckoutData(ackId),
       });
     },
 
-    onSuccess: ({ clientSecret }) => {
+    onSuccess: ({ clientSecret, paymentIntentId }) => {
       setStripeClientSecret(clientSecret);
+      setStripeIntentId(paymentIntentId);
     },
 
-    onError: (error: any) =>
-      toast.error(error?.message ?? "Could not start the Stripe payment."),
+    onError: (error: any) => void handleCheckoutError(error, "Could not start the Stripe payment."),
   });
 
   const placeOrder = useMutation({
@@ -427,9 +509,12 @@ function CheckoutPage() {
           "Please tick the Research Use Acknowledgement to continue.",
         );
       }
-      await recordAcknowledgement(ackVersion);
+      if (!mode) throw new Error("Please log in, join, or choose Continue as guest.");
+      const { ackId } = await recordAck({ data: { version: ackVersion, mode } });
       const result = await submit({
         data: {
+          mode,
+          acknowledgementId: ackId,
           firstName,
           lastName,
           email,
@@ -455,18 +540,28 @@ function CheckoutPage() {
     onSuccess: (result) => {
       setConfirmed(result);
       clear();
-      void linkAcknowledgement(result.id);
       toast.success(`Order ${result.reference} received`);
     },
-    onError: (error: any) =>
-      toast.error(
-        error?.message ?? "We could not submit that order. Please try again.",
-      ),
+    onError: (error: any) => void handleCheckoutError(error, "We could not submit that order. Please try again."),
   });
+
+  const [startingGuest, setStartingGuest] = useState(false);
+  const chooseGuest = async () => {
+    setStartingGuest(true);
+    try {
+      await startGuest();
+      setGuestMode(true);
+      setAuthLost(false);
+    } catch (error: any) {
+      toast.error(error?.message ?? "We couldn't start a guest checkout.");
+    } finally {
+      setStartingGuest(false);
+    }
+  };
 
   const submitReference = useMutation({
     mutationFn: () =>
-      saveReference({ data: { orderId: confirmed!.id, reference } }),
+      saveReference({ data: { orderId: confirmed!.id, reference, mode: confirmed?.guest ? "guest" : "member" } }),
     onSuccess: () => {
       setReferenceSaved(true);
       toast.success("Thanks — we'll confirm your payment shortly.");
@@ -498,6 +593,11 @@ function CheckoutPage() {
               </span>
               .
             </p>
+            {confirmed.guest ? (
+              <p className="mt-2 text-sm text-muted-foreground">
+                Guest order: your confirmation is sent to the email you entered. Keep your order number for any questions.
+              </p>
+            ) : null}
             <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">
               {confirmed.paymentMethod === "card"
                 ? "Your card payment was approved and verified with Stripe. Your order is confirmed."
@@ -537,9 +637,11 @@ function CheckoutPage() {
             ) : null}
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button asChild variant="outline" className="font-bold uppercase">
-                <Link to="/orders">View my orders</Link>
-              </Button>
+              {confirmed.guest ? null : (
+                <Button asChild variant="outline" className="font-bold uppercase">
+                  <Link to="/orders">View my orders</Link>
+                </Button>
+              )}
               <Button asChild className="font-bold uppercase">
                 <Link to="/range">Keep shopping</Link>
               </Button>
@@ -564,6 +666,23 @@ function CheckoutPage() {
         <p className="mt-2 text-sm text-muted-foreground">
           Confirm your delivery details and review your order.
         </p>
+        <FirstOfferBanner className="mt-4" />
+        {authLost && !session ? (
+          <div role="alert" className="mt-4 border border-destructive/60 bg-destructive/10 p-4 text-sm">
+            <p className="font-bold text-foreground">Your login has expired.</p>
+            <p className="mt-1 text-muted-foreground">
+              Sign in again to keep your member rewards, or choose to continue as a guest.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button asChild size="sm" className="font-bold uppercase">
+                <a href="/auth?redirect=%2Fcheckout">Sign in again</a>
+              </Button>
+              <Button size="sm" variant="outline" className="font-bold uppercase" onClick={() => void chooseGuest()}>
+                Continue as guest
+              </Button>
+            </div>
+          </div>
+        ) : null}
 
         {items.length === 0 ? (
           <div className="mt-8 rounded-xl border border-border bg-card p-8 text-center">
@@ -689,7 +808,8 @@ function CheckoutPage() {
                         disabled={
                           startStripeCardPayment.isPending ||
                           !stripePromise ||
-                          !acknowledged
+                          !acknowledged ||
+                          !mode
                         }
                         onClick={() => startStripeCardPayment.mutate()}
                       >
@@ -718,7 +838,12 @@ function CheckoutPage() {
                         onPaid={(paymentIntentId) =>
                           verifyStripeCardPayment.mutate(paymentIntentId)
                         }
-                        onCancel={() => setStripeClientSecret(null)}
+                        onCancel={() => {
+                          const id = stripeIntentId;
+                          setStripeClientSecret(null);
+                          setStripeIntentId(null);
+                          if (id && mode) void cancelStripe({ data: { paymentIntentId: id, mode } }).catch(() => undefined);
+                        }}
                         acknowledged={acknowledged}
                       />
                     </Elements>
@@ -783,7 +908,7 @@ function CheckoutPage() {
 
               <div className="mt-6 space-y-3 border-t border-border pt-4">
                 <p className="technical-label text-foreground">Code &amp; store credit</p>
-                {session ? (
+                {mode ? (
                   <>
                     {appliedCode && !codeError ? (
                       <div className="flex items-center justify-between rounded border border-accent/50 bg-accent/10 px-3 py-2 text-sm">
@@ -807,7 +932,7 @@ function CheckoutPage() {
                       </form>
                     )}
                     {appliedCode && codeError ? <p className="text-xs text-destructive" role="alert">{codeError}</p> : null}
-                    {availableCredit > 0 && settings.maxCreditUnits > 0 ? (
+                    {session && availableCredit > 0 && settings.maxCreditUnits > 0 ? (
                       <div>
                         <p className="text-xs text-muted-foreground">
                           You have {availableCredit} × {formatPrice(unitDollars)} store credit available. Use up to {settings.maxCreditUnits} per order on products (not shipping).
@@ -823,7 +948,7 @@ function CheckoutPage() {
                     ) : null}
                   </>
                 ) : (
-                  <p className="text-xs text-muted-foreground">Log in to apply a code or store credit.</p>
+                  <p className="text-xs text-muted-foreground">Log in or continue as guest to apply a code. Store credit is for members.</p>
                 )}
                 {quote.notices.filter((n) => n !== codeError).map((n) => (
                   <p key={n} className="text-xs text-muted-foreground">{n}</p>
@@ -852,6 +977,12 @@ function CheckoutPage() {
                 ) : null}
                 {quote.capApplied ? (
                   <p className="text-xs text-muted-foreground">Combined savings capped at {quote.capPercent}%.</p>
+                ) : null}
+                {quote.firstOfferCents > 0 ? (
+                  <div className="flex justify-between font-bold text-accent">
+                    <span>First purchase {quote.firstOfferPercent}% off</span>
+                    <span>−{formatPrice(quote.firstOfferCents / 100)}</span>
+                  </div>
                 ) : null}
                 {quote.codeCents > 0 ? (
                   <div className="flex justify-between font-bold text-accent">
@@ -908,7 +1039,7 @@ function CheckoutPage() {
                 <TitanTrustStrip />
               </div>
 
-              {session ? (
+              {mode ? (
                 method === "card" ? (
                   <p className="mt-6 text-center text-xs text-muted-foreground">
                     Complete your secure Stripe payment in the payment section.
@@ -933,16 +1064,27 @@ function CheckoutPage() {
                 )
               ) : (
                 <>
-                  <Button
-                    asChild
-                    size="lg"
-                    className="mt-6 w-full font-bold uppercase tracking-wide"
-                  >
-                    <Link to="/auth">Log in to submit your order</Link>
-                  </Button>
+                  <div className="mt-6 grid gap-2">
+                    <Button asChild size="lg" className="w-full font-bold uppercase tracking-wide">
+                      <a href="/auth?redirect=%2Fcheckout">Log in</a>
+                    </Button>
+                    <Button asChild size="lg" variant="outline" className="w-full font-bold uppercase tracking-wide">
+                      <a href="/auth/signup?redirect=%2Fcheckout">Join as a member</a>
+                    </Button>
+                    <Button
+                      type="button"
+                      size="lg"
+                      variant="ghost"
+                      className="w-full font-bold uppercase tracking-wide underline underline-offset-4"
+                      disabled={startingGuest}
+                      onClick={() => void chooseGuest()}
+                    >
+                      {startingGuest ? "Starting…" : "Continue as guest"}
+                    </Button>
+                  </div>
 
                   <p className="mt-3 text-center text-xs text-muted-foreground">
-                    Your cart is saved while you log in.
+                    Your cart is saved while you log in. Guests can check out without an account; member rewards and store credit need an account.
                   </p>
                 </>
               )}
