@@ -142,7 +142,8 @@ export function getProductOption(
 ) {
   const variant = (product.variants ?? []).find((v) => v.id === variantId) ?? null;
   const singlePrice = variant ? variant.price : product.price;
-  const basePrice = pack === "kit" ? kitPriceFor(singlePrice, variant?.kitPrice ?? product.kitPrice) : singlePrice;\n  const unitPrice = basePrice + (starterKit ? STARTER_KIT_PRICE : 0);
+  const basePrice = pack === "kit" ? kitPriceFor(singlePrice, variant?.kitPrice ?? product.kitPrice) : singlePrice;
+  const unitPrice = basePrice + (starterKit ? STARTER_KIT_PRICE : 0);
   const variantLabel = variant?.label ?? "Single vial";
   return {
     key: cartLineKey(product.slug, variant?.id ?? null, pack, starterKit),
