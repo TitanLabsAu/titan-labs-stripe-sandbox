@@ -14,12 +14,14 @@ export type CartItem = {
   variantId?: string | null;
   variantLabel?: string | null;
   pack?: ProductPack;
+  starterKit?: boolean;
 };
 
 export type CartItemOption = {
   variantId?: string | null;
   variantLabel?: string | null;
   pack?: ProductPack;
+  starterKit?: boolean;
 };
 
 type CartContextValue = {
@@ -61,6 +63,7 @@ function normalizeItem(raw: unknown): CartItem | null {
     variantId,
     variantLabel: typeof item.variantLabel === "string" ? item.variantLabel : null,
     pack,
+    starterKit: Boolean(item.starterKit),
   };
 }
 
@@ -126,6 +129,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
               variantId,
               variantLabel: option?.variantLabel ?? null,
               pack,
+              starterKit,
             },
           ];
         });
