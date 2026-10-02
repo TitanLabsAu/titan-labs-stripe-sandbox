@@ -238,6 +238,48 @@ export type Database = {
         }
         Relationships: []
       }
+      member_calendar_entries: {
+        Row: {
+          created_at: string
+          dose_label: string
+          end_date: string | null
+          frequency: string
+          id: string
+          notes: string
+          product_name: string
+          start_date: string
+          time_of_day: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dose_label?: string
+          end_date?: string | null
+          frequency?: string
+          id?: string
+          notes?: string
+          product_name: string
+          start_date: string
+          time_of_day?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dose_label?: string
+          end_date?: string | null
+          frequency?: string
+          id?: string
+          notes?: string
+          product_name?: string
+          start_date?: string
+          time_of_day?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       order_acknowledgements: {
         Row: {
           accepted: boolean
@@ -593,6 +635,7 @@ export type Database = {
           sale_price: number | null
           slug: string
           sort_order: number
+          starter_kit_enabled: boolean
           stock_quantity: number
           updated_at: string
         }
@@ -623,6 +666,7 @@ export type Database = {
           sale_price?: number | null
           slug: string
           sort_order?: number
+          starter_kit_enabled?: boolean
           stock_quantity?: number
           updated_at?: string
         }
@@ -653,6 +697,7 @@ export type Database = {
           sale_price?: number | null
           slug?: string
           sort_order?: number
+          starter_kit_enabled?: boolean
           stock_quantity?: number
           updated_at?: string
         }
