@@ -192,7 +192,7 @@ function ProductPage() {
                 </div>
               </div>
 
-              <label className="mt-5 flex cursor-pointer items-start gap-3 border border-border bg-muted/30 p-3 text-xs text-muted-foreground"><input type="checkbox" checked={starterKit} onChange={(e)=>setStarterKit(e.target.checked)} /><span><strong className="text-foreground">Add Starter Kit (+{formatPrice(STARTER_KIT_PRICE)})</strong><br/>{STARTER_KIT_CONTENTS.join(" · ")}</span></label>\n\n              <label className="mt-6 block text-xs font-bold uppercase tracking-[0.2em] text-accent">
+              {!(product.categories ?? []).includes("Disposable Pens") ? <label className="mt-5 flex cursor-pointer items-start gap-3 border border-border bg-muted/30 p-3 text-xs text-muted-foreground"><input type="checkbox" checked={starterKit} onChange={(e)=>setStarterKit(e.target.checked)} /><span><strong className="text-foreground">Add Starter Kit (+{formatPrice(STARTER_KIT_PRICE)})</strong><br/>{STARTER_KIT_CONTENTS.join(" · ")}</span></label> : null}\n\n              <label className="mt-6 block text-xs font-bold uppercase tracking-[0.2em] text-accent">
                 Quantity
               </label>
               <div className="mt-3 flex items-center gap-3">
