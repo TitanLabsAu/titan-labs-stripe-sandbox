@@ -22,6 +22,7 @@ import {
   TEXT_ALIGN_CLASS,
 } from "@/lib/homeContent";
 import { cn } from "@/lib/utils";
+import { ReviewsStrip } from "@/components/ReviewsStrip";
 import logoAsset from "@/assets/titan-labs-new-logo.png.asset.json";
 
 export const Route = createFileRoute("/")({
@@ -305,6 +306,7 @@ function Index() {
             );
           return null;
         })}
+        <ReviewsStrip />
       </main>
 
       <SiteFooter />

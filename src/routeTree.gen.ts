@@ -16,6 +16,7 @@ import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RangeRouteImport } from './routes/range'
+import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as StacksRouteImport } from './routes/stacks'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
@@ -68,6 +69,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const RangeRoute = RangeRouteImport.update({
   id: '/range',
   path: '/range',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReviewsRoute = ReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StacksRoute = StacksRouteImport.update({
@@ -178,6 +184,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/privacy': typeof PrivacyRoute
   '/range': typeof RangeRoute
+  '/reviews': typeof ReviewsRoute
   '/stacks': typeof StacksRoute
   '/terms': typeof TermsRoute
   '/account': typeof AuthenticatedAccountRoute
@@ -205,6 +212,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/privacy': typeof PrivacyRoute
   '/range': typeof RangeRoute
+  '/reviews': typeof ReviewsRoute
   '/stacks': typeof StacksRoute
   '/terms': typeof TermsRoute
   '/account': typeof AuthenticatedAccountRoute
@@ -234,6 +242,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/privacy': typeof PrivacyRoute
   '/range': typeof RangeRoute
+  '/reviews': typeof ReviewsRoute
   '/stacks': typeof StacksRoute
   '/terms': typeof TermsRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
@@ -263,6 +272,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/privacy'
     | '/range'
+    | '/reviews'
     | '/stacks'
     | '/terms'
     | '/account'
@@ -290,6 +300,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/privacy'
     | '/range'
+    | '/reviews'
     | '/stacks'
     | '/terms'
     | '/account'
@@ -318,6 +329,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/privacy'
     | '/range'
+    | '/reviews'
     | '/stacks'
     | '/terms'
     | '/_authenticated/account'
@@ -347,6 +359,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   PrivacyRoute: typeof PrivacyRoute
   RangeRoute: typeof RangeRoute
+  ReviewsRoute: typeof ReviewsRoute
   StacksRoute: typeof StacksRoute
   TermsRoute: typeof TermsRoute
   ApiAdminGenerateImageRoute: typeof ApiAdminGenerateImageRoute
@@ -411,6 +424,13 @@ declare module '@tanstack/react-router' {
       path: '/range'
       fullPath: '/range'
       preLoaderRoute: typeof RangeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reviews': {
+      id: '/reviews'
+      path: '/reviews'
+      fullPath: '/reviews'
+      preLoaderRoute: typeof ReviewsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/stacks': {
@@ -579,6 +599,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   PrivacyRoute: PrivacyRoute,
   RangeRoute: RangeRoute,
+  ReviewsRoute: ReviewsRoute,
   StacksRoute: StacksRoute,
   TermsRoute: TermsRoute,
   ApiAdminGenerateImageRoute: ApiAdminGenerateImageRoute,

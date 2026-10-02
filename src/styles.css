@@ -425,3 +425,22 @@
     filter: saturate(1.05) contrast(1.04);
   }
 }
+
+/* Customer reviews band: dark navy, electric blue, gold */
+.review-band {
+  --review-bg: oklch(0.2 0.05 260);
+  --review-card: oklch(0.25 0.06 260);
+  --review-blue: oklch(0.72 0.17 240);
+  --review-gold: oklch(0.82 0.14 85);
+  --review-line: oklch(0.38 0.06 255);
+  --review-muted: oklch(0.72 0.03 255);
+  background: var(--review-bg);
+  color: oklch(0.97 0.01 255);
+}
+.review-card { background: var(--review-card); border-color: var(--review-line); }
+.review-track--animate { animation: review-scroll linear infinite; }
+.review-viewport:hover .review-track--animate,
+.review-viewport:focus-within .review-track--animate,
+.review-track--paused { animation-play-state: paused; }
+@keyframes review-scroll { from { transform: translateX(0); } to { transform: translateX(calc(-50% - 0.625rem)); } }
+@media (prefers-reduced-motion: reduce) { .review-track--animate { animation: none; } }
