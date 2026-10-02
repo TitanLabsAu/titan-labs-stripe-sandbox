@@ -1,8 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { effectivePack, kitPriceFor } from "@/lib/products";
-import { computeTotals, type ShippingMethodKey } from "@/lib/pricing";
+import type { ShippingMethodKey } from "@/lib/pricing";
 import type { SubmitOrderItem, SubmittedOrder } from "@/lib/orders.functions";
 
 const EWAY_SANDBOX_BASE = "https://api.sandbox.ewaypayments.com";
@@ -19,6 +18,8 @@ type CardCheckoutInput = {
   notes?: string;
   shippingMethod?: ShippingMethodKey;
   items: SubmitOrderItem[];
+  code?: string | null;
+  creditUnits?: number;
 };
 
 type PreparedPayload = {
@@ -49,10 +50,26 @@ type PreparedPayload = {
     quantity: number;
     variant_label: string;
   }>;
+  pricing?: Record<string, any>;
 };
 
 function clean(value: string | undefined, max: number) {
   return (value ?? "").trim().slice(0, max);
+}
+
+function pricingColumns(p: Record<string, any> | undefined, userId: string) {
+  if (!p) return {};
+  return {
+    discount_code_id: p["discount_code_id"] ?? null,
+    discount_code: p["discount_code"] ?? null,
+    discount_code_kind: p["discount_code_kind"] ?? null,
+    code_discount_cents: Number(p["code_discount_cents"]) || 0,
+    referrer_user_id: p["referrer_user_id"] && p["referrer_user_id"] !== userId ? p["referrer_user_id"] : null,
+    credit_units: Number(p["credit_units"]) || 0,
+    credit_cents: Number(p["credit_cents"]) || 0,
+    credit_reservation_id: p["credit_reservation_id"] ?? null,
+    pricing_snapshot: p,
+  };
 }
 
 function ewayAuthHeader() {
@@ -81,10 +98,7 @@ async function ewayFetch(path: string, init?: RequestInit) {
   return body;
 }
 
-async function prepareCardOrder(data: CardCheckoutInput, supabase: any): Promise<PreparedPayload> {
-  const items = (data.items ?? []).filter((i) => i.slug && i.quantity > 0).slice(0, 50);
-  if (items.length === 0) throw new Error("Your order is empty.");
-
+async function prepareCardOrder(data: CardCheckoutInput, userId: string): Promise<{ payload: PreparedPayload; creditUnits: number }> {
   const firstName = clean(data.firstName, 80);
   const lastName = clean(data.lastName, 80);
   const email = clean(data.email, 160);
@@ -96,62 +110,38 @@ async function prepareCardOrder(data: CardCheckoutInput, supabase: any): Promise
   if (!firstName || !lastName || !email || !phone) throw new Error("Please add your name, email and contact number.");
   if (!addressLine || !city || !state || !postcode) throw new Error("Please complete your delivery address.");
 
-  const slugs = [...new Set(items.map((i) => i.slug))];
-  const { data: products, error: productError } = await supabase
-    .from("products")
-    .select("slug, name, price, sale_price, kit_price, product_variants, catalogue_section")
-    .in("slug", slugs)
-    .eq("active", true);
-  if (productError) throw productError;
-
-  const bySlug = new Map((products ?? []).map((p: any) => [p.slug, p]));
-  let rawSubtotal = 0;
-  let units = 0;
-  const lines: PreparedPayload["lines"] = [];
-
-  for (const item of items) {
-    const product: any = bySlug.get(item.slug);
-    if (!product) throw new Error("One of the items is no longer available.");
-    const variants = Array.isArray(product.product_variants) ? product.product_variants : [];
-    const variant = variants.find((v: any) => String(v?.id) === String(item.variantId ?? "")) ?? null;
-    const listPrice = Number(product.price);
-    const sale = product.sale_price == null ? null : Number(product.sale_price);
-    const basePrice = sale != null && sale > 0 && sale < listPrice ? sale : listPrice;
-    const singlePrice = variant ? Number(variant.price) : basePrice;
-    const pack = effectivePack(product, item.pack);
-    const unitPrice = pack === "kit" ? kitPriceFor(singlePrice, variant?.kitPrice ?? product.kit_price) : singlePrice;
-    const quantity = Math.min(99, Math.max(1, Math.floor(item.quantity)));
-    const label = variant?.label ? String(variant.label) : "Single vial";
-    rawSubtotal += unitPrice * quantity;
-    units += quantity;
-    lines.push({
-      product_slug: product.slug,
-      product_name: product.name,
-      unit_price: unitPrice,
-      quantity,
-      variant_label: pack === "kit" ? `${label} · 10x Kit` : label,
-    });
-  }
-
   const shippingMethod: ShippingMethodKey = data.shippingMethod === "standard" ? "standard" : "express";
-  const totals = computeTotals({ subtotal: rawSubtotal, units, shippingMethod, paymentMethod: "card" });
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { priceCheckout, pricingNote, pricingSnapshot, discountDollars } = await import("@/lib/checkout-pricing.server");
+  const priced = await priceCheckout(supabaseAdmin, userId, {
+    items: data.items,
+    shippingMethod,
+    paymentMethod: "card",
+    code: data.code ?? null,
+    creditUnits: data.creditUnits ?? 0,
+  });
+  if (data.code && priced.codeError) throw new Error(priced.codeError);
+  const q = priced.quote;
   const shippingAddress = [addressLine, city, `${state} ${postcode}`.trim()].filter(Boolean).join(", ");
-  const discountNote = totals.discountTotal > 0 ? `Discounts: Titan Stack ${totals.stackPercent}% (−$${totals.discountTotal.toFixed(2)})` : "";
   const shippingNote = `Shipping: ${shippingMethod === "standard" ? "Standard tracked (3-7 days)" : "Express + insurance (1-4 days)"}`;
-  const notes = [clean(data.notes, 500), shippingNote, discountNote].filter(Boolean).join("\n");
+  const notes = [clean(data.notes, 500), shippingNote, pricingNote(q)].filter(Boolean).join("\n");
 
   return {
-    customer: { firstName, lastName, email, phone, addressLine, city, state, postcode, shippingAddress },
-    notes,
-    shippingMethod,
-    totals: {
-      subtotal: totals.subtotal,
-      discount: totals.discountTotal,
-      shipping: totals.shipping,
-      total: totals.total,
-      stackPercent: totals.stackPercent,
+    creditUnits: q.creditUnits,
+    payload: {
+      customer: { firstName, lastName, email, phone, addressLine, city, state, postcode, shippingAddress },
+      notes,
+      shippingMethod,
+      totals: {
+        subtotal: q.itemsCents / 100,
+        discount: discountDollars(q),
+        shipping: q.shippingCents / 100,
+        total: q.totalCents / 100,
+        stackPercent: q.multibuyPercent,
+      },
+      lines: priced.lines,
+      pricing: pricingSnapshot(priced, null),
     },
-    lines,
   };
 }
 
@@ -159,17 +149,32 @@ export const createEwaySandboxPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: CardCheckoutInput) => input)
   .handler(async ({ data, context }) => {
-    const payload = await prepareCardOrder(data, context.supabase);
+    const { payload, creditUnits } = await prepareCardOrder(data, context.userId);
     const amountCents = Math.round(payload.totals.total * 100);
-    if (amountCents <= 0) throw new Error("The order total must be greater than zero.");
+    if (amountCents <= 0) throw new Error("This order total is $0 — please submit it using the PayID option instead.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    let reservationId: string | null = null;
+    if (creditUnits > 0) {
+      const { data: rid, error: reserveError } = await (supabaseAdmin as any).rpc("reserve_store_credit", {
+        _user_id: context.userId, _units: creditUnits, _payment_attempt_id: null, _ttl_minutes: 2880,
+      });
+      if (reserveError) throw new Error("Your store credit balance changed. Please review your order.");
+      reservationId = String(rid);
+      payload.pricing = { ...(payload.pricing ?? {}), credit_reservation_id: reservationId };
+    }
     const { data: attempt, error: attemptError } = await (supabaseAdmin as any)
       .from("payment_attempts")
       .insert({ user_id: context.userId, amount_cents: amountCents, order_payload: payload })
       .select("id")
       .single();
-    if (attemptError) throw attemptError;
+    if (attemptError) {
+      if (reservationId) await (supabaseAdmin as any).rpc("release_store_credit", { _reservation_id: reservationId });
+      throw attemptError;
+    }
+    if (reservationId) {
+      await (supabaseAdmin as any).rpc("attach_store_credit_reservation", { _reservation_id: reservationId, _payment_attempt_id: attempt.id });
+    }
 
     const request = getRequest();
     if (!request) throw new Error("Unable to determine the checkout URL.");
@@ -217,6 +222,7 @@ export const createEwaySandboxPayment = createServerFn({ method: "POST" })
       if (updateError) throw updateError;
       return { accessCode: String(eway.AccessCode), sharedPaymentUrl: String(eway.SharedPaymentUrl) };
     } catch (error) {
+      await (supabaseAdmin as any).rpc("release_store_credit_for_attempt", { _payment_attempt_id: attempt.id });
       await (supabaseAdmin as any).from("payment_attempts").update({ status: "failed" }).eq("id", attempt.id);
       throw error;
     }
@@ -264,6 +270,7 @@ export const verifyEwaySandboxPayment = createServerFn({ method: "POST" })
     if (result.TransactionStatus !== true || !transactionId || !amountMatches) {
       const failure = !amountMatches ? "AMOUNT_MISMATCH" : String(result.ResponseMessage || result.Errors || "DECLINED");
       await (supabaseAdmin as any).from("payment_attempts").update({ status: "failed", error_code: failure, transaction_id: transactionId }).eq("id", attempt.id);
+      await (supabaseAdmin as any).rpc("release_store_credit_for_attempt", { _payment_attempt_id: attempt.id });
       throw new Error(amountMatches ? "The card payment was not approved." : "The payment amount could not be verified.");
     }
 
@@ -287,6 +294,7 @@ export const verifyEwaySandboxPayment = createServerFn({ method: "POST" })
         contact_phone: payload.customer.phone,
         shipping_address: payload.customer.shippingAddress,
         notes: payload.notes,
+        ...pricingColumns(payload.pricing, context.userId),
       })
       .select("id, order_number")
       .single();
