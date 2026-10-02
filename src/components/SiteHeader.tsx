@@ -64,7 +64,7 @@ export function SiteHeader() {
         navAlign === "right" && "justify-end",
       )}
     >
-      {[...tabOrder, ...(tabOrder.includes("research") ? [] : ["research"]), ...(signedIn && !tabOrder.includes("calendar") ? ["calendar"] : [])].map((tab) => {
+      {[...tabOrder, "research", ...(signedIn ? ["calendar"] : [])].map((tab) => {
         if (tab === "home") return navButton(tab, "/", "header_nav_home", Home);
         if (tab === "range") return <Button key={tab} asChild variant="outline" size="icon"><Link to="/range" aria-label={catalogueName(content)} title={catalogueName(content)}><FlaskConical /></Link></Button>;
         if (tab === "calculator") return navButton(tab, "/calculator", "header_nav_calculator", Calculator, "outline");\n        if (tab === "research") return <Button key={tab} asChild variant="outline" size="icon"><Link to="/research-lab" aria-label="Titan Research Lab" title="Titan Research Lab"><BookOpen /></Link></Button>;\n        if (tab === "calendar" && signedIn) return <Button key={tab} asChild variant="outline" size="icon"><Link to="/calendar" aria-label="My Calendar" title="My Calendar"><CalendarDays /></Link></Button>;
