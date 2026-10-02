@@ -16,6 +16,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { CartProvider } from "@/lib/cart";
+import { CartSheet } from "@/components/CartSheet";
 
 function NotFoundComponent() {
   return (
@@ -135,6 +136,7 @@ function RootComponent() {
       <CartProvider>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
+        <CartSheet floating />
       </CartProvider>
       <Toaster position="top-center" richColors />
     </QueryClientProvider>
