@@ -110,6 +110,12 @@ function ProgramSettings() {
         allowCreditCode: s.allowCreditCode,
         allowCreditDiscounts: s.allowCreditDiscounts,
         enabled: s.programEnabled,
+        foEnabled: s.firstOffer.enabled,
+        foPercent: String(s.firstOffer.percent),
+        foMultibuy: s.firstOffer.combineMultibuy,
+        foCrypto: s.firstOffer.combineCrypto,
+        foCode: s.firstOffer.combineCode,
+        foCredit: s.firstOffer.combineCredit,
       });
   }, [raw, f, s]);
 
@@ -133,6 +139,12 @@ function ProgramSettings() {
           allow_credit_code: f.allowCreditCode,
           allow_credit_discounts: f.allowCreditDiscounts,
           program_enabled: f.enabled,
+          first_offer_enabled: f.foEnabled,
+          first_offer_percent: Number(f.foPercent),
+          first_offer_combine_multibuy: f.foMultibuy,
+          first_offer_combine_crypto: f.foCrypto,
+          first_offer_combine_code: f.foCode,
+          first_offer_combine_credit: f.foCredit,
         },
       }),
     onSuccess: () => {
@@ -189,6 +201,25 @@ function ProgramSettings() {
         <Check label="Codes stack with crypto" checked={f.allowCodeCrypto} onChange={set("allowCodeCrypto")} />
         <Check label="Store credit stacks with codes" checked={f.allowCreditCode} onChange={set("allowCreditCode")} />
         <Check label="Store credit stacks with multi-buy / crypto" checked={f.allowCreditDiscounts} onChange={set("allowCreditDiscounts")} />
+      </div>
+      <div className="mt-6 border-t border-border pt-5">
+        <p className="technical-label text-foreground">New-member first purchase offer</p>
+        <p className="mt-1 max-w-2xl text-xs text-muted-foreground">
+          Verified members with no earlier order (by account or email, including guest orders) get this off their first order's products, not shipping. By default the better of this offer or multi-buy / crypto / code is used. It counts toward the combined cap.
+        </p>
+        <div className="mt-3 grid gap-4 sm:grid-cols-3">
+          <div>
+            <Label>Offer percentage (%)</Label>
+            <Input className="mt-2" type="number" min={0} max={50} value={f.foPercent} onChange={(e) => set("foPercent")(e.target.value)} />
+          </div>
+        </div>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          <Check label="First purchase offer switched on" checked={f.foEnabled} onChange={set("foEnabled")} />
+          <Check label="Offer stacks with multi-buy (within cap)" checked={f.foMultibuy} onChange={set("foMultibuy")} />
+          <Check label="Offer stacks with crypto (within cap)" checked={f.foCrypto} onChange={set("foCrypto")} />
+          <Check label="Offer stacks with codes" checked={f.foCode} onChange={set("foCode")} />
+          <Check label="Offer stacks with store credit" checked={f.foCredit} onChange={set("foCredit")} />
+        </div>
       </div>
       <Button className="mt-5 font-bold uppercase" disabled={save.isPending} onClick={() => save.mutate()}>
         Save rules
