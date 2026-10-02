@@ -174,7 +174,7 @@
       "idx": 24,
       "version": "7",
       "when": 1790978702293,
-      "tag": "0024_guest_checkout_first_offer",
+      "tag": "0026_guest_checkout_first_offer",
       "breakpoints": true
     }
   ]
