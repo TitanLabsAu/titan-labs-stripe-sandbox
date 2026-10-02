@@ -565,54 +565,11 @@ export type Database = {
           },
         ]
       }
-      member_calendar_entries: {
-        Row: {
-          id: string;
-          user_id: string;
-          product_name: string;
-          dose_label: string;
-          start_date: string;
-          end_date: string | null;
-          frequency: string;
-          time_of_day: string | null;
-          notes: string;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          user_id: string;
-          product_name: string;
-          dose_label?: string;
-          start_date: string;
-          end_date?: string | null;
-          frequency?: string;
-          time_of_day?: string | null;
-          notes?: string;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          user_id?: string;
-          product_name?: string;
-          dose_label?: string;
-          start_date?: string;
-          end_date?: string | null;
-          frequency?: string;
-          time_of_day?: string | null;
-          notes?: string;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Relationships: [];
-      };
       products: {
         Row: {
           active: boolean
           alt: string
           blurb: string
-          starter_kit_enabled: boolean
           catalogue_section: string
           categories: string[]
           coming_soon: boolean
@@ -643,7 +600,6 @@ export type Database = {
           active?: boolean
           alt?: string
           blurb?: string
-          starter_kit_enabled?: boolean
           catalogue_section?: string
           categories?: string[]
           coming_soon?: boolean
@@ -674,7 +630,6 @@ export type Database = {
           active?: boolean
           alt?: string
           blurb?: string
-          starter_kit_enabled?: boolean
           catalogue_section?: string
           categories?: string[]
           coming_soon?: boolean
@@ -1295,4 +1250,3 @@ export const Constants = {
     },
   },
 } as const
-
