@@ -183,6 +183,13 @@
       "when": 1790978901071,
       "tag": "0027_first_offer_attached_claims_hold",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1790979701675,
+      "tag": "0028_revoke_guest_table_grants",
+      "breakpoints": true
     }
   ]
 }
