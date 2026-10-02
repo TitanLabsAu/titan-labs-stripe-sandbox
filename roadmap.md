@@ -38,3 +38,12 @@
 - [x] Zero-value referral keeps attribution when multi-buy wins
 - [x] Reservations: no TTL consumption after release/respend; no negative balance
 - [x] Tests for all above + concurrency
+
+## Guest checkout + first-purchase offer (rollout-updates-1-6, no publish)
+- [ ] Migration 0026 applied; journal renamed
+- [ ] Attached Stripe first-offer claims never expire while intent payable (release only on fail/cancel)
+- [ ] Eligibility uses verified auth email + contact email
+- [ ] AUTH_EXPIRED: try session refresh, then sign-in/guest choice; no silent downgrade
+- [ ] Guest cookie works across server fns and Stripe redirect
+- [ ] Server-side acknowledgement both paths; Stripe/webhook/PayID wired
+- [ ] Banner, Admin settings, guest labels, tests, build
