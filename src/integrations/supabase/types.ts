@@ -58,6 +58,42 @@ export type Database = {
           },
         ]
       }
+      customer_reviews: {
+        Row: {
+          created_at: string
+          id: string
+          location: string | null
+          published: boolean
+          rating: number | null
+          review_text: string
+          reviewer_name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          location?: string | null
+          published?: boolean
+          rating?: number | null
+          review_text: string
+          reviewer_name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          location?: string | null
+          published?: boolean
+          rating?: number | null
+          review_text?: string
+          reviewer_name?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       discount_codes: {
         Row: {
           active: boolean
@@ -448,6 +484,7 @@ export type Database = {
           active: boolean
           alt: string
           blurb: string
+          catalogue_section: string
           categories: string[]
           coming_soon: boolean
           created_at: string
@@ -477,6 +514,7 @@ export type Database = {
           active?: boolean
           alt?: string
           blurb?: string
+          catalogue_section?: string
           categories?: string[]
           coming_soon?: boolean
           created_at?: string
@@ -506,6 +544,7 @@ export type Database = {
           active?: boolean
           alt?: string
           blurb?: string
+          catalogue_section?: string
           categories?: string[]
           coming_soon?: boolean
           created_at?: string
