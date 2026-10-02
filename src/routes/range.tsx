@@ -83,11 +83,31 @@ function RangePage() {
 
   useEffect(() => setMounted(true), []);
 
+  // Only sections with at least one publicly visible product get a tab.
+  const availableSections = CATALOGUE_SECTIONS.filter(
+    (s) => filterBySection(products, s).length > 0,
+  );
+  const requestedSection: CatalogueSection = mounted ? section : "range";
+  const activeSection: CatalogueSection = availableSections.includes(requestedSection)
+    ? requestedSection
+    : (availableSections[0] ?? "range");
+  const sectionProducts = filterBySection(products, activeSection);
+  const availableCategories = CATEGORIES.filter((c) =>
+    sectionProducts.some((p) => (p.categories ?? []).includes(c)),
+  );
+  const categoryValid = category === "All" || (availableCategories as string[]).includes(category);
+
+  useEffect(() => {
+    if (activeSection !== section) setSection(activeSection);
+  }, [activeSection, section]);
+  useEffect(() => {
+    if (!categoryValid) setCategory("All");
+  }, [categoryValid]);
+
   const term = mounted ? search.trim().toLowerCase() : "";
-  const activeCategory = mounted ? category : "All";
+  const activeCategory = mounted && categoryValid ? category : "All";
   const activeSort = mounted ? sort : "name-asc";
-  const activeSection: CatalogueSection = mounted ? section : "range";
-  const matched = filterBySection(products, activeSection).filter((p) => {
+  const matched = sectionProducts.filter((p) => {
     const inCategory =
       activeCategory === "All" || (p.categories ?? []).includes(activeCategory);
     if (!inCategory) return false;
@@ -183,8 +203,18 @@ function RangePage() {
           if (section === "products")
             return (
               <section key={section} className="border-t border-border py-7">
-                <div role="tablist" aria-label="Catalogue sections" className="mb-5 grid grid-cols-3 gap-2 sm:max-w-xl">
-                  {CATALOGUE_SECTIONS.map((s) => (
+                {availableSections.length > 0 && (
+                <div
+                  role="tablist"
+                  aria-label="Catalogue sections"
+                  className={cn(
+                    "mb-5 grid gap-2",
+                    availableSections.length === 1 && "grid-cols-1 max-w-[12rem]",
+                    availableSections.length === 2 && "grid-cols-2 sm:max-w-sm",
+                    availableSections.length >= 3 && "grid-cols-3 sm:max-w-xl",
+                  )}
+                >
+                  {availableSections.map((s) => (
                     <button
                       key={s}
                       type="button"
@@ -202,6 +232,7 @@ function RangePage() {
                     </button>
                   ))}
                 </div>
+                )}
                 <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_13rem_auto]">
                   <label className="relative">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -215,13 +246,13 @@ function RangePage() {
                     />
                   </label>
                   <select
-                    value={category}
+                    value={activeCategory}
                     onChange={(e) => setCategory(e.target.value)}
                     aria-label="Filter by category"
                     className="h-11 rounded-xl border border-input bg-card px-3 text-sm text-foreground"
                   >
                     <option value="All">All categories</option>
-                    {CATEGORIES.map((c) => (
+                    {availableCategories.map((c) => (
                       <option key={c} value={c}>
                         {c}
                       </option>
@@ -271,8 +302,8 @@ function RangePage() {
                     </p>
                     {visible.length === 0 ? (
                       <p className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-                        {activeSection !== "range" && filterBySection(products, activeSection).length === 0
-                          ? `No ${CATALOGUE_SECTION_LABELS[activeSection].toLowerCase()} are available yet — check back soon, or browse the Range.`
+                        {products.length === 0
+                          ? "No products are available yet — check back soon."
                           : "No products match your search — try another word or category."}
                       </p>
                     ) : (
