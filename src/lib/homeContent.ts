@@ -179,6 +179,12 @@ export const PAYMENT_FIELDS: HomeField[] = [
     fallback:
       "Your order is confirmed. Complete your payment using the details above and we will dispatch as soon as it clears.",
   },
+  {
+    key: "order_admin_email",
+    label: "Order notification email (receives a copy of every customer order email)",
+    align: "left",
+    fallback: "sjrendall@live.com.au",
+  },
 ];
 
 /** Legal pages (/terms, /privacy), editable in Admin → Website editor → Legal. */
