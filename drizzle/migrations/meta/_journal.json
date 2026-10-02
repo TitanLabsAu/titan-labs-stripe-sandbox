@@ -125,7 +125,14 @@
       "idx": 17,
       "version": "7",
       "when": 1790930994057,
-      "tag": "0017_referral_rewards_and_pricing_settings",
+      "tag": "0019_referral_rewards_and_pricing_settings",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1790931812845,
+      "tag": "0020_referral_credit_safety_fixes",
       "breakpoints": true
     }
   ]

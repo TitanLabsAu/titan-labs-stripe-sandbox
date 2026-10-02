@@ -69,7 +69,7 @@ export const adminListOrders = createServerFn({ method: "POST" })
     const { data: orders, error } = await context.supabase
       .from("orders")
       .select(
-        "id, user_id, status, tracking_number, tracking_status, subtotal, shipping, total, created_at, delivered_at, order_number, payment_method, payment_reference, payment_confirmed, contact_name, contact_email, contact_phone, shipping_address, notes, order_items(id, product_name, product_slug, unit_price, quantity)",
+        "id, user_id, status, tracking_number, tracking_status, subtotal, shipping, total, created_at, delivered_at, order_number, payment_method, payment_reference, payment_confirmed, refunded_at, contact_name, contact_email, contact_phone, shipping_address, notes, order_items(id, product_name, product_slug, unit_price, quantity)",
       )
       .in("status", statuses)
       .order("created_at", { ascending: false });

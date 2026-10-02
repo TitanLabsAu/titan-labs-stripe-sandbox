@@ -60,7 +60,7 @@ export function settingsFromRow(row: any | null | undefined): PricingSettings {
     allowCodeCrypto: row.allow_code_crypto ?? d.allowCodeCrypto,
     allowCreditCode: row.allow_credit_code ?? d.allowCreditCode,
     allowCreditDiscounts: row.allow_credit_discounts ?? d.allowCreditDiscounts,
-    creditUnitCents: num(row.credit_unit_cents, d.creditUnitCents),
+    creditUnitCents: 1000, // fixed AUD10 denomination
     maxCreditUnits: num(row.max_credit_units, d.maxCreditUnits),
     referralRewardUnits: num(row.referral_reward_units, d.referralRewardUnits),
     milestoneThresholds: Array.isArray(row.milestone_thresholds)
@@ -244,9 +244,20 @@ export function quoteOrder(input: QuoteInput, settings: PricingSettings = DEFAUL
   }
   if (without.totalCents < withCode.totalCents) {
     const { codeError: _e, ...q } = without;
+    // A valid referral code still credits the referrer even when the
+    // customer's other discounts beat the code's own discount.
+    const keepReferral = input.code.kind === "referral";
     return {
       ...q,
-      notices: [...q.notices, `Code ${input.code.code} doesn't combine with your current discounts, so the better saving was kept.`],
+      ...(keepReferral ? { code: input.code.code, codeApplied: true, codeCents: 0 } : {}),
+      notices: [
+        ...q.notices,
+        keepReferral && input.code.value > 0
+          ? `Code ${input.code.code} is recorded, but your current discounts save more, so they were kept.`
+          : keepReferral
+            ? `Code ${input.code.code} is recorded.`
+            : `Code ${input.code.code} doesn't combine with your current discounts, so the better saving was kept.`,
+      ],
     };
   }
   const { codeError: _e, ...q } = withCode;

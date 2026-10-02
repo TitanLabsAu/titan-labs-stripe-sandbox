@@ -71,7 +71,7 @@ export function AdminMemberRewards({ userId }: { userId: string }) {
   });
 
   if (!data) return <p className="text-sm text-muted-foreground">Loading rewards…</p>;
-  const unit = data.ledger[0]?.unit_cents ? data.ledger[0].unit_cents / 100 : 10;
+  const unit = 10;
   const s = data.summary;
   const unassigned = (allCodes ?? []).filter((c) => c.code_kind === "referral" && !c.user_id);
 

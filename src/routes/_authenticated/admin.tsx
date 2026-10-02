@@ -8,6 +8,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { AdminMembers } from "@/components/AdminMembers";
 import { AdminProducts } from "@/components/AdminProducts";
 import { AdminDiscounts } from "@/components/AdminDiscounts";
+import { adminSetOrderRefunded } from "@/lib/referrals.functions";
 import { AdminEdits } from "@/components/AdminEdits";
 import { AdminFinance } from "@/components/AdminFinance";
 import { Button } from "@/components/ui/button";
@@ -499,6 +500,25 @@ function OrderDetail({ order, live }: { order: AdminOrder; live: boolean }) {
           >
             {order.payment_confirmed ? "Mark unpaid" : "Mark as paid"}
           </Button>
+          {order.payment_confirmed && !(order as any).refunded_at ? (
+            <Button
+              size="sm"
+              variant="destructive"
+              className="text-[11px] uppercase tracking-[0.12em]"
+              onClick={async () => {
+                if (!window.confirm("Mark this order refunded? Any referral credit it earned is reversed and credit the customer used is returned. Money is not refunded automatically.")) return;
+                try {
+                  await adminSetOrderRefunded({ data: { orderId: order.id } });
+                  toast.success("Order marked refunded");
+                  void queryClient.invalidateQueries();
+                } catch {
+                  toast.error("Could not mark refunded");
+                }
+              }}
+            >
+              Mark refunded
+            </Button>
+          ) : null}
         </div>
       </div>
 
