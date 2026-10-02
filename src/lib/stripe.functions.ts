@@ -138,9 +138,9 @@ export const createStripeSandboxPayment = createServerFn({
     const Stripe = (await import("stripe")).default;
     const stripe = new Stripe(secretKey);
 
-    const payload = await prepareStripeOrder(
+    const { payload, creditUnits } = await prepareStripeOrder(
       data,
-      context.supabase,
+      context.userId,
     );
 
     const amountCents = Math.round(
@@ -149,13 +149,25 @@ export const createStripeSandboxPayment = createServerFn({
 
     if (amountCents <= 0) {
       throw new Error(
-        "The order total must be greater than zero.",
+        "This order total is $0 — please submit it using the PayID option instead.",
       );
     }
 
     const { supabaseAdmin } = await import(
       "@/integrations/supabase/client.server"
     );
+
+    // Reserve store credit atomically before the attempt exists.
+    let reservationId: string | null = null;
+    if (creditUnits > 0) {
+      const { data: rid, error: reserveError } = await (supabaseAdmin as any).rpc(
+        "reserve_store_credit",
+        { _user_id: context.userId, _units: creditUnits, _payment_attempt_id: null, _ttl_minutes: 2880 },
+      );
+      if (reserveError) throw new Error("Your store credit balance changed. Please review your order.");
+      reservationId = String(rid);
+      payload.pricing = { ...(payload.pricing ?? {}), credit_reservation_id: reservationId };
+    }
 
     const { data: attempt, error: attemptError } =
       await (supabaseAdmin as any)
@@ -172,7 +184,14 @@ export const createStripeSandboxPayment = createServerFn({
         .single();
 
     if (attemptError) {
+      if (reservationId) await (supabaseAdmin as any).rpc("release_store_credit", { _reservation_id: reservationId });
       throw attemptError;
+    }
+    if (reservationId) {
+      await (supabaseAdmin as any).rpc("attach_store_credit_reservation", {
+        _reservation_id: reservationId,
+        _payment_attempt_id: attempt.id,
+      });
     }
 
     try {
@@ -222,6 +241,7 @@ export const createStripeSandboxPayment = createServerFn({
         amountCents,
       };
        } catch (error) {
+      await (supabaseAdmin as any).rpc("release_store_credit_for_attempt", { _payment_attempt_id: attempt.id });
       await (supabaseAdmin as any)
         .from("payment_attempts")
         .update({
