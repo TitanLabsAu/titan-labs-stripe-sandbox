@@ -77,6 +77,7 @@ function orderRef(order: AdminOrder) {
 
 function customerName(order: AdminOrder) {
   const c = order.customer;
+  if (!(order as any).user_id) return `${order.contact_name || "Unnamed"} · Guest`;
   return (
     [c?.first_name, c?.last_name].filter(Boolean).join(" ") ||
     order.contact_name ||

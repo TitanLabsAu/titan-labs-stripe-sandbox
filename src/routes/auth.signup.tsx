@@ -82,7 +82,7 @@ function SignupPage() {
         email: parsed.data.email,
         password: parsed.data.password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth`,
+          emailRedirectTo: `${window.location.origin}/auth${window.location.search.includes("redirect=") ? window.location.search : ""}`,
           data: {
             first_name: parsed.data.first_name,
             last_name: parsed.data.last_name,
