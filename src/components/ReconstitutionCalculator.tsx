@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from "react";\nimport { useNavigate } from "@tanstack/react-router";\nimport { CalendarPlus } from "lucide-react";\nimport { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -12,7 +12,7 @@ type Props = {
   onChange?: (v: { vialMg: string; waterMl: string; doseMg: string }) => void;
 };
 
-export function ReconstitutionCalculator({ title, vialMg, waterMl, doseMg, readOnly = false, onChange }: Props) {
+export function ReconstitutionCalculator({ title, vialMg, waterMl, doseMg, readOnly = false, onChange }: Props) {\n  const navigate = useNavigate();
   const [vial, setVial] = useState(vialMg != null ? String(vialMg) : "10");
   const [water, setWater] = useState(waterMl != null ? String(waterMl) : "2");
   const [dose, setDose] = useState(doseMg != null ? String(doseMg) : "0.25");
@@ -111,7 +111,7 @@ export function ReconstitutionCalculator({ title, vialMg, waterMl, doseMg, readO
         </p>
       )}
 
-      <p className="mt-4 text-xs text-muted-foreground">
+      {!readOnly && valid && doseNum > 0 ? (\n        <Button type="button" variant="outline" className="mt-5 w-full font-bold uppercase" onClick={() => { localStorage.setItem("titan_calendar_prefill", JSON.stringify({ product_name: "Calculator entry", dose_label: dose + "mg · " + unitsForDose.toFixed(1) + " units" })); navigate({ to: "/calendar" }); }}>\n          <CalendarPlus className="h-4 w-4" /> Add result to My Calendar\n        </Button>\n      ) : null}\n\n      <p className="mt-4 text-xs text-muted-foreground">
         Units shown are for a standard 100-unit insulin syringe (1 mL). Research use only.
       </p>
     </div>
