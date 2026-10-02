@@ -100,7 +100,16 @@ export const adminSaveExpense = createServerFn({ method: "POST" })
         : Math.max(0, Math.trunc(Number(data.quantity)));
     const slug = data.product_slug?.trim() || null;
     const variantLabel = data.variant_label?.trim() || null;
-    const shouldRestock = Boolean(data.addToStock && slug && qty && qty > 0 && !data.id);
+    let shouldRestock = Boolean(data.addToStock && slug && qty && qty > 0 && !data.id);
+    if (shouldRestock && slug) {
+      // Unlimited Equipment is untracked: record the expense but never move stock.
+      const { data: target } = await context.supabase
+        .from("products")
+        .select("catalogue_section, unlimited_stock")
+        .eq("slug", slug)
+        .maybeSingle();
+      if (target && isUnlimitedStock(target as any)) shouldRestock = false;
+    }
 
     const row = {
       occurred_on: data.occurred_on,
@@ -126,10 +135,10 @@ export const adminSaveExpense = createServerFn({ method: "POST" })
     if (shouldRestock && slug && qty) {
       const { data: product } = await context.supabase
         .from("products")
-        .select("id, product_variants, stock_quantity")
+        .select("id, product_variants, stock_quantity, catalogue_section, unlimited_stock")
         .eq("slug", slug)
         .maybeSingle();
-      if (product) {
+      if (product && !isUnlimitedStock(product as any)) {
         const variants = ((product as any).product_variants ?? []) as any[];
         if (variants.length > 0) {
           const target =
@@ -185,7 +194,7 @@ export const adminFinanceSummary = createServerFn({ method: "POST" })
           .neq("status", "cancelled")
           .gte("created_at", fromIso)
           .lte("created_at", toIso),
-        context.supabase.from("products").select("slug, name, price, product_variants, stock_quantity"),
+        context.supabase.from("products").select("slug, name, price, product_variants, stock_quantity, catalogue_section, unlimited_stock"),
         context.supabase
           .from("expenses")
           .select("category, amount, occurred_on")
@@ -203,6 +212,16 @@ export const adminFinanceSummary = createServerFn({ method: "POST" })
     for (const p of (products ?? []) as any[]) {
       nameOf.set(p.slug, p.name);
       const variants = (p.product_variants ?? []) as any[];
+      const untracked = isUnlimitedStock(p);
+      if (untracked) {
+        // Keep costs for COGS, but exclude untracked units from inventory valuation.
+        for (const v of variants) {
+          const cost = num(v.cost);
+          costOf.set(`${p.slug}|${String(v.label ?? "")}`, cost);
+          if (!costOf.has(`${p.slug}|`)) costOf.set(`${p.slug}|`, cost);
+        }
+        continue;
+      }
       if (variants.length === 0) {
         inventoryUnits += Math.max(0, Math.trunc(num(p.stock_quantity)));
         inventoryRetail += Math.max(0, Math.trunc(num(p.stock_quantity))) * num(p.price);

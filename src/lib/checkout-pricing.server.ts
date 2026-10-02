@@ -1,4 +1,4 @@
-import { effectivePack, kitPriceFor } from "@/lib/products";
+import { effectivePack, effectiveStock, kitPriceFor } from "@/lib/products";
 import type { ShippingMethodKey } from "@/lib/pricing";
 import {
   fromCents,
@@ -95,7 +95,7 @@ export async function priceCheckout(
     admin
       .from("products")
       .select(
-        "slug, name, price, sale_price, kit_price, product_variants, catalogue_section, stock_quantity, coming_soon",
+        "slug, name, price, sale_price, kit_price, product_variants, catalogue_section, stock_quantity, coming_soon, unlimited_stock",
       )
       .in("slug", slugs)
       .eq("active", true),
@@ -139,7 +139,8 @@ export async function priceCheckout(
     const stockKey = `${product.slug}::${variant?.id ?? "base"}`;
     const units = (requestedStock.get(stockKey) ?? 0) + quantity * (pack === "kit" ? 10 : 1);
     requestedStock.set(stockKey, units);
-    const stock = variant ? variant.stock : product.stock_quantity;
+    // Unlimited Equipment (DB flag + section, never client input) skips the limit only.
+    const stock = effectiveStock(product, variant ? variant.stock : product.stock_quantity);
     if (stock != null && units > Number(stock))
       throw new Error("There is not enough stock for one of the items. Please update your cart.");
     const label = variant?.label

@@ -183,7 +183,7 @@ function ProductPage() {
                   </p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {variants.map((variant) => {
-                      const soldOut = stockState(variant.stock ?? 0) === "out";
+                      const soldOut = stockState(variantStockFor(product, variant.id)) === "out";
                       const vSoon =
                         Boolean(variant.comingSoon) && !product.comingSoon;
                       return (
