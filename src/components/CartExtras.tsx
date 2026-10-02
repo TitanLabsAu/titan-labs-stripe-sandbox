@@ -1,4 +1,4 @@
-import { Bitcoin, Landmark, Layers, ShieldCheck, Truck } from "lucide-react";
+import { Bitcoin, CreditCard, Landmark, Layers, ShieldCheck, Truck } from "lucide-react";
 import { formatPrice } from "@/lib/products";
 import {
   CRYPTO_DISCOUNT_PERCENT,
@@ -9,6 +9,8 @@ import {
   stackPercentFor,
   type ShippingMethodKey,
 } from "@/lib/pricing";
+import { useSiteContent } from "@/lib/useCatalog";
+import { homeValue } from "@/lib/homeContent";
 import { cn } from "@/lib/utils";
 
 /** Progress bar toward free express shipping. */
@@ -90,8 +92,10 @@ export function TitanStackBanner({ units }: { units: number }) {
 
 /** Payment and delivery reassurance strip. */
 export function TitanTrustStrip() {
+  const { data: content } = useSiteContent();
   const badges = [
-    { label: "PayID / Osko", Icon: Landmark },
+    { label: "Credit / Debit Card", Icon: CreditCard },
+    ...(homeValue(content, "payment_bank_enabled") === "true" ? [{ label: homeValue(content, "payment_payid_label"), Icon: Landmark }] : []),
     { label: `Crypto · ${CRYPTO_DISCOUNT_PERCENT}% off`, Icon: Bitcoin },
     { label: "BTC · ETH · USDT", Icon: ShieldCheck },
     { label: "AusPost tracked", Icon: Truck },
@@ -167,3 +171,4 @@ export function ShippingPicker({
     </div>
   );
 }
+
