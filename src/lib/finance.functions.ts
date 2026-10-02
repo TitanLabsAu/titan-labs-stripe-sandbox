@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { isUnlimitedStock } from "@/lib/products";
 
 export type Expense = {
   id: string;
