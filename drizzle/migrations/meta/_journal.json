@@ -169,6 +169,13 @@
       "when": 1790975526403,
       "tag": "0025_apply_tracked_0024_noop",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1790978702293,
+      "tag": "0024_guest_checkout_first_offer",
+      "breakpoints": true
     }
   ]
 }
