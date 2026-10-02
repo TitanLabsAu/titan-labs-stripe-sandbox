@@ -24,6 +24,7 @@ import { useProducts } from "@/lib/useCatalog";
 
 export function CartSheet({ floating = false }: { floating?: boolean }) {
   const [open, setOpen] = useState(false);
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
   const {
     items,
     count,
@@ -49,7 +50,9 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
     paymentMethod: "payid",
   });
 
-  if (floating && count === 0) return null;
+  // Mobile floating trigger is hidden on checkout pages — the checkout flow
+  // manages its own cart summary there.
+  if (floating && (count === 0 || pathname.startsWith("/checkout"))) return null;
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
