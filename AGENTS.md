@@ -22,3 +22,6 @@
 - Member Calendar entries live in `member_calendar_entries`, with owner-only RLS, local date recurrence and no supplied dosing protocols.
 - Starter kits are normal Equipment products (`range-starter-kit`, `pen-starter-kit`); `products.starter_kit_enabled` controls each Range/Pens offer. Never attach a client-only surcharge or duplicate pen inventory for kit options.
 - Only Range supports 10x kits. Pens and Equipment are single items across cart restore, Admin and all server pricing paths.
+
+- Guest checkout ownership comes only from the hashed guest-session cookie or a verified member bearer, resolved server side in `checkout-buyer.server.ts` — posted IDs/emails are never trusted.
+- First-purchase offer claims stay held while a Stripe intent is payable and are released only after cancellation is confirmed — prevents a late payment using a released offer.
