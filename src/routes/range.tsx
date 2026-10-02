@@ -71,7 +71,7 @@ export const Route = createFileRoute("/range")({
 function RangePage() {
   const routeSearch = Route.useSearch();
   const navigate = useNavigate({ from: "/range" });
-  const { products } = useProducts();
+  const { products, isLoading: productsLoading } = useProducts();
   const { data: content } = useSiteContent();
   const [mounted, setMounted] = useState(false);
   const [category, setCategory] = useState<string>("All");
@@ -95,10 +95,11 @@ function RangePage() {
   const availableSections = CATALOGUE_SECTIONS.filter(
     (s) => filterBySection(products, s).length > 0,
   );
-  const activeSection = resolveCatalogueSection(
-    mounted ? routeSearch.section : "range",
-    availableSections,
-  );
+  const requestedSection = mounted ? routeSearch.section : "range";
+  const activeSection =
+    productsLoading && isCatalogueSection(requestedSection)
+      ? requestedSection
+      : resolveCatalogueSection(requestedSection, availableSections);
   const sectionProducts = filterBySection(products, activeSection);
   const availableCategories = CATEGORIES.filter((c) =>
     sectionProducts.some((p) => (p.categories ?? []).includes(c)),
@@ -106,13 +107,13 @@ function RangePage() {
   const categoryValid = category === "All" || (availableCategories as string[]).includes(category);
 
   useEffect(() => {
-    if (mounted && routeSearch.section !== activeSection) {
+    if (mounted && !productsLoading && routeSearch.section !== activeSection) {
       void navigate({
         replace: true,
         search: (previous) => ({ ...previous, section: activeSection }),
       });
     }
-  }, [activeSection, mounted, navigate, routeSearch.section]);
+  }, [activeSection, mounted, navigate, productsLoading, routeSearch.section]);
   useEffect(() => {
     if (!categoryValid) setCategory("All");
   }, [categoryValid]);
