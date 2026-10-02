@@ -74,7 +74,7 @@ export function ProductCard({ product: p }: { product: Product }) {
             </button>
           ))}
         </div>
-        <label className="mt-2 flex cursor-pointer items-start gap-2 border border-border bg-muted/30 p-2 text-[10px] text-muted-foreground"><input type="checkbox" checked={starterKit} onChange={(e)=>setStarterKit(e.target.checked)} /><span><strong className="text-foreground">Starter Kit (+{formatPrice(STARTER_KIT_PRICE)})</strong><br/>{STARTER_KIT_CONTENTS.join(" · ")}</span></label>\n        <div className="mt-3 flex items-baseline gap-1">
+        {!(p.categories ?? []).includes("Disposable Pens") ? <label className="mt-2 flex cursor-pointer items-start gap-2 border border-border bg-muted/30 p-2 text-[10px] text-muted-foreground"><input type="checkbox" checked={starterKit} onChange={(e)=>setStarterKit(e.target.checked)} /><span><strong className="text-foreground">Starter Kit (+{formatPrice(STARTER_KIT_PRICE)})</strong><br/>{STARTER_KIT_CONTENTS.join(" · ")}</span></label> : null}\n        <div className="mt-3 flex items-baseline gap-1">
           {p.wasPrice && pack === "single" ? (
             <span className="text-xs text-muted-foreground line-through">
               {formatPrice(p.wasPrice)}
