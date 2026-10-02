@@ -550,6 +550,7 @@ export function ProductEditor({
                         }
                       />
                     </div>
+                    ) : null}
                     <div>
                       <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
                         Cost each
@@ -565,7 +566,6 @@ export function ProductEditor({
                         }
                       />
                     </div>
-                    ) : null}
                     <div>
                       <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
                         Stock
