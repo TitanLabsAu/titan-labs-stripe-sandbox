@@ -1,5 +1,5 @@
 import { normalizeCatalogueSection } from "./catalogue-sections";
-import { isComingSoon, stockState, type Product } from "./products";
+import { effectiveStock, isComingSoon, stockState, type Product } from "./products";
 import type { CartItem } from "./cart";
 
 export const RANGE_STARTER_KIT_SLUG = "range-starter-kit";
@@ -17,11 +17,12 @@ export function starterKitFor(product: Product, products: Product[]): Product | 
   );
 }
 export function canAddStarterKit(kit: Product, items: CartItem[]): boolean {
+  const stock = effectiveStock(kit, kit.stock);
   const count = items.filter((i) => i.slug === kit.slug).reduce((sum, i) => sum + i.quantity, 0);
   return (
     !isComingSoon(kit) &&
-    stockState(kit.stock) !== "out" &&
+    stockState(stock) !== "out" &&
     count < 99 &&
-    (kit.stock == null || count < kit.stock)
+    (stock == null || count < stock)
   );
 }
