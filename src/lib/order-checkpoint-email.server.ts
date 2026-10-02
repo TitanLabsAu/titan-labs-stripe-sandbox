@@ -71,7 +71,24 @@ export async function sendPendingOrderCheckpointEmails(orderId?: string) {
           },
         });
         outcome = result.sent ? "sent" : "recipient_suppressed";
-        if (result.sent) sent++;
+        if (result.sent) {
+          sent++;
+          const { sendAdminOrderCopy } = await import("@/lib/order-admin-copy.server");
+          await sendAdminOrderCopy(
+            template,
+            {
+              kind,
+              orderNumber: `TL-${order.order_number}`,
+              customerName: order.contact_name || "there",
+              trackingNumber: order.tracking_number || "",
+              total: `$${Number(order.total).toFixed(2)} AUD`,
+              shippingMethod: /Shipping: Standard/.test(order.notes ?? "")
+                ? "Standard tracked"
+                : "Australia Post Express",
+            },
+            `customer-order-${kind}-${order.id}`,
+          );
+        }
       }
       const { error: updateError } = await db
         .from("order_checkpoint_email_queue")
