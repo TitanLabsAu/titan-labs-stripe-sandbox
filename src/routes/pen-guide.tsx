@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { TitanPageHeading } from "@/components/TitanPageHeading";
 import { Button } from "@/components/ui/button";
 import { useProducts } from "@/lib/useCatalog";
+import { disposablePenSteps } from "@/lib/penGuides";
 import { safeUrl } from "@/lib/research";
 export const Route = createFileRoute("/pen-guide")({
   head: () => ({ meta: [{ title: "Titan V2 & Disposable Pen Guides | Titan Labs Aus" }] }),
@@ -28,24 +29,7 @@ const reusable = [
     "Follow the device and research material storage instructions. Place sharp accessories in an appropriate sharps container.",
   ],
 ];
-const disposable = [
-  [
-    "Check the supplied product",
-    "Confirm the compound, strength, label and sealed packaging. Do not use damaged or incorrectly labelled equipment.",
-  ],
-  [
-    "Check compatible accessories",
-    "Use the accessory type specified for the actual pen. The optional Pen Starter Kit contents are listed on its product page.",
-  ],
-  [
-    "Use the manufacturer’s instructions",
-    "Priming, loading, scale readings and disposal vary by device. Refer to the instructions supplied with the exact model.",
-  ],
-  [
-    "Disposal",
-    "Follow the manufacturer’s directions and local sharps disposal requirements. Do not refill a disposable device.",
-  ],
-];
+
 function PenGuide() {
   const { products } = useProducts();
   const guides = products.filter(
@@ -69,7 +53,7 @@ function PenGuide() {
         <div className="mt-7 grid gap-5 md:grid-cols-2">
           {[
             { title: "Titan V2 reusable pen", icon: RotateCcw, steps: reusable },
-            { title: "Disposable pre-filled pen", icon: PenTool, steps: disposable },
+            { title: "Disposable pre-filled pen", icon: PenTool, steps: disposablePenSteps },
           ].map(({ title, icon: Icon, steps }) => (
             <section key={title} className="rounded-xl border border-border bg-card p-5 sm:p-7">
               <h2 className="flex items-center gap-2 font-display text-xl font-bold uppercase">

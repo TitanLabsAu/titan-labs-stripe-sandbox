@@ -1,3 +1,4 @@
+import { DisposablePenGuide } from "@/components/DisposablePenGuide";
 import { StarterKitOffer } from "@/components/StarterKitOffer";
 import { TitanPageHeading } from "@/components/TitanPageHeading";
 import { FlaskConical } from "lucide-react";
@@ -343,6 +344,10 @@ function ProductPage() {
                   </span>
                 ))}
               </p>
+            ) : null}
+
+            {product.catalogueSection === "pens" ? (
+              <div className="mt-6"><DisposablePenGuide /></div>
             ) : null}
 
             {product.protocol ? (
