@@ -6,7 +6,7 @@ const source = fs.readFileSync('src/lib/order-confirmation.server.ts', 'utf8');
 const js = ts.transpileModule(source, {compilerOptions: {module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022}}).outputText;
 
 async function scenario({paid = false, fail = false, suppressed = false, lines = true, cancelled = false} = {}) {
-  const calls = [], updates = [];
+  const calls = [], copies = [], updates = [];
   const order = {id: 'order-1', order_number: 1056, total: 288, status: cancelled ? 'cancelled' : 'processing',
     payment_confirmed: paid, contact_email: 'buyer@example.com', contact_name: 'Test Buyer', notes: 'Shipping: Standard tracked (3-7 days)',
     order_items: lines ? [{product_name: 'Sample', variant_label: 'Single vial', quantity: 2, unit_price: 160}] : []};
@@ -18,6 +18,7 @@ async function scenario({paid = false, fail = false, suppressed = false, lines =
   }};
   const exports = {};
   vm.runInNewContext(js, {exports, console: {error() {}}, require(path) {
+    if (path.includes('order-admin-copy.server')) return {sendAdminOrderCopy: async (...args) => {copies.push(args)}};
     if (path.includes('client.server')) return {supabaseAdmin: db};
     if (path.includes('send-email')) return {sendTemplateEmail: async (...args) => {
       calls.push(args);if (fail) throw new Error('temporary provider failure');
@@ -28,12 +29,16 @@ async function scenario({paid = false, fail = false, suppressed = false, lines =
   const result = await exports.sendPendingOrderConfirmations(order.id);
   // Checkout remains successful even if provider or queue is unavailable.
   await exports.tryOrderConfirmation(order.id);
-  return {calls, updates, result};
+  return {calls, copies, updates, result};
 }
 
 (async () => {
   const pending = await scenario();
   assert.equal(pending.calls[0][1], 'buyer@example.com');
+  assert.equal(pending.copies.length, 2);
+  assert.equal(pending.copies[0][2], pending.calls[0][2].idempotencyKey);
+  assert.equal((await scenario({fail: true})).copies.length, 0);
+  assert.equal((await scenario({suppressed: true})).copies.length, 0);
   assert.equal(pending.calls[0][2].templateData.total, '$288.00 AUD');
   assert.equal(pending.calls[0][2].templateData.items[0], '2 × Sample (Single vial) — $320.00 AUD');
   assert.equal(pending.calls[0][2].templateData.paymentConfirmed, false);
@@ -48,3 +53,4 @@ async function scenario({paid = false, fail = false, suppressed = false, lines =
   assert.equal((await scenario({cancelled: true})).calls.length, 0, 'do not confirm cancelled orders');
   console.log('Order confirmation checks passed');
 })().catch(e => {console.error(e);process.exitCode = 1});
+

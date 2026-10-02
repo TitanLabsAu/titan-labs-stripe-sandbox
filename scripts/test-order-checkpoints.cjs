@@ -13,7 +13,7 @@ function compile(file, mocks = {}) {
 }
 
 async function scenario(kind, overrides = {}, failure = false, suppressed = false, attempts = 0) {
-  const calls = [], updates = [], alerts = [];
+  const calls = [], copies = [], updates = [], alerts = [];
   const order = {id: 'test-order', order_number: 1056, status: kind === 'delivered' ? 'delivered' : 'shipped',
     total: 288, payment_confirmed: true, contact_email: 'buyer@example.com', contact_name: 'Test Buyer',
     tracking_number: 'TRACK123', notes: 'Shipping: Standard tracked', ...overrides};
@@ -26,6 +26,7 @@ async function scenario(kind, overrides = {}, failure = false, suppressed = fals
   }};
   const worker = compile('src/lib/order-checkpoint-email.server.ts', {
     '@/integrations/supabase/client.server': {supabaseAdmin: db},
+    '@/lib/order-admin-copy.server': {sendAdminOrderCopy: async (...args) => { copies.push(args); }},
     '@/lib/email-templates/send-email': {sendTemplateEmail: async (...args) => {
       calls.push(args);if (failure) throw new Error('provider unavailable');
       return suppressed ? {sent: false, reason: 'recipient_suppressed'} : {sent: true};
@@ -33,7 +34,7 @@ async function scenario(kind, overrides = {}, failure = false, suppressed = fals
   });
   const result = await worker.sendPendingOrderCheckpointEmails(order.id);
   await worker.tryOrderCheckpointEmails(order.id);
-  return {calls, updates, alerts, result};
+  return {calls, copies, updates, alerts, result};
 }
 
 (async () => {
@@ -46,6 +47,10 @@ async function scenario(kind, overrides = {}, failure = false, suppressed = fals
     assert.equal(sent.calls[0][2].templateData.total, '$288.00 AUD');
     assert.equal(sent.calls[0][2].idempotencyKey, sent.calls[1][2].idempotencyKey, 'retry key must stay stable');
     assert.equal(sent.updates[0].outcome, 'sent');
+    assert.equal(sent.copies.length, 2, 'successful sends invoke the independently keyed admin copy');
+    assert.equal(sent.copies[0][2], sent.calls[0][2].idempotencyKey);
+    assert.equal((await scenario(kind, {}, true)).copies.length, 0, 'failed customer sends do not copy');
+    assert.equal((await scenario(kind, {}, false, true)).copies.length, 0, 'suppressed customer sends do not copy');
     assert.equal((await scenario(kind, {status: 'cancelled'})).calls.length, 0);
   }
   assert.equal((await scenario('payment-confirmed', {payment_confirmed: false})).calls.length, 0);
@@ -70,3 +75,4 @@ async function scenario(kind, overrides = {}, failure = false, suppressed = fals
   assert.match(paymentText, /Payment for order TL-1056 is confirmed/);
   console.log('Checkpoint email, retry, suppression and delivery-status checks passed');
 })().catch(error => {console.error(error);process.exitCode = 1});
+
