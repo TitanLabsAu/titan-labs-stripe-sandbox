@@ -21,7 +21,7 @@ import { formatPrice } from "@/lib/products";
 import { computeTotals } from "@/lib/pricing";
 import { useProducts } from "@/lib/useCatalog";
 
-export function CartSheet() {
+export function CartSheet({ floating = false }: { floating?: boolean }) {
   const [open, setOpen] = useState(false);
   const {
     items,
@@ -41,22 +41,37 @@ export function CartSheet() {
     paymentMethod: "payid",
   });
 
+  if (floating && count === 0) return null;
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button
-          variant="outline"
-          size="icon"
-          className="titan-nav-icon relative"
-          aria-label="View cart"
-        >
-          <ShoppingCart className="h-5 w-5" />
-          {count > 0 && (
-            <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-xs font-bold text-accent-foreground">
+        {floating ? (
+          <Button
+            className="fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] left-1/2 z-40 h-12 -translate-x-1/2 gap-3 border-accent bg-foreground px-5 text-background shadow-gold md:hidden"
+            aria-label={`View cart with ${count} ${count === 1 ? "item" : "items"}`}
+          >
+            <ShoppingCart className="h-5 w-5" />
+            <span>View cart</span>
+            <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-accent px-1.5 text-xs font-bold text-accent-foreground">
               {count}
             </span>
-          )}
-        </Button>
+          </Button>
+        ) : (
+          <Button
+            variant="outline"
+            size="icon"
+            className="titan-nav-icon relative"
+            aria-label="View cart"
+          >
+            <ShoppingCart className="h-5 w-5" />
+            {count > 0 && (
+              <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-xs font-bold text-accent-foreground">
+                {count}
+              </span>
+            )}
+          </Button>
+        )}
       </SheetTrigger>
       <SheetContent className="flex w-full flex-col border-l-primary/30 bg-background sm:max-w-md">
         <SheetHeader>

@@ -161,8 +161,11 @@ export function ProductCard({ product: p }: { product: Product }) {
             >
               −
             </button>
-            <span className="flex items-center justify-center text-sm font-semibold text-foreground">
-              {inCart.quantity} in order
+            <span
+              className="flex items-center justify-center text-sm font-semibold text-foreground"
+              aria-label={`${inCart.quantity} in order`}
+            >
+              {inCart.quantity}
             </span>
             <button
               type="button"

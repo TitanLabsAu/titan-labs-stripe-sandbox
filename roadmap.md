@@ -19,3 +19,4 @@
 - [x] Add real Research Lab entries (owner content)
 - [x] Add separate member-facing Research Lab summaries, evidence-first pages, and protected draft previews.
 - [ ] Owner to review legal wording
+- [x] Add a mobile floating cart shortcut and show numeric-only catalogue quantities.
