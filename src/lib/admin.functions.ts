@@ -373,6 +373,7 @@ export type AdminProduct = {
   coming_soon?: boolean;
   sort_order: number;
   stock_quantity: number;
+  catalogue_section?: CatalogueSection;
 };
 
 const PRODUCT_COLS =
