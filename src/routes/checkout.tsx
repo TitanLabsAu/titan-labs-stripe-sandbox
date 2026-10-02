@@ -218,6 +218,7 @@ function CheckoutPage() {
   const [stripeIntentId, setStripeIntentId] = useState<string | null>(null);
   const [guestMode, setGuestModeState] = useState(false);
   const [authLost, setAuthLost] = useState(false);
+  const [guestError, setGuestError] = useState<string | null>(null);
   const setGuestMode = (v: boolean) => {
     setGuestModeState(v);
     try {
@@ -282,6 +283,7 @@ function CheckoutPage() {
       await refetchSession();
     } else if (code === "GUEST_SESSION_INVALID") {
       setGuestMode(false);
+      setGuestError(checkoutErrorText(error, "Your guest checkout session has expired. Please choose Continue as guest again."));
     }
     toast.error(checkoutErrorText(error, fallback));
   };
@@ -545,12 +547,23 @@ function CheckoutPage() {
   const [startingGuest, setStartingGuest] = useState(false);
   const chooseGuest = async () => {
     setStartingGuest(true);
+    setGuestError(null);
     try {
-      await startGuest();
+      const res = await startGuest();
+      if (!res?.active) {
+        // The server issued the cookie but the browser didn't send it back
+        // (e.g. cookies blocked or the shop is embedded in another site).
+        setGuestError(
+          "Your browser didn't keep the guest checkout session. Allow cookies for this site, or open the shop directly in its own tab, then try again.",
+        );
+        return;
+      }
       setGuestMode(true);
       setAuthLost(false);
     } catch (error: any) {
-      toast.error(error?.message ?? "We couldn't start a guest checkout.");
+      const msg = error?.message ?? "We couldn't start a guest checkout.";
+      setGuestError(msg);
+      toast.error(msg);
     } finally {
       setStartingGuest(false);
     }
@@ -678,6 +691,20 @@ function CheckoutPage() {
                 Continue as guest
               </Button>
             </div>
+          </div>
+        ) : null}
+        {guestError && !session ? (
+          <div role="alert" data-testid="guest-error" className="mt-4 border border-destructive/60 bg-destructive/10 p-4 text-sm">
+            <p className="font-bold text-foreground">Guest checkout couldn't start.</p>
+            <p className="mt-1 text-muted-foreground">{guestError}</p>
+          </div>
+        ) : null}
+        {mode === "guest" ? (
+          <div role="status" data-testid="guest-active" className="mt-4 border border-primary/60 bg-primary/10 p-4 text-sm">
+            <p className="font-bold text-foreground">Checking out as a guest.</p>
+            <p className="mt-1 text-muted-foreground">
+              Your confirmation will go to the email you enter below. <a className="underline" href="/auth?redirect=%2Fcheckout">Log in</a> instead to use member rewards.
+            </p>
           </div>
         ) : null}
 
