@@ -16,14 +16,16 @@ export interface OrderDispatchedProps {
   orderNumber?: string
   customerName?: string
   trackingNumber?: string
+  shippingMethod?: string
   total?: string
 }
 
 export function OrderDispatched({
-  orderNumber = '00000000',
+  orderNumber = 'TL-0000',
   customerName = 'there',
   trackingNumber = '',
   total = '$0.00',
+  shippingMethod = 'Australia Post Express',
 }: OrderDispatchedProps) {
   const trackingLink = trackingNumber
     ? `https://auspost.com.au/mypost/track/details/${encodeURIComponent(trackingNumber)}`
@@ -31,7 +33,7 @@ export function OrderDispatched({
   return (
     <Html>
       <Head />
-      <Preview>{`Order #${orderNumber} dispatched`}</Preview>
+      <Preview>{`Order ${orderNumber} dispatched`}</Preview>
       <Body style={{ backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif', margin: 0 }}>
         <Container style={{ maxWidth: '560px', margin: '0 auto', padding: '32px 24px' }}>
           <Heading style={{ color: '#12447d', fontSize: '22px', margin: '0 0 8px' }}>
@@ -43,10 +45,10 @@ export function OrderDispatched({
 
           <Section style={{ backgroundColor: '#f4f7fb', borderRadius: '10px', padding: '24px' }}>
             <Text style={{ color: '#0d1b2a', fontSize: '18px', fontWeight: 'bold', margin: '0 0 12px' }}>
-              Hi {customerName}, order #{orderNumber} is on its way
+              Hi {customerName}, order {orderNumber} is on its way
             </Text>
             <Text style={{ color: '#3c4a5c', fontSize: '14px', margin: '0 0 6px' }}>
-              Your parcel has been dispatched with Australia Post Express.
+              Your parcel has been dispatched with {shippingMethod}.
             </Text>
             {trackingNumber ? (
               <Text style={{ color: '#3c4a5c', fontSize: '14px', margin: '0 0 6px' }}>
@@ -72,12 +74,13 @@ export function OrderDispatched({
 export const template = {
   component: OrderDispatched,
   subject: (data: Record<string, any>) =>
-    `Your Titan Labs order #${data['orderNumber'] ?? ''} has been dispatched`,
+    `Your Titan Labs order ${data['orderNumber'] ?? ''} has been dispatched`,
   displayName: 'Order dispatched (customer)',
   previewData: {
-    orderNumber: '4f2a91c3',
+    orderNumber: 'TL-1052',
     customerName: 'Jane',
     trackingNumber: '33ABC123456789',
     total: '$300.00',
   },
 } satisfies TemplateEntry
+

@@ -58,16 +58,90 @@ export type Database = {
           },
         ]
       }
+      customer_reviews: {
+        Row: {
+          created_at: string
+          id: string
+          location: string | null
+          published: boolean
+          rating: number | null
+          review_text: string
+          reviewer_name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          location?: string | null
+          published?: boolean
+          rating?: number | null
+          review_text: string
+          reviewer_name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          location?: string | null
+          published?: boolean
+          rating?: number | null
+          review_text?: string
+          reviewer_name?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      discount_code_events: {
+        Row: {
+          action: string
+          actor: string | null
+          after: Json | null
+          before: Json | null
+          code: string
+          code_id: string | null
+          created_at: string
+          id: string
+        }
+        Insert: {
+          action: string
+          actor?: string | null
+          after?: Json | null
+          before?: Json | null
+          code: string
+          code_id?: string | null
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor?: string | null
+          after?: Json | null
+          before?: Json | null
+          code?: string
+          code_id?: string | null
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       discount_codes: {
         Row: {
           active: boolean
           code: string
+          code_kind: string
+          combine_credit: boolean
+          combine_crypto: boolean
+          combine_multibuy: boolean
           created_at: string
           discount_type: Database["public"]["Enums"]["discount_type"]
           expires_at: string | null
           id: string
           max_uses: number
           milestone: number | null
+          min_spend_cents: number
           note: string | null
           times_used: number
           updated_at: string
@@ -77,12 +151,17 @@ export type Database = {
         Insert: {
           active?: boolean
           code: string
+          code_kind?: string
+          combine_credit?: boolean
+          combine_crypto?: boolean
+          combine_multibuy?: boolean
           created_at?: string
           discount_type?: Database["public"]["Enums"]["discount_type"]
           expires_at?: string | null
           id?: string
           max_uses?: number
           milestone?: number | null
+          min_spend_cents?: number
           note?: string | null
           times_used?: number
           updated_at?: string
@@ -92,12 +171,17 @@ export type Database = {
         Update: {
           active?: boolean
           code?: string
+          code_kind?: string
+          combine_credit?: boolean
+          combine_crypto?: boolean
+          combine_multibuy?: boolean
           created_at?: string
           discount_type?: Database["public"]["Enums"]["discount_type"]
           expires_at?: string | null
           id?: string
           max_uses?: number
           milestone?: number | null
+          min_spend_cents?: number
           note?: string | null
           times_used?: number
           updated_at?: string
@@ -154,6 +238,114 @@ export type Database = {
         }
         Relationships: []
       }
+      order_acknowledgements: {
+        Row: {
+          accepted: boolean
+          accepted_at: string
+          created_at: string
+          id: string
+          order_id: string | null
+          user_id: string
+          version: string
+        }
+        Insert: {
+          accepted?: boolean
+          accepted_at?: string
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          user_id?: string
+          version: string
+        }
+        Update: {
+          accepted?: boolean
+          accepted_at?: string
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          user_id?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_acknowledgements_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_checkpoint_email_queue: {
+        Row: {
+          attempts: number
+          completed_at: string | null
+          created_at: string
+          kind: string
+          last_error: string | null
+          next_attempt_at: string
+          order_id: string
+          outcome: string | null
+        }
+        Insert: {
+          attempts?: number
+          completed_at?: string | null
+          created_at?: string
+          kind: string
+          last_error?: string | null
+          next_attempt_at?: string
+          order_id: string
+          outcome?: string | null
+        }
+        Update: {
+          attempts?: number
+          completed_at?: string | null
+          created_at?: string
+          kind?: string
+          last_error?: string | null
+          next_attempt_at?: string
+          order_id?: string
+          outcome?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_checkpoint_email_queue_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_confirmation_queue: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          order_id: string
+          outcome: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          order_id: string
+          outcome?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          order_id?: string
+          outcome?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_confirmation_queue_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: true
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           created_at: string
@@ -197,11 +389,18 @@ export type Database = {
       }
       orders: {
         Row: {
+          code_discount_cents: number
           contact_email: string | null
           contact_name: string | null
           contact_phone: string | null
           created_at: string
+          credit_cents: number
+          credit_reservation_id: string | null
+          credit_units: number
           delivered_at: string | null
+          discount_code: string | null
+          discount_code_id: string | null
+          discount_code_kind: string | null
           id: string
           notes: string | null
           order_number: number
@@ -212,6 +411,9 @@ export type Database = {
           payment_provider: string | null
           payment_reference: string | null
           payment_transaction_id: string | null
+          pricing_snapshot: Json | null
+          referrer_user_id: string | null
+          refunded_at: string | null
           shipping: number
           shipping_address: string | null
           status: Database["public"]["Enums"]["order_status"]
@@ -224,11 +426,18 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          code_discount_cents?: number
           contact_email?: string | null
           contact_name?: string | null
           contact_phone?: string | null
           created_at?: string
+          credit_cents?: number
+          credit_reservation_id?: string | null
+          credit_units?: number
           delivered_at?: string | null
+          discount_code?: string | null
+          discount_code_id?: string | null
+          discount_code_kind?: string | null
           id?: string
           notes?: string | null
           order_number?: number
@@ -239,6 +448,9 @@ export type Database = {
           payment_provider?: string | null
           payment_reference?: string | null
           payment_transaction_id?: string | null
+          pricing_snapshot?: Json | null
+          referrer_user_id?: string | null
+          refunded_at?: string | null
           shipping?: number
           shipping_address?: string | null
           status?: Database["public"]["Enums"]["order_status"]
@@ -251,11 +463,18 @@ export type Database = {
           user_id: string
         }
         Update: {
+          code_discount_cents?: number
           contact_email?: string | null
           contact_name?: string | null
           contact_phone?: string | null
           created_at?: string
+          credit_cents?: number
+          credit_reservation_id?: string | null
+          credit_units?: number
           delivered_at?: string | null
+          discount_code?: string | null
+          discount_code_id?: string | null
+          discount_code_kind?: string | null
           id?: string
           notes?: string | null
           order_number?: number
@@ -266,6 +485,9 @@ export type Database = {
           payment_provider?: string | null
           payment_reference?: string | null
           payment_transaction_id?: string | null
+          pricing_snapshot?: Json | null
+          referrer_user_id?: string | null
+          refunded_at?: string | null
           shipping?: number
           shipping_address?: string | null
           status?: Database["public"]["Enums"]["order_status"]
@@ -277,13 +499,121 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "orders_discount_code_id_fkey"
+            columns: ["discount_code_id"]
+            isOneToOne: false
+            referencedRelation: "discount_codes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
+      payment_attempts: {
+        Row: {
+          access_code: string | null
+          amount_cents: number
+          created_at: string
+          currency: string
+          error_code: string | null
+          id: string
+          order_id: string | null
+          order_payload: Json
+          provider: string
+          status: string
+          transaction_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_code?: string | null
+          amount_cents: number
+          created_at?: string
+          currency?: string
+          error_code?: string | null
+          id?: string
+          order_id?: string | null
+          order_payload: Json
+          provider?: string
+          status?: string
+          transaction_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_code?: string | null
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          error_code?: string | null
+          id?: string
+          order_id?: string | null
+          order_payload?: Json
+          provider?: string
+          status?: string
+          transaction_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_attempts_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      member_calendar_entries: {
+        Row: {
+          id: string;
+          user_id: string;
+          product_name: string;
+          dose_label: string;
+          start_date: string;
+          end_date: string | null;
+          frequency: string;
+          time_of_day: string | null;
+          notes: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          product_name: string;
+          dose_label?: string;
+          start_date: string;
+          end_date?: string | null;
+          frequency?: string;
+          time_of_day?: string | null;
+          notes?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          product_name?: string;
+          dose_label?: string;
+          start_date?: string;
+          end_date?: string | null;
+          frequency?: string;
+          time_of_day?: string | null;
+          notes?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       products: {
         Row: {
           active: boolean
           alt: string
           blurb: string
+          starter_kit_enabled: boolean
+          catalogue_section: string
           categories: string[]
           coming_soon: boolean
           created_at: string
@@ -313,6 +643,8 @@ export type Database = {
           active?: boolean
           alt?: string
           blurb?: string
+          starter_kit_enabled?: boolean
+          catalogue_section?: string
           categories?: string[]
           coming_soon?: boolean
           created_at?: string
@@ -342,6 +674,8 @@ export type Database = {
           active?: boolean
           alt?: string
           blurb?: string
+          starter_kit_enabled?: boolean
+          catalogue_section?: string
           categories?: string[]
           coming_soon?: boolean
           created_at?: string
@@ -414,6 +748,176 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_milestone_awards: {
+        Row: {
+          created_at: string
+          id: string
+          order_id: string | null
+          threshold: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          threshold: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          threshold?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_milestone_awards_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referral_settings: {
+        Row: {
+          allow_code_crypto: boolean
+          allow_code_multibuy: boolean
+          allow_credit_code: boolean
+          allow_credit_discounts: boolean
+          allow_multibuy_crypto: boolean
+          combined_cap_percent: number
+          credit_unit_cents: number
+          crypto_percent: number
+          id: number
+          max_credit_units: number
+          milestone_thresholds: number[]
+          multibuy_tiers: Json
+          program_enabled: boolean
+          referral_reward_units: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          allow_code_crypto?: boolean
+          allow_code_multibuy?: boolean
+          allow_credit_code?: boolean
+          allow_credit_discounts?: boolean
+          allow_multibuy_crypto?: boolean
+          combined_cap_percent?: number
+          credit_unit_cents?: number
+          crypto_percent?: number
+          id?: number
+          max_credit_units?: number
+          milestone_thresholds?: number[]
+          multibuy_tiers?: Json
+          program_enabled?: boolean
+          referral_reward_units?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          allow_code_crypto?: boolean
+          allow_code_multibuy?: boolean
+          allow_credit_code?: boolean
+          allow_credit_discounts?: boolean
+          allow_multibuy_crypto?: boolean
+          combined_cap_percent?: number
+          credit_unit_cents?: number
+          crypto_percent?: number
+          id?: number
+          max_credit_units?: number
+          milestone_thresholds?: number[]
+          multibuy_tiers?: Json
+          program_enabled?: boolean
+          referral_reward_units?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      research_entries: {
+        Row: {
+          at_a_glance: string
+          blend_notice: boolean
+          cas_number: string | null
+          category: string
+          claim_checks: Json
+          content: Json
+          created_at: string
+          evidence_status: string
+          id: string
+          molecular_formula: string | null
+          pubchem_cid: string | null
+          published: boolean
+          published_at: string | null
+          research_findings: Json
+          sequence: string | null
+          slug: string
+          sort_order: number
+          source_references: Json
+          summary: string
+          synonyms: string[]
+          tags: string[]
+          title: string
+          updated_at: string
+          verification_status: string
+        }
+        Insert: {
+          at_a_glance?: string
+          blend_notice?: boolean
+          cas_number?: string | null
+          category?: string
+          claim_checks?: Json
+          content?: Json
+          created_at?: string
+          evidence_status?: string
+          id?: string
+          molecular_formula?: string | null
+          pubchem_cid?: string | null
+          published?: boolean
+          published_at?: string | null
+          research_findings?: Json
+          sequence?: string | null
+          slug: string
+          sort_order?: number
+          source_references?: Json
+          summary?: string
+          synonyms?: string[]
+          tags?: string[]
+          title: string
+          updated_at?: string
+          verification_status?: string
+        }
+        Update: {
+          at_a_glance?: string
+          blend_notice?: boolean
+          cas_number?: string | null
+          category?: string
+          claim_checks?: Json
+          content?: Json
+          created_at?: string
+          evidence_status?: string
+          id?: string
+          molecular_formula?: string | null
+          pubchem_cid?: string | null
+          published?: boolean
+          published_at?: string | null
+          research_findings?: Json
+          sequence?: string | null
+          slug?: string
+          sort_order?: number
+          source_references?: Json
+          summary?: string
+          synonyms?: string[]
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          verification_status?: string
+        }
+        Relationships: []
+      }
       site_content: {
         Row: {
           body: string
@@ -459,6 +963,101 @@ export type Database = {
         }
         Relationships: []
       }
+      store_credit_ledger: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          kind: string
+          order_id: string | null
+          reason: string | null
+          unit_cents: number
+          units: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind: string
+          order_id?: string | null
+          reason?: string | null
+          unit_cents: number
+          units: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind?: string
+          order_id?: string | null
+          reason?: string | null
+          unit_cents?: number
+          units?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_credit_ledger_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_credit_reservations: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          order_id: string | null
+          payment_attempt_id: string | null
+          status: string
+          units: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          order_id?: string | null
+          payment_attempt_id?: string | null
+          status?: string
+          units: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          order_id?: string | null
+          payment_attempt_id?: string | null
+          status?: string
+          units?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_credit_reservations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_credit_reservations_payment_attempt_id_fkey"
+            columns: ["payment_attempt_id"]
+            isOneToOne: false
+            referencedRelation: "payment_attempts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -485,6 +1084,34 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      attach_store_credit_reservation: {
+        Args: { _payment_attempt_id: string; _reservation_id: string }
+        Returns: undefined
+      }
+      finalize_stripe_order: {
+        Args: {
+          _attempt_id: string
+          _contact_email: string
+          _contact_name: string
+          _contact_phone: string
+          _items: Json
+          _notes: string
+          _payment_intent_id: string
+          _profile_address_line: string
+          _profile_city: string
+          _profile_first_name: string
+          _profile_last_name: string
+          _profile_phone: string
+          _profile_postcode: string
+          _profile_state: string
+          _shipping: number
+          _shipping_address: string
+          _subtotal: number
+          _total: number
+          _user_id: string
+        }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -492,6 +1119,33 @@ export type Database = {
         }
         Returns: boolean
       }
+      link_order_acknowledgement: {
+        Args: { _ack_id: string; _order_id: string }
+        Returns: boolean
+      }
+      referral_paid_order_count: { Args: { _user_id: string }; Returns: number }
+      release_store_credit: {
+        Args: { _reservation_id: string }
+        Returns: boolean
+      }
+      release_store_credit_for_attempt: {
+        Args: { _payment_attempt_id: string }
+        Returns: number
+      }
+      reserve_store_credit: {
+        Args: {
+          _payment_attempt_id: string
+          _ttl_minutes: number
+          _units: number
+          _user_id: string
+        }
+        Returns: string
+      }
+      store_credit_available_units: {
+        Args: { _user_id: string }
+        Returns: number
+      }
+      store_credit_summary: { Args: { _user_id: string }; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "user"
@@ -641,3 +1295,4 @@ export const Constants = {
     },
   },
 } as const
+

@@ -138,8 +138,9 @@ export const PAYMENT_FIELDS: HomeField[] = [
     multiline: true,
     align: "left",
     fallback:
-      "Payment is made outside the website. Choose how you would like to pay and we will confirm your order once the funds arrive.",
+      "Choose your preferred payment method below. Payment instructions and confirmation will be provided based on your selected method.",
   },
+  { key: "payment_bank_enabled", label: "Show bank transfer at checkout", align: "left", fallback: "false" },
   { key: "payment_payid_label", label: "PayID option name", align: "left", fallback: "PayID / Bank transfer" },
   { key: "payment_payid_id", label: "Your PayID", align: "left", fallback: "" },
   { key: "payment_payid_account", label: "Account name", align: "left", fallback: "Titan Labs Australia" },
@@ -154,6 +155,7 @@ export const PAYMENT_FIELDS: HomeField[] = [
       "Transfer the order total from your banking app using your order number as the payment description. Payments clear instantly with Osko.",
   },
   { key: "payment_crypto_label", label: "Crypto option name", align: "left", fallback: "Cryptocurrency (10% off)" },
+  { key: "payment_card_label", label: "Card option name", align: "left", fallback: "Credit / Debit Card" },
   {
     key: "payment_crypto_options",
     label: "Coins you accept",
@@ -177,15 +179,67 @@ export const PAYMENT_FIELDS: HomeField[] = [
     fallback:
       "Your order is confirmed. Complete your payment using the details above and we will dispatch as soon as it clears.",
   },
+  {
+    key: "order_admin_email",
+    label: "Order notification email (receives a copy of every customer order email)",
+    align: "left",
+    fallback: "sjrendall@live.com.au",
+  },
 ];
 
-export type PaymentMethodKey = "payid" | "crypto";
+/** Legal pages (/terms, /privacy), editable in Admin → Website editor → Legal. */
+export const LEGAL_FIELDS: HomeField[] = [
+  { key: "legal_terms_version", label: "Terms version", align: "left", fallback: "2026.1" },
+  {
+    key: "legal_terms",
+    label: "Terms & Conditions",
+    multiline: true,
+    align: "left",
+    fallback:
+      "These Terms & Conditions apply to orders placed with Titan Labs Australia through this website.\n\n1. Research use\nAll products are supplied for laboratory research purposes only. They are not intended for human or animal consumption, and no therapeutic, medical or performance use is described or implied.\n\n2. Accounts and eligibility\nYou must be 18 years or older and provide accurate account, contact and delivery details.\n\n3. Orders and pricing\nPrices are shown in Australian dollars. An order is accepted once payment has been confirmed. We may cancel and refund an order if a product becomes unavailable or a pricing error occurs.\n\n4. Your consumer rights\nNothing in these terms excludes, restricts or modifies any right or remedy you have under the Australian Consumer Law or any other law that cannot lawfully be excluded.\n\n5. Contact\nIf you have a question about these terms or your order, please contact us through our listed contact channels.",
+  },
+  {
+    key: "legal_research_notice",
+    label: "Research Use Notice",
+    multiline: true,
+    align: "left",
+    fallback:
+      "Products sold by Titan Labs Australia are supplied strictly for laboratory and research purposes. They are not medicines, foods or supplements and are not intended for human or animal consumption. Information on this website is provided for research reference only and is not medical advice.",
+  },
+  {
+    key: "legal_shipping",
+    label: "Shipping / Returns information",
+    multiline: true,
+    align: "left",
+    fallback:
+      "Orders are dispatched within Australia by Australia Post with tracking. Delivery times are estimates. If your order arrives damaged, incorrect or does not arrive, please contact us so we can help. Your rights under the Australian Consumer Law are not affected.",
+  },
+  {
+    key: "legal_privacy",
+    label: "Privacy Policy",
+    multiline: true,
+    align: "left",
+    fallback:
+      "Titan Labs Australia collects the personal information you give us — such as your name, email, phone number and delivery address — to create your account, process and deliver your orders, and contact you about them.\n\nPayments by card are handled by our payment provider; we do not store card numbers on this website.\n\nWe do not sell your personal information. We share it only with service providers needed to run the store (for example delivery and payment providers), or where required by law.\n\nYou can ask to access or correct your personal information at any time by contacting us. We handle personal information in line with the Australian Privacy Principles.",
+  },
+];
+
+export function termsVersion(content: Record<string, string> | undefined) {
+  return homeValue(content, "legal_terms_version").trim() || "2026.1";
+}
+
+export type PaymentMethodKey = "payid" | "crypto" | "card";
 
 export function paymentMethodName(
   content: Record<string, string> | undefined,
   method: PaymentMethodKey,
 ) {
-  const key = method === "payid" ? "payment_payid_label" : "payment_crypto_label";
+  const key =
+    method === "payid"
+      ? "payment_payid_label"
+      : method === "crypto"
+        ? "payment_crypto_label"
+        : "payment_card_label";
   return homeValue(content, key);
 }
 
@@ -193,6 +247,9 @@ export function paymentMethodName(
 export const HEADER_TABS: PageSection[] = [
   { key: "home", label: "Home" },
   { key: "range", label: "Catalogue" },
+  { key: "research", label: "Research Lab" },
+  { key: "pens", label: "Disposable Pens" },
+  { key: "calendar", label: "My Calendar" },
   { key: "calculator", label: "Calculator" },
   { key: "admin", label: "Admin" },
   { key: "account", label: "My profile" },
@@ -328,7 +385,7 @@ export function fieldAlign(
 }
 
 export function contentAlign(content: Record<string, string> | undefined, key: string) {
-  const field = [...HOME_FIELDS, ...RANGE_FIELDS, ...HEADER_FIELDS, ...FOOTER_FIELDS, ...PAYMENT_FIELDS].find((f) => f.key === key);
+  const field = [...HOME_FIELDS, ...RANGE_FIELDS, ...HEADER_FIELDS, ...FOOTER_FIELDS, ...PAYMENT_FIELDS, ...LEGAL_FIELDS].find((f) => f.key === key);
   return normaliseAlign(content?.[`${key}_align`], field?.align ?? "center");
 }
 
@@ -369,7 +426,7 @@ export function featuredSlugs(content: Record<string, string> | undefined) {
 }
 
 export function homeValue(content: Record<string, string> | undefined, key: string) {
-  const field = [...HOME_FIELDS, ...RANGE_FIELDS, ...HEADER_FIELDS, ...FOOTER_FIELDS, ...PAYMENT_FIELDS].find((f) => f.key === key);
+  const field = [...HOME_FIELDS, ...RANGE_FIELDS, ...HEADER_FIELDS, ...FOOTER_FIELDS, ...PAYMENT_FIELDS, ...LEGAL_FIELDS].find((f) => f.key === key);
   const value = content?.[key];
   return value && value.trim() ? value : field?.fallback || "";
 }
@@ -378,3 +435,5 @@ export function homeValue(content: Record<string, string> | undefined, key: stri
 export function catalogueName(content: Record<string, string> | undefined) {
   return homeValue(content, "home_range_title");
 }
+
+

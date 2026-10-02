@@ -84,6 +84,18 @@ export function PaymentDetails({
     );
   }
 
+  if (method === "card") {
+    return (
+      <div className={cn("border border-border bg-muted/20 p-4", className)}>
+        <p className="font-bold uppercase tracking-wide text-foreground">Secure card payment</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Your card details are securely handled by Stripe and are never stored by Titan Labs.
+        </p>
+        <p className="mt-2 text-xs text-muted-foreground">Sandbox mode — no real card will be charged.</p>
+      </div>
+    );
+  }
+
   return <CryptoPanel content={content} reference={reference} amountAud={amountAud} className={className} />;
 }
 
@@ -204,12 +216,18 @@ export function PaymentMethodPicker({
   onChange: (next: PaymentMethodKey) => void;
   content: Record<string, string> | undefined;
 }) {
+  const bankEnabled = homeValue(content, "payment_bank_enabled") === "true";
   const options: { key: PaymentMethodKey; label: string; hint: string; badge?: string }[] = [
     {
-      key: "payid",
-      label: homeValue(content, "payment_payid_label"),
-      hint: "Instant transfer from your Australian banking app.",
+      key: "card",
+      label: homeValue(content, "payment_card_label"),
+      hint: "Pay securely online by credit or debit card via Stripe.",
     },
+    ...(bankEnabled ? [{
+      key: "payid" as const,
+      label: homeValue(content, "payment_payid_label"),
+      hint: "Transfer from your banking app using the payment details provided.",
+    }] : []),
     {
       key: "crypto",
       label: homeValue(content, "payment_crypto_label"),
@@ -251,4 +269,5 @@ export function PaymentMethodPicker({
     </div>
   );
 }
+
 

@@ -1,3 +1,4 @@
+import { normalizeCatalogueSection, type CatalogueSection } from "@/lib/catalogue-sections";
 import klow80 from "@/assets/klow80.asset.json";
 import wolverine from "@/assets/wolverine.asset.json";
 import nad1000 from "@/assets/nad1000.asset.json";
@@ -45,6 +46,10 @@ export type Product = {
   stock?: number | null;
   /** Shown with a Coming Soon banner; cannot be ordered yet. */
   comingSoon?: boolean;
+  /** Storefront section: range, pens or equipment. */
+  catalogueSection?: CatalogueSection;
+  /** Disable the universal starter-kit offer for this product. */
+  starterKitEnabled?: boolean;
 };
 
 /** True when the whole product, or the chosen vial size, is coming soon. */
@@ -59,6 +64,27 @@ export function allComingSoon(product: Product) {
   if (product.comingSoon) return true;
   const vs = product.variants ?? [];
   return vs.length > 0 && vs.every((v) => v.comingSoon);
+}
+
+/** Only Range supports 10x kits; Pens and Equipment are single items. */
+export function allowsKit(product: { catalogueSection?: unknown; catalogue_section?: unknown }) {
+  return normalizeCatalogueSection(product.catalogueSection ?? product.catalogue_section) === "range";
+}
+
+/** Coerce any requested pack to one the product actually supports. */
+export function effectivePack(
+  product: { catalogueSection?: unknown; catalogue_section?: unknown },
+  pack: unknown,
+): ProductPack {
+  return pack === "kit" && allowsKit(product) ? "kit" : "single";
+}
+
+/** Label for the size picker / single option, generic for Equipment. */
+export function sizeLabelFor(product: { catalogueSection?: unknown }) {
+  return allowsKit(product) ? "Vial size" : "Size";
+}
+export function singleLabelFor(product: { catalogueSection?: unknown }) {
+  return normalizeCatalogueSection(product.catalogueSection) === "pens" ? "Pre-filled Pen Only" : allowsKit(product) ? "Single vial" : "Single item";
 }
 
 export const LOW_STOCK_THRESHOLD = 7;
@@ -138,21 +164,21 @@ export function cartLineKey(slug: string, variantId?: string | null, pack: Produ
 export function getProductOption(
   product: Product,
   variantId?: string | null,
-  pack: ProductPack = "single",
+  requestedPack: ProductPack = "single",
 ) {
+  const pack = effectivePack(product, requestedPack);
   const variant = (product.variants ?? []).find((v) => v.id === variantId) ?? null;
   const singlePrice = variant ? variant.price : product.price;
-  const basePrice = pack === "kit" ? kitPriceFor(singlePrice, variant?.kitPrice ?? product.kitPrice) : singlePrice;
-  const unitPrice = basePrice + (starterKit ? STARTER_KIT_PRICE : 0);
-  const variantLabel = variant?.label ?? "Single vial";
+  const unitPrice = pack === "kit" ? kitPriceFor(singlePrice, variant?.kitPrice ?? product.kitPrice) : singlePrice;
+  const variantLabel = variant?.label ?? singleLabelFor(product);
   return {
-    key: cartLineKey(product.slug, variant?.id ?? null, pack, starterKit),
+    key: cartLineKey(product.slug, variant?.id ?? null, pack),
     variantId: variant?.id ?? null,
     variantLabel,
     pack,
     unitPrice,
     stock: variant ? (variant.stock ?? null) : (product.stock ?? null),
-    label: (pack === "kit" ? variantLabel + " · 10x Kit" : variantLabel) + (starterKit ? " · Starter Kit" : ""),
+    label: pack === "kit" ? `${variantLabel} · 10x Kit` : variantLabel,
   };
 }
 
@@ -197,3 +223,4 @@ export function getReconFor(product: Product, variantId?: string | null) {
     notes: (variant?.reconNotes || product.reconNotes || "").trim(),
   };
 }
+

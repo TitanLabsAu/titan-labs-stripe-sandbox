@@ -4,7 +4,11 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { adminDeleteLink, adminListLinks, adminSaveLink } from "@/lib/admin.functions";
+import {
+  adminDeleteLink,
+  adminListLinks,
+  adminSaveLink,
+} from "@/lib/admin.functions";
 
 export function AdminLinks() {
   const queryClient = useQueryClient();
@@ -22,7 +26,8 @@ export function AdminLinks() {
   };
 
   const save = useMutation({
-    mutationFn: (input: { id?: string; label: string; url: string }) => adminSaveLink({ data: input }),
+    mutationFn: (input: { id?: string; label: string; url: string }) =>
+      adminSaveLink({ data: input }),
     onSuccess: () => {
       toast.success("Link saved");
       setLabel("");
@@ -43,8 +48,10 @@ export function AdminLinks() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border border-border bg-card/80 p-6">
-        <h3 className="text-lg font-extrabold uppercase text-foreground">Add a link</h3>
+      <div className="rounded-xl border border-border bg-card p-6">
+        <h3 className="text-lg font-extrabold uppercase text-foreground">
+          Add a link
+        </h3>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
             <Label>Link name</Label>
@@ -56,7 +63,11 @@ export function AdminLinks() {
           </div>
           <div>
             <Label>Web address</Label>
-            <Input value={url} placeholder="https://…" onChange={(e) => setUrl(e.target.value)} />
+            <Input
+              value={url}
+              placeholder="https://…"
+              onChange={(e) => setUrl(e.target.value)}
+            />
           </div>
         </div>
         <Button
@@ -77,7 +88,7 @@ export function AdminLinks() {
           {(data ?? []).map((l) => (
             <li
               key={l.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card/80 p-4"
+              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4"
             >
               <div className="text-sm">
                 <Input
@@ -85,7 +96,11 @@ export function AdminLinks() {
                   className="mb-2 max-w-xs font-bold"
                   onBlur={(e) => {
                     if (e.target.value.trim() && e.target.value !== l.label) {
-                      save.mutate({ id: l.id, label: e.target.value, url: l.url });
+                      save.mutate({
+                        id: l.id,
+                        label: e.target.value,
+                        url: l.url,
+                      });
                     }
                   }}
                 />

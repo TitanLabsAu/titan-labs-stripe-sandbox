@@ -1,4 +1,4 @@
-import { Bitcoin, Landmark, Layers, ShieldCheck, Truck } from "lucide-react";
+import { Bitcoin, CreditCard, Landmark, Layers, ShieldCheck, Truck } from "lucide-react";
 import { formatPrice } from "@/lib/products";
 import {
   CRYPTO_DISCOUNT_PERCENT,
@@ -9,14 +9,18 @@ import {
   stackPercentFor,
   type ShippingMethodKey,
 } from "@/lib/pricing";
+import { useSiteContent } from "@/lib/useCatalog";
+import { homeValue } from "@/lib/homeContent";
 import { cn } from "@/lib/utils";
+import { useReferralSettings } from "@/lib/useReferralSettings";
+import { multibuyPercentFor } from "@/lib/order-pricing";
 
 /** Progress bar toward free express shipping. */
 export function FreeShippingMeter({ amount }: { amount: number }) {
   const progress = Math.min(100, (amount / FREE_SHIPPING_THRESHOLD) * 100);
   const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - amount);
   return (
-    <div className="border border-border bg-muted/30 p-3">
+    <div className="rounded-xl border border-border bg-muted/30 p-3">
       <div className="flex items-center gap-2 text-xs text-foreground">
         <Truck className="h-4 w-4 text-accent" />
         {remaining > 0 ? (
@@ -38,16 +42,19 @@ export function FreeShippingMeter({ amount }: { amount: number }) {
 
 /** The Titan Stack tier banner — highlights the tier currently reached. */
 export function TitanStackBanner({ units }: { units: number }) {
-  const active = stackPercentFor(units);
-  const next = nextStackTier(units);
+  const { settings } = useReferralSettings();
+  const tiers = settings.multibuyTiers.length ? settings.multibuyTiers : [...STACK_TIERS];
+  const active = multibuyPercentFor(units, { ...settings, multibuyTiers: tiers });
+  const next = tiers.find((t) => units < t.units) ?? null;
+  const lastUnits = tiers[tiers.length - 1]?.units;
   return (
-    <div className="border border-border bg-muted/20 p-3">
+    <div className="rounded-xl border border-border bg-muted/20 p-3">
       <div className="flex items-center gap-2">
         <Layers className="h-4 w-4 text-accent" />
         <p className="technical-label text-foreground">The Titan Stack</p>
       </div>
       <div className="mt-3 grid grid-cols-3 gap-2">
-        {STACK_TIERS.map((tier) => {
+        {tiers.map((tier) => {
           const reached = active === tier.percent;
           return (
             <div
@@ -64,7 +71,7 @@ export function TitanStackBanner({ units }: { units: number }) {
               </p>
               <p className="text-[10px] uppercase tracking-[0.14em]">
                 {tier.units}
-                {tier.units === 4 ? "+" : ""} units
+                {tier.units === lastUnits ? "+" : ""} units
               </p>
             </div>
           );
@@ -90,8 +97,10 @@ export function TitanStackBanner({ units }: { units: number }) {
 
 /** Payment and delivery reassurance strip. */
 export function TitanTrustStrip() {
+  const { data: content } = useSiteContent();
   const badges = [
-    { label: "PayID / Osko", Icon: Landmark },
+    { label: "Credit / Debit Card", Icon: CreditCard },
+    ...(homeValue(content, "payment_bank_enabled") === "true" ? [{ label: homeValue(content, "payment_payid_label"), Icon: Landmark }] : []),
     { label: `Crypto · ${CRYPTO_DISCOUNT_PERCENT}% off`, Icon: Bitcoin },
     { label: "BTC · ETH · USDT", Icon: ShieldCheck },
     { label: "AusPost tracked", Icon: Truck },
@@ -111,7 +120,7 @@ export function TitanTrustStrip() {
         ))}
       </div>
       <p className="mt-2 text-center text-xs text-muted-foreground">
-        100% delivery guarantee · paid off-platform, never on this site
+        Secure and flexible payment options
       </p>
     </div>
   );
@@ -133,7 +142,7 @@ export function ShippingPicker({
         <label
           key={option.key}
           className={cn(
-            "flex cursor-pointer items-center gap-3 border px-4 py-3 transition-colors",
+            "flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition-colors",
             value === option.key
               ? "border-accent bg-accent/5"
               : "border-border hover:border-foreground/40",
@@ -167,3 +176,4 @@ export function ShippingPicker({
     </div>
   );
 }
+

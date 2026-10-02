@@ -1,5 +1,8 @@
+import { allowsKit } from "@/lib/products";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { parseCatalogueSection, type CatalogueSection } from "@/lib/catalogue-sections";
+import { orderReference } from "@/lib/order-reference";
 
 export type AdminOrderItem = {
   id: string;
@@ -66,7 +69,7 @@ export const adminListOrders = createServerFn({ method: "POST" })
     const { data: orders, error } = await context.supabase
       .from("orders")
       .select(
-        "id, user_id, status, tracking_number, tracking_status, subtotal, shipping, total, created_at, delivered_at, order_number, payment_method, payment_reference, payment_confirmed, contact_name, contact_email, contact_phone, shipping_address, notes, order_items(id, product_name, product_slug, unit_price, quantity)",
+        "id, user_id, status, tracking_number, tracking_status, subtotal, shipping, total, created_at, delivered_at, order_number, payment_method, payment_reference, payment_confirmed, refunded_at, contact_name, contact_email, contact_phone, shipping_address, notes, order_items(id, product_name, product_slug, unit_price, quantity)",
       )
       .in("status", statuses)
       .order("created_at", { ascending: false });
@@ -107,6 +110,8 @@ export const adminSetTracking = createServerFn({ method: "POST" })
       })
       .eq("id", data.orderId);
     if (error) throw error;
+    const { tryOrderCheckpointEmails } = await import("@/lib/order-checkpoint-email.server");
+    await tryOrderCheckpointEmails(data.orderId);
     return { ok: true };
   });
 
@@ -120,6 +125,8 @@ export const adminSetPaymentConfirmed = createServerFn({ method: "POST" })
       .update({ payment_confirmed: data.confirmed })
       .eq("id", data.orderId);
     if (error) throw error;
+    const { tryOrderCheckpointEmails } = await import("@/lib/order-checkpoint-email.server");
+    await tryOrderCheckpointEmails(data.orderId);
     return { ok: true };
   });
 
@@ -136,6 +143,8 @@ export const adminUpdateStatus = createServerFn({ method: "POST" })
       })
       .eq("id", data.orderId);
     if (error) throw error;
+    const { tryOrderCheckpointEmails } = await import("@/lib/order-checkpoint-email.server");
+    await tryOrderCheckpointEmails(data.orderId);
     return { ok: true };
   });
 
@@ -150,7 +159,7 @@ export const adminSendOrderEmail = createServerFn({ method: "POST" })
     const { data: order, error } = await context.supabase
       .from("orders")
       .select(
-        "id, user_id, total, tracking_number, order_items(product_name, quantity, unit_price)",
+        "id, user_id, order_number, total, tracking_number, contact_email, contact_name, payment_confirmed, notes, order_items(product_name, quantity, unit_price)",
       )
       .eq("id", data.orderId)
       .maybeSingle();
@@ -163,13 +172,15 @@ export const adminSendOrderEmail = createServerFn({ method: "POST" })
       .eq("id", (order as any).user_id)
       .maybeSingle();
 
-    const email = (profile as any)?.email as string | undefined;
+    const email = (order as any).contact_email || (profile as any)?.email;
     if (!email) throw new Error("This customer has no email address on file.");
 
-    const money = (cents: number) => `$${(Number(cents) / 100).toFixed(2)}`;
+    const money = (amount: number) => `$${Number(amount).toFixed(2)} AUD`;
     const templateData: Record<string, any> = {
-      orderNumber: String((order as any).id).slice(0, 8),
-      customerName: (profile as any)?.first_name ?? "there",
+      orderNumber: orderReference(order as any),
+      customerName: (order as any).contact_name || (profile as any)?.first_name || "there",
+      paymentConfirmed: Boolean((order as any).payment_confirmed),
+      shippingMethod: /Shipping: Standard/.test((order as any).notes ?? "") ? "Standard tracked" : "Australia Post Express",
       total: money((order as any).total),
       trackingNumber: (order as any).tracking_number ?? "",
       items: ((order as any).order_items ?? []).map(
@@ -321,15 +332,6 @@ export const adminGetMemberOrders = createServerFn({ method: "POST" })
     }));
   });
 
-/** Checks Australia Post now for every live order that has a tracking number. */
-export const adminRefreshTracking = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    await assertAdmin(context as any);
-    const { syncAustraliaPostTracking } = await import("@/lib/auspost.server");
-    return syncAustraliaPostTracking();
-  });
-
 /* ---------------- Products ---------------- */
 
 export type AdminProductLink = { label: string; url: string };
@@ -372,10 +374,12 @@ export type AdminProduct = {
   coming_soon?: boolean;
   sort_order: number;
   stock_quantity: number;
+  catalogue_section?: CatalogueSection;
+  starter_kit_enabled?: boolean;
 };
 
 const PRODUCT_COLS =
-  "id, slug, name, price, sale_price, promo_label, kit_price, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, active, coming_soon, sort_order, stock_quantity";
+  "id, slug, name, price, sale_price, promo_label, kit_price, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, active, coming_soon, sort_order, stock_quantity, catalogue_section, starter_kit_enabled";
 
 export const adminListProducts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -398,6 +402,7 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
       value === null || value === undefined || value === "" || Number.isNaN(Number(value))
         ? null
         : Number(value);
+    const isEquipment = !allowsKit({ catalogue_section: data.catalogue_section });
     const variants = (data.product_variants ?? [])
       .map((v) => ({
         id: String(v.id || crypto.randomUUID()),
@@ -412,7 +417,8 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
         reconDoseMg: optNum(v.reconDoseMg),
         reconNotes: String(v.reconNotes ?? ""),
       }))
-      .filter((v) => v.label && v.price > 0);
+      .filter((v) => v.label && v.price > 0)
+      .map((v) => (isEquipment ? { ...v, kitPrice: null } : v));
     const variantPrices = variants.map((v) => v.price).filter((p) => p > 0);
     const basePrice = variantPrices.length > 0 ? Math.min(...variantPrices) : Number(data.price ?? 0);
     const totalStock =
@@ -428,8 +434,9 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
           ? null
           : Number(data.sale_price),
       promo_label: data.promo_label ?? "",
-      kit_price:
-        data.kit_price === null || data.kit_price === undefined || Number.isNaN(Number(data.kit_price))
+      kit_price: isEquipment
+        ? null
+        : data.kit_price === null || data.kit_price === undefined || Number.isNaN(Number(data.kit_price))
           ? null
           : Number(data.kit_price),
       product_variants: variants,
@@ -448,7 +455,10 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
       active: data.active ?? true,
       sort_order: Number(data.sort_order ?? 0),
       stock_quantity: totalStock,
+      catalogue_section: parseCatalogueSection(data.catalogue_section),
+      starter_kit_enabled: data.starter_kit_enabled ?? true,
     };
+    if (!row.image_url.trim() && !data.id) throw new Error("A product photo is required");
     if (data.id) {
       const { error } = await context.supabase.from("products").update(row).eq("id", data.id);
       if (error) throw error;
@@ -557,10 +567,15 @@ export type AdminDiscountCode = {
   active: boolean;
   created_at: string;
   expires_at: string | null;
+  code_kind: "referral" | "member";
+  min_spend_cents: number;
+  combine_multibuy: boolean;
+  combine_crypto: boolean;
+  combine_credit: boolean;
 };
 
 const DISCOUNT_COLS =
-  "id, code, discount_type, value, max_uses, times_used, user_id, milestone, note, active, created_at, expires_at";
+  "id, code, discount_type, value, max_uses, times_used, user_id, milestone, note, active, created_at, expires_at, code_kind, min_spend_cents, combine_multibuy, combine_crypto, combine_credit";
 
 export const adminListDiscountCodes = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -634,3 +649,5 @@ export const adminDeleteDiscountCode = createServerFn({ method: "POST" })
     if (error) throw error;
     return { ok: true };
   });
+
+

@@ -1,13 +1,50 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BookOpen, PenTool, ShoppingBag } from "lucide-react";
-import { useState } from "react";
+import { PenTool } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { TitanPageHeading } from "@/components/TitanPageHeading";
+import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { useProducts } from "@/lib/useCatalog";
-import { useCart } from "@/lib/cart";
-import { firstAvailableVariant, formatPrice, getProductOption, sortedProductVariants, stockState } from "@/lib/products";
-
-export const Route=createFileRoute("/pens")({component:PensPage});
-function PenCard({p}:{p:any}){const {addItem}=useCart();const variants=sortedProductVariants(p);const first=firstAvailableVariant(p);const [variantId,setVariantId]=useState(first?.id??null);const option=getProductOption(p,variantId,"single");const selected=variants.find(v=>v.id===variantId);const unavailable=Boolean(selected?.comingSoon)||stockState(selected?.stock??p.stock)==="out";return <article className="flex flex-col border border-border bg-card shadow-sm"><div className="aspect-square bg-white p-4"><img src={p.image} alt={p.alt} className="h-full w-full object-contain"/></div><div className="flex flex-1 flex-col p-4"><h2 className="font-bold uppercase">{p.name}</h2><p className="mt-1 text-xs text-muted-foreground">{p.blurb}</p><Link to="/product/$slug" params={{slug:p.slug}} className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"><BookOpen className="h-3 w-3"/>Product Info</Link>{variants.length?<select className="mt-3 h-10 border border-input bg-background px-2 text-xs" value={variantId??""} onChange={e=>setVariantId(e.target.value)}>{variants.map(v=><option key={v.id} value={v.id}>{v.label} — {formatPrice(v.price)}</option>)}</select>:null}<div className="mt-3 rounded border border-border bg-muted/30 p-2 text-[11px] text-muted-foreground"><strong className="text-foreground">Pen Starter Kit option</strong><br/>20 × Pen Pins · 20 × Alcohol Prep Pads · 1 × Sharps Container</div><div className="mt-auto flex items-center justify-between pt-4"><strong className="text-lg text-accent">{formatPrice(option.unitPrice)}</strong><Button disabled={unavailable} onClick={()=>addItem(p.slug,1,{variantId:option.variantId,variantLabel:option.variantLabel,pack:"single"})}><ShoppingBag className="h-4 w-4"/>Add to cart</Button></div></div></article>}
-function PensPage(){const {products}=useProducts();const pens=products.filter(p=>(p.categories??[]).includes("Disposable Pens"));return <div className="bg-hero min-h-screen"><SiteHeader/><main className="page-shell py-10 sm:py-14"><div className="border border-border bg-card p-6 text-center"><PenTool className="mx-auto h-7 w-7 text-primary"/><p className="technical-label mt-2 text-accent">In stock now</p><h1 className="mt-2 text-3xl font-medium uppercase">Pre-filled Disposable Pens</h1><p className="mx-auto mt-3 max-w-2xl text-sm text-muted-foreground">Titan disposable pens use a clean white body with Titan blue end detailing. Product images, pricing, stock, strengths and options are managed from Titan Admin.</p><Button asChild variant="outline" className="mt-4"><Link to="/pen-guide">View pen guides</Link></Button></div><div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{pens.map(p=><PenCard key={p.slug} p={p}/>)}</div>{!pens.length?<p className="mt-8 text-center text-sm text-muted-foreground">Disposable pen products are ready to be added from Admin.</p>:null}</main><SiteFooter/></div>}
+import { filterBySection } from "@/lib/catalogue-sections";
+export const Route = createFileRoute("/pens")({
+  head: () => ({ meta: [{ title: "Disposable Pens | Titan Labs Aus" }] }),
+  component: PensPage,
+});
+function PensPage() {
+  const { products, isLoading } = useProducts();
+  const pens = filterBySection(products, "pens");
+  return (
+    <div className="bg-hero min-h-screen">
+      <SiteHeader />
+      <main className="page-shell py-8 sm:py-12">
+        <TitanPageHeading
+          as="h1"
+          icon={PenTool}
+          eyebrow="Titan catalogue"
+          title="Disposable Pens"
+        />
+        <p className="mt-4 max-w-2xl text-sm leading-6 text-muted-foreground">
+          Browse pre-filled research pens and the optional Pen Starter Kit. Availability is shown on
+          each product.
+        </p>
+        <Button asChild variant="outline" className="mt-4">
+          <Link to="/pen-guide">View pen guides</Link>
+        </Button>
+        <div className="mt-7 grid gap-4 lg:grid-cols-2">
+          {pens.map((p) => (
+            <ProductCard key={p.slug} product={p} />
+          ))}
+        </div>
+        {isLoading ? (
+          <p className="mt-7 text-sm text-muted-foreground">Loading pens…</p>
+        ) : !pens.length ? (
+          <p className="mt-7 text-sm text-muted-foreground">
+            No disposable pens are currently listed.
+          </p>
+        ) : null}
+      </main>
+      <SiteFooter />
+    </div>
+  );
+}

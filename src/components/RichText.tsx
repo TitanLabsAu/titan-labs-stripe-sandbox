@@ -2,6 +2,7 @@ import { Fragment } from "react";
 
 type RichTextProps = {
   text: string;
+  inline?: boolean;
 };
 
 const TOKEN = /(\*\*[^*]+\*\*|__[^_]+__|\*[^*]+\*)/g;
@@ -25,16 +26,104 @@ function richSegments(line: string) {
   });
 }
 
-export function RichText({ text }: RichTextProps) {
-  const lines = text.split("\n");
+const BULLET = /^\s*[-•]\s+/;
+
+function isNumberedHeading(line: string) {
   return (
-    <>
-      {lines.map((line, index) => (
-        <Fragment key={`${line}-${index}`}>
-          {richSegments(line)}
-          {index < lines.length - 1 ? <br /> : null}
-        </Fragment>
-      ))}
-    </>
+    /^\d+[.)]\s+\S/.test(line) && line.length <= 80 && !/[.;:]$/.test(line)
+  );
+}
+
+/** Short line with no sentence punctuation reads as a sub-heading. */
+function isPlainHeading(line: string) {
+  if (line.length > 55) return false;
+  if (/[.,;:?!]$/.test(line)) return false;
+  return line.split(/\s+/).length <= 7;
+}
+
+type Block =
+  | { kind: "heading"; text: string }
+  | { kind: "paragraph"; text: string }
+  | { kind: "list"; items: string[] };
+
+function parseBlocks(text: string): Block[] {
+  const lines = text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  const blocks: Block[] = [];
+
+  for (const line of lines) {
+    if (BULLET.test(line)) {
+      const item = line.replace(BULLET, "");
+      const last = blocks[blocks.length - 1];
+      if (last && last.kind === "list") last.items.push(item);
+      else blocks.push({ kind: "list", items: [item] });
+      continue;
+    }
+
+    if (isNumberedHeading(line) || isPlainHeading(line)) {
+      blocks.push({ kind: "heading", text: line });
+      continue;
+    }
+
+    blocks.push({ kind: "paragraph", text: line });
+  }
+
+  return blocks;
+}
+
+export function RichText({ text, inline = false }: RichTextProps) {
+  if (inline) {
+    return (
+      <>
+        {text.split("\n").map((line, index) => (
+          <Fragment key={index}>
+            {index > 0 ? <br /> : null}
+            {richSegments(line)}
+          </Fragment>
+        ))}
+      </>
+    );
+  }
+  const blocks = parseBlocks(text);
+
+  return (
+    <div className="space-y-4">
+      {blocks.map((block, index) => {
+        if (block.kind === "heading") {
+          return (
+            <h3
+              key={index}
+              className="pt-3 font-display text-sm font-bold uppercase tracking-wide text-foreground first:pt-0"
+            >
+              {richSegments(block.text)}
+            </h3>
+          );
+        }
+
+        if (block.kind === "list") {
+          return (
+            <ul
+              key={index}
+              className="list-disc space-y-1.5 pl-5 marker:text-primary"
+            >
+              {block.items.map((item, i) => (
+                <li key={i} className="leading-7">
+                  {richSegments(item)}
+                </li>
+              ))}
+            </ul>
+          );
+        }
+
+        return (
+          <p key={index} className="leading-7">
+            {richSegments(block.text)}
+          </p>
+        );
+      })}
+    </div>
   );
 }

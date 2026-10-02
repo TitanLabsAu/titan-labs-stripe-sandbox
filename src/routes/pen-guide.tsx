@@ -1,9 +1,128 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { PenTool, Syringe, Droplet, RotateCcw, Trash2, Info, ShieldCheck, SprayCan } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { PenTool, RotateCcw, BookOpen } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-export const Route=createFileRoute("/pen-guide")({component:PenGuide});
-const V2=[[Droplet,"Load the Cartridge","Unscrew the pen body and insert the filled cartridge. Reassemble securely."],[SprayCan,"Clean the Pen Top","Use an alcohol prep pad on the rubber septum and allow it to air-dry."],[Syringe,"Attach a New Pen Needle","Attach a new compatible pen needle and remove its protective caps."],[RotateCcw,"Prime the Pen","Prime the device according to the instructions supplied with your specific pen."],[ShieldCheck,"Set the Intended Units","Set the unit display required for your prepared product and verify it before use."],[SprayCan,"Prepare the Site","Clean the site with a fresh alcohol prep pad and allow it to dry."],[PenTool,"Use the Pen","Follow the device instructions and guidance supplied for your specific pen."],[Trash2,"Dispose of the Needle","Remove the needle safely and place it in an approved sharps container."]];
-const DISP=[[Info,"Inspect the Pen","Check the product label and inspect the liquid before use."],[SprayCan,"Clean the Pen Top","Use an alcohol prep pad on the rubber septum and allow it to air-dry."],[Syringe,"Attach a New Pen Needle","Attach a new compatible pen needle and remove its protective caps."],[ShieldCheck,"Set the Intended Units","Set and confirm the required unit display."],[SprayCan,"Prepare the Site","Clean the site with a fresh alcohol prep pad and allow it to dry."],[PenTool,"Use the Pen","Follow the instructions supplied with the specific disposable pen."],[Trash2,"Dispose Safely","When empty, dispose of the pen and needles in accordance with local sharps requirements."]];
-function Steps({steps}:{steps:any[]}){return <ol className="space-y-4">{steps.map(([Icon,title,text],i)=><li key={title} className="flex gap-3"><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10"><Icon className="h-4 w-4 text-primary"/></div><div><p className="text-sm font-semibold"><span className="text-primary">{i+1}.</span> {title}</p><p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{text}</p></div></li>)}</ol>}
-function PenGuide(){return <div className="bg-hero min-h-screen"><SiteHeader/><main className="page-shell py-10 sm:py-14"><div className="overflow-hidden border border-border bg-card"><div className="bg-primary px-6 py-5 text-primary-foreground"><h1 className="text-2xl font-bold uppercase">Titan Pen Guides</h1><p className="mt-1 text-sm opacity-90">Quick reference for Titan V2 reusable and disposable pre-filled pens.</p></div><div className="grid divide-y divide-border md:grid-cols-2 md:divide-x md:divide-y-0"><section className="p-6"><h2 className="mb-5 flex items-center gap-2 font-bold uppercase"><RotateCcw className="h-5 w-5 text-accent"/>V2 Reusable Insulin Pen</h2><Steps steps={V2}/></section><section className="p-6"><h2 className="mb-5 flex items-center gap-2 font-bold uppercase"><PenTool className="h-5 w-5 text-accent"/>Disposable Pre-filled Pen</h2><Steps steps={DISP}/></section></div><div className="border-t border-border bg-muted/50 px-6 py-4"><p className="text-xs leading-5 text-muted-foreground">Use a new sterile compatible needle each time and follow the instructions supplied with the actual pen hardware. Store and dispose of the device according to its product instructions and local requirements. Research use only.</p></div></div></main><SiteFooter/></div>}
+import { TitanPageHeading } from "@/components/TitanPageHeading";
+import { Button } from "@/components/ui/button";
+import { useProducts } from "@/lib/useCatalog";
+import { safeUrl } from "@/lib/research";
+export const Route = createFileRoute("/pen-guide")({
+  head: () => ({ meta: [{ title: "Titan V2 & Disposable Pen Guides | Titan Labs Aus" }] }),
+  component: PenGuide,
+});
+const reusable = [
+  [
+    "Check compatibility",
+    "Confirm the cartridge and accessories match the exact V2 pen model and manufacturer instructions.",
+  ],
+  [
+    "Inspect before handling",
+    "Check packaging, labels and the device for damage. Follow the handling and cleaning instructions supplied with the hardware.",
+  ],
+  [
+    "Cartridge and unit scale",
+    "Use only the manufacturer’s cartridge-loading and priming instructions. A pen’s unit scale must not be assumed to match a U-100 syringe.",
+  ],
+  [
+    "Storage and disposal",
+    "Follow the device and research material storage instructions. Place sharp accessories in an appropriate sharps container.",
+  ],
+];
+const disposable = [
+  [
+    "Check the supplied product",
+    "Confirm the compound, strength, label and sealed packaging. Do not use damaged or incorrectly labelled equipment.",
+  ],
+  [
+    "Check compatible accessories",
+    "Use the accessory type specified for the actual pen. The optional Pen Starter Kit contents are listed on its product page.",
+  ],
+  [
+    "Use the manufacturer’s instructions",
+    "Priming, loading, scale readings and disposal vary by device. Refer to the instructions supplied with the exact model.",
+  ],
+  [
+    "Disposal",
+    "Follow the manufacturer’s directions and local sharps disposal requirements. Do not refill a disposable device.",
+  ],
+];
+function PenGuide() {
+  const { products } = useProducts();
+  const guides = products.filter(
+    (p) => p.catalogueSection === "pens" || /\bv2\b.*pen|pen.*\bv2\b/i.test(p.name),
+  );
+  return (
+    <div className="bg-hero min-h-screen">
+      <SiteHeader />
+      <main className="page-shell py-8 sm:py-12">
+        <TitanPageHeading
+          as="h1"
+          icon={BookOpen}
+          eyebrow="Equipment reference"
+          title="Titan Pen Guides"
+        />
+        <p className="mt-4 max-w-3xl text-sm leading-6 text-muted-foreground">
+          Reference information for Titan V2 reusable and disposable pens. Model-specific
+          instructions supplied with the hardware take precedence. Products are for laboratory
+          research only, not human or animal consumption.
+        </p>
+        <div className="mt-7 grid gap-5 md:grid-cols-2">
+          {[
+            { title: "Titan V2 reusable pen", icon: RotateCcw, steps: reusable },
+            { title: "Disposable pre-filled pen", icon: PenTool, steps: disposable },
+          ].map(({ title, icon: Icon, steps }) => (
+            <section key={title} className="rounded-xl border border-border bg-card p-5 sm:p-7">
+              <h2 className="flex items-center gap-2 font-display text-xl font-bold uppercase">
+                <Icon className="h-5 w-5 text-primary" />
+                {title}
+              </h2>
+              <ol className="mt-5 space-y-5">
+                {steps.map(([heading, body], i) => (
+                  <li key={heading}>
+                    <h3 className="text-sm font-bold text-foreground">
+                      {i + 1}. {heading}
+                    </h3>
+                    <p className="mt-1 text-sm leading-6 text-muted-foreground">{body}</p>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          ))}
+        </div>
+        <section className="mt-7 rounded-xl border border-border bg-card p-5">
+          <h2 className="font-display text-lg font-bold uppercase">
+            Product information & supplied guides
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Open the product information for its current options and documents.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {guides.map((p) => (
+              <div key={p.slug}>
+                <Button asChild variant="outline">
+                  <Link to="/product/$slug" params={{ slug: p.slug }}>
+                    {p.name}
+                  </Link>
+                </Button>
+                {(p.links ?? [])
+                  .filter((l) => /guide|manual|instruction/i.test(l.label) && safeUrl(l.url))
+                  .map((l) => (
+                    <a
+                      key={l.url}
+                      href={safeUrl(l.url)!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ml-2 text-sm text-primary underline"
+                    >
+                      {l.label}
+                    </a>
+                  ))}
+              </div>
+            ))}
+          </div>
+        </section>
+      </main>
+      <SiteFooter />
+    </div>
+  );
+}

@@ -1,3 +1,5 @@
+import { TitanPageHeading } from "@/components/TitanPageHeading";
+import { LogIn } from "lucide-react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,7 +22,8 @@ export const Route = createFileRoute("/auth/")({
       { property: "og:title", content: "Log In | Titan Labs Aus" },
       {
         property: "og:description",
-        content: "Access your Titan Labs Aus account to browse and order premium research products.",
+        content:
+          "Access your Titan Labs Aus account to browse and order premium research products.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -34,6 +37,31 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resetting, setResetting] = useState(false);
+
+  async function handleForgotPassword() {
+    const trimmed = email.trim();
+    if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      toast.error(
+        "Enter your email address above, then click Forgot password.",
+      );
+      return;
+    }
+    setResetting(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(trimmed, {
+        redirectTo: `${window.location.origin}/auth/reset-password`,
+      });
+      if (error) throw error;
+      toast.success("Password reset email sent — check your inbox.");
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Could not send the reset email.",
+      );
+    } finally {
+      setResetting(false);
+    }
+  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -55,7 +83,9 @@ function AuthPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!email.trim() || password.length < 6) {
-      toast.error("Enter a valid email and a password of at least 6 characters.");
+      toast.error(
+        "Enter a valid email and a password of at least 6 characters.",
+      );
       return;
     }
     setLoading(true);
@@ -76,62 +106,77 @@ function AuthPage() {
   return (
     <div className="bg-hero min-h-screen">
       <SiteHeader />
-      <main className="page-shell py-12">
-      <div className="w-full max-w-md">
-        <div className="border border-border bg-card p-8 shadow-sm">
-           <h1 className="text-left text-3xl font-medium uppercase text-foreground">
-            Member Log In
-          </h1>
-           <p className="mt-2 text-left text-sm text-muted-foreground">
-            Welcome back to Titan Labs Aus.
-          </p>
+      <main className="page-shell py-8 sm:py-12">
+        <div className="w-full max-w-md">
+          <div className="rounded-xl border border-border bg-card p-5 sm:p-8">
+            <TitanPageHeading
+              as="h1"
+              icon={LogIn}
+              eyebrow="Titan member access"
+              title="Member log in"
+            />
+            <p className="mt-2 text-left text-sm text-muted-foreground">
+              Welcome back to Titan Labs Aus.
+            </p>
 
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                autoComplete="email"
-                value={email}
-                maxLength={255}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                autoComplete="current-password"
-                value={password}
-                maxLength={72}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full font-bold uppercase" disabled={loading}>
-              {loading ? "Please wait…" : "Log in"}
-            </Button>
-          </form>
+            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  maxLength={255}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  autoComplete="current-password"
+                  value={password}
+                  maxLength={72}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <Button
+                type="submit"
+                className="w-full font-bold uppercase"
+                disabled={loading}
+              >
+                {loading ? "Please wait…" : "Log in"}
+              </Button>
+            </form>
+
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              disabled={resetting}
+              className="mt-4 block w-full text-center text-sm text-muted-foreground underline-offset-4 hover:text-accent hover:underline disabled:opacity-60"
+            >
+              {resetting ? "Sending reset email…" : "Forgot password?"}
+            </button>
+
+            <Link
+              to="/auth/signup"
+              className="mt-6 block w-full text-center text-sm text-muted-foreground underline-offset-4 hover:text-accent hover:underline"
+            >
+              No account yet? Create one
+            </Link>
+          </div>
 
           <Link
-            to="/auth/signup"
-            className="mt-6 block w-full text-center text-sm text-muted-foreground underline-offset-4 hover:text-accent hover:underline"
+            to="/"
+            className="mt-6 block text-center text-sm text-muted-foreground underline-offset-4 hover:text-accent hover:underline"
           >
-            No account yet? Create one
+            ← Back to home
           </Link>
         </div>
-
-        <Link
-          to="/"
-          className="mt-6 block text-center text-sm text-muted-foreground underline-offset-4 hover:text-accent hover:underline"
-        >
-          ← Back to home
-        </Link>
-
-      </div>
       </main>
       <SiteFooter />
     </div>

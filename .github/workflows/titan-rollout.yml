@@ -1,0 +1,20 @@
+name: Validate Titan rollout
+on:
+  pull_request:
+    branches: [research-lab-v2]
+  push:
+    branches: [rollout-updates-1-6]
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - name: Pricing, catalogue and rollout tests
+        run: bun test scripts/catalogue-reviews.test.ts scripts/equipment-single-item.test.ts scripts/referral-pricing.test.ts scripts/titan-rollout.test.ts
+      - name: Production build and route generation
+        run: bun run build
+      - name: Type check
+        run: bunx tsc --noEmit

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   cartLineKey,
+  effectivePack,
   getProductOption,
   type ProductPack,
   type Product,
@@ -14,14 +15,12 @@ export type CartItem = {
   variantId?: string | null;
   variantLabel?: string | null;
   pack?: ProductPack;
-  starterKit?: boolean;
 };
 
 export type CartItemOption = {
   variantId?: string | null;
   variantLabel?: string | null;
   pack?: ProductPack;
-  starterKit?: boolean;
 };
 
 type CartContextValue = {
@@ -57,14 +56,36 @@ function normalizeItem(raw: unknown): CartItem | null {
   const pack: ProductPack = item.pack === "kit" ? "kit" : "single";
   const variantId = typeof item.variantId === "string" && item.variantId ? item.variantId : null;
   return {
-    key: typeof item.key === "string" && item.key ? item.key : cartLineKey(item.slug, variantId, pack, Boolean(item.starterKit)),
+    key: typeof item.key === "string" && item.key ? item.key : cartLineKey(item.slug, variantId, pack),
     slug: item.slug,
     quantity: clampQuantity(Number(item.quantity ?? 1)),
     variantId,
     variantLabel: typeof item.variantLabel === "string" ? item.variantLabel : null,
     pack,
-    starterKit: Boolean(item.starterKit),
   };
+}
+
+/** Force kit lines to single for products that disallow kits, merging duplicates. Returns same array if unchanged. */
+export function coerceCartItems(
+  items: CartItem[],
+  getProduct: (slug: string) => Product | null | undefined,
+): CartItem[] {
+  let changed = false;
+  const out: CartItem[] = [];
+  for (const item of items) {
+    const product = getProduct(item.slug);
+    let line = item;
+    if (product && item.pack === "kit" && effectivePack(product, "kit") === "single") {
+      changed = true;
+      line = { ...item, pack: "single", key: cartLineKey(item.slug, item.variantId ?? null, "single") };
+    }
+    const dup = out.find((o) => o.key === line.key);
+    if (dup) {
+      changed = true;
+      dup.quantity = clampQuantity(dup.quantity + line.quantity);
+    } else out.push({ ...line });
+  }
+  return changed ? out : items;
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
@@ -91,16 +112,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [items]);
 
+  // Repair restored/stale lines: products that disallow kits are forced to single.
+  useEffect(() => {
+    setItems((prev) => coerceCartItems(prev, getProduct));
+  }, [getProduct, items]);
+
   const value = useMemo<CartContextValue>(() => {
     const getLinePrice = (item: CartItem) => {
       const product = getProduct(item.slug);
       if (!product) return 0;
-      return getProductOption(product, item.variantId ?? null, item.pack ?? "single", Boolean(item.starterKit)).unitPrice;
+      return getProductOption(product, item.variantId ?? null, item.pack ?? "single").unitPrice;
     };
     const getLineLabel = (item: CartItem, product?: Product | null) => {
       const found = product ?? getProduct(item.slug);
       if (!found) return item.variantLabel ?? "Selected option";
-      return getProductOption(found, item.variantId ?? null, item.pack ?? "single", Boolean(item.starterKit)).label;
+      return getProductOption(found, item.variantId ?? null, item.pack ?? "single").label;
     };
     const count = items.reduce((sum, i) => sum + i.quantity, 0);
     const subtotal = items.reduce((sum, i) => sum + getLinePrice(i) * i.quantity, 0);
@@ -109,10 +135,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       count,
       subtotal,
       addItem: (slug, quantity = 1, option) => {
-        const pack = option?.pack ?? "single";
+        const product = getProduct(slug);
+        const pack = product ? effectivePack(product, option?.pack) : (option?.pack ?? "single");
         const variantId = option?.variantId ?? null;
-        const starterKit = Boolean(option?.starterKit);
-        const key = cartLineKey(slug, variantId, pack, starterKit);
+        const key = cartLineKey(slug, variantId, pack);
         setItems((prev) => {
           const existing = prev.find((i) => i.key === key);
           if (existing) {
@@ -129,7 +155,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
               variantId,
               variantLabel: option?.variantLabel ?? null,
               pack,
-              starterKit,
             },
           ];
         });

@@ -1,3 +1,6 @@
+import { StarterKitOffer } from "@/components/StarterKitOffer";
+import { TitanPageHeading } from "@/components/TitanPageHeading";
+import { FlaskConical } from "lucide-react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -13,12 +16,12 @@ import {
   getProductOption,
   isComingSoon,
   kitPriceFor,
+  allowsKit,
+  singleLabelFor,
   productBasePrice,
   sortedProductVariants,
   stockState,
   variantStockFor,
-  STARTER_KIT_CONTENTS,
-  STARTER_KIT_PRICE,
   type ProductPack,
 } from "@/lib/products";
 import { getProductBySlug } from "@/lib/catalog.functions";
@@ -42,7 +45,10 @@ export const Route = createFileRoute("/product/$slug")({
     }
     const { product } = loaderData;
     const title = `${product.name} | Titan Labs Aus`;
-    const description = product.description || product.blurb || `${product.name} from Titan Labs Aus.`;
+    const description =
+      product.description ||
+      product.blurb ||
+      `${product.name} from Titan Labs Aus.`;
     return {
       meta: [
         { title },
@@ -63,14 +69,19 @@ function ProductPage() {
   const { data: content } = useSiteContent();
   const { addItem, items } = useCart();
   const variants = sortedProductVariants(product);
-  const [variantId, setVariantId] = useState<string | null>(firstAvailableVariant(product)?.id ?? null);
+  const [variantId, setVariantId] = useState<string | null>(
+    firstAvailableVariant(product)?.id ?? null,
+  );
   const [pack, setPack] = useState<ProductPack>("single");
-  const [starterKit, setStarterKit] = useState(false);
   const selected = useMemo(
     () => getProductOption(product, variantId, pack),
     [product, variantId, pack],
   );
-  const selectedKey = cartLineKey(product.slug, selected.variantId, selected.pack, starterKit);
+  const selectedKey = cartLineKey(
+    product.slug,
+    selected.variantId,
+    selected.pack,
+  );
   const carted = items.find((i) => i.key === selectedKey)?.quantity ?? null;
 
   const [qty, setQty] = useState(1);
@@ -82,7 +93,9 @@ function ProductPage() {
 
   if (synced.key !== selectedKey || synced.carted !== carted) {
     const isOwnAdd =
-      synced.key === selectedKey && expectedCarted.current !== null && carted === expectedCarted.current;
+      synced.key === selectedKey &&
+      expectedCarted.current !== null &&
+      carted === expectedCarted.current;
     if (!isOwnAdd) {
       setQty(carted ?? 1);
     }
@@ -102,8 +115,17 @@ function ProductPage() {
     <div className="bg-hero min-h-screen">
       <SiteHeader />
 
-      <main className="page-shell py-10 sm:py-12">
-        <Link to="/range" className="text-sm text-muted-foreground hover:text-accent">
+      <main className="page-shell py-8 sm:py-12">
+        <TitanPageHeading
+          icon={FlaskConical}
+          eyebrow="Research product catalogue"
+          title="Product details"
+        />
+        <div className="h-4" />
+        <Link
+          to="/range"
+          className="text-sm text-muted-foreground hover:text-accent"
+        >
           ← Back to {catalogueName(content)}
         </Link>
 
@@ -112,14 +134,12 @@ function ProductPage() {
             <img
               src={product.image}
               alt={product.alt}
-              className="w-full border border-border object-cover shadow-sm"
+              className="w-full rounded-xl border border-border bg-card object-cover"
             />
           </div>
 
           <div>
-            <h1 className="text-4xl font-medium uppercase text-foreground sm:text-5xl">
-              {product.name}
-            </h1>
+            <h1 className="titan-hero-heading">{product.name}</h1>
             <p className="mt-3 flex flex-wrap items-baseline gap-3">
               {product.wasPrice && variants.length === 0 ? (
                 <span className="text-lg text-muted-foreground line-through">
@@ -127,10 +147,12 @@ function ProductPage() {
                 </span>
               ) : null}
               <span className="text-2xl font-extrabold text-accent">
-                 {variants.length > 0 ? formatPrice(singleOption.unitPrice) : formatPrice(product.price)}
+                {variants.length > 0
+                  ? formatPrice(singleOption.unitPrice)
+                  : formatPrice(product.price)}
               </span>
               {product.promoLabel ? (
-                  <span className="brand-cut bg-accent px-3 py-1 text-[10px] font-extrabold uppercase text-accent-foreground">
+                <span className="brand-cut bg-accent px-3 py-1 text-[10px] font-extrabold uppercase text-accent-foreground">
                   {product.promoLabel}
                 </span>
               ) : null}
@@ -138,7 +160,9 @@ function ProductPage() {
 
             {soon ? (
               <p className="mt-4 inline-flex items-center border border-primary bg-primary px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-primary-foreground">
-                {product.comingSoon ? "Coming soon" : `${selected.variantLabel ?? "This size"} coming soon`}
+                {product.comingSoon
+                  ? "Coming soon"
+                  : `${selected.variantLabel ?? "This size"} coming soon`}
               </p>
             ) : stock === "out" ? (
               <p className="mt-4 inline-flex items-center border border-destructive bg-destructive/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-destructive">
@@ -150,22 +174,36 @@ function ProductPage() {
               </p>
             ) : null}
 
-            <div className="mt-6 border border-border bg-card p-5 shadow-sm">
+            <div className="mt-6 rounded-xl border border-border bg-card p-5">
               {variants.length > 0 ? (
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">Vial size</p>
-                   <div className="mt-3 flex flex-wrap gap-2">
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
+                    {allowsKit(product) ? "Vial size" : "Size"}
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
                     {variants.map((variant) => {
                       const soldOut = stockState(variant.stock ?? 0) === "out";
-                      const vSoon = Boolean(variant.comingSoon) && !product.comingSoon;
+                      const vSoon =
+                        Boolean(variant.comingSoon) && !product.comingSoon;
                       return (
                         <Button
                           key={variant.id}
-                          variant={selected.variantId === variant.id ? "default" : "outline"}
+                          variant={
+                            selected.variantId === variant.id
+                              ? "default"
+                              : "outline"
+                          }
                           className={`h-9 min-w-16 px-3 font-bold uppercase ${soldOut ? "opacity-60" : ""}`}
                           onClick={() => setVariantId(variant.id)}
                         >
-                          <span>{variant.label}{vSoon ? " · Coming soon" : soldOut ? " · Sold out" : ""}</span>
+                          <span>
+                            {variant.label}
+                            {vSoon
+                              ? " · Coming soon"
+                              : soldOut
+                                ? " · Sold out"
+                                : ""}
+                          </span>
                         </Button>
                       );
                     })}
@@ -173,8 +211,11 @@ function ProductPage() {
                 </div>
               ) : null}
 
+              {allowsKit(product) ? (
               <div className={variants.length > 0 ? "mt-5" : ""}>
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">Buy option</p>
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
+                  Buy option
+                </p>
                 <div className="mt-3 grid gap-2 sm:grid-cols-2">
                   <Button
                     variant={pack === "single" ? "default" : "outline"}
@@ -194,9 +235,13 @@ function ProductPage() {
                   </Button>
                 </div>
               </div>
+              ) : (
+                <p className={`${variants.length > 0 ? "mt-5" : ""} text-xs font-bold uppercase tracking-[0.2em] text-accent`}>
+                  {singleLabelFor(product)} · {formatPrice(singleOption.unitPrice)}
+                </p>
+              )}
 
-              {!(product.categories ?? []).includes("Disposable Pens") ? <label className="mt-5 flex cursor-pointer items-start gap-3 border border-border bg-muted/30 p-3 text-xs text-muted-foreground"><input type="checkbox" checked={starterKit} onChange={(e)=>setStarterKit(e.target.checked)} /><span><strong className="text-foreground">Add Starter Kit (+{formatPrice(STARTER_KIT_PRICE)})</strong><br/>{STARTER_KIT_CONTENTS.join(" · ")}</span></label> : null}
-
+              <StarterKitOffer product={product}/>
               <label className="mt-6 block text-xs font-bold uppercase tracking-[0.2em] text-accent">
                 Quantity
               </label>
@@ -214,7 +259,14 @@ function ProductPage() {
                   min={1}
                   max={maxQty}
                   value={qty}
-                  onChange={(e) => setQty(Math.min(maxQty, Math.max(1, Number(e.target.value) || 1)))}
+                  onChange={(e) =>
+                    setQty(
+                      Math.min(
+                        maxQty,
+                        Math.max(1, Number(e.target.value) || 1),
+                      ),
+                    )
+                  }
                   className="quantity-input h-10 w-20 rounded-md border border-input bg-background text-center text-lg font-bold text-foreground"
                   aria-label="Quantity"
                 />
@@ -229,8 +281,12 @@ function ProductPage() {
               </div>
 
               <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
-                <span className="text-sm uppercase tracking-wide text-muted-foreground">Total</span>
-                <span className="text-2xl font-extrabold text-accent">{formatPrice(total)}</span>
+                <span className="text-sm uppercase tracking-wide text-muted-foreground">
+                  Total
+                </span>
+                <span className="text-2xl font-extrabold text-accent">
+                  {formatPrice(total)}
+                </span>
               </div>
 
               <Button
@@ -244,18 +300,24 @@ function ProductPage() {
                     variantLabel: selected.variantLabel,
                     pack: selected.pack,
                   });
-                  toast.success(`${qty} × ${product.name} ${selected.label} added to cart`);
+                  toast.success(
+                    `${qty} × ${product.name} ${selected.label} added to cart`,
+                  );
                 }}
               >
-                {soon ? "Coming soon" : stock === "out" ? "Out of stock" : "Add to cart"}
+                {soon
+                  ? "Coming soon"
+                  : stock === "out"
+                    ? "Out of stock"
+                    : "Add to cart"}
               </Button>
             </div>
 
-            <div className="mt-5 flex gap-3 border border-border bg-card p-4">
+            <div className="mt-5 flex gap-3 rounded-xl border border-border bg-card p-4">
               <ShieldCheck className="mt-0.5 h-6 w-6 shrink-0 text-accent" />
               <p className="text-sm font-bold uppercase leading-6 tracking-wide text-foreground">
-                Delivered Australia wide or your money back. Every order is covered by our 100%
-                delivery guarantee.
+                Delivered Australia wide or your money back. Every order is
+                covered by our 100% delivery guarantee.
               </p>
             </div>
 
@@ -273,7 +335,10 @@ function ProductPage() {
             {(product.categories ?? []).length > 0 ? (
               <p className="mt-5 flex flex-wrap gap-2">
                 {(product.categories ?? []).map((c) => (
-                  <span key={c} className="brand-cut border border-accent/50 px-3 py-1 text-[10px] font-bold uppercase text-accent">
+                  <span
+                    key={c}
+                    className="brand-cut border border-accent/50 px-3 py-1 text-[10px] font-bold uppercase text-accent"
+                  >
                     {c}
                   </span>
                 ))}
@@ -281,7 +346,7 @@ function ProductPage() {
             ) : null}
 
             {product.protocol ? (
-               <div className="mt-6 border border-border bg-card p-5">
+              <div className="mt-6 rounded-xl border border-border bg-card p-5">
                 <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
                   How to use this product
                 </h2>
@@ -310,8 +375,8 @@ function ProductPage() {
         </div>
 
         <section className="mt-16">
-          <h2 className="text-2xl font-extrabold uppercase tracking-tight text-foreground">
-             More from {catalogueName(content)}
+          <h2 className="font-display text-2xl font-black uppercase tracking-[0.08em] text-foreground">
+            More from {catalogueName(content)}
           </h2>
           <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {products
@@ -321,7 +386,7 @@ function ProductPage() {
                   key={p.slug}
                   to="/product/$slug"
                   params={{ slug: p.slug }}
-                    className="group overflow-hidden border border-border bg-card transition-all hover:border-primary"
+                  className="group overflow-hidden rounded-xl border border-border bg-card transition-all hover:border-primary hover:shadow-glow"
                 >
                   <img
                     src={p.image}
@@ -330,8 +395,12 @@ function ProductPage() {
                     className="aspect-[4/3] w-full object-cover transition-transform group-hover:scale-[1.02]"
                   />
                   <div className="flex items-center justify-between gap-3 p-5">
-                    <h3 className="text-lg font-bold uppercase text-foreground">{p.name}</h3>
-                    <span className="text-lg font-extrabold text-accent">{formatPrice(productBasePrice(p))}</span>
+                    <h3 className="text-lg font-bold uppercase text-foreground">
+                      {p.name}
+                    </h3>
+                    <span className="text-lg font-extrabold text-accent">
+                      {formatPrice(productBasePrice(p))}
+                    </span>
                   </div>
                 </Link>
               ))}
@@ -342,3 +411,4 @@ function ProductPage() {
     </div>
   );
 }
+

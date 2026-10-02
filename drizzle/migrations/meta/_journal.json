@@ -64,6 +64,90 @@
       "when": 1790595674175,
       "tag": "0008_restore_customer_order_update_policy",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790765366708,
+      "tag": "0009_orders_unique_and_finalize_stripe_order",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1790773947793,
+      "tag": "0010_order_acknowledgements",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1790773958593,
+      "tag": "0011_research_entries",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1790813108108,
+      "tag": "0012_research_verification_metadata",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1790823930179,
+      "tag": "0013_research_claim_check_safeguard",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1790825008871,
+      "tag": "0014_research_member_at_a_glance",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1790896020894,
+      "tag": "0015_allow_individual_research_publication",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1790913751266,
+      "tag": "0018_catalogue_sections_and_reviews",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1790930994057,
+      "tag": "0019_referral_rewards_and_pricing_settings",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1790931812845,
+      "tag": "0020_referral_credit_safety_fixes",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1790932292910,
+      "tag": "0021_referral_tally_and_attached_holds",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1790949900000,
+      "tag": "0022_titan_rollout_calendar_and_starter_kits",
+      "breakpoints": true
     }
   ]
 }

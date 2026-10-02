@@ -1,7 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
-import { CalendarPlus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -15,13 +12,21 @@ type Props = {
   onChange?: (v: { vialMg: string; waterMl: string; doseMg: string }) => void;
 };
 
-export function ReconstitutionCalculator({ title, vialMg, waterMl, doseMg, readOnly = false, onChange }: Props) {
-  const navigate = useNavigate();
+export function ReconstitutionCalculator({
+  title,
+  vialMg,
+  waterMl,
+  doseMg,
+  readOnly = false,
+  onChange,
+}: Props) {
   const [vial, setVial] = useState(vialMg != null ? String(vialMg) : "10");
   const [water, setWater] = useState(waterMl != null ? String(waterMl) : "2");
   const [dose, setDose] = useState(doseMg != null ? String(doseMg) : "0.25");
 
-  const update = (patch: Partial<{ vial: string; water: string; dose: string }>) => {
+  const update = (
+    patch: Partial<{ vial: string; water: string; dose: string }>,
+  ) => {
     const next = { vial, water, dose, ...patch };
     setVial(next.vial);
     setWater(next.water);
@@ -40,7 +45,7 @@ export function ReconstitutionCalculator({ title, vialMg, waterMl, doseMg, readO
   const dosesPerVial = valid && doseNum > 0 ? mg / doseNum : 0;
 
   return (
-    <div className="industrial-panel border-l-2 border-l-primary p-6">
+    <div className="rounded-xl border border-border border-l-2 border-l-primary bg-card p-6">
       <h3 className="font-display text-lg font-extrabold uppercase text-foreground">
         {title ?? "Recommended Reconstitution"}
       </h3>
@@ -115,14 +120,9 @@ export function ReconstitutionCalculator({ title, vialMg, waterMl, doseMg, readO
         </p>
       )}
 
-      {!readOnly && valid && doseNum > 0 ? (
-        <Button type="button" variant="outline" className="mt-5 w-full font-bold uppercase" onClick={() => { localStorage.setItem("titan_calendar_prefill", JSON.stringify({ product_name: "Calculator entry", dose_label: dose + "mg · " + unitsForDose.toFixed(1) + " units" })); navigate({ to: "/calendar" }); }}>
-          <CalendarPlus className="h-4 w-4" /> Add result to My Calendar
-        </Button>
-      ) : null}
-
       <p className="mt-4 text-xs text-muted-foreground">
-        Units shown are for a standard 100-unit insulin syringe (1 mL). Research use only.
+        Units shown are for a standard 100-unit insulin syringe (1 mL). Research
+        use only.
       </p>
     </div>
   );

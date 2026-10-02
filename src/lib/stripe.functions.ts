@@ -1,0 +1,485 @@
+import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { ShippingMethodKey } from "@/lib/pricing";
+import type {
+  SubmitOrderItem,
+  SubmittedOrder,
+} from "@/lib/orders.functions";
+
+type StripeCheckoutInput = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  addressLine: string;
+  city: string;
+  state: string;
+  postcode: string;
+  notes?: string;
+  shippingMethod?: ShippingMethodKey;
+  items: SubmitOrderItem[];
+  code?: string | null;
+  creditUnits?: number;
+};
+
+type PreparedStripePayload = {
+  customer: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    addressLine: string;
+    city: string;
+    state: string;
+    postcode: string;
+    shippingAddress: string;
+  };
+  notes: string;
+  shippingMethod: ShippingMethodKey;
+  totals: {
+    subtotal: number;
+    discount: number;
+    shipping: number;
+    total: number;
+    stackPercent: number;
+  };
+  lines: Array<{
+    product_slug: string;
+    product_name: string;
+    unit_price: number;
+    quantity: number;
+    variant_label: string;
+  }>;
+  pricing?: Record<string, any>;
+};
+
+function clean(value: string | undefined, max: number) {
+  return (value ?? "").trim().slice(0, max);
+}
+
+async function prepareStripeOrder(
+  data: StripeCheckoutInput,
+  userId: string,
+): Promise<{ payload: PreparedStripePayload; creditUnits: number }> {
+  const firstName = clean(data.firstName, 80);
+  const lastName = clean(data.lastName, 80);
+  const email = clean(data.email, 160);
+  const phone = clean(data.phone, 30);
+  const addressLine = clean(data.addressLine, 200);
+  const city = clean(data.city, 80);
+  const state = clean(data.state, 40);
+  const postcode = clean(data.postcode, 12);
+
+  if (!firstName || !lastName || !email || !phone) {
+    throw new Error("Please add your name, email and contact number.");
+  }
+  if (!addressLine || !city || !state || !postcode) {
+    throw new Error("Please complete your delivery address.");
+  }
+
+  const shippingMethod: ShippingMethodKey =
+    data.shippingMethod === "standard" ? "standard" : "express";
+
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { priceCheckout, pricingNote, pricingSnapshot, discountDollars } = await import(
+    "@/lib/checkout-pricing.server"
+  );
+  const priced = await priceCheckout(supabaseAdmin, userId, {
+    items: data.items,
+    shippingMethod,
+    paymentMethod: "card",
+    code: data.code ?? null,
+    creditUnits: data.creditUnits ?? 0,
+  });
+  if (data.code && priced.codeError) throw new Error(priced.codeError);
+  const q = priced.quote;
+
+  const shippingAddress = [addressLine, city, `${state} ${postcode}`.trim()]
+    .filter(Boolean)
+    .join(", ");
+  const shippingNote = `Shipping: ${
+    shippingMethod === "standard" ? "Standard tracked (3-7 days)" : "Express + insurance (1-4 days)"
+  }`;
+  const notes = [clean(data.notes, 500), shippingNote, pricingNote(q)].filter(Boolean).join("\n");
+
+  return {
+    creditUnits: q.creditUnits,
+    payload: {
+      customer: { firstName, lastName, email, phone, addressLine, city, state, postcode, shippingAddress },
+      notes,
+      shippingMethod,
+      totals: {
+        subtotal: q.itemsCents / 100,
+        discount: discountDollars(q),
+        shipping: q.shippingCents / 100,
+        total: q.totalCents / 100,
+        stackPercent: q.multibuyPercent,
+      },
+      lines: priced.lines,
+      pricing: pricingSnapshot(priced, null),
+    },
+  };
+}
+
+export const createStripeSandboxPayment = createServerFn({
+  method: "POST",
+})
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: StripeCheckoutInput) => input)
+  .handler(async ({ data, context }) => {
+    const secretKey = process.env["STRIPE_SECRET_KEY"];
+
+    if (!secretKey) {
+      throw new Error(
+        "Stripe sandbox credentials are not configured.",
+      );
+    }
+
+    const Stripe = (await import("stripe")).default;
+    const stripe = new Stripe(secretKey);
+
+    const { payload, creditUnits } = await prepareStripeOrder(
+      data,
+      context.userId,
+    );
+
+    const amountCents = Math.round(
+      payload.totals.total * 100,
+    );
+
+    if (amountCents <= 0) {
+      throw new Error(
+        "This order total is $0 — please submit it using the PayID option instead.",
+      );
+    }
+
+    const { supabaseAdmin } = await import(
+      "@/integrations/supabase/client.server"
+    );
+
+    // Reserve store credit atomically before the attempt exists.
+    let reservationId: string | null = null;
+    if (creditUnits > 0) {
+      const { data: rid, error: reserveError } = await (supabaseAdmin as any).rpc(
+        "reserve_store_credit",
+        { _user_id: context.userId, _units: creditUnits, _payment_attempt_id: null, _ttl_minutes: 2880 },
+      );
+      if (reserveError) throw new Error("Your store credit balance changed. Please review your order.");
+      reservationId = String(rid);
+      payload.pricing = { ...(payload.pricing ?? {}), credit_reservation_id: reservationId };
+    }
+
+    const { data: attempt, error: attemptError } =
+      await (supabaseAdmin as any)
+        .from("payment_attempts")
+        .insert({
+          user_id: context.userId,
+          provider: "stripe",
+          amount_cents: amountCents,
+          currency: "AUD",
+          status: "created",
+          order_payload: payload,
+        })
+        .select("id")
+        .single();
+
+    if (attemptError) {
+      if (reservationId) await (supabaseAdmin as any).rpc("release_store_credit", { _reservation_id: reservationId });
+      throw attemptError;
+    }
+    if (reservationId) {
+      await (supabaseAdmin as any).rpc("attach_store_credit_reservation", {
+        _reservation_id: reservationId,
+        _payment_attempt_id: attempt.id,
+      });
+    }
+
+    try {
+      const paymentIntent =
+        await stripe.paymentIntents.create({
+          amount: amountCents,
+          currency: "aud",
+
+          automatic_payment_methods: {
+            enabled: true,
+          },
+
+          receipt_email: payload.customer.email,
+
+          metadata: {
+            payment_attempt_id: String(attempt.id),
+            user_id: String(context.userId),
+          },
+
+          description: "Titan Labs order",
+        });
+
+      if (!paymentIntent.client_secret) {
+        throw new Error(
+          "Stripe did not return a client secret.",
+        );
+      }
+
+      const { error: updateError } =
+        await (supabaseAdmin as any)
+          .from("payment_attempts")
+          .update({
+            status: "ready",
+            transaction_id: paymentIntent.id,
+          })
+          .eq("id", attempt.id)
+          .eq("user_id", context.userId);
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      return {
+        clientSecret: paymentIntent.client_secret,
+        paymentIntentId: paymentIntent.id,
+        attemptId: String(attempt.id),
+        amountCents,
+      };
+       } catch (error) {
+      await (supabaseAdmin as any).rpc("release_store_credit_for_attempt", { _payment_attempt_id: attempt.id });
+      await (supabaseAdmin as any)
+        .from("payment_attempts")
+        .update({
+          status: "failed",
+        })
+        .eq("id", attempt.id);
+
+      throw error;
+    }
+  });
+
+export const verifyStripeSandboxPayment = createServerFn({
+  method: "POST",
+})
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (input: { paymentIntentId: string }) => input,
+  )
+  .handler(
+    async ({ data, context }): Promise<SubmittedOrder> => {
+      const paymentIntentId = clean(
+        data.paymentIntentId,
+        255,
+      );
+
+      if (!paymentIntentId) {
+        throw new Error(
+          "Missing Stripe PaymentIntent ID.",
+        );
+      }
+
+      const secretKey = process.env["STRIPE_SECRET_KEY"];
+
+      if (!secretKey) {
+        throw new Error(
+          "Stripe sandbox credentials are not configured.",
+        );
+      }
+
+      const Stripe = (await import("stripe")).default;
+      const stripe = new Stripe(secretKey);
+
+      const { supabaseAdmin } = await import(
+        "@/integrations/supabase/client.server"
+      );
+
+      const { data: attempt, error: attemptError } =
+        await (supabaseAdmin as any)
+          .from("payment_attempts")
+          .select("*")
+          .eq("provider", "stripe")
+          .eq("transaction_id", paymentIntentId)
+          .maybeSingle();
+
+      if (attemptError) {
+        console.error("Stripe attempt lookup failed", attemptError);
+        throw new Error(
+          "We could not look up this payment. Please try again.",
+        );
+      }
+
+      if (!attempt) {
+        console.error("No Stripe attempt for PaymentIntent", paymentIntentId);
+        throw new Error(
+          "We couldn't find this payment. If you were charged, please contact us with your payment reference.",
+        );
+      }
+
+      if (attempt.user_id !== context.userId) {
+        console.error("Stripe attempt user mismatch", {
+          paymentIntentId,
+          attemptUser: attempt.user_id,
+          sessionUser: context.userId,
+        });
+        throw new Error(
+          "This payment was started from a different account. Please log in with the account you used at checkout.",
+        );
+      }
+
+      const payload =
+        attempt.order_payload as PreparedStripePayload;
+
+      /*
+       * Idempotency protection:
+       * if this payment already created an order,
+       * return that existing order instead of
+       * creating another one.
+       */
+      if (attempt.order_id) {
+        const { data: existing, error } =
+          await (supabaseAdmin as any)
+            .from("orders")
+            .select(
+              "id, order_number, subtotal, shipping, total, payment_method",
+            )
+            .eq("id", attempt.order_id)
+            .single();
+
+        if (error) {
+          throw error;
+        }
+
+        return {
+          id: existing.id,
+          orderNumber: Number(existing.order_number),
+          reference: `TL-${existing.order_number}`,
+          subtotal: payload.totals.subtotal,
+          discount: payload.totals.discount,
+          shipping: payload.totals.shipping,
+          total: payload.totals.total,
+          paymentMethod: "card",
+          shippingMethod: payload.shippingMethod,
+        };
+      }
+
+
+      /*
+       * Retrieve the PaymentIntent directly from
+       * Stripe. We do not trust the browser to tell
+       * us whether payment succeeded.
+       */
+      const paymentIntent =
+        await stripe.paymentIntents.retrieve(
+          paymentIntentId,
+        );
+
+      const amountMatches =
+        Number(paymentIntent.amount) ===
+        Number(attempt.amount_cents);
+
+      const currencyMatches =
+        String(paymentIntent.currency).toLowerCase() ===
+        "aud";
+
+      const metadataMatches =
+        String(
+          paymentIntent.metadata?.["payment_attempt_id"] ?? "",
+        ) === String(attempt.id) &&
+        String(paymentIntent.metadata?.["user_id"] ?? "") ===
+          String(context.userId);
+
+      if (
+        paymentIntent.status !== "succeeded" ||
+        !amountMatches ||
+        !currencyMatches ||
+        !metadataMatches
+      ) {
+        const failure =
+          !amountMatches
+            ? "AMOUNT_MISMATCH"
+            : !currencyMatches
+              ? "CURRENCY_MISMATCH"
+              : !metadataMatches
+                ? "METADATA_MISMATCH"
+                : `STRIPE_${paymentIntent.status.toUpperCase()}`;
+
+        await (supabaseAdmin as any)
+          .from("payment_attempts")
+          .update({
+            status: "failed",
+            error_code: failure,
+          })
+          .eq("id", attempt.id);
+
+        // Only release credit when Stripe says this payment can no longer succeed.
+        if (
+          !amountMatches || !currencyMatches || !metadataMatches ||
+          paymentIntent.status === "canceled" || paymentIntent.status === "requires_payment_method"
+        ) {
+          await (supabaseAdmin as any).rpc("release_store_credit_for_attempt", { _payment_attempt_id: attempt.id });
+        }
+
+
+        throw new Error(
+          paymentIntent.status === "succeeded"
+            ? "The Stripe payment could not be verified."
+            : "The card payment has not been completed.",
+        );
+      }
+
+      /*
+       * Atomic order finalisation: order, order_items,
+       * profile and payment_attempt are written inside
+       * one PostgreSQL transaction, keyed on the
+       * PaymentIntent id, and roll back together.
+       */
+      const { data: result, error: rpcError } =
+        await (supabaseAdmin as any).rpc(
+          "finalize_stripe_order",
+          {
+            _payment_intent_id: paymentIntent.id,
+            _user_id: context.userId,
+            _attempt_id: attempt.id,
+            _subtotal:
+              payload.totals.total - payload.totals.shipping,
+            _shipping: payload.totals.shipping,
+            _total: payload.totals.total,
+            _contact_name:
+              `${payload.customer.firstName} ${payload.customer.lastName}`.trim(),
+            _contact_email: payload.customer.email,
+            _contact_phone: payload.customer.phone,
+            _shipping_address:
+              payload.customer.shippingAddress,
+            _notes: payload.notes,
+            _items: payload.lines,
+            _profile_first_name: payload.customer.firstName,
+            _profile_last_name: payload.customer.lastName,
+            _profile_phone: payload.customer.phone,
+            _profile_address_line:
+              payload.customer.addressLine,
+            _profile_city: payload.customer.city,
+            _profile_state: payload.customer.state,
+            _profile_postcode: payload.customer.postcode,
+          },
+        );
+
+      if (rpcError || !result) {
+        throw (
+          rpcError ??
+          new Error("The order could not be finalised.")
+        );
+      }
+
+      const { tryOrderConfirmation } = await import("@/lib/order-confirmation.server");
+      await tryOrderConfirmation(result.id);
+
+      return {
+        id: result.id,
+        orderNumber: Number(result.order_number),
+        reference: `TL-${result.order_number}`,
+        subtotal: payload.totals.subtotal,
+        discount: payload.totals.discount,
+        shipping: payload.totals.shipping,
+        total: payload.totals.total,
+        paymentMethod: "card",
+        shippingMethod: payload.shippingMethod,
+      };
+
+    },
+  );
+

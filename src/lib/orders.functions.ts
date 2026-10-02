@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { kitPriceFor } from "@/lib/products";
-import { computeTotals, type ShippingMethodKey } from "@/lib/pricing";
+import type { ShippingMethodKey } from "@/lib/pricing";
 
 export type SubmitOrderItem = {
   slug: string;
@@ -23,6 +22,8 @@ export type SubmitOrderInput = {
   paymentMethod: "payid" | "crypto";
   shippingMethod?: ShippingMethodKey;
   items: SubmitOrderItem[];
+  code?: string | null;
+  creditUnits?: number;
 };
 
 export type SubmittedOrder = {
@@ -33,7 +34,7 @@ export type SubmittedOrder = {
   discount: number;
   shipping: number;
   total: number;
-  paymentMethod: "payid" | "crypto";
+  paymentMethod: "payid" | "crypto" | "card";
   shippingMethod: ShippingMethodKey;
 };
 
@@ -64,103 +65,76 @@ export const submitOrder = createServerFn({ method: "POST" })
       throw new Error("Please complete your delivery address.");
     }
 
-    const slugs = [...new Set(items.map((i) => i.slug))];
-    const { data: products, error: productError } = await context.supabase
-      .from("products")
-      .select("slug, name, price, sale_price, kit_price, product_variants")
-      .in("slug", slugs)
-      .eq("active", true);
-    if (productError) throw productError;
-
-    const bySlug = new Map((products ?? []).map((p: any) => [p.slug, p]));
-
-    let rawSubtotal = 0;
-    let units = 0;
-    const lines: {
-      product_slug: string;
-      product_name: string;
-      unit_price: number;
-      quantity: number;
-      variant_label: string;
-    }[] = [];
-
-    for (const item of items) {
-      const product = bySlug.get(item.slug);
-      if (!product) throw new Error("One of the items is no longer available.");
-      const variants = Array.isArray(product.product_variants) ? product.product_variants : [];
-      const variant = variants.find((v: any) => String(v?.id) === String(item.variantId ?? "")) ?? null;
-      const listPrice = Number(product.price);
-      const sale = product.sale_price == null ? null : Number(product.sale_price);
-      const basePrice = sale != null && sale > 0 && sale < listPrice ? sale : listPrice;
-      const singlePrice = variant ? Number(variant.price) : basePrice;
-      const pack = item.pack === "kit" ? "kit" : "single";
-      const unitPrice =
-        pack === "kit"
-          ? kitPriceFor(singlePrice, variant?.kitPrice ?? product.kit_price)
-          : singlePrice;
-      const quantity = Math.min(99, Math.max(1, Math.floor(item.quantity)));
-      const label = variant?.label ? String(variant.label) : "Single vial";
-
-      rawSubtotal += unitPrice * quantity;
-      units += quantity;
-      lines.push({
-        product_slug: product.slug,
-        product_name: product.name,
-        unit_price: unitPrice,
-        quantity,
-        variant_label: pack === "kit" ? `${label} · 10x Kit` : label,
-      });
-    }
-
     const paymentMethod = data.paymentMethod === "crypto" ? "crypto" : "payid";
-
     const shippingMethod: ShippingMethodKey =
       data.shippingMethod === "standard" ? "standard" : "express";
 
-    const totals = computeTotals({
-      subtotal: rawSubtotal,
-      units,
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { priceCheckout, pricingNote, pricingSnapshot, discountDollars } = await import(
+      "@/lib/checkout-pricing.server"
+    );
+    const priced = await priceCheckout(supabaseAdmin, context.userId, {
+      items,
       shippingMethod,
       paymentMethod,
+      code: data.code ?? null,
+      creditUnits: data.creditUnits ?? 0,
     });
+    if (data.code && priced.codeError) throw new Error(priced.codeError);
+    const q = priced.quote;
 
     const shippingAddress = [addressLine, city, `${state} ${postcode}`.trim()]
       .filter(Boolean)
       .join(", ");
-
-    const discountNote =
-      totals.discountTotal > 0
-        ? `Discounts: Titan Stack ${totals.stackPercent}%${
-            totals.cryptoPercent ? ` + crypto ${totals.cryptoPercent}%` : ""
-          } (−$${totals.discountTotal.toFixed(2)})`
-        : "";
     const shippingNote = `Shipping: ${
       shippingMethod === "standard" ? "Standard tracked (3-7 days)" : "Express + insurance (1-4 days)"
     }`;
-    const notes = [clean(data.notes, 500), shippingNote, discountNote].filter(Boolean).join("\n");
+    const notes = [clean(data.notes, 500), shippingNote, pricingNote(q)].filter(Boolean).join("\n");
 
-    const { data: order, error } = await context.supabase
+    let reservationId: string | null = null;
+    if (q.creditUnits > 0) {
+      const { data: rid, error: reserveError } = await (supabaseAdmin as any).rpc("reserve_store_credit", {
+        _user_id: context.userId, _units: q.creditUnits, _payment_attempt_id: null, _ttl_minutes: 30,
+      });
+      if (reserveError) throw new Error("Your store credit balance changed. Please review your order.");
+      reservationId = String(rid);
+    }
+    const snapshot = pricingSnapshot(priced, reservationId);
+
+    const { data: order, error } = await (supabaseAdmin as any)
       .from("orders")
       .insert({
         user_id: context.userId,
         status: "processing",
-        subtotal: totals.itemsTotal,
-        shipping: totals.shipping,
-        total: totals.total,
+        subtotal: q.merchandiseCents / 100,
+        shipping: q.shippingCents / 100,
+        total: q.totalCents / 100,
         payment_method: paymentMethod,
         contact_name: `${firstName} ${lastName}`.trim(),
         contact_email: email,
         contact_phone: phone,
         shipping_address: shippingAddress,
         notes,
+        discount_code_id: snapshot.discount_code_id,
+        discount_code: snapshot.discount_code,
+        discount_code_kind: snapshot.discount_code_kind,
+        code_discount_cents: snapshot.code_discount_cents,
+        referrer_user_id: snapshot.referrer_user_id,
+        credit_units: snapshot.credit_units,
+        credit_cents: snapshot.credit_cents,
+        credit_reservation_id: reservationId,
+        pricing_snapshot: snapshot,
       })
       .select("id, order_number")
       .single();
-    if (error) throw error;
+    if (error) {
+      if (reservationId) await (supabaseAdmin as any).rpc("release_store_credit", { _reservation_id: reservationId });
+      throw error;
+    }
 
-    const { error: itemError } = await context.supabase
+    const { error: itemError } = await (supabaseAdmin as any)
       .from("order_items")
-      .insert(lines.map((line) => ({ ...line, order_id: order.id })));
+      .insert(priced.lines.map((line) => ({ ...line, order_id: order.id })));
     if (itemError) throw itemError;
 
     // Keep the saved profile in step with what they entered at checkout.
@@ -178,14 +152,17 @@ export const submitOrder = createServerFn({ method: "POST" })
       })
       .eq("id", context.userId);
 
+    const { tryOrderConfirmation } = await import("@/lib/order-confirmation.server");
+    await tryOrderConfirmation(order.id);
+
     return {
       id: order.id as string,
       orderNumber: Number(order.order_number),
       reference: `TL-${order.order_number}`,
-      subtotal: totals.subtotal,
-      discount: totals.discountTotal,
-      shipping: totals.shipping,
-      total: totals.total,
+      subtotal: q.itemsCents / 100,
+      discount: discountDollars(q),
+      shipping: q.shippingCents / 100,
+      total: q.totalCents / 100,
       paymentMethod,
       shippingMethod,
     };
@@ -205,3 +182,4 @@ export const saveOrderPaymentReference = createServerFn({ method: "POST" })
     if (error) throw error;
     return { ok: true };
   });
+

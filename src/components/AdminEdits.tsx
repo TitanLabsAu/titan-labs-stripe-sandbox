@@ -1,7 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode, RefObject } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlignCenter, AlignLeft, AlignRight, ArrowDown, ArrowUp, Bold, GripVertical, Italic, Plus, Trash2, Underline } from "lucide-react";
+import {
+  AlignCenter,
+  AlignLeft,
+  AlignRight,
+  ArrowDown,
+  ArrowUp,
+  Bold,
+  GripVertical,
+  Italic,
+  Plus,
+  Trash2,
+  Underline,
+  Moon,
+  Sun,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,9 +23,19 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { AdminLinks } from "@/components/AdminLinks";
-import { ProductEditor, draftToPayload, toDraft, type Draft } from "@/components/AdminProducts";
+import { AdminResearch } from "@/components/AdminResearch";
+import {
+  ProductEditor,
+  draftToPayload,
+  toDraft,
+  type Draft,
+} from "@/components/AdminProducts";
 import { supabase } from "@/integrations/supabase/client";
-import { adminListProducts, adminSaveContent, adminSaveProduct } from "@/lib/admin.functions";
+import {
+  adminListProducts,
+  adminSaveContent,
+  adminSaveProduct,
+} from "@/lib/admin.functions";
 import { getSiteContent } from "@/lib/catalog.functions";
 import {
   contentKeysForImages,
@@ -25,6 +49,7 @@ import {
   HOME_FIELDS,
   HOME_IMAGE_SLOTS,
   HOME_SECTIONS,
+  LEGAL_FIELDS,
   PAYMENT_FIELDS,
   RANGE_FIELDS,
   RANGE_IMAGE_SLOTS,
@@ -39,9 +64,17 @@ import {
 import { formatPrice } from "@/lib/products";
 import { DEFAULT_CRYPTO_LINES, serialiseCryptoOptions } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
+import {
+  applySiteTheme,
+  getStoredTheme,
+  type SiteTheme,
+} from "@/lib/site-theme";
 
-
-const ALIGN_OPTIONS: { value: TextAlign; label: string; Icon: typeof AlignLeft }[] = [
+const ALIGN_OPTIONS: {
+  value: TextAlign;
+  label: string;
+  Icon: typeof AlignLeft;
+}[] = [
   { value: "left", label: "Align left", Icon: AlignLeft },
   { value: "center", label: "Align centre", Icon: AlignCenter },
   { value: "right", label: "Align right", Icon: AlignRight },
@@ -54,15 +87,30 @@ const TEXTAREA_ALIGN_CLASS: Record<TextAlign, string> = {
 };
 
 const HOME_IDENTITY_KEYS = new Set(["home_tagline", "home_headline"]);
-const HOME_IDENTITY_FIELDS = HOME_FIELDS.filter((field) => HOME_IDENTITY_KEYS.has(field.key));
-const HOME_WORDING_FIELDS = HOME_FIELDS.filter((field) => !HOME_IDENTITY_KEYS.has(field.key));
+const HOME_IDENTITY_FIELDS = HOME_FIELDS.filter((field) =>
+  HOME_IDENTITY_KEYS.has(field.key),
+);
+const HOME_WORDING_FIELDS = HOME_FIELDS.filter(
+  (field) => !HOME_IDENTITY_KEYS.has(field.key),
+);
 
 function imageStoragePath(file: File, slotKey: string) {
-  const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+  const ext =
+    file.name
+      .split(".")
+      .pop()
+      ?.toLowerCase()
+      .replace(/[^a-z0-9]/g, "") || "jpg";
   return `page-content/${slotKey}/${crypto.randomUUID()}.${ext}`;
 }
 
-function AlignmentButtons({ value, onChange }: { value: TextAlign; onChange: (value: TextAlign) => void }) {
+function AlignmentButtons({
+  value,
+  onChange,
+}: {
+  value: TextAlign;
+  onChange: (value: TextAlign) => void;
+}) {
   return (
     <div className="flex rounded-md border border-border bg-background/40 p-1">
       {ALIGN_OPTIONS.map(({ value: option, label, Icon }) => (
@@ -114,7 +162,10 @@ function TextFormatButton({
         onChange(next);
         window.requestAnimationFrame(() => {
           el.focus();
-          el.setSelectionRange(start + marker.length, start + marker.length + selected.length);
+          el.setSelectionRange(
+            start + marker.length,
+            start + marker.length + selected.length,
+          );
         });
       }}
     >
@@ -137,7 +188,13 @@ function ContentFieldEditor({
   setAlign: (value: TextAlign) => void;
 }) {
   const textarea = useRef<HTMLTextAreaElement | null>(null);
-  const rows = field.key === "range_disclaimer" ? 5 : field.multiline ? 4 : 2;
+  const rows = field.key.startsWith("legal_")
+    ? 12
+    : field.key === "range_disclaimer"
+      ? 5
+      : field.multiline
+        ? 4
+        : 2;
 
   return (
     <div className={field.multiline ? "sm:col-span-2" : ""}>
@@ -148,20 +205,41 @@ function ContentFieldEditor({
       {field.multiline ? (
         <>
           <div className="mt-2 flex flex-wrap gap-2">
-            <TextFormatButton label="Bold" marker="**" textarea={textarea} value={value} onChange={setValue}>
+            <TextFormatButton
+              label="Bold"
+              marker="**"
+              textarea={textarea}
+              value={value}
+              onChange={setValue}
+            >
               <Bold className="h-4 w-4" />
             </TextFormatButton>
-            <TextFormatButton label="Italic" marker="*" textarea={textarea} value={value} onChange={setValue}>
+            <TextFormatButton
+              label="Italic"
+              marker="*"
+              textarea={textarea}
+              value={value}
+              onChange={setValue}
+            >
               <Italic className="h-4 w-4" />
             </TextFormatButton>
-            <TextFormatButton label="Underline" marker="__" textarea={textarea} value={value} onChange={setValue}>
+            <TextFormatButton
+              label="Underline"
+              marker="__"
+              textarea={textarea}
+              value={value}
+              onChange={setValue}
+            >
               <Underline className="h-4 w-4" />
             </TextFormatButton>
           </div>
           <Textarea
             ref={textarea}
             rows={rows}
-            className={cn("mt-2 whitespace-pre-wrap", TEXTAREA_ALIGN_CLASS[align])}
+            className={cn(
+              "mt-2 whitespace-pre-wrap",
+              TEXTAREA_ALIGN_CLASS[align],
+            )}
             value={value}
             placeholder={field.fallback}
             onChange={(e) => setValue(e.target.value)}
@@ -200,26 +278,36 @@ function PictureSlotEditor({
     setUploading(true);
     try {
       const path = imageStoragePath(file, slot.key);
-      const { error } = await supabase.storage.from("product-images").upload(path, file, {
-        upsert: true,
-        contentType: file.type || "application/octet-stream",
-      });
+      const { error } = await supabase.storage
+        .from("product-images")
+        .upload(path, file, {
+          upsert: true,
+          contentType: file.type || "application/octet-stream",
+        });
       if (error) throw error;
-      setValue(urlKey, `/api/public/product-image?path=${encodeURIComponent(path)}`);
+      setValue(
+        urlKey,
+        `/api/public/product-image?path=${encodeURIComponent(path)}`,
+      );
       if (!(values[altKey] ?? "").trim()) setValue(altKey, slot.label);
       toast.success("Picture added");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Could not upload the picture");
+      toast.error(
+        error instanceof Error ? error.message : "Could not upload the picture",
+      );
     } finally {
       setUploading(false);
     }
   }
 
   return (
-    <div className="space-y-3 rounded-lg border border-border bg-background/40 p-4">
+    <div className="space-y-3 rounded-xl border border-primary/20 bg-background/45 p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <Label>{slot.label}</Label>
-        <AlignmentButtons value={align} onChange={(value) => setValue(alignKey, value)} />
+        <AlignmentButtons
+          value={align}
+          onChange={(value) => setValue(alignKey, value)}
+        />
       </div>
       {url ? (
         <img
@@ -282,7 +370,9 @@ function SectionOrderEditor({
   onChange: (order: string[]) => void;
 }) {
   const [dragged, setDragged] = useState<string | null>(null);
-  const labels = new Map(sections.map((section) => [section.key, section.label]));
+  const labels = new Map(
+    sections.map((section) => [section.key, section.label]),
+  );
   const move = (index: number, direction: -1 | 1) => {
     const target = index + direction;
     if (target < 0 || target >= order.length) return;
@@ -296,9 +386,13 @@ function SectionOrderEditor({
   };
 
   return (
-    <div className="mt-5 rounded-lg border border-border bg-background/40 p-4">
-      <h4 className="text-sm font-extrabold uppercase tracking-[0.15em] text-accent">Page layout</h4>
-      <p className="mt-1 text-sm text-muted-foreground">Drag sections into position, or use the arrow buttons.</p>
+    <div className="mt-5 rounded-xl border border-primary/20 bg-background/45 p-4">
+      <h4 className="text-sm font-extrabold uppercase tracking-[0.15em] text-accent">
+        Page layout
+      </h4>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Drag sections into position, or use the arrow buttons.
+      </p>
       <div className="mt-3 space-y-2">
         {order.map((key, index) => (
           <div
@@ -315,17 +409,35 @@ function SectionOrderEditor({
               setDragged(null);
             }}
             className={cn(
-              "grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-md border border-border bg-card px-3 py-2",
+              "grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-primary/20 bg-card/90 px-3 py-2",
               dragged === key && "opacity-50",
             )}
           >
             <GripVertical className="h-5 w-5 shrink-0 cursor-grab text-muted-foreground" />
-            <span className="min-w-0 truncate text-sm font-bold text-foreground">{labels.get(key) ?? key}</span>
+            <span className="min-w-0 truncate text-sm font-bold text-foreground">
+              {labels.get(key) ?? key}
+            </span>
             <div className="flex shrink-0 gap-1">
-              <Button type="button" variant="ghost" size="icon" className="h-8 w-8" disabled={index === 0} aria-label={`Move ${labels.get(key)} up`} onClick={() => move(index, -1)}>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                disabled={index === 0}
+                aria-label={`Move ${labels.get(key)} up`}
+                onClick={() => move(index, -1)}
+              >
                 <ArrowUp className="h-4 w-4" />
               </Button>
-              <Button type="button" variant="ghost" size="icon" className="h-8 w-8" disabled={index === order.length - 1} aria-label={`Move ${labels.get(key)} down`} onClick={() => move(index, 1)}>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                disabled={index === order.length - 1}
+                aria-label={`Move ${labels.get(key)} down`}
+                onClick={() => move(index, 1)}
+              >
                 <ArrowDown className="h-4 w-4" />
               </Button>
             </div>
@@ -373,7 +485,9 @@ function CryptoOptionsEditor({
 }) {
   const rows = parseRows(value);
   const update = (index: number, patch: Partial<CryptoRow>) => {
-    const next = rows.map((row, i) => (i === index ? { ...row, ...patch } : row));
+    const next = rows.map((row, i) =>
+      i === index ? { ...row, ...patch } : row,
+    );
     onChange(serialiseCryptoOptions(next));
   };
 
@@ -389,7 +503,14 @@ function CryptoOptionsEditor({
             onChange(
               serialiseCryptoOptions([
                 ...rows,
-                { label: "NEW", network: "", wallet: "", audPerUnit: "", coinId: "", note: "" },
+                {
+                  label: "NEW",
+                  network: "",
+                  wallet: "",
+                  audPerUnit: "",
+                  coinId: "",
+                  note: "",
+                },
               ]),
             )
           }
@@ -398,13 +519,17 @@ function CryptoOptionsEditor({
         </Button>
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
-        Prices update automatically from the live market when the coin is a known one (BTC, ETH,
-        USDT, USDC, SOL and more). The backup price is only used if the live price is unavailable.
+        Prices update automatically from the live market when the coin is a
+        known one (BTC, ETH, USDT, USDC, SOL and more). The backup price is only
+        used if the live price is unavailable.
       </p>
 
       <div className="mt-3 space-y-3">
         {rows.map((row, index) => (
-          <div key={index} className="rounded-md border border-border bg-card p-4">
+          <div
+            key={index}
+            className="rounded-xl border border-primary/20 bg-card/90 p-4"
+          >
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
                 <Label className="text-xs">Coin name</Label>
@@ -448,11 +573,15 @@ function CryptoOptionsEditor({
                   className="mt-1"
                   value={row.audPerUnit}
                   placeholder="1.52"
-                  onChange={(e) => update(index, { audPerUnit: e.target.value })}
+                  onChange={(e) =>
+                    update(index, { audPerUnit: e.target.value })
+                  }
                 />
               </div>
               <div className="sm:col-span-2">
-                <Label className="text-xs">Network warning shown to the customer</Label>
+                <Label className="text-xs">
+                  Network warning shown to the customer
+                </Label>
                 <Textarea
                   rows={2}
                   className="mt-1"
@@ -466,9 +595,14 @@ function CryptoOptionsEditor({
               type="button"
               variant="ghost"
               className="mt-3 text-destructive"
-              onClick={() => onChange(serialiseCryptoOptions(rows.filter((_, i) => i !== index)))}
+              onClick={() =>
+                onChange(
+                  serialiseCryptoOptions(rows.filter((_, i) => i !== index)),
+                )
+              }
             >
-              <Trash2 className="mr-1 h-4 w-4" /> Remove {row.label || "this coin"}
+              <Trash2 className="mr-1 h-4 w-4" /> Remove{" "}
+              {row.label || "this coin"}
             </Button>
           </div>
         ))}
@@ -477,24 +611,45 @@ function CryptoOptionsEditor({
   );
 }
 
-
-
 export function AdminEdits() {
   const queryClient = useQueryClient();
-  const { data } = useQuery({ queryKey: ["site-content"], queryFn: () => getSiteContent() });
+  const { data } = useQuery({
+    queryKey: ["site-content"],
+    queryFn: () => getSiteContent(),
+  });
   const { data: products } = useQuery({
     queryKey: ["admin-products"],
     queryFn: () => adminListProducts({}),
   });
 
   const [values, setValues] = useState<Record<string, string>>({});
+  const [siteTheme, setSiteTheme] = useState<SiteTheme>("dark");
+
+  useEffect(() => {
+    setSiteTheme(getStoredTheme());
+  }, []);
+  const chooseTheme = (theme: SiteTheme) => {
+    setSiteTheme(theme);
+    applySiteTheme(theme);
+    toast.success(
+      `${theme === "dark" ? "Dark" : "Light"} theme preview applied on this device`,
+    );
+  };
   const [featured, setFeatured] = useState<string[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [draft, setDraft] = useState<Draft | null>(null);
-  const [homeOrder, setHomeOrder] = useState(HOME_SECTIONS.map((section) => section.key));
-  const [rangeOrder, setRangeOrder] = useState(RANGE_SECTIONS.map((section) => section.key));
-  const [headerOrder, setHeaderOrder] = useState(HEADER_TABS.map((section) => section.key));
-  const [footerOrder, setFooterOrder] = useState(FOOTER_TABS.map((section) => section.key));
+  const [homeOrder, setHomeOrder] = useState(
+    HOME_SECTIONS.map((section) => section.key),
+  );
+  const [rangeOrder, setRangeOrder] = useState(
+    RANGE_SECTIONS.map((section) => section.key),
+  );
+  const [headerOrder, setHeaderOrder] = useState(
+    HEADER_TABS.map((section) => section.key),
+  );
+  const [footerOrder, setFooterOrder] = useState(
+    FOOTER_TABS.map((section) => section.key),
+  );
 
   useEffect(() => {
     if (data && !loaded) {
@@ -503,7 +658,13 @@ export function AdminEdits() {
         next[f.key] = data[f.key] ?? f.fallback;
         next[`${f.key}_align`] = data[`${f.key}_align`] ?? f.align ?? "center";
       }
-      for (const f of [...RANGE_FIELDS, ...HEADER_FIELDS, ...FOOTER_FIELDS, ...PAYMENT_FIELDS]) {
+      for (const f of [
+        ...RANGE_FIELDS,
+        ...HEADER_FIELDS,
+        ...FOOTER_FIELDS,
+        ...PAYMENT_FIELDS,
+        ...LEGAL_FIELDS,
+      ]) {
         next[f.key] = data[f.key] ?? f.fallback;
         next[`${f.key}_align`] = data[`${f.key}_align`] ?? f.align ?? "center";
       }
@@ -512,33 +673,86 @@ export function AdminEdits() {
       for (const option of HEADER_DISPLAY_OPTIONS) {
         next[option.contentKey] = data[option.contentKey] ?? option.fallback;
       }
-      for (const key of contentKeysForImages([...HOME_IMAGE_SLOTS, ...RANGE_IMAGE_SLOTS])) {
+      for (const key of contentKeysForImages([
+        ...HOME_IMAGE_SLOTS,
+        ...RANGE_IMAGE_SLOTS,
+      ])) {
         next[key] = data[key] ?? (key.endsWith("_align") ? "center" : "");
       }
 
       setValues(next);
       setFeatured(featuredSlugs(data));
-      const savedHomeOrder = (data["home_layout_order"] ?? "").split(",").filter(Boolean);
-      setHomeOrder([...savedHomeOrder.filter((key) => HOME_SECTIONS.some((section) => section.key === key)), ...HOME_SECTIONS.map((section) => section.key).filter((key) => !savedHomeOrder.includes(key))]);
-      const savedRangeOrder = (data["range_layout_order"] ?? "").split(",").filter(Boolean);
-      setRangeOrder([...savedRangeOrder.filter((key) => RANGE_SECTIONS.some((section) => section.key === key)), ...RANGE_SECTIONS.map((section) => section.key).filter((key) => !savedRangeOrder.includes(key))]);
-      const savedHeaderOrder = (data["header_layout_order"] ?? "").split(",").filter(Boolean);
-      setHeaderOrder([...savedHeaderOrder.filter((key) => HEADER_TABS.some((section) => section.key === key)), ...HEADER_TABS.map((section) => section.key).filter((key) => !savedHeaderOrder.includes(key))]);
-      const savedFooterOrder = (data["footer_layout_order"] ?? "").split(",").filter(Boolean);
-      setFooterOrder([...savedFooterOrder.filter((key) => FOOTER_TABS.some((section) => section.key === key)), ...FOOTER_TABS.map((section) => section.key).filter((key) => !savedFooterOrder.includes(key))]);
+      const savedHomeOrder = (data["home_layout_order"] ?? "")
+        .split(",")
+        .filter(Boolean);
+      setHomeOrder([
+        ...savedHomeOrder.filter((key) =>
+          HOME_SECTIONS.some((section) => section.key === key),
+        ),
+        ...HOME_SECTIONS.map((section) => section.key).filter(
+          (key) => !savedHomeOrder.includes(key),
+        ),
+      ]);
+      const savedRangeOrder = (data["range_layout_order"] ?? "")
+        .split(",")
+        .filter(Boolean);
+      setRangeOrder([
+        ...savedRangeOrder.filter((key) =>
+          RANGE_SECTIONS.some((section) => section.key === key),
+        ),
+        ...RANGE_SECTIONS.map((section) => section.key).filter(
+          (key) => !savedRangeOrder.includes(key),
+        ),
+      ]);
+      const savedHeaderOrder = (data["header_layout_order"] ?? "")
+        .split(",")
+        .filter(Boolean);
+      setHeaderOrder([
+        ...savedHeaderOrder.filter((key) =>
+          HEADER_TABS.some((section) => section.key === key),
+        ),
+        ...HEADER_TABS.map((section) => section.key).filter(
+          (key) => !savedHeaderOrder.includes(key),
+        ),
+      ]);
+      const savedFooterOrder = (data["footer_layout_order"] ?? "")
+        .split(",")
+        .filter(Boolean);
+      setFooterOrder([
+        ...savedFooterOrder.filter((key) =>
+          FOOTER_TABS.some((section) => section.key === key),
+        ),
+        ...FOOTER_TABS.map((section) => section.key).filter(
+          (key) => !savedFooterOrder.includes(key),
+        ),
+      ]);
       setLoaded(true);
     }
   }, [data, loaded]);
 
-  const setValue = (key: string, value: string) => setValues((current) => ({ ...current, [key]: value }));
+  const setValue = (key: string, value: string) =>
+    setValues((current) => ({ ...current, [key]: value }));
 
-  const saveContentGroup = async (fields: HomeField[], imageSlots: PageImageSlot[], layoutKey: string, order: string[]) => {
+  const saveContentGroup = async (
+    fields: HomeField[],
+    imageSlots: PageImageSlot[],
+    layoutKey: string,
+    order: string[],
+  ) => {
     const keys = [
       ...fields.flatMap((f) => [f.key, `${f.key}_align`]),
-      ...contentKeysForImages(imageSlots), layoutKey,
+      ...contentKeysForImages(imageSlots),
+      layoutKey,
     ];
     await Promise.all(
-      keys.map((key) => adminSaveContent({ data: { key, body: key === layoutKey ? order.join(",") : values[key] ?? "" } })),
+      keys.map((key) =>
+        adminSaveContent({
+          data: {
+            key,
+            body: key === layoutKey ? order.join(",") : (values[key] ?? ""),
+          },
+        }),
+      ),
     );
   };
 
@@ -551,7 +765,13 @@ export function AdminEdits() {
   };
 
   const saveHome = useMutation({
-    mutationFn: () => saveContentGroup(HOME_FIELDS, HOME_IMAGE_SLOTS, "home_layout_order", homeOrder),
+    mutationFn: () =>
+      saveContentGroup(
+        HOME_FIELDS,
+        HOME_IMAGE_SLOTS,
+        "home_layout_order",
+        homeOrder,
+      ),
     onSuccess: () => {
       toast.success("Home page updated");
       refreshContent();
@@ -560,7 +780,13 @@ export function AdminEdits() {
   });
 
   const saveRange = useMutation({
-    mutationFn: () => saveContentGroup(RANGE_FIELDS, RANGE_IMAGE_SLOTS, "range_layout_order", rangeOrder),
+    mutationFn: () =>
+      saveContentGroup(
+        RANGE_FIELDS,
+        RANGE_IMAGE_SLOTS,
+        "range_layout_order",
+        rangeOrder,
+      ),
     onSuccess: () => {
       toast.success("Catalogue page updated");
       refreshContent();
@@ -570,7 +796,10 @@ export function AdminEdits() {
   const saveChrome = useMutation({
     mutationFn: async () => {
       const keys = [
-        ...[...HEADER_FIELDS, ...FOOTER_FIELDS].flatMap((f) => [f.key, `${f.key}_align`]),
+        ...[...HEADER_FIELDS, ...FOOTER_FIELDS].flatMap((f) => [
+          f.key,
+          `${f.key}_align`,
+        ]),
         HEADER_ALIGN_KEY,
         HEADER_LAYOUT_KEY,
         ...HEADER_DISPLAY_OPTIONS.map((option) => option.contentKey),
@@ -578,7 +807,19 @@ export function AdminEdits() {
         "footer_layout_order",
       ];
       await Promise.all(
-        keys.map((key) => adminSaveContent({ data: { key, body: key === "header_layout_order" ? headerOrder.join(",") : key === "footer_layout_order" ? footerOrder.join(",") : values[key] ?? "" } })),
+        keys.map((key) =>
+          adminSaveContent({
+            data: {
+              key,
+              body:
+                key === "header_layout_order"
+                  ? headerOrder.join(",")
+                  : key === "footer_layout_order"
+                    ? footerOrder.join(",")
+                    : (values[key] ?? ""),
+            },
+          }),
+        ),
       );
     },
     onSuccess: () => {
@@ -588,12 +829,13 @@ export function AdminEdits() {
     onError: () => toast.error("Could not save the header and footer"),
   });
 
-
   const savePayments = useMutation({
     mutationFn: async () => {
       const keys = PAYMENT_FIELDS.flatMap((f) => [f.key, `${f.key}_align`]);
       await Promise.all(
-        keys.map((key) => adminSaveContent({ data: { key, body: values[key] ?? "" } })),
+        keys.map((key) =>
+          adminSaveContent({ data: { key, body: values[key] ?? "" } }),
+        ),
       );
     },
     onSuccess: () => {
@@ -603,9 +845,27 @@ export function AdminEdits() {
     onError: () => toast.error("Could not save the payment details"),
   });
 
+  const saveLegal = useMutation({
+    mutationFn: async () => {
+      const keys = LEGAL_FIELDS.flatMap((f) => [f.key, `${f.key}_align`]);
+      await Promise.all(
+        keys.map((key) =>
+          adminSaveContent({ data: { key, body: values[key] ?? "" } }),
+        ),
+      );
+    },
+    onSuccess: () => {
+      toast.success("Legal pages updated");
+      refreshContent();
+    },
+    onError: () => toast.error("Could not save the legal pages"),
+  });
+
   const saveFeatured = useMutation({
     mutationFn: (slugs: string[]) =>
-      adminSaveContent({ data: { key: "home_featured", body: slugs.join(",") } }),
+      adminSaveContent({
+        data: { key: "home_featured", body: slugs.join(",") },
+      }),
     onSuccess: () => {
       toast.success("Home page products updated");
       refreshContent();
@@ -614,28 +874,39 @@ export function AdminEdits() {
   });
 
   const saveProduct = useMutation({
-    mutationFn: (d: Draft) => adminSaveProduct({ data: draftToPayload(d) as any }),
+    mutationFn: (d: Draft) =>
+      adminSaveProduct({ data: draftToPayload(d) as any }),
     onSuccess: () => {
       toast.success("Product updated across the website");
       setDraft(null);
       refreshProducts();
     },
-    onError: (e: any) => toast.error(e?.message ?? "Could not save the product"),
+    onError: (e: any) =>
+      toast.error(e?.message ?? "Could not save the product"),
   });
 
   const removeFeatured = useMutation({
     mutationFn: async (p: NonNullable<typeof products>[number]) => {
       const slugs = featured.filter((s) => s !== p.slug);
       setFeatured(slugs);
-      await adminSaveContent({ data: { key: "home_featured", body: slugs.join(",") } });
+      await adminSaveContent({
+        data: { key: "home_featured", body: slugs.join(",") },
+      });
       if (p.sale_price != null || (p.promo_label ?? "") !== "") {
         await adminSaveProduct({
-          data: draftToPayload({ ...toDraft(p), sale_price: "", promo_label: "", active: true }) as any,
+          data: draftToPayload({
+            ...toDraft(p),
+            sale_price: "",
+            promo_label: "",
+            active: true,
+          }) as any,
         });
       }
     },
     onSuccess: () => {
-      toast.success("Removed from the home page and reverted to its normal price");
+      toast.success(
+        "Removed from the home page and reverted to its normal price",
+      );
       refreshContent();
       refreshProducts();
     },
@@ -657,6 +928,9 @@ export function AdminEdits() {
     <div className="space-y-6">
       <Tabs defaultValue="home">
         <TabsList className="flex flex-wrap">
+          <TabsTrigger value="appearance" className="font-bold uppercase">
+            Appearance
+          </TabsTrigger>
           <TabsTrigger value="home" className="font-bold uppercase">
             Home
           </TabsTrigger>
@@ -672,16 +946,133 @@ export function AdminEdits() {
           <TabsTrigger value="payments" className="font-bold uppercase">
             Payments
           </TabsTrigger>
+          <TabsTrigger value="legal" className="font-bold uppercase">
+            Legal
+          </TabsTrigger>
+          <TabsTrigger value="research" className="font-bold uppercase">
+            Research Lab
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="payments" className="mt-6 space-y-6">
-          <div className="rounded-xl border border-border bg-card/80 p-6">
+        <TabsContent value="appearance" className="mt-6 space-y-6">
+          <div className="rounded-xl border border-border bg-card p-6">
+            <p className="technical-label text-accent">Site appearance</p>
+            <h3 className="mt-2 text-xl font-extrabold uppercase text-foreground">
+              Titan theme
+            </h3>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+              Preview the premium dark Titan design or switch back to the
+              original light design. This choice is saved on this browser only
+              while the new design is being reviewed; it does not change
+              production settings.
+            </p>
+            <div className="mt-5 grid max-w-2xl gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                aria-pressed={siteTheme === "dark"}
+                onClick={() => chooseTheme("dark")}
+                className={cn(
+                  "rounded-xl border p-5 text-left transition",
+                  siteTheme === "dark"
+                    ? "border-primary bg-primary/10"
+                    : "border-border bg-background/40 hover:border-primary/60",
+                )}
+              >
+                <Moon className="h-6 w-6 text-primary" />
+                <p className="mt-4 font-display text-lg font-bold uppercase tracking-wider text-foreground">
+                  Dark
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Deep navy, Titan Blue, white and gold. Recommended new design.
+                </p>
+              </button>
+              <button
+                type="button"
+                aria-pressed={siteTheme === "light"}
+                onClick={() => chooseTheme("light")}
+                className={cn(
+                  "rounded-xl border p-5 text-left transition",
+                  siteTheme === "light"
+                    ? "border-primary bg-primary/10"
+                    : "border-border bg-background/40 hover:border-primary/60",
+                )}
+              >
+                <Sun className="h-6 w-6 text-accent" />
+                <p className="mt-4 font-display text-lg font-bold uppercase tracking-wider text-foreground">
+                  Light
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Original lighter Titan palette retained as a reversible
+                  fallback.
+                </p>
+              </button>
+            </div>
+            <p className="mt-4 text-xs text-muted-foreground">
+              A site-wide saved Admin setting can be enabled later once the dark
+              redesign is approved for production.
+            </p>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="legal" className="mt-6 space-y-6">
+          <div className="rounded-xl border border-border bg-card p-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <h3 className="text-lg font-extrabold uppercase text-foreground">Payment details</h3>
+                <h3 className="text-lg font-extrabold uppercase text-foreground">
+                  Legal pages
+                </h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  These are shown to the customer after they choose a payment option at checkout.
-                  Leave a field blank to hide it.
+                  Wording shown on the Terms &amp; Conditions and Privacy Policy
+                  pages. Change the Terms version whenever you change the terms
+                  — new checkout acknowledgements record that version.
+                </p>
+              </div>
+              <Button
+                className="font-bold uppercase"
+                disabled={saveLegal.isPending}
+                onClick={() => saveLegal.mutate()}
+              >
+                Save legal pages
+              </Button>
+            </div>
+            <div className="mt-5 grid gap-4">
+              {LEGAL_FIELDS.map((f) => (
+                <ContentFieldEditor
+                  key={f.key}
+                  field={f}
+                  value={values[f.key] ?? ""}
+                  align={
+                    (values[`${f.key}_align`] as TextAlign) || f.align || "left"
+                  }
+                  setValue={(value) => setValue(f.key, value)}
+                  setAlign={(value) => setValue(`${f.key}_align`, value)}
+                />
+              ))}
+            </div>
+            <Button
+              className="mt-5 font-bold uppercase"
+              disabled={saveLegal.isPending}
+              onClick={() => saveLegal.mutate()}
+            >
+              Save legal pages
+            </Button>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="research" className="mt-6 space-y-6">
+          <AdminResearch />
+        </TabsContent>
+
+        <TabsContent value="payments" className="mt-6 space-y-6">
+          <div className="rounded-xl border border-border bg-card p-6">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-extrabold uppercase text-foreground">
+                  Payment details
+                </h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  These are shown to the customer after they choose a payment
+                  option at checkout. PayID and bank details stay saved here while bank transfer is hidden.
                 </p>
               </div>
               <Button
@@ -693,13 +1084,29 @@ export function AdminEdits() {
               </Button>
             </div>
 
+            <label className="mt-5 flex items-start gap-3 rounded-xl border border-primary/25 p-4">
+              <input
+                type="checkbox"
+                className="mt-1"
+                checked={values["payment_bank_enabled"] === "true"}
+                onChange={(event) => setValue("payment_bank_enabled", event.target.checked ? "true" : "false")}
+              />
+              <span>
+                <span className="block font-bold">Show PayID / bank transfer at checkout</span>
+                <span className="mt-1 block text-sm text-muted-foreground">Enable when your payment details are ready, then save. Appears between Card and Crypto. Card remains the default.</span>
+              </span>
+            </label>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              {PAYMENT_FIELDS.filter((f) => f.key !== "payment_crypto_options").map((f) => (
+              {PAYMENT_FIELDS.filter(
+                (f) => f.key !== "payment_crypto_options" && f.key !== "payment_bank_enabled",
+              ).map((f) => (
                 <ContentFieldEditor
                   key={f.key}
                   field={f}
                   value={values[f.key] ?? ""}
-                  align={(values[`${f.key}_align`] as TextAlign) || f.align || "left"}
+                  align={
+                    (values[`${f.key}_align`] as TextAlign) || f.align || "left"
+                  }
                   setValue={(value) => setValue(f.key, value)}
                   setAlign={(value) => setValue(`${f.key}_align`, value)}
                 />
@@ -708,7 +1115,6 @@ export function AdminEdits() {
                 value={values["payment_crypto_options"] ?? ""}
                 onChange={(next) => setValue("payment_crypto_options", next)}
               />
-
             </div>
 
             <Button
@@ -722,15 +1128,22 @@ export function AdminEdits() {
         </TabsContent>
 
         <TabsContent value="header" className="mt-6 space-y-6">
-          <div className="rounded-xl border border-border bg-card/80 p-6">
+          <div className="rounded-xl border border-border bg-card p-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <h3 className="text-lg font-extrabold uppercase text-foreground">Header</h3>
+                <h3 className="text-lg font-extrabold uppercase text-foreground">
+                  Header
+                </h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Rename the tabs at the top of every page and choose where they sit.
+                  Rename the tabs at the top of every page and choose where they
+                  sit.
                 </p>
               </div>
-              <Button className="font-bold uppercase" disabled={saveChrome.isPending} onClick={() => saveChrome.mutate()}>
+              <Button
+                className="font-bold uppercase"
+                disabled={saveChrome.isPending}
+                onClick={() => saveChrome.mutate()}
+              >
                 Save header
               </Button>
             </div>
@@ -762,14 +1175,19 @@ export function AdminEdits() {
               </div>
             </div>
 
-            <SectionOrderEditor sections={HEADER_TABS} order={headerOrder} onChange={setHeaderOrder} />
+            <SectionOrderEditor
+              sections={HEADER_TABS}
+              order={headerOrder}
+              onChange={setHeaderOrder}
+            />
 
             <div className="mt-5">
               <h4 className="text-sm font-extrabold uppercase tracking-[0.15em] text-accent">
                 Tab appearance
               </h4>
               <p className="mt-1 text-sm text-muted-foreground">
-                Choose an icon or its editable tab name. The Catalogue always uses the test beaker.
+                Choose an icon or its editable tab name. The Catalogue always
+                uses the test beaker.
               </p>
               <div className="mt-3 grid gap-4 sm:grid-cols-2">
                 {HEADER_DISPLAY_OPTIONS.map((option) => (
@@ -779,7 +1197,9 @@ export function AdminEdits() {
                       id={option.contentKey}
                       className="mt-2 h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"
                       value={values[option.contentKey] ?? option.fallback}
-                      onChange={(event) => setValue(option.contentKey, event.target.value)}
+                      onChange={(event) =>
+                        setValue(option.contentKey, event.target.value)
+                      }
                     >
                       <option value="text">Text</option>
                       <option value="icon">Icon</option>
@@ -795,29 +1215,44 @@ export function AdminEdits() {
                   key={f.key}
                   field={f}
                   value={values[f.key] ?? ""}
-                  align={(values[`${f.key}_align`] as TextAlign) || f.align || "center"}
+                  align={
+                    (values[`${f.key}_align`] as TextAlign) ||
+                    f.align ||
+                    "center"
+                  }
                   setValue={(value) => setValue(f.key, value)}
                   setAlign={(value) => setValue(`${f.key}_align`, value)}
                 />
               ))}
             </div>
 
-            <Button className="mt-5 font-bold uppercase" disabled={saveChrome.isPending} onClick={() => saveChrome.mutate()}>
+            <Button
+              className="mt-5 font-bold uppercase"
+              disabled={saveChrome.isPending}
+              onClick={() => saveChrome.mutate()}
+            >
               Save header
             </Button>
           </div>
         </TabsContent>
 
         <TabsContent value="footer" className="mt-6 space-y-6">
-          <div className="rounded-xl border border-border bg-card/80 p-6">
+          <div className="rounded-xl border border-border bg-card p-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <h3 className="text-lg font-extrabold uppercase text-foreground">Footer</h3>
+                <h3 className="text-lg font-extrabold uppercase text-foreground">
+                  Footer
+                </h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Change every line in the footer. The link names come from the Header tab.
+                  Change every line in the footer. The link names come from the
+                  Header tab.
                 </p>
               </div>
-              <Button className="font-bold uppercase" disabled={saveChrome.isPending} onClick={() => saveChrome.mutate()}>
+              <Button
+                className="font-bold uppercase"
+                disabled={saveChrome.isPending}
+                onClick={() => saveChrome.mutate()}
+              >
                 Save footer
               </Button>
             </div>
@@ -828,16 +1263,28 @@ export function AdminEdits() {
                   key={f.key}
                   field={f}
                   value={values[f.key] ?? ""}
-                  align={(values[`${f.key}_align`] as TextAlign) || f.align || "center"}
+                  align={
+                    (values[`${f.key}_align`] as TextAlign) ||
+                    f.align ||
+                    "center"
+                  }
                   setValue={(value) => setValue(f.key, value)}
                   setAlign={(value) => setValue(`${f.key}_align`, value)}
                 />
               ))}
             </div>
 
-            <SectionOrderEditor sections={FOOTER_TABS} order={footerOrder} onChange={setFooterOrder} />
+            <SectionOrderEditor
+              sections={FOOTER_TABS}
+              order={footerOrder}
+              onChange={setFooterOrder}
+            />
 
-            <Button className="mt-5 font-bold uppercase" disabled={saveChrome.isPending} onClick={() => saveChrome.mutate()}>
+            <Button
+              className="mt-5 font-bold uppercase"
+              disabled={saveChrome.isPending}
+              onClick={() => saveChrome.mutate()}
+            >
               Save footer
             </Button>
           </div>
@@ -845,12 +1292,13 @@ export function AdminEdits() {
           <AdminLinks />
         </TabsContent>
 
-
         <TabsContent value="home" className="mt-6 space-y-6">
-          <div className="rounded-xl border border-border bg-card/80 p-6">
+          <div className="rounded-xl border border-border bg-card p-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <h3 className="text-lg font-extrabold uppercase text-foreground">Home page name and subheading</h3>
+                <h3 className="text-lg font-extrabold uppercase text-foreground">
+                  Home page name and subheading
+                </h3>
                 <p className="mt-1 text-sm text-muted-foreground">
                   Change the two main lines shown over the faded Titan logo.
                 </p>
@@ -869,7 +1317,11 @@ export function AdminEdits() {
                   key={f.key}
                   field={f}
                   value={values[f.key] ?? ""}
-                  align={(values[`${f.key}_align`] as TextAlign) || f.align || "center"}
+                  align={
+                    (values[`${f.key}_align`] as TextAlign) ||
+                    f.align ||
+                    "center"
+                  }
                   setValue={(value) => setValue(f.key, value)}
                   setAlign={(value) => setValue(`${f.key}_align`, value)}
                 />
@@ -877,13 +1329,14 @@ export function AdminEdits() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-border bg-card/80 p-6">
+          <div className="rounded-xl border border-border bg-card p-6">
             <h3 className="text-lg font-extrabold uppercase text-foreground">
               Hot products on the home page
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Pick the products you want on the front page. Anything you change here — price, sale
-              price, badge, wording — updates that product everywhere on the website.
+              Pick the products you want on the front page. Anything you change
+              here — price, sale price, badge, wording — updates that product
+              everywhere on the website.
             </p>
 
             <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -891,7 +1344,8 @@ export function AdminEdits() {
                 className="h-10 rounded-md border border-input bg-background px-3 text-sm text-foreground"
                 value=""
                 onChange={(e) => {
-                  if (e.target.value) setFeaturedAndSave([...featured, e.target.value]);
+                  if (e.target.value)
+                    setFeaturedAndSave([...featured, e.target.value]);
                 }}
               >
                 <option value="">Add a product…</option>
@@ -902,20 +1356,23 @@ export function AdminEdits() {
                 ))}
               </select>
               {addable.length === 0 && list.length > 0 ? (
-                <span className="text-xs text-muted-foreground">Every product is already shown.</span>
+                <span className="text-xs text-muted-foreground">
+                  Every product is already shown.
+                </span>
               ) : null}
             </div>
 
             <div className="mt-4 space-y-3">
               {featuredProducts.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  No products on the home page yet — customers still see everything in the Catalogue.
+                  No products on the home page yet — customers still see
+                  everything in the Catalogue.
                 </p>
               ) : (
                 featuredProducts.map((p, i) => (
                   <div
                     key={p.id}
-                    className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-background/40 p-4"
+                    className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/20 bg-background/45 p-4"
                   >
                     <div className="flex items-center gap-3 text-sm text-muted-foreground">
                       {p.image_url ? (
@@ -927,11 +1384,15 @@ export function AdminEdits() {
                         />
                       ) : null}
                       <div>
-                        <p className="font-extrabold uppercase text-foreground">{p.name}</p>
+                        <p className="font-extrabold uppercase text-foreground">
+                          {p.name}
+                        </p>
                         <p>
                           {p.sale_price != null ? (
                             <>
-                              <span className="line-through">{formatPrice(Number(p.price))}</span>{" "}
+                              <span className="line-through">
+                                {formatPrice(Number(p.price))}
+                              </span>{" "}
                               <span className="font-bold text-accent">
                                 {formatPrice(Number(p.sale_price))}
                               </span>
@@ -998,12 +1459,15 @@ export function AdminEdits() {
             ) : null}
           </div>
 
-          <div className="rounded-xl border border-border bg-card/80 p-6">
+          <div className="rounded-xl border border-border bg-card p-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <h3 className="text-lg font-extrabold uppercase text-foreground">Home page wording</h3>
+                <h3 className="text-lg font-extrabold uppercase text-foreground">
+                  Home page wording
+                </h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Change any wording on your home page here. Leave a box empty to use the standard wording.
+                  Change any wording on your home page here. Leave a box empty
+                  to use the standard wording.
                 </p>
               </div>
               <Button
@@ -1021,14 +1485,22 @@ export function AdminEdits() {
                   key={f.key}
                   field={f}
                   value={values[f.key] ?? ""}
-                  align={(values[`${f.key}_align`] as TextAlign) || f.align || "center"}
+                  align={
+                    (values[`${f.key}_align`] as TextAlign) ||
+                    f.align ||
+                    "center"
+                  }
                   setValue={(value) => setValue(f.key, value)}
                   setAlign={(value) => setValue(`${f.key}_align`, value)}
                 />
               ))}
             </div>
 
-            <SectionOrderEditor sections={HOME_SECTIONS} order={homeOrder} onChange={setHomeOrder} />
+            <SectionOrderEditor
+              sections={HOME_SECTIONS}
+              order={homeOrder}
+              onChange={setHomeOrder}
+            />
 
             <div className="mt-6">
               <h4 className="text-sm font-extrabold uppercase tracking-[0.15em] text-accent">
@@ -1036,7 +1508,12 @@ export function AdminEdits() {
               </h4>
               <div className="mt-3 grid gap-4 lg:grid-cols-3">
                 {HOME_IMAGE_SLOTS.map((slot) => (
-                  <PictureSlotEditor key={slot.key} slot={slot} values={values} setValue={setValue} />
+                  <PictureSlotEditor
+                    key={slot.key}
+                    slot={slot}
+                    values={values}
+                    setValue={setValue}
+                  />
                 ))}
               </div>
             </div>
@@ -1054,14 +1531,15 @@ export function AdminEdits() {
         </TabsContent>
 
         <TabsContent value="range" className="mt-6">
-          <div className="rounded-xl border border-border bg-card/80 p-6">
+          <div className="rounded-xl border border-border bg-card p-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h3 className="text-lg font-extrabold uppercase text-foreground">
-                   Catalogue wording
+                  Catalogue wording
                 </h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                   Change the Catalogue name, introductory text, bottom note and research disclaimer. The name updates throughout the website.
+                  Change the Catalogue name, introductory text, bottom note and
+                  research disclaimer. The name updates throughout the website.
                 </p>
               </div>
               <Button
@@ -1069,7 +1547,7 @@ export function AdminEdits() {
                 disabled={saveRange.isPending}
                 onClick={() => saveRange.mutate()}
               >
-                 Save Catalogue
+                Save Catalogue
               </Button>
             </div>
 
@@ -1079,22 +1557,35 @@ export function AdminEdits() {
                   key={f.key}
                   field={f}
                   value={values[f.key] ?? ""}
-                  align={(values[`${f.key}_align`] as TextAlign) || f.align || "center"}
+                  align={
+                    (values[`${f.key}_align`] as TextAlign) ||
+                    f.align ||
+                    "center"
+                  }
                   setValue={(value) => setValue(f.key, value)}
                   setAlign={(value) => setValue(`${f.key}_align`, value)}
                 />
               ))}
             </div>
 
-            <SectionOrderEditor sections={RANGE_SECTIONS} order={rangeOrder} onChange={setRangeOrder} />
+            <SectionOrderEditor
+              sections={RANGE_SECTIONS}
+              order={rangeOrder}
+              onChange={setRangeOrder}
+            />
 
             <div className="mt-6">
               <h4 className="text-sm font-extrabold uppercase tracking-[0.15em] text-accent">
-                 Catalogue picture boxes
+                Catalogue picture boxes
               </h4>
               <div className="mt-3 grid gap-4 lg:grid-cols-3">
                 {RANGE_IMAGE_SLOTS.map((slot) => (
-                  <PictureSlotEditor key={slot.key} slot={slot} values={values} setValue={setValue} />
+                  <PictureSlotEditor
+                    key={slot.key}
+                    slot={slot}
+                    values={values}
+                    setValue={setValue}
+                  />
                 ))}
               </div>
             </div>
@@ -1104,7 +1595,7 @@ export function AdminEdits() {
               disabled={saveRange.isPending}
               onClick={() => saveRange.mutate()}
             >
-               Save Catalogue
+              Save Catalogue
             </Button>
           </div>
         </TabsContent>

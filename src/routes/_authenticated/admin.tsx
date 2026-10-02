@@ -1,30 +1,38 @@
+import { TitanPageHeading } from "@/components/TitanPageHeading";
 import { Fragment, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { RefreshCw, Search } from "lucide-react";
+import { RefreshCw, Search, Settings2 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/SiteHeader";
 import { AdminMembers } from "@/components/AdminMembers";
 import { AdminProducts } from "@/components/AdminProducts";
 import { AdminDiscounts } from "@/components/AdminDiscounts";
+import { adminSetOrderRefunded } from "@/lib/referrals.functions";
 import { AdminEdits } from "@/components/AdminEdits";
 import { AdminFinance } from "@/components/AdminFinance";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { AdminReviews } from "@/components/AdminReviews";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatPrice } from "@/lib/products";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
-import { AdminOrderActions, CopyButton, copyText } from "@/components/AdminOrderActions";
+import { OrderAcknowledgementInfo } from "@/components/OrderAcknowledgementInfo";
+import {
+  AdminOrderActions,
+  CopyButton,
+  copyText,
+} from "@/components/AdminOrderActions";
 import {
   adminListNotifications,
   adminListOrders,
   adminMarkNotificationsRead,
-  adminRefreshTracking,
   adminSetPaymentConfirmed,
   adminSetTracking,
   adminUpdateStatus,
   type AdminOrder,
 } from "@/lib/admin.functions";
+import { orderReference } from "@/lib/order-reference";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -32,7 +40,10 @@ export const Route = createFileRoute("/_authenticated/admin")({
       { title: "Admin | Titan Labs Aus" },
       { name: "description", content: "Titan Labs Aus order administration." },
       { property: "og:title", content: "Admin | Titan Labs Aus" },
-      { property: "og:description", content: "Titan Labs Aus order administration." },
+      {
+        property: "og:description",
+        content: "Titan Labs Aus order administration.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "robots", content: "noindex" },
@@ -41,7 +52,12 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
 });
 
-const STATUSES: AdminOrder["status"][] = ["processing", "shipped", "delivered", "cancelled"];
+const STATUSES: AdminOrder["status"][] = [
+  "processing",
+  "shipped",
+  "delivered",
+  "cancelled",
+];
 
 function trackingUrl(tracking: string) {
   return `https://auspost.com.au/mypost/track/details/${encodeURIComponent(tracking)}`;
@@ -56,20 +72,24 @@ function formatDate(value: string) {
 }
 
 function orderRef(order: AdminOrder) {
-  return order.order_number ? `TL-${order.order_number}` : order.id.slice(0, 8).toUpperCase();
+  return orderReference(order);
 }
 
 function customerName(order: AdminOrder) {
   const c = order.customer;
   return (
-    [c?.first_name, c?.last_name].filter(Boolean).join(" ") || order.contact_name || "Unnamed"
+    [c?.first_name, c?.last_name].filter(Boolean).join(" ") ||
+    order.contact_name ||
+    "Unnamed"
   );
 }
 
 function customerAddress(order: AdminOrder) {
   const c = order.customer;
   return (
-    [c?.address_line, c?.city, c?.state, c?.postcode].filter(Boolean).join(", ") ||
+    [c?.address_line, c?.city, c?.state, c?.postcode]
+      .filter(Boolean)
+      .join(", ") ||
     c?.postal_address ||
     order.shipping_address ||
     ""
@@ -84,7 +104,9 @@ type View = "active" | "closed";
 function OrdersTab() {
   const queryClient = useQueryClient();
   const [view, setView] = useState<View>("active");
-  const [statusFilter, setStatusFilter] = useState<"all" | AdminOrder["status"]>("all");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | AdminOrder["status"]
+  >("all");
   const [period, setPeriod] = useState<Period>("all");
   const [search, setSearch] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
@@ -98,15 +120,6 @@ function OrdersTab() {
     queryFn: () => adminListOrders({ data: { scope: "closed" } }),
   });
 
-  const refresh = useMutation({
-    mutationFn: () => adminRefreshTracking({}),
-    onSuccess: (summary) => {
-      toast.success(`Checked ${summary.checked} order(s); ${summary.delivered} marked delivered.`);
-      void queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
-      void queryClient.invalidateQueries({ queryKey: ["admin-notifications"] });
-    },
-    onError: () => toast.error("Australia Post check failed. Check the API details."),
-  });
 
   const active = liveQuery.data ?? [];
   const closed = closedQuery.data ?? [];
@@ -132,7 +145,9 @@ function OrdersTab() {
       return (
         orderRef(o).toLowerCase().includes(q) ||
         customerName(o).toLowerCase().includes(q) ||
-        (o.customer?.email ?? o.contact_email ?? "").toLowerCase().includes(q) ||
+        (o.customer?.email ?? o.contact_email ?? "")
+          .toLowerCase()
+          .includes(q) ||
         o.status.includes(q)
       );
     });
@@ -141,7 +156,7 @@ function OrdersTab() {
   const isLoading = liveQuery.isLoading || closedQuery.isLoading;
 
   return (
-    <div className="industrial-panel p-5">
+    <div className="rounded-2xl border border-primary/25 bg-card/90 p-5 shadow-glow">
       <div className="mb-4 flex gap-1 border border-border p-1 md:w-fit">
         {(
           [
@@ -216,18 +231,11 @@ function OrdersTab() {
           variant="outline"
           size="sm"
           className="text-xs uppercase tracking-[0.16em]"
-          onClick={() => queryClient.invalidateQueries({ queryKey: ["admin-orders"] })}
+          onClick={() =>
+            queryClient.invalidateQueries({ queryKey: ["admin-orders"] })
+          }
         >
           <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Refresh
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="text-xs uppercase tracking-[0.16em]"
-          disabled={refresh.isPending}
-          onClick={() => refresh.mutate()}
-        >
-          {refresh.isPending ? "Checking…" : "Check Aus Post"}
         </Button>
       </div>
 
@@ -248,15 +256,21 @@ function OrdersTab() {
             {rows.map((order) => (
               <Fragment key={order.id}>
                 <tr className="border-b border-border/50">
-                  <td className="py-3 pr-4 font-display tracking-wide">{orderRef(order)}</td>
+                  <td className="py-3 pr-4 font-display tracking-wide">
+                    {orderRef(order)}
+                  </td>
                   <td className="py-3 pr-4">
                     {customerName(order)}
                     <span className="block text-[11px] text-muted-foreground">
                       {order.customer?.email ?? order.contact_email ?? "—"}
                     </span>
                   </td>
-                  <td className="py-3 pr-4 text-muted-foreground">{formatDate(order.created_at)}</td>
-                  <td className="py-3 pr-4">{formatPrice(Number(order.total))}</td>
+                  <td className="py-3 pr-4 text-muted-foreground">
+                    {formatDate(order.created_at)}
+                  </td>
+                  <td className="py-3 pr-4">
+                    {formatPrice(Number(order.total))}
+                  </td>
                   <td className="py-3 pr-4 text-[11px] uppercase tracking-[0.16em]">
                     {order.payment_confirmed ? (
                       <span className="text-accent">Paid</span>
@@ -271,7 +285,9 @@ function OrdersTab() {
                     <button
                       type="button"
                       className="text-xs uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground"
-                      onClick={() => setOpenId(openId === order.id ? null : order.id)}
+                      onClick={() =>
+                        setOpenId(openId === order.id ? null : order.id)
+                      }
                     >
                       {openId === order.id ? "Hide" : "View"}
                     </button>
@@ -289,9 +305,13 @@ function OrdersTab() {
           </tbody>
         </table>
         {isLoading ? (
-          <p className="py-10 text-center text-sm text-muted-foreground">Loading orders…</p>
+          <p className="py-10 text-center text-sm text-muted-foreground">
+            Loading orders…
+          </p>
         ) : rows.length === 0 ? (
-          <p className="py-10 text-center text-sm text-muted-foreground">No orders found.</p>
+          <p className="py-10 text-center text-sm text-muted-foreground">
+            No orders found.
+          </p>
         ) : null}
       </div>
     </div>
@@ -337,7 +357,10 @@ function OrderDetail({ order, live }: { order: AdminOrder; live: boolean }) {
   };
 
   const saveTracking = useMutation({
-    mutationFn: () => adminSetTracking({ data: { orderId: order.id, trackingNumber: tracking } }),
+    mutationFn: () =>
+      adminSetTracking({
+        data: { orderId: order.id, trackingNumber: tracking },
+      }),
     onSuccess: () => {
       toast.success("Tracking number saved");
       invalidate();
@@ -411,7 +434,9 @@ function OrderDetail({ order, live }: { order: AdminOrder; live: boolean }) {
                 customerName(order),
                 address,
                 "",
-                ...order.order_items.map((i) => `${i.quantity} × ${i.product_name}`),
+                ...order.order_items.map(
+                  (i) => `${i.quantity} × ${i.product_name}`,
+                ),
                 "",
                 `Total ${formatPrice(Number(order.total))}`,
               ]
@@ -439,15 +464,21 @@ function OrderDetail({ order, live }: { order: AdminOrder; live: boolean }) {
       <p className="text-xs text-muted-foreground">
         Subtotal {formatPrice(Number(order.subtotal))} + express shipping{" "}
         {formatPrice(Number(order.shipping))} ={" "}
-        <span className="font-bold text-foreground">{formatPrice(Number(order.total))}</span>
+        <span className="font-bold text-foreground">
+          {formatPrice(Number(order.total))}
+        </span>
       </p>
 
-      <div className="border border-border bg-background/40 p-4">
+      <div className="rounded-xl border border-border bg-background/40 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-[11px] tracking-[0.18em] text-muted-foreground">PAYMENT</p>
+            <p className="text-[11px] tracking-[0.18em] text-muted-foreground">
+              PAYMENT
+            </p>
             <p className="mt-1 text-sm text-foreground">
-              {order.payment_method === "crypto" ? "Cryptocurrency" : "PayID / Bank transfer"}
+              {order.payment_method === "crypto"
+                ? "Cryptocurrency"
+                : "PayID / Bank transfer"}
             </p>
             {order.payment_reference ? (
               <p className="mt-1 break-all font-mono text-xs text-muted-foreground">
@@ -455,7 +486,9 @@ function OrderDetail({ order, live }: { order: AdminOrder; live: boolean }) {
               </p>
             ) : null}
             {order.notes ? (
-              <p className="mt-1 text-xs text-muted-foreground">Notes: {order.notes}</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Notes: {order.notes}
+              </p>
             ) : null}
           </div>
           <Button
@@ -467,10 +500,29 @@ function OrderDetail({ order, live }: { order: AdminOrder; live: boolean }) {
           >
             {order.payment_confirmed ? "Mark unpaid" : "Mark as paid"}
           </Button>
+          {order.payment_confirmed && !(order as any).refunded_at ? (
+            <Button
+              size="sm"
+              variant="destructive"
+              className="text-[11px] uppercase tracking-[0.12em]"
+              onClick={async () => {
+                if (!window.confirm("Mark this order refunded? Any referral credit it earned is reversed and credit the customer used is returned. Money is not refunded automatically.")) return;
+                try {
+                  await adminSetOrderRefunded({ data: { orderId: order.id } });
+                  toast.success("Order marked refunded");
+                  void queryClient.invalidateQueries();
+                } catch {
+                  toast.error("Could not mark refunded");
+                }
+              }}
+            >
+              Mark refunded
+            </Button>
+          ) : null}
         </div>
       </div>
 
-      <div className="border border-border bg-background/40 p-4">
+      <div className="rounded-xl border border-border bg-background/40 p-4">
         <p className="text-[11px] tracking-[0.18em] text-muted-foreground">
           AUSTRALIA POST EXPRESS TRACKING
         </p>
@@ -511,14 +563,17 @@ function OrderDetail({ order, live }: { order: AdminOrder; live: boolean }) {
             {order.tracking_number}
           </a>
         ) : (
-          <p className="mt-2 text-sm text-muted-foreground">No tracking number yet.</p>
-        )}
-        {order.tracking_status ? (
-          <p className="mt-1 text-xs text-muted-foreground">
-            Australia Post status: {order.tracking_status}
+          <p className="mt-2 text-sm text-muted-foreground">
+            No tracking number yet.
           </p>
-        ) : null}
+        )}
       </div>
+
+      <OrderAcknowledgementInfo
+        orderId={order.id}
+        userId={order.user_id}
+        createdAt={order.created_at}
+      />
 
       <AdminOrderActions order={order} />
     </div>
@@ -536,13 +591,14 @@ function NotificationsPanel() {
 
   const markRead = useMutation({
     mutationFn: () => adminMarkNotificationsRead({}),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin-notifications"] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["admin-notifications"] }),
   });
 
   const items = data ?? [];
 
   return (
-    <div className="industrial-panel p-5">
+    <div className="rounded-2xl border border-primary/25 bg-card/90 p-5 shadow-glow">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-xs tracking-[0.2em] text-steel">NOTIFICATIONS</h2>
         <Button
@@ -555,19 +611,49 @@ function NotificationsPanel() {
           Mark all read
         </Button>
       </div>
+      <section className="mt-5 rounded-xl border border-primary/25 bg-background/50 p-4">
+        <h3 className="font-display text-sm font-bold uppercase tracking-wide">
+          Automatic customer emails
+        </h3>
+        <div className="mt-3 grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            "Order received",
+            "Payment confirmed",
+            "Dispatched with tracking",
+            "Delivered",
+          ].map((step) => (
+            <p key={step} className="rounded-lg border border-primary/20 px-3 py-2">
+              {step}
+            </p>
+          ))}
+        </div>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Confirm manual payments and add the tracking number when you ship.
+          Saved order changes send the matching email automatically. Mark orders
+          delivered yourself once delivery is confirmed.
+        </p>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Failed emails retry automatically. Repeated failures appear in these
+          notifications so you can check them.
+        </p>
+      </section>
       {items.length === 0 ? (
-        <p className="py-10 text-center text-sm text-muted-foreground">No notifications yet.</p>
+        <p className="py-10 text-center text-sm text-muted-foreground">
+          No notifications yet.
+        </p>
       ) : (
         <ul className="mt-5 space-y-3">
           {items.map((n) => (
             <li
               key={n.id}
-              className={`border p-4 ${n.read ? "border-border bg-card/60" : "border-accent/50 bg-card"}`}
+              className={`rounded-xl border p-4 ${n.read ? "border-primary/15 bg-card/60" : "border-accent/50 bg-card/90 shadow-gold"}`}
             >
               <p className="text-sm font-bold uppercase tracking-[0.12em] text-foreground">
                 {n.title}
               </p>
-              {n.body ? <p className="mt-1 text-sm text-muted-foreground">{n.body}</p> : null}
+              {n.body ? (
+                <p className="mt-1 text-sm text-muted-foreground">{n.body}</p>
+              ) : null}
               <p className="mt-2 text-[11px] tracking-[0.16em] text-muted-foreground">
                 {formatDate(n.created_at)}
               </p>
@@ -617,8 +703,13 @@ function AdminPage() {
   return (
     <div className="bg-hero flex min-h-screen flex-col">
       <SiteHeader />
-      <main className="mx-auto w-full max-w-7xl flex-1 px-4 pb-24 sm:px-6">
-        <h1 className="text-2xl tracking-[0.2em] text-steel">ADMIN</h1>
+      <main className="page-shell flex-1 pb-24 pt-8 sm:pt-12">
+        <TitanPageHeading
+          as="h1"
+          icon={Settings2}
+          eyebrow="Titan management"
+          title="Admin"
+        />
         <Tabs defaultValue="orders" className="mt-6">
           <TabsList className="flex-wrap">
             <TabsTrigger value="orders">Orders</TabsTrigger>
@@ -626,6 +717,7 @@ function AdminPage() {
             <TabsTrigger value="products">Products</TabsTrigger>
             <TabsTrigger value="finance">Sales &amp; profit</TabsTrigger>
             <TabsTrigger value="discounts">Discounts</TabsTrigger>
+            <TabsTrigger value="reviews">Reviews</TabsTrigger>
             <TabsTrigger value="edits">Website editor</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
           </TabsList>
@@ -644,6 +736,9 @@ function AdminPage() {
           </TabsContent>
           <TabsContent value="discounts" className="mt-6">
             <AdminDiscounts />
+          </TabsContent>
+          <TabsContent value="reviews" className="mt-6">
+            <AdminReviews />
           </TabsContent>
           <TabsContent value="edits" className="mt-6">
             <AdminEdits />

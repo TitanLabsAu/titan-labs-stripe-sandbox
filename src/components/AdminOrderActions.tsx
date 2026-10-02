@@ -4,6 +4,7 @@ import { Copy, Mail, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/products";
 import { adminSendOrderEmail, type AdminOrder } from "@/lib/admin.functions";
+import { orderReference } from "@/lib/order-reference";
 
 export function trackingUrl(tracking: string) {
   return `https://auspost.com.au/mypost/track/details/${encodeURIComponent(tracking)}`;
@@ -40,7 +41,7 @@ function waNumber(phone: string | null | undefined) {
 
 function messages(order: AdminOrder) {
   const name = order.customer?.first_name?.trim() || "there";
-  const ref = order.id.slice(0, 8);
+  const ref = orderReference(order);
   const total = formatPrice(Number(order.total));
   const tracking = order.tracking_number ?? "";
 
@@ -82,7 +83,7 @@ export function AdminOrderActions({ order }: { order: AdminOrder }) {
 
   return (
     <div className="mt-4 grid gap-4 md:grid-cols-2">
-      <div className="rounded-lg border border-border bg-background/40 p-4">
+      <div className="rounded-xl border border-primary/20 bg-background/45 p-4">
         <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
           WhatsApp messages
         </p>
@@ -122,7 +123,7 @@ export function AdminOrderActions({ order }: { order: AdminOrder }) {
         </div>
       </div>
 
-      <div className="rounded-lg border border-border bg-background/40 p-4">
+      <div className="rounded-xl border border-primary/20 bg-background/45 p-4">
         <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
           Customer emails
         </p>
