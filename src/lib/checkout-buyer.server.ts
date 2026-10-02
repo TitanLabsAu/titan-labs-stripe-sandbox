@@ -88,7 +88,12 @@ export async function startGuestSession(): Promise<void> {
   setCookie(GUEST_COOKIE, token, {
     httpOnly: true,
     secure: true,
-    sameSite: "lax",
+    // "none" + Partitioned (CHIPS) so the capability also works when the shop is
+    // framed cross-site (e.g. the editor preview); Lax cookies are dropped there,
+    // which made the next quote report GUEST_SESSION_INVALID and reset the choice.
+    // Server fns are POST/custom-header RPCs, and the cookie is httpOnly + Secure.
+    sameSite: "none",
+    partitioned: true,
     path: "/",
     maxAge: GUEST_TTL_SECONDS,
   });
