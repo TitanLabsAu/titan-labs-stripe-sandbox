@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 const tabs = [
+  { to: "/calendar" as const, label: "My Calendar" },
   { to: "/account" as const, label: "My details" },
   { to: "/orders" as const, label: "Current orders" },
   { to: "/order-history" as const, label: "Order history" },
@@ -67,3 +68,4 @@ export function ProfileMenu({ email }: { email?: string | null | undefined }) {
     </div>
   );
 }
+

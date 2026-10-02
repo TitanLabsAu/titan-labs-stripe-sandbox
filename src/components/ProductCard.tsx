@@ -1,5 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { BookOpen } from "lucide-react";
+import { StarterKitOffer } from "@/components/StarterKitOffer";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
 import {
@@ -79,6 +81,7 @@ export function ProductCard({ product: p }: { product: Product }) {
             </span>
           ) : null}
         </div>
+        <Link to="/product/$slug" params={{slug:p.slug}} className="mt-2 inline-flex min-h-7 w-fit items-center gap-1 text-xs font-semibold text-primary hover:underline"><BookOpen className="h-3 w-3"/>Product Info</Link>
         {soon && !bannerSoon ? (
           <span className="mt-2 inline-flex w-fit items-center border border-primary bg-primary px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-primary-foreground">
             This size coming soon
@@ -143,6 +146,7 @@ export function ProductCard({ product: p }: { product: Product }) {
           ))}
         </div>
         ) : null}
+        <StarterKitOffer product={p}/>
         <div className="mt-3 flex items-baseline gap-1">
           {p.wasPrice && pack === "single" ? (
             <span className="text-xs text-muted-foreground line-through">
@@ -213,3 +217,4 @@ export function ProductCard({ product: p }: { product: Product }) {
     </article>
   );
 }
+

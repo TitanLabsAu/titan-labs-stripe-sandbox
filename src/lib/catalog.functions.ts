@@ -76,12 +76,13 @@ function toProduct(row: any): Product {
     stock: row.stock_quantity === null || row.stock_quantity === undefined ? null : Number(row.stock_quantity),
     comingSoon: Boolean(row.coming_soon),
     catalogueSection: normalizeCatalogueSection(row.catalogue_section),
+    starterKitEnabled: row.starter_kit_enabled !== false,
     links: links.filter((l) => l && l.url),
   };
 }
 
 const PRODUCT_COLUMNS =
-  "slug, name, price, sale_price, promo_label, kit_price, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, stock_quantity, coming_soon, catalogue_section";
+  "slug, name, price, sale_price, promo_label, kit_price, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, stock_quantity, coming_soon, catalogue_section, starter_kit_enabled";
 
 export const listProducts = createServerFn({ method: "GET" }).handler(
   async (): Promise<Product[]> => {
@@ -128,3 +129,4 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
     return out;
   },
 );
+

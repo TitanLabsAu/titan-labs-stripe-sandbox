@@ -69,6 +69,7 @@ export type Draft = {
   sort_order: string;
   stock_quantity: string;
   catalogue_section: CatalogueSection;
+  starter_kit_enabled: boolean;
 };
 
 const emptyDraft: Draft = {
@@ -95,6 +96,7 @@ const emptyDraft: Draft = {
   sort_order: "0",
   stock_quantity: "0",
   catalogue_section: "range",
+  starter_kit_enabled: true,
 };
 
 function safeVariantId(label: string) {
@@ -127,7 +129,7 @@ export function toDraft(p: AdminProduct): Draft {
     id: p.id,
     slug: p.slug,
     name: p.name,
-    price: String(p.price),
+    price: Number(p.price) > 0 ? String(p.price) : "",
     sale_price: p.sale_price == null ? "" : String(p.sale_price),
     promo_label: p.promo_label ?? "",
     kit_price: p.kit_price == null ? "" : String(p.kit_price),
@@ -160,13 +162,14 @@ export function toDraft(p: AdminProduct): Draft {
     sort_order: String(p.sort_order),
     stock_quantity: String(p.stock_quantity ?? 0),
     catalogue_section: normalizeCatalogueSection(p.catalogue_section),
+    starter_kit_enabled: p.starter_kit_enabled !== false,
   };
 }
 
 export function draftToPayload(d: Draft) {
   const num = (v: string) =>
     v.trim() === "" || Number.isNaN(Number(v)) ? null : Number(v);
-  const equipment = d.catalogue_section === "equipment";
+  const equipment = d.catalogue_section !== "range";
   const variants = d.variants
     .map((v) => ({
       id: v.id || safeVariantId(v.label),
@@ -219,6 +222,7 @@ export function draftToPayload(d: Draft) {
         ? variants.reduce((sum, v) => sum + v.stock, 0)
         : Math.max(0, Math.trunc(Number(d.stock_quantity)) || 0),
     catalogue_section: d.catalogue_section,
+    starter_kit_enabled: d.starter_kit_enabled,
   };
 }
 
@@ -326,6 +330,22 @@ export function ProductEditor({
             onChange={(e) => set({ slug: e.target.value })}
           />
         </div>
+        {draft.catalogue_section !== "range" && draft.variants.length === 0 ? (
+          <>
+            <div>
+              <Label htmlFor="single-product-price">Price (AUD)</Label>
+              <Input id="single-product-price" type="number" min={0} step="0.01"
+                value={draft.price} placeholder="Add price when ready"
+                onChange={(e) => set({ price: e.target.value })} />
+            </div>
+            <div>
+              <Label htmlFor="single-product-stock">Stock quantity</Label>
+              <Input id="single-product-stock" type="number" min={0} step="1"
+                value={draft.stock_quantity}
+                onChange={(e) => set({ stock_quantity: e.target.value })} />
+            </div>
+          </>
+        ) : null}
         {showPromo ? (
           <>
             <div>
@@ -358,6 +378,8 @@ export function ProductEditor({
         </div>
         <div>
           <Label htmlFor="catalogue-section">Catalogue section</Label>
+          {draft.catalogue_section !== "equipment" ? <label className="my-3 flex items-center gap-2 text-sm"><input type="checkbox" checked={draft.starter_kit_enabled} onChange={e=>set({starter_kit_enabled:e.target.checked})}/>Offer starter kit with this product</label> : null}
+          <p className="mb-3 text-xs text-muted-foreground">Edit “Range Starter Kit” or “Pen Starter Kit” in Equipment to change kit price, contents, photo, stock or visibility. Disabling a kit hides its offer everywhere.</p>
           <select
             id="catalogue-section"
             value={draft.catalogue_section}
@@ -445,10 +467,10 @@ export function ProductEditor({
       <div className="space-y-3 rounded-xl border border-primary/20 bg-background/45 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <Label>{draft.catalogue_section === "equipment" ? "Sizes, prices and stock" : "Vial sizes, prices and stock"}</Label>
+            <Label>{draft.catalogue_section === "range" ? "Vial sizes, prices and stock" : "Options, prices and stock"}</Label>
             <p className="mt-1 text-xs text-muted-foreground">
-              {draft.catalogue_section === "equipment"
-                ? "Equipment is sold as single items only — no kits. "
+              {draft.catalogue_section !== "range"
+                ? "Pens and Equipment are sold as single items. Starter kits are separate products. "
                 : "Add every vial size you sell, even if there is only one. Leave kit price blank to use the automatic 20% off. "}
               Stock is counted per
               size — under {LOW_STOCK_THRESHOLD} shows a low stock warning, 0
@@ -528,7 +550,7 @@ export function ProductEditor({
                         }
                       />
                     </div>
-                    {draft.catalogue_section !== "equipment" ? (
+                    {draft.catalogue_section === "range" ? (
                     <div>
                       <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
                         10x kit price
@@ -930,7 +952,7 @@ export function AdminProducts() {
                       </span>
                     </>
                   ) : (
-                    formatPrice(Number(p.price))
+                    Number(p.price) > 0 ? formatPrice(Number(p.price)) : "Price not set"
                   )}{" "}
                   · {CATALOGUE_SECTION_LABELS[normalizeCatalogueSection(p.catalogue_section)]}
                   {" "}· {p.active ? "Visible" : "Hidden"}
@@ -1024,3 +1046,4 @@ export function AdminProducts() {
     </div>
   );
 }
+

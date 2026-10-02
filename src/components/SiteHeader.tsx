@@ -1,6 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
+  CalendarDays,
+  PenTool,
   Calculator,
   FlaskConical,
   Home,
@@ -14,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { CartSheet } from "@/components/CartSheet";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
-import { useSiteContent } from "@/lib/useCatalog";
+import { useProducts, useSiteContent } from "@/lib/useCatalog";
 import {
   catalogueName,
   HEADER_TABS,
@@ -43,6 +45,8 @@ export function SiteHeader() {
   });
   const [signedIn, setSignedIn] = useState(false);
   const { isAdmin } = useIsAdmin();
+  const {products} = useProducts();
+  const hasPens = products.some(p=>p.catalogueSection === "pens");
   const { data: content } = useSiteContent();
 
   const layout = headerLayout(content);
@@ -158,6 +162,32 @@ export function SiteHeader() {
               </Link>
             </Button>
           );
+        if (tab === "pens" && hasPens)
+          return (
+            <Button key={tab} asChild variant="outline" size="icon" className="titan-nav-icon">
+              <Link
+                to="/pens"
+                {...navState("/pens")}
+                aria-label="Disposable Pens"
+                title="Disposable Pens"
+              >
+                <PenTool />
+              </Link>
+            </Button>
+          );
+        if (tab === "calendar" && signedIn)
+          return (
+            <Button key={tab} asChild variant="outline" size="icon" className="titan-nav-icon">
+              <Link
+                to="/calendar"
+                {...navState("/calendar")}
+                aria-label="My Calendar"
+                title="My Calendar"
+              >
+                <CalendarDays />
+              </Link>
+            </Button>
+          );
         if (tab === "calculator")
           return navButton(
             tab,
@@ -240,3 +270,4 @@ export function SiteHeader() {
     </header>
   );
 }
+

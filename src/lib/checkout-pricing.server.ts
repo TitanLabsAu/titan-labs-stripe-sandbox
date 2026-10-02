@@ -1,6 +1,13 @@
 import { effectivePack, kitPriceFor } from "@/lib/products";
 import type { ShippingMethodKey } from "@/lib/pricing";
-import { fromCents, quoteOrder, settingsFromRow, type CodeRule, type PricingSettings, type Quote } from "@/lib/order-pricing";
+import {
+  fromCents,
+  quoteOrder,
+  settingsFromRow,
+  type CodeRule,
+  type PricingSettings,
+  type Quote,
+} from "@/lib/order-pricing";
 
 export type CheckoutItemInput = {
   slug: string;
@@ -33,19 +40,30 @@ export type PricedCheckout = {
 };
 
 export function normalizeCode(raw: unknown) {
-  return String(raw ?? "").trim().toUpperCase().replace(/\s+/g, "").slice(0, 32);
+  return String(raw ?? "")
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, "")
+    .slice(0, 32);
 }
 
 /** Validate a code for a specific buyer. Never reveals who owns a code. */
-export function checkCodeRow(row: any, buyerId: string, now = new Date()): { ok: true; referrer: string | null } | { ok: false; error: string } {
+export function checkCodeRow(
+  row: any,
+  buyerId: string,
+  now = new Date(),
+): { ok: true; referrer: string | null } | { ok: false; error: string } {
   if (!row || !row.active) return { ok: false, error: "That code isn't valid." };
-  if (row.expires_at && new Date(row.expires_at).getTime() <= now.getTime()) return { ok: false, error: "That code has expired." };
-  if (Number(row.times_used) >= Number(row.max_uses)) return { ok: false, error: "That code has reached its use limit." };
+  if (row.expires_at && new Date(row.expires_at).getTime() <= now.getTime())
+    return { ok: false, error: "That code has expired." };
+  if (Number(row.times_used) >= Number(row.max_uses))
+    return { ok: false, error: "That code has reached its use limit." };
   if (row.code_kind === "member") {
     if (row.user_id !== buyerId) return { ok: false, error: "That code isn't valid." };
     return { ok: true, referrer: null };
   }
-  if (row.user_id && row.user_id === buyerId) return { ok: false, error: "You can't use your own referral code." };
+  if (row.user_id && row.user_id === buyerId)
+    return { ok: false, error: "You can't use your own referral code." };
   return { ok: true, referrer: row.user_id ?? null };
 }
 
@@ -67,7 +85,9 @@ export async function priceCheckout(
   const [{ data: products, error: productError }, { data: settingsRow }] = await Promise.all([
     admin
       .from("products")
-      .select("slug, name, price, sale_price, kit_price, product_variants, catalogue_section")
+      .select(
+        "slug, name, price, sale_price, kit_price, product_variants, catalogue_section, stock_quantity, coming_soon",
+      )
       .in("slug", slugs)
       .eq("active", true),
     admin.from("referral_settings").select("*").eq("id", 1).maybeSingle(),
@@ -78,19 +98,48 @@ export async function priceCheckout(
   const bySlug = new Map((products ?? []).map((p: any) => [p.slug, p]));
   const lines: PricedLine[] = [];
   const priceLines: { unitCents: number; baseCents: number; quantity: number }[] = [];
+  const requestedStock = new Map<string, number>();
   for (const item of items) {
     const product: any = bySlug.get(item.slug);
     if (!product) throw new Error("One of the items is no longer available.");
     const variants = Array.isArray(product.product_variants) ? product.product_variants : [];
-    const variant = variants.find((v: any) => String(v?.id) === String(item.variantId ?? "")) ?? null;
+    const variant =
+      variants.find((v: any) => String(v?.id) === String(item.variantId ?? "")) ?? null;
+    if (variants.length && !variant) throw new Error("Choose a valid size for this product.");
+    if (product.coming_soon || variant?.comingSoon)
+      throw new Error("One of the items is coming soon and cannot be ordered yet.");
+    if (
+      !Number.isFinite(item.quantity) ||
+      !Number.isInteger(item.quantity) ||
+      item.quantity < 1 ||
+      item.quantity > 99
+    )
+      throw new Error("Invalid item quantity.");
     const listPrice = Number(product.price);
     const sale = product.sale_price == null ? null : Number(product.sale_price);
     const basePrice = sale != null && sale > 0 && sale < listPrice ? sale : listPrice;
     const singlePrice = variant ? Number(variant.price) : basePrice;
     const pack = effectivePack(product, item.pack);
-    const unitPrice = pack === "kit" ? kitPriceFor(singlePrice, variant?.kitPrice ?? product.kit_price) : singlePrice;
+    const unitPrice =
+      pack === "kit"
+        ? kitPriceFor(singlePrice, variant?.kitPrice ?? product.kit_price)
+        : singlePrice;
     const quantity = Math.min(99, Math.max(1, Math.floor(item.quantity)));
-    const label = variant?.label ? String(variant.label) : "Single vial";
+    if (!Number.isFinite(unitPrice) || unitPrice <= 0)
+      throw new Error("One of the product prices is unavailable.");
+    const stockKey = `${product.slug}::${variant?.id ?? "base"}`;
+    const units = (requestedStock.get(stockKey) ?? 0) + quantity * (pack === "kit" ? 10 : 1);
+    requestedStock.set(stockKey, units);
+    const stock = variant ? variant.stock : product.stock_quantity;
+    if (stock != null && units > Number(stock))
+      throw new Error("There is not enough stock for one of the items. Please update your cart.");
+    const label = variant?.label
+      ? String(variant.label)
+      : product.catalogue_section === "pens"
+        ? "Pre-filled Pen Only"
+        : product.catalogue_section === "equipment"
+          ? "Single item"
+          : "Single vial";
     lines.push({
       product_slug: product.slug,
       product_name: product.name,
@@ -109,13 +158,18 @@ export async function priceCheckout(
   let codeError: string | null = null;
   const wanted = normalizeCode(input.code);
   if (wanted) {
-    const { data: row } = await admin.from("discount_codes").select("*").eq("code", wanted).maybeSingle();
+    const { data: row } = await admin
+      .from("discount_codes")
+      .select("*")
+      .eq("code", wanted)
+      .maybeSingle();
     const check = checkCodeRow(row, userId);
     if (!check.ok) codeError = check.error;
     else {
       code = {
         id: row.id,
-        referrerUserId: settings.programEnabled && row.code_kind === "referral" ? check.referrer : null,
+        referrerUserId:
+          settings.programEnabled && row.code_kind === "referral" ? check.referrer : null,
         rule: {
           id: row.id,
           code: row.code,
@@ -156,11 +210,14 @@ export async function priceCheckout(
 /** Human readable discount note stored on the order. */
 export function pricingNote(q: Quote) {
   const parts: string[] = [];
-  if (q.multibuyCents) parts.push(`Titan Stack ${q.multibuyPercent}% (−$${fromCents(q.multibuyCents).toFixed(2)})`);
-  if (q.cryptoCents) parts.push(`crypto ${q.cryptoPercent}% (−$${fromCents(q.cryptoCents).toFixed(2)})`);
+  if (q.multibuyCents)
+    parts.push(`Titan Stack ${q.multibuyPercent}% (−$${fromCents(q.multibuyCents).toFixed(2)})`);
+  if (q.cryptoCents)
+    parts.push(`crypto ${q.cryptoPercent}% (−$${fromCents(q.cryptoCents).toFixed(2)})`);
   if (q.capApplied) parts.push(`capped at ${q.capPercent}%`);
   if (q.codeCents && q.code) parts.push(`code ${q.code} (−$${fromCents(q.codeCents).toFixed(2)})`);
-  if (q.creditCents) parts.push(`store credit ${q.creditUnits}x (−$${fromCents(q.creditCents).toFixed(2)})`);
+  if (q.creditCents)
+    parts.push(`store credit ${q.creditUnits}x (−$${fromCents(q.creditCents).toFixed(2)})`);
   return parts.length ? `Discounts: ${parts.join(", ")}` : "";
 }
 

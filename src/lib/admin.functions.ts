@@ -375,10 +375,11 @@ export type AdminProduct = {
   sort_order: number;
   stock_quantity: number;
   catalogue_section?: CatalogueSection;
+  starter_kit_enabled?: boolean;
 };
 
 const PRODUCT_COLS =
-  "id, slug, name, price, sale_price, promo_label, kit_price, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, active, coming_soon, sort_order, stock_quantity, catalogue_section";
+  "id, slug, name, price, sale_price, promo_label, kit_price, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, active, coming_soon, sort_order, stock_quantity, catalogue_section, starter_kit_enabled";
 
 export const adminListProducts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -455,6 +456,7 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
       sort_order: Number(data.sort_order ?? 0),
       stock_quantity: totalStock,
       catalogue_section: parseCatalogueSection(data.catalogue_section),
+      starter_kit_enabled: data.starter_kit_enabled ?? true,
     };
     if (!row.image_url.trim() && !data.id) throw new Error("A product photo is required");
     if (data.id) {
@@ -647,4 +649,5 @@ export const adminDeleteDiscountCode = createServerFn({ method: "POST" })
     if (error) throw error;
     return { ok: true };
   });
+
 

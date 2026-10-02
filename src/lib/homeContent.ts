@@ -248,6 +248,8 @@ export const HEADER_TABS: PageSection[] = [
   { key: "home", label: "Home" },
   { key: "range", label: "Catalogue" },
   { key: "research", label: "Research Lab" },
+  { key: "pens", label: "Disposable Pens" },
+  { key: "calendar", label: "My Calendar" },
   { key: "calculator", label: "Calculator" },
   { key: "admin", label: "Admin" },
   { key: "account", label: "My profile" },
@@ -433,4 +435,5 @@ export function homeValue(content: Record<string, string> | undefined, key: stri
 export function catalogueName(content: Record<string, string> | undefined) {
   return homeValue(content, "home_range_title");
 }
+
 

@@ -1,5 +1,7 @@
 import { useId, useState } from "react";
-import { AlertTriangle, RotateCcw } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { CALENDAR_PREFILL_KEY } from "@/lib/member-calendar";
+import { CalendarPlus, AlertTriangle, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -394,6 +396,29 @@ export function ConcentrationCalculator() {
       </section>
 
       <section className="space-y-4 lg:col-span-7">
+        {result.ok && !result.exceedsVial && !result.exceedsSyringe ? (
+          <Button asChild variant="outline" className="mb-5 w-full">
+            <Link
+              to="/calendar"
+              onClick={() => {
+                try {
+                  sessionStorage.setItem(
+                    CALENDAR_PREFILL_KEY,
+                    JSON.stringify({
+                      product_name: "Calculator entry",
+                      dose_label: `${amount} ${amountUnit.toUpperCase()} · ${round(result.units, 1)} U-100 scale units · ${round(result.volumeMl, 3)} mL`,
+                    }),
+                  );
+                } catch {
+                  /* Storage may be disabled. */
+                }
+              }}
+            >
+              <CalendarPlus className="h-4 w-4" />
+              Add result to My Calendar
+            </Link>
+          </Button>
+        ) : null}
         {result.ok ? (
           <>
             <div className="rounded-xl border border-border bg-card p-5 sm:p-6">
@@ -514,3 +539,4 @@ function ResultCard({
     </div>
   );
 }
+

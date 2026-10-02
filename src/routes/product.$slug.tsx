@@ -1,3 +1,4 @@
+import { StarterKitOffer } from "@/components/StarterKitOffer";
 import { TitanPageHeading } from "@/components/TitanPageHeading";
 import { FlaskConical } from "lucide-react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
@@ -240,6 +241,7 @@ function ProductPage() {
                 </p>
               )}
 
+              <StarterKitOffer product={product}/>
               <label className="mt-6 block text-xs font-bold uppercase tracking-[0.2em] text-accent">
                 Quantity
               </label>
@@ -409,3 +411,4 @@ function ProductPage() {
     </div>
   );
 }
+

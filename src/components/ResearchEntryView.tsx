@@ -1,3 +1,5 @@
+import { useProducts } from "@/lib/useCatalog";
+import { researchProducts } from "@/lib/research-products";
 import { Link } from "@tanstack/react-router";
 import { AlertTriangle, ArrowLeft, ArrowRight, BookOpen, ExternalLink, Info, Layers3, ListChecks } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -10,6 +12,8 @@ const compositionHeading = /composition|identifier/i;
 const crossRegHeading = /cross[- ]?reference|regulatory/i;
 
 export function ResearchEntryView({ entry, entries = [], preview = false }: { entry: ResearchEntry; entries?: ResearchEntry[]; preview?: boolean }) {
+  const {products} = useProducts();
+  const linkedProducts = researchProducts(entry,products);
   const pubchem = pubchemUrl(entry.pubchem_cid);
   const identifiers = [["Molecular formula", entry.molecular_formula], ["CAS number", entry.cas_number], ["PubChem CID", entry.pubchem_cid]].filter((item): item is [string, string] => Boolean(item[1]));
   const composition = entry.content.filter((section) => compositionHeading.test(section.heading));
@@ -24,6 +28,7 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
         <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Research Lab
       </Link>
 
+      {linkedProducts.length?<div className="mt-4 flex flex-wrap gap-2">{linkedProducts.map(p=><Link key={p.slug} to="/product/$slug" params={{slug:p.slug}} className="rounded-lg border border-primary/30 px-4 py-3 text-xs font-bold text-primary">Product Info · {p.name}</Link>)}</div>:null}
       <header className="mt-4 border-b border-border pb-7">
         <p className="technical-label text-accent">{entry.category || "Research"}</p>
         <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">

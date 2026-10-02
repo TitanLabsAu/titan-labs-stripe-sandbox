@@ -48,6 +48,8 @@ export type Product = {
   comingSoon?: boolean;
   /** Storefront section: range, pens or equipment. */
   catalogueSection?: CatalogueSection;
+  /** Disable the universal starter-kit offer for this product. */
+  starterKitEnabled?: boolean;
 };
 
 /** True when the whole product, or the chosen vial size, is coming soon. */
@@ -64,9 +66,9 @@ export function allComingSoon(product: Product) {
   return vs.length > 0 && vs.every((v) => v.comingSoon);
 }
 
-/** Central rule: Equipment is sold individually — no 10x kits, no kit pricing. */
+/** Only Range supports 10x kits; Pens and Equipment are single items. */
 export function allowsKit(product: { catalogueSection?: unknown; catalogue_section?: unknown }) {
-  return normalizeCatalogueSection(product.catalogueSection ?? product.catalogue_section) !== "equipment";
+  return normalizeCatalogueSection(product.catalogueSection ?? product.catalogue_section) === "range";
 }
 
 /** Coerce any requested pack to one the product actually supports. */
@@ -82,7 +84,7 @@ export function sizeLabelFor(product: { catalogueSection?: unknown }) {
   return allowsKit(product) ? "Vial size" : "Size";
 }
 export function singleLabelFor(product: { catalogueSection?: unknown }) {
-  return allowsKit(product) ? "Single vial" : "Single item";
+  return normalizeCatalogueSection(product.catalogueSection) === "pens" ? "Pre-filled Pen Only" : allowsKit(product) ? "Single vial" : "Single item";
 }
 
 export const LOW_STOCK_THRESHOLD = 7;
@@ -221,3 +223,4 @@ export function getReconFor(product: Product, variantId?: string | null) {
     notes: (variant?.reconNotes || product.reconNotes || "").trim(),
   };
 }
+

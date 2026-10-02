@@ -37,6 +37,7 @@ export function SiteFooter() {
                  if (tab === "calculator") return <Link key={tab} to="/calculator">{label("header_nav_calculator")}</Link>;
                  return <Link key={tab} to="/auth">{label("header_nav_login")}</Link>;
                })}
+               <Link to="/pen-guide">Pen Guides</Link>
                <Link to="/reviews">Reviews</Link>
                <Link to="/referrals">Referral Program</Link>
             </div>
@@ -65,4 +66,5 @@ export function SiteFooter() {
     </footer>
   );
 }
+
 

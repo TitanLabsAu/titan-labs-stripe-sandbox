@@ -14,14 +14,18 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as PenGuideRouteImport } from './routes/pen-guide'
+import { Route as PensRouteImport } from './routes/pens'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RangeRouteImport } from './routes/range'
 import { Route as ReferralsRouteImport } from './routes/referrals'
+import { Route as ResearchLabRouteImport } from './routes/research-lab'
 import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as StacksRouteImport } from './routes/stacks'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticated/calendar'
 import { Route as AuthenticatedOrderHistoryRouteImport } from './routes/_authenticated/order-history'
 import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
 import { Route as ApiAdminGenerateImageRouteImport } from './routes/api/admin-generate-image'
@@ -62,6 +66,16 @@ const ContactRoute = ContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PenGuideRoute = PenGuideRouteImport.update({
+  id: '/pen-guide',
+  path: '/pen-guide',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PensRoute = PensRouteImport.update({
+  id: '/pens',
+  path: '/pens',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
@@ -75,6 +89,11 @@ const RangeRoute = RangeRouteImport.update({
 const ReferralsRoute = ReferralsRouteImport.update({
   id: '/referrals',
   path: '/referrals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResearchLabRoute = ResearchLabRouteImport.update({
+  id: '/research-lab',
+  path: '/research-lab',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReviewsRoute = ReviewsRouteImport.update({
@@ -100,6 +119,11 @@ const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCalendarRoute = AuthenticatedCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedOrderHistoryRoute =
@@ -188,14 +212,18 @@ export interface FileRoutesByFullPath {
   '/calculator': typeof CalculatorRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/pen-guide': typeof PenGuideRoute
+  '/pens': typeof PensRoute
   '/privacy': typeof PrivacyRoute
   '/range': typeof RangeRoute
   '/referrals': typeof ReferralsRoute
+  '/research-lab': typeof ResearchLabRoute
   '/reviews': typeof ReviewsRoute
   '/stacks': typeof StacksRoute
   '/terms': typeof TermsRoute
   '/account': typeof AuthenticatedAccountRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/calendar': typeof AuthenticatedCalendarRoute
   '/order-history': typeof AuthenticatedOrderHistoryRoute
   '/orders': typeof AuthenticatedOrdersRoute
   '/api/admin-generate-image': typeof ApiAdminGenerateImageRoute
@@ -217,14 +245,18 @@ export interface FileRoutesByTo {
   '/calculator': typeof CalculatorRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/pen-guide': typeof PenGuideRoute
+  '/pens': typeof PensRoute
   '/privacy': typeof PrivacyRoute
   '/range': typeof RangeRoute
   '/referrals': typeof ReferralsRoute
+  '/research-lab': typeof ResearchLabRoute
   '/reviews': typeof ReviewsRoute
   '/stacks': typeof StacksRoute
   '/terms': typeof TermsRoute
   '/account': typeof AuthenticatedAccountRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/calendar': typeof AuthenticatedCalendarRoute
   '/order-history': typeof AuthenticatedOrderHistoryRoute
   '/orders': typeof AuthenticatedOrdersRoute
   '/api/admin-generate-image': typeof ApiAdminGenerateImageRoute
@@ -248,14 +280,18 @@ export interface FileRoutesById {
   '/calculator': typeof CalculatorRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/pen-guide': typeof PenGuideRoute
+  '/pens': typeof PensRoute
   '/privacy': typeof PrivacyRoute
   '/range': typeof RangeRoute
   '/referrals': typeof ReferralsRoute
+  '/research-lab': typeof ResearchLabRoute
   '/reviews': typeof ReviewsRoute
   '/stacks': typeof StacksRoute
   '/terms': typeof TermsRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/calendar': typeof AuthenticatedCalendarRoute
   '/_authenticated/order-history': typeof AuthenticatedOrderHistoryRoute
   '/_authenticated/orders': typeof AuthenticatedOrdersRoute
   '/api/admin-generate-image': typeof ApiAdminGenerateImageRoute
@@ -279,14 +315,18 @@ export interface FileRouteTypes {
     | '/calculator'
     | '/checkout'
     | '/contact'
+    | '/pen-guide'
+    | '/pens'
     | '/privacy'
     | '/range'
     | '/referrals'
+    | '/research-lab'
     | '/reviews'
     | '/stacks'
     | '/terms'
     | '/account'
     | '/admin'
+    | '/calendar'
     | '/order-history'
     | '/orders'
     | '/api/admin-generate-image'
@@ -308,14 +348,18 @@ export interface FileRouteTypes {
     | '/calculator'
     | '/checkout'
     | '/contact'
+    | '/pen-guide'
+    | '/pens'
     | '/privacy'
     | '/range'
     | '/referrals'
+    | '/research-lab'
     | '/reviews'
     | '/stacks'
     | '/terms'
     | '/account'
     | '/admin'
+    | '/calendar'
     | '/order-history'
     | '/orders'
     | '/api/admin-generate-image'
@@ -338,14 +382,18 @@ export interface FileRouteTypes {
     | '/calculator'
     | '/checkout'
     | '/contact'
+    | '/pen-guide'
+    | '/pens'
     | '/privacy'
     | '/range'
     | '/referrals'
+    | '/research-lab'
     | '/reviews'
     | '/stacks'
     | '/terms'
     | '/_authenticated/account'
     | '/_authenticated/admin'
+    | '/_authenticated/calendar'
     | '/_authenticated/order-history'
     | '/_authenticated/orders'
     | '/api/admin-generate-image'
@@ -369,9 +417,12 @@ export interface RootRouteChildren {
   CalculatorRoute: typeof CalculatorRoute
   CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
+  PenGuideRoute: typeof PenGuideRoute
+  PensRoute: typeof PensRoute
   PrivacyRoute: typeof PrivacyRoute
   RangeRoute: typeof RangeRoute
   ReferralsRoute: typeof ReferralsRoute
+  ResearchLabRoute: typeof ResearchLabRoute
   ReviewsRoute: typeof ReviewsRoute
   StacksRoute: typeof StacksRoute
   TermsRoute: typeof TermsRoute
@@ -425,6 +476,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pen-guide': {
+      id: '/pen-guide'
+      path: '/pen-guide'
+      fullPath: '/pen-guide'
+      preLoaderRoute: typeof PenGuideRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pens': {
+      id: '/pens'
+      path: '/pens'
+      fullPath: '/pens'
+      preLoaderRoute: typeof PensRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacy': {
       id: '/privacy'
       path: '/privacy'
@@ -444,6 +509,13 @@ declare module '@tanstack/react-router' {
       path: '/referrals'
       fullPath: '/referrals'
       preLoaderRoute: typeof ReferralsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/research-lab': {
+      id: '/research-lab'
+      path: '/research-lab'
+      fullPath: '/research-lab'
+      preLoaderRoute: typeof ResearchLabRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reviews': {
@@ -479,6 +551,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/calendar': {
+      id: '/_authenticated/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof AuthenticatedCalendarRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/order-history': {
@@ -592,6 +671,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedCalendarRoute: typeof AuthenticatedCalendarRoute
   AuthenticatedOrderHistoryRoute: typeof AuthenticatedOrderHistoryRoute
   AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRoute
   AuthenticatedResearchPreviewSlugRoute: typeof AuthenticatedResearchPreviewSlugRoute
@@ -601,6 +681,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAccountRoute: AuthenticatedAccountRoute,
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedCalendarRoute: AuthenticatedCalendarRoute,
   AuthenticatedOrderHistoryRoute: AuthenticatedOrderHistoryRoute,
   AuthenticatedOrdersRoute: AuthenticatedOrdersRoute,
   AuthenticatedResearchPreviewSlugRoute: AuthenticatedResearchPreviewSlugRoute,
@@ -617,9 +698,12 @@ const rootRouteChildren: RootRouteChildren = {
   CalculatorRoute: CalculatorRoute,
   CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
+  PenGuideRoute: PenGuideRoute,
+  PensRoute: PensRoute,
   PrivacyRoute: PrivacyRoute,
   RangeRoute: RangeRoute,
   ReferralsRoute: ReferralsRoute,
+  ResearchLabRoute: ResearchLabRoute,
   ReviewsRoute: ReviewsRoute,
   StacksRoute: StacksRoute,
   TermsRoute: TermsRoute,
