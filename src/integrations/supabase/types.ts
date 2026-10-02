@@ -1099,6 +1099,7 @@ export type Database = {
         Args: { _user_id: string }
         Returns: number
       }
+      store_credit_summary: { Args: { _user_id: string }; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "user"
