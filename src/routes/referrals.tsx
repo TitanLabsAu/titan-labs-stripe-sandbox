@@ -26,7 +26,7 @@ function ReferralsPage() {
   const steps = [
     ["Get your code", "Members can request a personal referral code. You'll see it in My Profile once it's linked to your account."],
     ["Share it", "Friends enter your code at checkout. Some codes also give them a discount — shown before they pay."],
-    ["Earn credit", `You earn ${unit} store credit for every fully paid order placed with your code. Cancelled, failed or refunded orders don't count.`],
+    ["Earn credit", `You earn ${unit} store credit for every fully paid order placed with your code — repeat customers and repeat orders all count. Cancelled, failed or refunded orders don't count.`],
     ["Spend it", `Apply up to ${s.maxCreditUnits} credits (${formatPrice((s.creditUnitCents * s.maxCreditUnits) / 100)}) per order at checkout. Credit has no cash value.`],
   ];
   return (

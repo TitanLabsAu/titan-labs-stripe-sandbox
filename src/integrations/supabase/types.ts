@@ -1078,6 +1078,7 @@ export type Database = {
         Args: { _ack_id: string; _order_id: string }
         Returns: boolean
       }
+      referral_paid_order_count: { Args: { _user_id: string }; Returns: number }
       release_store_credit: {
         Args: { _reservation_id: string }
         Returns: boolean
