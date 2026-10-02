@@ -70,7 +70,27 @@ export async function sendPendingOrderConfirmations(orderId?: string) {
           },
         );
         outcome = result.sent ? "sent" : "recipient_suppressed";
-        if (result.sent) sent++;
+        if (result.sent) {
+          sent++;
+          const { sendAdminOrderCopy } = await import("@/lib/order-admin-copy.server");
+          await sendAdminOrderCopy(
+            "order-confirmation",
+            {
+              orderNumber: `TL-${order.order_number}`,
+              customerName: order.contact_name || "there",
+              total: money(order.total),
+              paymentConfirmed: Boolean(order.payment_confirmed),
+              shippingMethod: /Shipping: Standard/.test(order.notes ?? "")
+                ? "Standard tracked"
+                : "Australia Post Express",
+              items: order.order_items.map(
+                (i) =>
+                  `${i.quantity} × ${i.product_name}${i.variant_label ? ` (${i.variant_label})` : ""} — ${money(i.unit_price * i.quantity)}`,
+              ),
+            },
+            `order-confirmation-${order.id}-none`,
+          );
+        }
       }
       const { error: updateError } = await db
         .from("order_confirmation_queue")
