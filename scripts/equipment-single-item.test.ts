@@ -70,7 +70,9 @@ describe("cart Equipment upsell", () => {
     const one: CartItem[] = [
       { key: "bac-water::3ml::single", slug: "bac-water", variantId: "3ml", pack: "single", quantity: 1 },
     ];
-    const two: CartItem[] = [{ ...one[0], quantity: 2 }];
+    const two: CartItem[] = [
+      { key: "bac-water::3ml::single", slug: "bac-water", variantId: "3ml", pack: "single", quantity: 2 },
+    ];
     expect(cartVariantQuantity(one, "bac-water", "3ml")).toBe(1);
     expect(equipmentUpsellState(stocked, "3ml", one).canAdd).toBe(true);
     expect(equipmentUpsellState(stocked, "3ml", two).canAdd).toBe(false);

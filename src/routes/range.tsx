@@ -43,7 +43,9 @@ import { CatalogueOrderSummary } from "@/components/CatalogueOrderSummary";
 
 export const Route = createFileRoute("/range")({
   validateSearch: (search: Record<string, unknown>) => ({
-    section: isCatalogueSection(search.section) ? search.section : undefined,
+    ...(isCatalogueSection(search["section"])
+      ? { section: search["section"] }
+      : {}),
   }),
   head: () => ({
     meta: [
