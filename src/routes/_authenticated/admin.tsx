@@ -12,6 +12,7 @@ import { AdminEdits } from "@/components/AdminEdits";
 import { AdminFinance } from "@/components/AdminFinance";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { AdminReviews } from "@/components/AdminReviews";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatPrice } from "@/lib/products";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
@@ -696,6 +697,7 @@ function AdminPage() {
             <TabsTrigger value="products">Products</TabsTrigger>
             <TabsTrigger value="finance">Sales &amp; profit</TabsTrigger>
             <TabsTrigger value="discounts">Discounts</TabsTrigger>
+            <TabsTrigger value="reviews">Reviews</TabsTrigger>
             <TabsTrigger value="edits">Website editor</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
           </TabsList>
@@ -714,6 +716,9 @@ function AdminPage() {
           </TabsContent>
           <TabsContent value="discounts" className="mt-6">
             <AdminDiscounts />
+          </TabsContent>
+          <TabsContent value="reviews" className="mt-6">
+            <AdminReviews />
           </TabsContent>
           <TabsContent value="edits" className="mt-6">
             <AdminEdits />

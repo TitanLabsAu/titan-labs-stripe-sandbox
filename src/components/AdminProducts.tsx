@@ -9,6 +9,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { CATEGORIES } from "@/lib/categories";
 import {
+  CATALOGUE_SECTIONS,
+  CATALOGUE_SECTION_LABELS,
+  normalizeCatalogueSection,
+  type CatalogueSection,
+} from "@/lib/catalogue-sections";
+import { ProductImageGenerator } from "@/components/ProductImageGenerator";
+import {
   formatPrice,
   kitPriceFor,
   LOW_STOCK_THRESHOLD,
@@ -61,6 +68,7 @@ export type Draft = {
   active: boolean;
   sort_order: string;
   stock_quantity: string;
+  catalogue_section: CatalogueSection;
 };
 
 const emptyDraft: Draft = {
@@ -86,6 +94,7 @@ const emptyDraft: Draft = {
   active: true,
   sort_order: "0",
   stock_quantity: "0",
+  catalogue_section: "range",
 };
 
 function safeVariantId(label: string) {
@@ -150,6 +159,7 @@ export function toDraft(p: AdminProduct): Draft {
     active: p.active,
     sort_order: String(p.sort_order),
     stock_quantity: String(p.stock_quantity ?? 0),
+    catalogue_section: normalizeCatalogueSection(p.catalogue_section),
   };
 }
 
@@ -207,6 +217,7 @@ export function draftToPayload(d: Draft) {
       variants.length > 0
         ? variants.reduce((sum, v) => sum + v.stock, 0)
         : Math.max(0, Math.trunc(Number(d.stock_quantity)) || 0),
+    catalogue_section: d.catalogue_section,
   };
 }
 
@@ -279,7 +290,7 @@ export function ProductEditor({
         <div className="flex gap-3">
           <Button
             className="font-bold uppercase"
-            disabled={saving || uploading || !draft.name.trim()}
+            disabled={saving || uploading || !draft.name.trim() || !draft.image_url.trim()}
             onClick={onSave}
           >
             {uploading ? "Uploading" : "Save product"}
@@ -343,26 +354,57 @@ export function ProductEditor({
           />
         </div>
         <div>
-          <Label>Product picture</Label>
-          <Input
-            type="file"
-            accept="image/*"
-            disabled={uploading}
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) void uploadImage(file);
-            }}
-          />
+          <Label htmlFor="catalogue-section">Catalogue section</Label>
+          <select
+            id="catalogue-section"
+            value={draft.catalogue_section}
+            onChange={(e) => set({ catalogue_section: normalizeCatalogueSection(e.target.value) })}
+            className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"
+          >
+            {CATALOGUE_SECTIONS.map((s) => (
+              <option key={s} value={s}>
+                {CATALOGUE_SECTION_LABELS[s]}
+              </option>
+            ))}
+          </select>
         </div>
-        {draft.image_url ? (
-          <div className="sm:col-span-2">
+        <div className="space-y-3 sm:col-span-2 rounded-lg border border-border p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <Label>Product photo (required)</Label>
+            {!draft.image_url ? (
+              <span className="text-xs font-bold uppercase tracking-[0.14em] text-destructive">
+                No photo yet
+              </span>
+            ) : null}
+          </div>
+          {draft.image_url ? (
             <img
               src={draft.image_url}
               alt={draft.alt || draft.name || "Product preview"}
               className="h-28 w-28 rounded-lg border border-border object-cover"
             />
+          ) : null}
+          <div>
+            <Label className="text-xs text-muted-foreground">Upload a photo</Label>
+            <Input
+              type="file"
+              accept="image/*"
+              disabled={uploading}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) void uploadImage(file);
+              }}
+            />
           </div>
-        ) : null}
+          <ProductImageGenerator
+            productName={draft.name}
+            disabled={uploading}
+            onUse={async (blob) => {
+              const file = new File([blob], "generated.png", { type: "image/png" });
+              await uploadImage(file);
+            }}
+          />
+        </div>
         <div className="sm:col-span-2">
           <Label>Image description (for accessibility)</Label>
           <Input
@@ -659,7 +701,7 @@ export function ProductEditor({
       <div className="flex gap-3">
         <Button
           className="font-bold uppercase"
-          disabled={saving || uploading || !draft.name.trim()}
+          disabled={saving || uploading || !draft.name.trim() || !draft.image_url.trim()}
           onClick={onSave}
         >
           {uploading ? (
@@ -688,6 +730,7 @@ export function AdminProducts() {
   const queryClient = useQueryClient();
   const [draft, setDraft] = useState<Draft | null>(null);
   const [category, setCategory] = useState("All");
+  const [section, setSection] = useState<"all" | CatalogueSection>("all");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("name-asc");
 
@@ -744,9 +787,12 @@ export function AdminProducts() {
     );
   }
 
+  const missingPhotos = (data ?? []).filter((p) => !p.image_url?.trim()).length;
   const term = search.trim().toLowerCase();
   const visibleProducts = (data ?? [])
     .filter((product) => {
+      if (section !== "all" && normalizeCatalogueSection(product.catalogue_section) !== section)
+        return false;
       const inCategory =
         category === "All" || (product.categories ?? []).includes(category);
       if (!inCategory) return false;
@@ -780,6 +826,26 @@ export function AdminProducts() {
         >
           Add product
         </Button>
+      </div>
+
+      {missingPhotos > 0 ? (
+        <p className="rounded-lg border border-destructive bg-destructive/10 p-3 text-sm font-bold text-destructive">
+          {missingPhotos} product{missingPhotos === 1 ? " is" : "s are"} missing a photo — edit to upload or generate one.
+        </p>
+      ) : null}
+
+      <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by catalogue section">
+        {(["all", ...CATALOGUE_SECTIONS] as const).map((item) => (
+          <Button
+            key={item}
+            type="button"
+            variant={section === item ? "default" : "outline"}
+            className="px-5 text-xs font-bold uppercase tracking-[0.15em]"
+            onClick={() => setSection(item)}
+          >
+            {item === "all" ? "All sections" : CATALOGUE_SECTION_LABELS[item]}
+          </Button>
+        ))}
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -837,7 +903,11 @@ export function AdminProducts() {
                   className="h-16 w-16 rounded object-cover"
                   loading="lazy"
                 />
-              ) : null}
+              ) : (
+                <span className="flex h-16 w-16 items-center justify-center rounded border border-destructive bg-destructive/10 text-center text-[10px] font-bold uppercase text-destructive">
+                  No photo
+                </span>
+              )}
               <div className="text-sm text-muted-foreground">
                 <p className="text-base font-extrabold uppercase text-foreground">
                   {p.name}
@@ -855,7 +925,8 @@ export function AdminProducts() {
                   ) : (
                     formatPrice(Number(p.price))
                   )}{" "}
-                  · {p.active ? "Visible" : "Hidden"}
+                  · {CATALOGUE_SECTION_LABELS[normalizeCatalogueSection(p.catalogue_section)]}
+                  {" "}· {p.active ? "Visible" : "Hidden"}
                   {p.coming_soon ? " · Coming soon" : ""}
                   {p.promo_label ? ` · ${p.promo_label}` : ""}
                 </p>

@@ -37,6 +37,7 @@ export function SiteFooter() {
                  if (tab === "calculator") return <Link key={tab} to="/calculator">{label("header_nav_calculator")}</Link>;
                  return <Link key={tab} to="/auth">{label("header_nav_login")}</Link>;
                })}
+               <Link to="/reviews">Reviews</Link>
             </div>
           </div>
           <div className="space-y-3">

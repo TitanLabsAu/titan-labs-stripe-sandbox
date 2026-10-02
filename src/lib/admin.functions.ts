@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { parseCatalogueSection, type CatalogueSection } from "@/lib/catalogue-sections";
 import { orderReference } from "@/lib/order-reference";
 
 export type AdminOrderItem = {
@@ -372,10 +373,11 @@ export type AdminProduct = {
   coming_soon?: boolean;
   sort_order: number;
   stock_quantity: number;
+  catalogue_section?: CatalogueSection;
 };
 
 const PRODUCT_COLS =
-  "id, slug, name, price, sale_price, promo_label, kit_price, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, active, coming_soon, sort_order, stock_quantity";
+  "id, slug, name, price, sale_price, promo_label, kit_price, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, active, coming_soon, sort_order, stock_quantity, catalogue_section";
 
 export const adminListProducts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -448,7 +450,9 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
       active: data.active ?? true,
       sort_order: Number(data.sort_order ?? 0),
       stock_quantity: totalStock,
+      catalogue_section: parseCatalogueSection(data.catalogue_section),
     };
+    if (!row.image_url.trim() && !data.id) throw new Error("A product photo is required");
     if (data.id) {
       const { error } = await context.supabase.from("products").update(row).eq("id", data.id);
       if (error) throw error;

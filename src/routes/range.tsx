@@ -31,6 +31,12 @@ import {
 } from "@/lib/homeContent";
 import { productBasePrice } from "@/lib/products";
 import { cn } from "@/lib/utils";
+import {
+  CATALOGUE_SECTIONS,
+  CATALOGUE_SECTION_LABELS,
+  filterBySection,
+  type CatalogueSection,
+} from "@/lib/catalogue-sections";
 import { CatalogueOrderSummary } from "@/components/CatalogueOrderSummary";
 
 export const Route = createFileRoute("/range")({
@@ -60,6 +66,7 @@ function RangePage() {
   const { data: content } = useSiteContent();
   const [mounted, setMounted] = useState(false);
   const [category, setCategory] = useState<string>("All");
+  const [section, setSection] = useState<CatalogueSection>("range");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("name-asc");
   const pictures = pageImageSlots(content, RANGE_IMAGE_SLOTS);
@@ -79,7 +86,8 @@ function RangePage() {
   const term = mounted ? search.trim().toLowerCase() : "";
   const activeCategory = mounted ? category : "All";
   const activeSort = mounted ? sort : "name-asc";
-  const matched = products.filter((p) => {
+  const activeSection: CatalogueSection = mounted ? section : "range";
+  const matched = filterBySection(products, activeSection).filter((p) => {
     const inCategory =
       activeCategory === "All" || (p.categories ?? []).includes(activeCategory);
     if (!inCategory) return false;
@@ -175,6 +183,25 @@ function RangePage() {
           if (section === "products")
             return (
               <section key={section} className="border-t border-border py-7">
+                <div role="tablist" aria-label="Catalogue sections" className="mb-5 grid grid-cols-3 gap-2 sm:max-w-xl">
+                  {CATALOGUE_SECTIONS.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      role="tab"
+                      aria-selected={activeSection === s}
+                      onClick={() => setSection(s)}
+                      className={cn(
+                        "h-12 rounded-xl border font-display text-sm font-black uppercase tracking-[0.14em] transition-colors",
+                        activeSection === s
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-input bg-card text-foreground hover:bg-muted",
+                      )}
+                    >
+                      {CATALOGUE_SECTION_LABELS[s]}
+                    </button>
+                  ))}
+                </div>
                 <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_13rem_auto]">
                   <label className="relative">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -244,8 +271,9 @@ function RangePage() {
                     </p>
                     {visible.length === 0 ? (
                       <p className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-                        No products match your search — try another word or
-                        category.
+                        {activeSection !== "range" && filterBySection(products, activeSection).length === 0
+                          ? `No ${CATALOGUE_SECTION_LABELS[activeSection].toLowerCase()} are available yet — check back soon, or browse the Range.`
+                          : "No products match your search — try another word or category."}
                       </p>
                     ) : (
                       <div className="grid gap-3 md:grid-cols-2">

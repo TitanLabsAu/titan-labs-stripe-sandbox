@@ -16,12 +16,14 @@ import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RangeRouteImport } from './routes/range'
+import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as StacksRouteImport } from './routes/stacks'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedOrderHistoryRouteImport } from './routes/_authenticated/order-history'
 import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
+import { Route as ApiAdminGenerateImageRouteImport } from './routes/api/admin-generate-image'
 import { Route as AuthIndexRouteImport } from './routes/auth.index'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
 import { Route as AuthSignupRouteImport } from './routes/auth.signup'
@@ -69,6 +71,11 @@ const RangeRoute = RangeRouteImport.update({
   path: '/range',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReviewsRoute = ReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StacksRoute = StacksRouteImport.update({
   id: '/stacks',
   path: '/stacks',
@@ -99,6 +106,11 @@ const AuthenticatedOrdersRoute = AuthenticatedOrdersRouteImport.update({
   id: '/orders',
   path: '/orders',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const ApiAdminGenerateImageRoute = ApiAdminGenerateImageRouteImport.update({
+  id: '/api/admin-generate-image',
+  path: '/api/admin-generate-image',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthIndexRoute = AuthIndexRouteImport.update({
   id: '/auth/',
@@ -172,12 +184,14 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/privacy': typeof PrivacyRoute
   '/range': typeof RangeRoute
+  '/reviews': typeof ReviewsRoute
   '/stacks': typeof StacksRoute
   '/terms': typeof TermsRoute
   '/account': typeof AuthenticatedAccountRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/order-history': typeof AuthenticatedOrderHistoryRoute
   '/orders': typeof AuthenticatedOrdersRoute
+  '/api/admin-generate-image': typeof ApiAdminGenerateImageRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -198,12 +212,14 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/privacy': typeof PrivacyRoute
   '/range': typeof RangeRoute
+  '/reviews': typeof ReviewsRoute
   '/stacks': typeof StacksRoute
   '/terms': typeof TermsRoute
   '/account': typeof AuthenticatedAccountRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/order-history': typeof AuthenticatedOrderHistoryRoute
   '/orders': typeof AuthenticatedOrdersRoute
+  '/api/admin-generate-image': typeof ApiAdminGenerateImageRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -226,12 +242,14 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/privacy': typeof PrivacyRoute
   '/range': typeof RangeRoute
+  '/reviews': typeof ReviewsRoute
   '/stacks': typeof StacksRoute
   '/terms': typeof TermsRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/order-history': typeof AuthenticatedOrderHistoryRoute
   '/_authenticated/orders': typeof AuthenticatedOrdersRoute
+  '/api/admin-generate-image': typeof ApiAdminGenerateImageRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -254,12 +272,14 @@ export interface FileRouteTypes {
     | '/contact'
     | '/privacy'
     | '/range'
+    | '/reviews'
     | '/stacks'
     | '/terms'
     | '/account'
     | '/admin'
     | '/order-history'
     | '/orders'
+    | '/api/admin-generate-image'
     | '/auth/reset-password'
     | '/auth/signup'
     | '/product/$slug'
@@ -280,12 +300,14 @@ export interface FileRouteTypes {
     | '/contact'
     | '/privacy'
     | '/range'
+    | '/reviews'
     | '/stacks'
     | '/terms'
     | '/account'
     | '/admin'
     | '/order-history'
     | '/orders'
+    | '/api/admin-generate-image'
     | '/auth/reset-password'
     | '/auth/signup'
     | '/product/$slug'
@@ -307,12 +329,14 @@ export interface FileRouteTypes {
     | '/contact'
     | '/privacy'
     | '/range'
+    | '/reviews'
     | '/stacks'
     | '/terms'
     | '/_authenticated/account'
     | '/_authenticated/admin'
     | '/_authenticated/order-history'
     | '/_authenticated/orders'
+    | '/api/admin-generate-image'
     | '/auth/reset-password'
     | '/auth/signup'
     | '/product/$slug'
@@ -335,8 +359,10 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   PrivacyRoute: typeof PrivacyRoute
   RangeRoute: typeof RangeRoute
+  ReviewsRoute: typeof ReviewsRoute
   StacksRoute: typeof StacksRoute
   TermsRoute: typeof TermsRoute
+  ApiAdminGenerateImageRoute: typeof ApiAdminGenerateImageRoute
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
   AuthSignupRoute: typeof AuthSignupRoute
   ProductSlugRoute: typeof ProductSlugRoute
@@ -400,6 +426,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RangeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reviews': {
+      id: '/reviews'
+      path: '/reviews'
+      fullPath: '/reviews'
+      preLoaderRoute: typeof ReviewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/stacks': {
       id: '/stacks'
       path: '/stacks'
@@ -441,6 +474,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/orders'
       preLoaderRoute: typeof AuthenticatedOrdersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/admin-generate-image': {
+      id: '/api/admin-generate-image'
+      path: '/api/admin-generate-image'
+      fullPath: '/api/admin-generate-image'
+      preLoaderRoute: typeof ApiAdminGenerateImageRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/auth/': {
       id: '/auth/'
@@ -559,8 +599,10 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   PrivacyRoute: PrivacyRoute,
   RangeRoute: RangeRoute,
+  ReviewsRoute: ReviewsRoute,
   StacksRoute: StacksRoute,
   TermsRoute: TermsRoute,
+  ApiAdminGenerateImageRoute: ApiAdminGenerateImageRoute,
   AuthResetPasswordRoute: AuthResetPasswordRoute,
   AuthSignupRoute: AuthSignupRoute,
   ProductSlugRoute: ProductSlugRoute,

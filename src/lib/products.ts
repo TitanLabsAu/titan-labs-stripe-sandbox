@@ -1,3 +1,4 @@
+import type { CatalogueSection } from "@/lib/catalogue-sections";
 import klow80 from "@/assets/klow80.asset.json";
 import wolverine from "@/assets/wolverine.asset.json";
 import nad1000 from "@/assets/nad1000.asset.json";
@@ -45,6 +46,8 @@ export type Product = {
   stock?: number | null;
   /** Shown with a Coming Soon banner; cannot be ordered yet. */
   comingSoon?: boolean;
+  /** Storefront section: range, pens or equipment. */
+  catalogueSection?: CatalogueSection;
 };
 
 /** True when the whole product, or the chosen vial size, is coming soon. */
