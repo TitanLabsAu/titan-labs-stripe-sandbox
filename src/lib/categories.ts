@@ -5,7 +5,8 @@ export const CATEGORIES = [
   "Cognitive",
   "Longevity",
   "Performance",
-  "Dermal",\n  "Disposable Pens",
+  "Dermal",
+  "Disposable Pens",
 ] as const;
 
 export type Category = (typeof CATEGORIES)[number];
