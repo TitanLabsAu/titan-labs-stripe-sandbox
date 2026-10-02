@@ -1,3 +1,4 @@
+import { FirstOfferBanner } from "@/components/FirstOfferBanner";
 import { TitanPageHeading } from "@/components/TitanPageHeading";
 import { ShieldCheck } from "lucide-react";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -77,6 +78,7 @@ function Index() {
       <SiteHeader />
 
       <main className="titan-home relative">
+        <div className="page-shell pt-4"><FirstOfferBanner redirectTo="/range" /></div>
         <div className="page-shell pt-8 sm:pt-12">
           <TitanPageHeading
             icon={ShieldCheck}

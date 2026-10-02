@@ -12,7 +12,7 @@ function fmt(value: string) {
 }
 
 /** Admin-only: shows the Research Use & Terms acknowledgement recorded for an order. */
-export function OrderAcknowledgementInfo({ orderId, userId, createdAt }: { orderId: string; userId: string; createdAt: string }) {
+export function OrderAcknowledgementInfo({ orderId, userId, createdAt }: { orderId: string; userId: string | null; createdAt: string }) {
   const { data, isLoading } = useQuery({
     queryKey: ["order-ack", orderId],
     queryFn: async () => {
@@ -22,6 +22,7 @@ export function OrderAcknowledgementInfo({ orderId, userId, createdAt }: { order
         .eq("order_id", orderId)
         .maybeSingle();
       if (linked.data) return { ...linked.data, linked: true };
+      if (!userId) return null;
       // Orders finalised without the browser returning (e.g. webhook) may have
       // an unlinked acknowledgement made by the same customer just before.
       const since = new Date(new Date(createdAt).getTime() - 2 * 60 * 60 * 1000).toISOString();

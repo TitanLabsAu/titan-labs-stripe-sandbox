@@ -65,7 +65,7 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/", replace: true });
+      if (data.session) navigate({ to: safeRedirect() as "/", replace: true });
     });
   }, [navigate]);
 
@@ -95,7 +95,7 @@ function AuthPage() {
         password,
       });
       if (error) throw error;
-      navigate({ to: "/" });
+      navigate({ to: safeRedirect() as "/" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -181,4 +181,11 @@ function AuthPage() {
       <SiteFooter />
     </div>
   );
+}
+
+/** Same-origin path from ?redirect= (e.g. back to checkout with the saved cart). */
+function safeRedirect(): string {
+  if (typeof window === "undefined") return "/";
+  const r = new URLSearchParams(window.location.search).get("redirect") ?? "";
+  return r.startsWith("/") && !r.startsWith("//") && !r.includes("\\") ? r : "/";
 }

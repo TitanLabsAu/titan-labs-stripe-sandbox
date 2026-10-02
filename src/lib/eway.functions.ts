@@ -113,7 +113,7 @@ async function prepareCardOrder(data: CardCheckoutInput, userId: string): Promis
   const shippingMethod: ShippingMethodKey = data.shippingMethod === "standard" ? "standard" : "express";
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { priceCheckout, pricingNote, pricingSnapshot, discountDollars } = await import("@/lib/checkout-pricing.server");
-  const priced = await priceCheckout(supabaseAdmin, userId, {
+  const priced = await priceCheckout(supabaseAdmin, { userId, emails: [], emailVerified: false }, {
     items: data.items,
     shippingMethod,
     paymentMethod: "card",

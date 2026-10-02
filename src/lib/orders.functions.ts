@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { ShippingMethodKey } from "@/lib/pricing";
+import type { CheckoutMode } from "@/lib/guest-capability";
 
 export type SubmitOrderItem = {
   slug: string;
@@ -10,6 +10,8 @@ export type SubmitOrderItem = {
 };
 
 export type SubmitOrderInput = {
+  mode: CheckoutMode;
+  acknowledgementId: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -36,6 +38,7 @@ export type SubmittedOrder = {
   total: number;
   paymentMethod: "payid" | "crypto" | "card";
   shippingMethod: ShippingMethodKey;
+  guest?: boolean;
 };
 
 function clean(value: string | undefined, max: number) {
@@ -43,9 +46,8 @@ function clean(value: string | undefined, max: number) {
 }
 
 export const submitOrder = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((input: SubmitOrderInput) => input)
-  .handler(async ({ data, context }): Promise<SubmittedOrder> => {
+  .handler(async ({ data }): Promise<SubmittedOrder> => {
     const items = (data.items ?? []).filter((i) => i.slug && i.quantity > 0).slice(0, 50);
     if (items.length === 0) throw new Error("Your order is empty.");
 
@@ -61,6 +63,7 @@ export const submitOrder = createServerFn({ method: "POST" })
     if (!firstName || !lastName || !email || !phone) {
       throw new Error("Please add your name, email and contact number.");
     }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Please enter a valid email address.");
     if (!addressLine || !city || !state || !postcode) {
       throw new Error("Please complete your delivery address.");
     }
@@ -69,17 +72,23 @@ export const submitOrder = createServerFn({ method: "POST" })
     const shippingMethod: ShippingMethodKey =
       data.shippingMethod === "standard" ? "standard" : "express";
 
+    const { resolveBuyer, requireAcknowledgement, ownerColumns, buyerEmails } = await import(
+      "@/lib/checkout-buyer.server"
+    );
+    const buyer = await resolveBuyer(data.mode === "guest" ? "guest" : "member");
+    const ackId = await requireAcknowledgement(buyer, data.acknowledgementId);
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { priceCheckout, pricingNote, pricingSnapshot, discountDollars } = await import(
+    const db = supabaseAdmin as any;
+    const { priceCheckout, pricingNote, pricingSnapshot, discountDollars, claimFirstOffer } = await import(
       "@/lib/checkout-pricing.server"
     );
-    const priced = await priceCheckout(supabaseAdmin, context.userId, {
-      items,
-      shippingMethod,
-      paymentMethod,
-      code: data.code ?? null,
-      creditUnits: data.creditUnits ?? 0,
-    });
+    const emails = buyerEmails(buyer, email);
+    const priced = await priceCheckout(
+      db,
+      { userId: buyer.userId, emails, emailVerified: buyer.emailVerified },
+      { items, shippingMethod, paymentMethod, code: data.code ?? null, creditUnits: data.creditUnits ?? 0 },
+    );
     if (data.code && priced.codeError) throw new Error(priced.codeError);
     const q = priced.quote;
 
@@ -91,20 +100,26 @@ export const submitOrder = createServerFn({ method: "POST" })
     }`;
     const notes = [clean(data.notes, 500), shippingNote, pricingNote(q)].filter(Boolean).join("\n");
 
+    let claimId: string | null = null;
+    if (q.firstOfferApplied && buyer.userId) claimId = await claimFirstOffer(db, buyer.userId, emails, 30);
+
     let reservationId: string | null = null;
-    if (q.creditUnits > 0) {
-      const { data: rid, error: reserveError } = await (supabaseAdmin as any).rpc("reserve_store_credit", {
-        _user_id: context.userId, _units: q.creditUnits, _payment_attempt_id: null, _ttl_minutes: 30,
+    if (q.creditUnits > 0 && buyer.userId) {
+      const { data: rid, error: reserveError } = await db.rpc("reserve_store_credit", {
+        _user_id: buyer.userId, _units: q.creditUnits, _payment_attempt_id: null, _ttl_minutes: 30,
       });
-      if (reserveError) throw new Error("Your store credit balance changed. Please review your order.");
+      if (reserveError) {
+        if (claimId) await db.rpc("release_first_offer", { _claim_id: claimId });
+        throw new Error("Your store credit balance changed. Please review your order.");
+      }
       reservationId = String(rid);
     }
     const snapshot = pricingSnapshot(priced, reservationId);
 
-    const { data: order, error } = await (supabaseAdmin as any)
+    const { data: order, error } = await db
       .from("orders")
       .insert({
-        user_id: context.userId,
+        ...ownerColumns(buyer),
         status: "processing",
         subtotal: q.merchandiseCents / 100,
         shipping: q.shippingCents / 100,
@@ -124,33 +139,45 @@ export const submitOrder = createServerFn({ method: "POST" })
         credit_cents: snapshot.credit_cents,
         credit_reservation_id: reservationId,
         pricing_snapshot: snapshot,
+        first_purchase_offer: snapshot.first_purchase_offer,
+        first_offer_claim_id: claimId,
       })
       .select("id, order_number")
       .single();
     if (error) {
-      if (reservationId) await (supabaseAdmin as any).rpc("release_store_credit", { _reservation_id: reservationId });
+      if (reservationId) await db.rpc("release_store_credit", { _reservation_id: reservationId });
+      if (claimId) await db.rpc("release_first_offer", { _claim_id: claimId });
       throw error;
     }
 
-    const { error: itemError } = await (supabaseAdmin as any)
+    const { error: itemError } = await db
       .from("order_items")
       .insert(priced.lines.map((line) => ({ ...line, order_id: order.id })));
     if (itemError) throw itemError;
 
-    // Keep the saved profile in step with what they entered at checkout.
-    await context.supabase
-      .from("profiles")
-      .update({
-        first_name: firstName,
-        last_name: lastName,
-        phone_number: phone,
-        address_line: addressLine,
-        city,
-        state,
-        postcode,
-        postal_address: shippingAddress,
-      })
-      .eq("id", context.userId);
+    // Link the acknowledgement made by this same buyer to the new order.
+    await db
+      .from("order_acknowledgements")
+      .update({ order_id: order.id })
+      .eq("id", ackId)
+      .is("order_id", null);
+
+    if (buyer.userId) {
+      // Keep the saved profile in step with what they entered at checkout.
+      await db
+        .from("profiles")
+        .update({
+          first_name: firstName,
+          last_name: lastName,
+          phone_number: phone,
+          address_line: addressLine,
+          city,
+          state,
+          postcode,
+          postal_address: shippingAddress,
+        })
+        .eq("id", buyer.userId);
+    }
 
     const { tryOrderConfirmation } = await import("@/lib/order-confirmation.server");
     await tryOrderConfirmation(order.id);
@@ -165,21 +192,27 @@ export const submitOrder = createServerFn({ method: "POST" })
       total: q.totalCents / 100,
       paymentMethod,
       shippingMethod,
+      guest: buyer.kind === "guest",
     };
   });
 
 export const saveOrderPaymentReference = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input: { orderId: string; reference: string }) => input)
-  .handler(async ({ data, context }) => {
+  .inputValidator((input: { orderId: string; reference: string; mode: CheckoutMode }) => input)
+  .handler(async ({ data }) => {
     const reference = clean(data.reference, 160);
     if (reference.length < 6) throw new Error("Please paste the full payment reference.");
-    const { error } = await context.supabase
+    const { resolveBuyer } = await import("@/lib/checkout-buyer.server");
+    const { ownsRow } = await import("@/lib/guest-capability");
+    const buyer = await resolveBuyer(data.mode === "guest" ? "guest" : "member");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const db = supabaseAdmin as any;
+    const { data: order } = await db
       .from("orders")
-      .update({ payment_reference: reference })
-      .eq("id", data.orderId)
-      .eq("user_id", context.userId);
+      .select("id, user_id, guest_session_id")
+      .eq("id", String(data.orderId ?? ""))
+      .maybeSingle();
+    if (!ownsRow(buyer, order)) throw new Error("We couldn't find that order for this checkout.");
+    const { error } = await db.from("orders").update({ payment_reference: reference }).eq("id", order.id);
     if (error) throw error;
     return { ok: true };
   });
-

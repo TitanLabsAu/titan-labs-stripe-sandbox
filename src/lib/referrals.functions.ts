@@ -1,9 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import type { ShippingMethodKey } from "@/lib/pricing";
-import type { CheckoutItemInput } from "@/lib/checkout-pricing.server";
-import type { Quote } from "@/lib/order-pricing";
 
 async function assertAdmin(context: any) {
   const { data } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
@@ -28,46 +25,7 @@ export const getReferralSettings = createServerFn({ method: "GET" }).handler(asy
   return (data ?? null) as Record<string, any> | null;
 });
 
-/* ---------- Checkout quote (server authoritative) ---------- */
-export type CheckoutQuoteResult = {
-  quote: Quote;
-  codeError: string | null;
-  codeApplied: string | null;
-  availableCreditUnits: number;
-  maxCreditUnits: number;
-  creditUnitCents: number;
-};
-
-export const quoteCheckout = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator(
-    (input: {
-      items: CheckoutItemInput[];
-      shippingMethod: ShippingMethodKey;
-      paymentMethod: "card" | "payid" | "crypto";
-      code?: string | null;
-      creditUnits?: number;
-    }) => input,
-  )
-  .handler(async ({ data, context }): Promise<CheckoutQuoteResult> => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { priceCheckout } = await import("@/lib/checkout-pricing.server");
-    const priced = await priceCheckout(supabaseAdmin, context.userId, {
-      items: data.items,
-      shippingMethod: data.shippingMethod === "standard" ? "standard" : "express",
-      paymentMethod: data.paymentMethod === "crypto" ? "crypto" : data.paymentMethod === "payid" ? "payid" : "card",
-      code: data.code ?? null,
-      creditUnits: Math.max(0, Math.floor(Number(data.creditUnits) || 0)),
-    });
-    return {
-      quote: priced.quote,
-      codeError: priced.codeError,
-      codeApplied: priced.code?.rule.code ?? null,
-      availableCreditUnits: priced.availableCreditUnits,
-      maxCreditUnits: priced.settings.maxCreditUnits,
-      creditUnitCents: priced.settings.creditUnitCents,
-    };
-  });
+/* Checkout quotes live in checkout.functions.ts (member or guest). */
 
 /* ---------- Member: own rewards ---------- */
 /** Totals come from a database aggregate over ALL entries; the ledger lists above are display-only. */
@@ -131,6 +89,12 @@ export const adminSaveReferralSettings = createServerFn({ method: "POST" })
       referral_reward_units: Math.max(0, Math.min(20, Math.floor(Number(data.referral_reward_units) || 0))),
       milestone_thresholds: thresholds,
       program_enabled: Boolean(data.program_enabled),
+      first_offer_enabled: Boolean(data.first_offer_enabled),
+      first_offer_percent: Math.min(50, pct(data.first_offer_percent)),
+      first_offer_combine_multibuy: Boolean(data.first_offer_combine_multibuy),
+      first_offer_combine_crypto: Boolean(data.first_offer_combine_crypto),
+      first_offer_combine_code: Boolean(data.first_offer_combine_code),
+      first_offer_combine_credit: Boolean(data.first_offer_combine_credit),
       updated_by: context.userId,
     };
     const { error } = await (context.supabase as any).from("referral_settings").update(row).eq("id", 1);

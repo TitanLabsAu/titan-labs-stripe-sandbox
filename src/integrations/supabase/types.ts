@@ -238,6 +238,71 @@ export type Database = {
         }
         Relationships: []
       }
+      first_purchase_claims: {
+        Row: {
+          created_at: string
+          emails: string[]
+          expires_at: string | null
+          id: string
+          order_id: string | null
+          payment_attempt_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          emails: string[]
+          expires_at?: string | null
+          id?: string
+          order_id?: string | null
+          payment_attempt_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          emails?: string[]
+          expires_at?: string | null
+          id?: string
+          order_id?: string | null
+          payment_attempt_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "first_purchase_claims_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guest_checkout_sessions: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          token_hash: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          token_hash: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          token_hash?: string
+        }
+        Relationships: []
+      }
       member_calendar_entries: {
         Row: {
           created_at: string
@@ -285,30 +350,40 @@ export type Database = {
           accepted: boolean
           accepted_at: string
           created_at: string
+          guest_session_id: string | null
           id: string
           order_id: string | null
-          user_id: string
+          user_id: string | null
           version: string
         }
         Insert: {
           accepted?: boolean
           accepted_at?: string
           created_at?: string
+          guest_session_id?: string | null
           id?: string
           order_id?: string | null
-          user_id?: string
+          user_id?: string | null
           version: string
         }
         Update: {
           accepted?: boolean
           accepted_at?: string
           created_at?: string
+          guest_session_id?: string | null
           id?: string
           order_id?: string | null
-          user_id?: string
+          user_id?: string | null
           version?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "order_acknowledgements_guest_session_id_fkey"
+            columns: ["guest_session_id"]
+            isOneToOne: false
+            referencedRelation: "guest_checkout_sessions"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "order_acknowledgements_order_id_fkey"
             columns: ["order_id"]
@@ -433,6 +508,7 @@ export type Database = {
         Row: {
           code_discount_cents: number
           contact_email: string | null
+          contact_email_normalized: string | null
           contact_name: string | null
           contact_phone: string | null
           created_at: string
@@ -443,6 +519,9 @@ export type Database = {
           discount_code: string | null
           discount_code_id: string | null
           discount_code_kind: string | null
+          first_offer_claim_id: string | null
+          first_purchase_offer: Json | null
+          guest_session_id: string | null
           id: string
           notes: string | null
           order_number: number
@@ -465,11 +544,12 @@ export type Database = {
           tracking_number: string | null
           tracking_status: string | null
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           code_discount_cents?: number
           contact_email?: string | null
+          contact_email_normalized?: string | null
           contact_name?: string | null
           contact_phone?: string | null
           created_at?: string
@@ -480,6 +560,9 @@ export type Database = {
           discount_code?: string | null
           discount_code_id?: string | null
           discount_code_kind?: string | null
+          first_offer_claim_id?: string | null
+          first_purchase_offer?: Json | null
+          guest_session_id?: string | null
           id?: string
           notes?: string | null
           order_number?: number
@@ -502,11 +585,12 @@ export type Database = {
           tracking_number?: string | null
           tracking_status?: string | null
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           code_discount_cents?: number
           contact_email?: string | null
+          contact_email_normalized?: string | null
           contact_name?: string | null
           contact_phone?: string | null
           created_at?: string
@@ -517,6 +601,9 @@ export type Database = {
           discount_code?: string | null
           discount_code_id?: string | null
           discount_code_kind?: string | null
+          first_offer_claim_id?: string | null
+          first_purchase_offer?: Json | null
+          guest_session_id?: string | null
           id?: string
           notes?: string | null
           order_number?: number
@@ -539,7 +626,7 @@ export type Database = {
           tracking_number?: string | null
           tracking_status?: string | null
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -549,15 +636,26 @@ export type Database = {
             referencedRelation: "discount_codes"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "orders_guest_session_id_fkey"
+            columns: ["guest_session_id"]
+            isOneToOne: false
+            referencedRelation: "guest_checkout_sessions"
+            referencedColumns: ["id"]
+          },
         ]
       }
       payment_attempts: {
         Row: {
           access_code: string | null
+          acknowledgement_id: string | null
           amount_cents: number
           created_at: string
           currency: string
           error_code: string | null
+          first_offer_claim_id: string | null
+          first_purchase_offer: Json | null
+          guest_session_id: string | null
           id: string
           order_id: string | null
           order_payload: Json
@@ -565,14 +663,18 @@ export type Database = {
           status: string
           transaction_id: string | null
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           access_code?: string | null
+          acknowledgement_id?: string | null
           amount_cents: number
           created_at?: string
           currency?: string
           error_code?: string | null
+          first_offer_claim_id?: string | null
+          first_purchase_offer?: Json | null
+          guest_session_id?: string | null
           id?: string
           order_id?: string | null
           order_payload: Json
@@ -580,14 +682,18 @@ export type Database = {
           status?: string
           transaction_id?: string | null
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           access_code?: string | null
+          acknowledgement_id?: string | null
           amount_cents?: number
           created_at?: string
           currency?: string
           error_code?: string | null
+          first_offer_claim_id?: string | null
+          first_purchase_offer?: Json | null
+          guest_session_id?: string | null
           id?: string
           order_id?: string | null
           order_payload?: Json
@@ -595,9 +701,23 @@ export type Database = {
           status?: string
           transaction_id?: string | null
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "payment_attempts_acknowledgement_id_fkey"
+            columns: ["acknowledgement_id"]
+            isOneToOne: false
+            referencedRelation: "order_acknowledgements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_attempts_guest_session_id_fkey"
+            columns: ["guest_session_id"]
+            isOneToOne: false
+            referencedRelation: "guest_checkout_sessions"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "payment_attempts_order_id_fkey"
             columns: ["order_id"]
@@ -790,6 +910,12 @@ export type Database = {
           combined_cap_percent: number
           credit_unit_cents: number
           crypto_percent: number
+          first_offer_combine_code: boolean
+          first_offer_combine_credit: boolean
+          first_offer_combine_crypto: boolean
+          first_offer_combine_multibuy: boolean
+          first_offer_enabled: boolean
+          first_offer_percent: number
           id: number
           max_credit_units: number
           milestone_thresholds: number[]
@@ -808,6 +934,12 @@ export type Database = {
           combined_cap_percent?: number
           credit_unit_cents?: number
           crypto_percent?: number
+          first_offer_combine_code?: boolean
+          first_offer_combine_credit?: boolean
+          first_offer_combine_crypto?: boolean
+          first_offer_combine_multibuy?: boolean
+          first_offer_enabled?: boolean
+          first_offer_percent?: number
           id?: number
           max_credit_units?: number
           milestone_thresholds?: number[]
@@ -826,6 +958,12 @@ export type Database = {
           combined_cap_percent?: number
           credit_unit_cents?: number
           crypto_percent?: number
+          first_offer_combine_code?: boolean
+          first_offer_combine_credit?: boolean
+          first_offer_combine_crypto?: boolean
+          first_offer_combine_multibuy?: boolean
+          first_offer_enabled?: boolean
+          first_offer_percent?: number
           id?: number
           max_credit_units?: number
           milestone_thresholds?: number[]
@@ -1084,9 +1222,34 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      attach_first_offer_claim: {
+        Args: { _claim_id: string; _payment_attempt_id: string }
+        Returns: undefined
+      }
       attach_store_credit_reservation: {
         Args: { _payment_attempt_id: string; _reservation_id: string }
         Returns: undefined
+      }
+      claim_first_offer: {
+        Args: { _emails: string[]; _ttl_minutes: number; _user_id: string }
+        Returns: string
+      }
+      finalize_checkout_order: {
+        Args: {
+          _attempt_id: string
+          _contact_email: string
+          _contact_name: string
+          _contact_phone: string
+          _items: Json
+          _notes: string
+          _payment_intent_id: string
+          _profile: Json
+          _shipping: number
+          _shipping_address: string
+          _subtotal: number
+          _total: number
+        }
+        Returns: Json
       }
       finalize_stripe_order: {
         Args: {
@@ -1112,6 +1275,10 @@ export type Database = {
         }
         Returns: Json
       }
+      first_offer_eligible: {
+        Args: { _emails: string[]; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1123,7 +1290,13 @@ export type Database = {
         Args: { _ack_id: string; _order_id: string }
         Returns: boolean
       }
+      normalize_emails: { Args: { _emails: string[] }; Returns: string[] }
       referral_paid_order_count: { Args: { _user_id: string }; Returns: number }
+      release_first_offer: { Args: { _claim_id: string }; Returns: boolean }
+      release_first_offer_for_attempt: {
+        Args: { _payment_attempt_id: string }
+        Returns: number
+      }
       release_store_credit: {
         Args: { _reservation_id: string }
         Returns: boolean

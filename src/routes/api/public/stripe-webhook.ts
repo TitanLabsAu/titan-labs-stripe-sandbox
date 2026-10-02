@@ -146,6 +146,7 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
             .eq("id", attempt.id)
             .is("order_id", null);
           await (supabaseAdmin as any).rpc("release_store_credit_for_attempt", { _payment_attempt_id: attempt.id });
+          // First-offer claim stays held: a failed intent can still be retried and paid.
 
           return ok({ status: "failed" });
         }
@@ -163,6 +164,7 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
             .eq("id", attempt.id)
             .is("order_id", null);
           await (supabaseAdmin as any).rpc("release_store_credit_for_attempt", { _payment_attempt_id: attempt.id });
+          await (supabaseAdmin as any).rpc("release_first_offer_for_attempt", { _payment_attempt_id: attempt.id });
 
           return ok({ status: "cancelled" });
         }
@@ -176,7 +178,9 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
           String(paymentIntent.metadata?.["payment_attempt_id"] ?? "") ===
             String(attempt.id) &&
           String(paymentIntent.metadata?.["user_id"] ?? "") ===
-            String(attempt.user_id);
+            String(attempt.user_id ?? "") &&
+          String(paymentIntent.metadata?.["guest_session_id"] ?? "") ===
+            String(attempt.guest_session_id ?? "");
 
         if (!amountMatches || !currencyMatches || !metadataMatches) {
           const failure = !amountMatches
@@ -200,36 +204,18 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
             .eq("id", attempt.id)
             .is("order_id", null);
           await (supabaseAdmin as any).rpc("release_store_credit_for_attempt", { _payment_attempt_id: attempt.id });
+          await (supabaseAdmin as any).rpc("release_first_offer_for_attempt", { _payment_attempt_id: attempt.id });
 
           return ok({ status: "rejected", reason: failure });
         }
 
         const payload = attempt.order_payload as PreparedPayload;
 
-        const { data: result, error: rpcError } = await (
-          supabaseAdmin as any
-        ).rpc("finalize_stripe_order", {
-          _payment_intent_id: paymentIntent.id,
-          _user_id: attempt.user_id,
-          _attempt_id: attempt.id,
-          _subtotal: payload.totals.total - payload.totals.shipping,
-          _shipping: payload.totals.shipping,
-          _total: payload.totals.total,
-          _contact_name:
-            `${payload.customer.firstName} ${payload.customer.lastName}`.trim(),
-          _contact_email: payload.customer.email,
-          _contact_phone: payload.customer.phone,
-          _shipping_address: payload.customer.shippingAddress,
-          _notes: payload.notes,
-          _items: payload.lines,
-          _profile_first_name: payload.customer.firstName,
-          _profile_last_name: payload.customer.lastName,
-          _profile_phone: payload.customer.phone,
-          _profile_address_line: payload.customer.addressLine,
-          _profile_city: payload.customer.city,
-          _profile_state: payload.customer.state,
-          _profile_postcode: payload.customer.postcode,
-        });
+        const { finalizeArgs } = await import("@/lib/stripe-finalize");
+        const { data: result, error: rpcError } = await (supabaseAdmin as any).rpc(
+          "finalize_checkout_order",
+          finalizeArgs(paymentIntent.id, attempt.id, payload),
+        );
 
         if (rpcError || !result) {
           console.error("[stripe-webhook] finalisation failed", rpcError);
