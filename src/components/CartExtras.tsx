@@ -12,6 +12,8 @@ import {
 import { useSiteContent } from "@/lib/useCatalog";
 import { homeValue } from "@/lib/homeContent";
 import { cn } from "@/lib/utils";
+import { useReferralSettings } from "@/lib/useReferralSettings";
+import { multibuyPercentFor } from "@/lib/order-pricing";
 
 /** Progress bar toward free express shipping. */
 export function FreeShippingMeter({ amount }: { amount: number }) {
@@ -40,8 +42,11 @@ export function FreeShippingMeter({ amount }: { amount: number }) {
 
 /** The Titan Stack tier banner — highlights the tier currently reached. */
 export function TitanStackBanner({ units }: { units: number }) {
-  const active = stackPercentFor(units);
-  const next = nextStackTier(units);
+  const { settings } = useReferralSettings();
+  const tiers = settings.multibuyTiers.length ? settings.multibuyTiers : [...STACK_TIERS];
+  const active = multibuyPercentFor(units, { ...settings, multibuyTiers: tiers });
+  const next = tiers.find((t) => units < t.units) ?? null;
+  const lastUnits = tiers[tiers.length - 1]?.units;
   return (
     <div className="rounded-xl border border-border bg-muted/20 p-3">
       <div className="flex items-center gap-2">
@@ -49,7 +54,7 @@ export function TitanStackBanner({ units }: { units: number }) {
         <p className="technical-label text-foreground">The Titan Stack</p>
       </div>
       <div className="mt-3 grid grid-cols-3 gap-2">
-        {STACK_TIERS.map((tier) => {
+        {tiers.map((tier) => {
           const reached = active === tier.percent;
           return (
             <div
@@ -66,7 +71,7 @@ export function TitanStackBanner({ units }: { units: number }) {
               </p>
               <p className="text-[10px] uppercase tracking-[0.14em]">
                 {tier.units}
-                {tier.units === 4 ? "+" : ""} units
+                {tier.units === lastUnits ? "+" : ""} units
               </p>
             </div>
           );

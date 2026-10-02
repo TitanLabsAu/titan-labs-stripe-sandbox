@@ -21,3 +21,10 @@
 - [ ] Owner to review legal wording
 - [x] Add a mobile floating cart shortcut and show numeric-only catalogue quantities.
 - [x] Add the shared cart Equipment/BAC Water upsell and URL-addressable Equipment catalogue navigation.
+
+## Referral / rewards program (in progress)
+- [ ] DB: settings, code kinds, ledger, reservations, settlement triggers
+- [ ] Admin: codes (kind/member/limits, default discount 0), settings, member credit panel
+- [ ] /referrals page + footer link; member account rewards card
+- [ ] Checkout: code + credit, server quote, all payment paths reprice, 20% cap
+- [ ] Tests + typecheck/build + preview checks (no publish)

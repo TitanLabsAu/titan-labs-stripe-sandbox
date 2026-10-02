@@ -14,6 +14,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { AddressFields, combineAddress } from "@/components/AddressFields";
 import { ProfileMenu } from "@/components/ProfileMenu";
 import { ChangePasswordCard } from "@/components/ChangePasswordCard";
+import { MyRewardsCard } from "@/components/MyRewardsCard";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({
@@ -261,6 +262,7 @@ function AccountPage() {
             </form>
           )}
         </div>
+        <MyRewardsCard />
         <ChangePasswordCard />
       </main>
       <SiteFooter />

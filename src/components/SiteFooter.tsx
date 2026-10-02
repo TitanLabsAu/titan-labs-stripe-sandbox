@@ -52,6 +52,7 @@ export function SiteFooter() {
           <Link to="/terms" hash="research-notice" className="text-foreground hover:text-primary">Research Use Notice</Link>
           <Link to="/contact" target="_blank" rel="noopener noreferrer" className="text-foreground hover:text-primary">Contact &amp; Customer Support</Link>
           <Link to="/privacy" className="text-foreground hover:text-primary">Privacy Policy</Link>
+          <Link to="/referrals" className="text-foreground hover:text-primary">Referral Program</Link>
         </nav>
         {siteLinks && siteLinks.length > 0 ? <p className="mt-8 flex flex-wrap gap-x-5 gap-y-2">{siteLinks.map((l) => <a key={l.id} href={l.url} target="_blank" rel="noopener noreferrer" className="font-bold text-accent hover:text-primary">{l.label}</a>)}</p> : null}
         <div className="mt-8 grid gap-3 border-t border-primary/25 pt-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">

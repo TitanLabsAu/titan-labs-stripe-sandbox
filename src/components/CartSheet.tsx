@@ -19,7 +19,8 @@ import { CryptoEstimate } from "@/components/CryptoEstimate";
 import { useCart } from "@/lib/cart";
 import { equipmentUpsellState } from "@/lib/cart-upsell";
 import { formatPrice, sortedProductVariants } from "@/lib/products";
-import { computeTotals } from "@/lib/pricing";
+import { quoteOrder } from "@/lib/order-pricing";
+import { cartPriceLines, useReferralSettings } from "@/lib/useReferralSettings";
 import { useProducts } from "@/lib/useCatalog";
 
 export function CartSheet({ floating = false }: { floating?: boolean }) {
@@ -43,12 +44,18 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
       )
     : [];
 
-  const totals = computeTotals({
-    subtotal,
-    units: count,
-    shippingMethod: "express",
-    paymentMethod: "payid",
-  });
+  const { settings } = useReferralSettings();
+  const quote = quoteOrder(
+    { lines: cartPriceLines(items, getProduct, getLinePrice), shippingMethod: "express", paymentMethod: "payid" },
+    settings,
+  );
+  const totals = {
+    subtotal: quote.itemsCents / 100,
+    stackDiscount: quote.multibuyCents / 100,
+    stackPercent: quote.multibuyPercent,
+    itemsTotal: (quote.itemsCents - quote.multibuyCents) / 100,
+  };
+  void subtotal;
 
   // Mobile floating trigger is hidden on checkout pages — the checkout flow
   // manages its own cart summary there.
@@ -275,7 +282,7 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
             </div>
             {totals.stackDiscount > 0 ? (
               <div className="flex justify-between font-bold text-accent">
-                <span>Titan Stack {totals.stackPercent}% off</span>
+                <span>Titan Stack {totals.stackPercent}% off{quote.capApplied ? ` (capped at ${settings.combinedCapPercent}%)` : ""}</span>
                 <span>−{formatPrice(totals.stackDiscount)}</span>
               </div>
             ) : null}
@@ -291,7 +298,7 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
               </span>
             </div>
             <p className="text-xs text-muted-foreground">
-              Shipping chosen at checkout. Pay with crypto for another 10% off.
+              Shipping chosen at checkout. Crypto saves up to {settings.cryptoPercent}% — combined multi-buy, kit and crypto savings are capped at {settings.combinedCapPercent}%.
             </p>
             <CryptoEstimate amountAud={totals.itemsTotal} className="mt-3" />
           </div>

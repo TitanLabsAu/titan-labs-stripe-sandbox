@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { effectivePack, kitPriceFor } from "@/lib/products";
-import { computeTotals, type ShippingMethodKey } from "@/lib/pricing";
+import type { ShippingMethodKey } from "@/lib/pricing";
 import type {
   SubmitOrderItem,
   SubmittedOrder,
@@ -19,6 +18,8 @@ type StripeCheckoutInput = {
   notes?: string;
   shippingMethod?: ShippingMethodKey;
   items: SubmitOrderItem[];
+  code?: string | null;
+  creditUnits?: number;
 };
 
 type PreparedStripePayload = {
@@ -49,6 +50,7 @@ type PreparedStripePayload = {
     quantity: number;
     variant_label: string;
   }>;
+  pricing?: Record<string, any>;
 };
 
 function clean(value: string | undefined, max: number) {
@@ -57,16 +59,8 @@ function clean(value: string | undefined, max: number) {
 
 async function prepareStripeOrder(
   data: StripeCheckoutInput,
-  supabase: any,
-): Promise<PreparedStripePayload> {
-  const items = (data.items ?? [])
-    .filter((item) => item.slug && item.quantity > 0)
-    .slice(0, 50);
-
-  if (items.length === 0) {
-    throw new Error("Your order is empty.");
-  }
-
+  userId: string,
+): Promise<{ payload: PreparedStripePayload; creditUnits: number }> {
   const firstName = clean(data.firstName, 80);
   const lastName = clean(data.lastName, 80);
   const email = clean(data.email, 160);
@@ -79,158 +73,51 @@ async function prepareStripeOrder(
   if (!firstName || !lastName || !email || !phone) {
     throw new Error("Please add your name, email and contact number.");
   }
-
   if (!addressLine || !city || !state || !postcode) {
     throw new Error("Please complete your delivery address.");
   }
 
-  const slugs = [...new Set(items.map((item) => item.slug))];
-
-  const { data: products, error: productError } = await supabase
-    .from("products")
-    .select("slug, name, price, sale_price, kit_price, product_variants, catalogue_section")
-    .in("slug", slugs)
-    .eq("active", true);
-
-  if (productError) {
-    throw productError;
-  }
-
-  const bySlug = new Map(
-    (products ?? []).map((product: any) => [product.slug, product]),
-  );
-
-  let rawSubtotal = 0;
-  let units = 0;
-
-  const lines: PreparedStripePayload["lines"] = [];
-
-  for (const item of items) {
-    const product: any = bySlug.get(item.slug);
-
-    if (!product) {
-      throw new Error("One of the items is no longer available.");
-    }
-
-    const variants = Array.isArray(product.product_variants)
-      ? product.product_variants
-      : [];
-
-    const variant =
-      variants.find(
-        (value: any) =>
-          String(value?.id) === String(item.variantId ?? ""),
-      ) ?? null;
-
-    const listPrice = Number(product.price);
-    const sale =
-      product.sale_price == null ? null : Number(product.sale_price);
-
-    const basePrice =
-      sale != null && sale > 0 && sale < listPrice
-        ? sale
-        : listPrice;
-
-    const singlePrice = variant
-      ? Number(variant.price)
-      : basePrice;
-
-    const pack = effectivePack(product, item.pack);
-
-    const unitPrice =
-      pack === "kit"
-        ? kitPriceFor(
-            singlePrice,
-            variant?.kitPrice ?? product.kit_price,
-          )
-        : singlePrice;
-
-    const quantity = Math.min(
-      99,
-      Math.max(1, Math.floor(item.quantity)),
-    );
-
-    const label = variant?.label
-      ? String(variant.label)
-      : "Single vial";
-
-    rawSubtotal += unitPrice * quantity;
-    units += quantity;
-
-    lines.push({
-      product_slug: product.slug,
-      product_name: product.name,
-      unit_price: unitPrice,
-      quantity,
-      variant_label:
-        pack === "kit"
-          ? `${label} · 10x Kit`
-          : label,
-    });
-  }
-
   const shippingMethod: ShippingMethodKey =
-    data.shippingMethod === "standard"
-      ? "standard"
-      : "express";
+    data.shippingMethod === "standard" ? "standard" : "express";
 
-  const totals = computeTotals({
-    subtotal: rawSubtotal,
-    units,
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { priceCheckout, pricingNote, pricingSnapshot, discountDollars } = await import(
+    "@/lib/checkout-pricing.server"
+  );
+  const priced = await priceCheckout(supabaseAdmin, userId, {
+    items: data.items,
     shippingMethod,
     paymentMethod: "card",
+    code: data.code ?? null,
+    creditUnits: data.creditUnits ?? 0,
   });
+  if (data.code && priced.codeError) throw new Error(priced.codeError);
+  const q = priced.quote;
 
-  const shippingAddress = [
-    addressLine,
-    city,
-    `${state} ${postcode}`.trim(),
-  ]
+  const shippingAddress = [addressLine, city, `${state} ${postcode}`.trim()]
     .filter(Boolean)
     .join(", ");
-
-  const discountNote =
-    totals.discountTotal > 0
-      ? `Discounts: Titan Stack ${totals.stackPercent}% (−$${totals.discountTotal.toFixed(2)})`
-      : "";
-
-  const shippingNote =
-    `Shipping: ${
-      shippingMethod === "standard"
-        ? "Standard tracked (3-7 days)"
-        : "Express + insurance (1-4 days)"
-    }`;
-
-  const notes = [
-    clean(data.notes, 500),
-    shippingNote,
-    discountNote,
-  ]
-    .filter(Boolean)
-    .join("\n");
+  const shippingNote = `Shipping: ${
+    shippingMethod === "standard" ? "Standard tracked (3-7 days)" : "Express + insurance (1-4 days)"
+  }`;
+  const notes = [clean(data.notes, 500), shippingNote, pricingNote(q)].filter(Boolean).join("\n");
 
   return {
-    customer: {
-      firstName,
-      lastName,
-      email,
-      phone,
-      addressLine,
-      city,
-      state,
-      postcode,
-      shippingAddress,
+    creditUnits: q.creditUnits,
+    payload: {
+      customer: { firstName, lastName, email, phone, addressLine, city, state, postcode, shippingAddress },
+      notes,
+      shippingMethod,
+      totals: {
+        subtotal: q.itemsCents / 100,
+        discount: discountDollars(q),
+        shipping: q.shippingCents / 100,
+        total: q.totalCents / 100,
+        stackPercent: q.multibuyPercent,
+      },
+      lines: priced.lines,
+      pricing: pricingSnapshot(priced, null),
     },
-    notes,
-    shippingMethod,
-    totals: {
-      subtotal: totals.subtotal,
-      discount: totals.discountTotal,
-      shipping: totals.shipping,
-      total: totals.total,
-      stackPercent: totals.stackPercent,
-    },
-    lines,
   };
 }
 
@@ -251,9 +138,9 @@ export const createStripeSandboxPayment = createServerFn({
     const Stripe = (await import("stripe")).default;
     const stripe = new Stripe(secretKey);
 
-    const payload = await prepareStripeOrder(
+    const { payload, creditUnits } = await prepareStripeOrder(
       data,
-      context.supabase,
+      context.userId,
     );
 
     const amountCents = Math.round(
@@ -262,13 +149,25 @@ export const createStripeSandboxPayment = createServerFn({
 
     if (amountCents <= 0) {
       throw new Error(
-        "The order total must be greater than zero.",
+        "This order total is $0 — please submit it using the PayID option instead.",
       );
     }
 
     const { supabaseAdmin } = await import(
       "@/integrations/supabase/client.server"
     );
+
+    // Reserve store credit atomically before the attempt exists.
+    let reservationId: string | null = null;
+    if (creditUnits > 0) {
+      const { data: rid, error: reserveError } = await (supabaseAdmin as any).rpc(
+        "reserve_store_credit",
+        { _user_id: context.userId, _units: creditUnits, _payment_attempt_id: null, _ttl_minutes: 2880 },
+      );
+      if (reserveError) throw new Error("Your store credit balance changed. Please review your order.");
+      reservationId = String(rid);
+      payload.pricing = { ...(payload.pricing ?? {}), credit_reservation_id: reservationId };
+    }
 
     const { data: attempt, error: attemptError } =
       await (supabaseAdmin as any)
@@ -285,7 +184,14 @@ export const createStripeSandboxPayment = createServerFn({
         .single();
 
     if (attemptError) {
+      if (reservationId) await (supabaseAdmin as any).rpc("release_store_credit", { _reservation_id: reservationId });
       throw attemptError;
+    }
+    if (reservationId) {
+      await (supabaseAdmin as any).rpc("attach_store_credit_reservation", {
+        _reservation_id: reservationId,
+        _payment_attempt_id: attempt.id,
+      });
     }
 
     try {
@@ -335,6 +241,7 @@ export const createStripeSandboxPayment = createServerFn({
         amountCents,
       };
        } catch (error) {
+      await (supabaseAdmin as any).rpc("release_store_credit_for_attempt", { _payment_attempt_id: attempt.id });
       await (supabaseAdmin as any)
         .from("payment_attempts")
         .update({
@@ -498,6 +405,15 @@ export const verifyStripeSandboxPayment = createServerFn({
             error_code: failure,
           })
           .eq("id", attempt.id);
+
+        // Only release credit when Stripe says this payment can no longer succeed.
+        if (
+          !amountMatches || !currencyMatches || !metadataMatches ||
+          paymentIntent.status === "canceled" || paymentIntent.status === "requires_payment_method"
+        ) {
+          await (supabaseAdmin as any).rpc("release_store_credit_for_attempt", { _payment_attempt_id: attempt.id });
+        }
+
 
         throw new Error(
           paymentIntent.status === "succeeded"

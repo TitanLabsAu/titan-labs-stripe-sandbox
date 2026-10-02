@@ -9,6 +9,7 @@ import {
   type AdminOrder,
 } from "@/lib/admin.functions";
 import { orderReference } from "@/lib/order-reference";
+import { AdminMemberRewards } from "@/components/AdminMemberRewards";
 
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString("en-AU", {
@@ -237,6 +238,8 @@ function MemberDetail({
               </ul>
             )}
           </section>
+
+          <AdminMemberRewards userId={member.id} />
 
           <section className="space-y-4">
             <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">

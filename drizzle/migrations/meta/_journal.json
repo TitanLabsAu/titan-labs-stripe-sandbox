@@ -120,6 +120,13 @@
       "when": 1790913751266,
       "tag": "0018_catalogue_sections_and_reviews",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1790930994057,
+      "tag": "0017_referral_rewards_and_pricing_settings",
+      "breakpoints": true
     }
   ]
 }
