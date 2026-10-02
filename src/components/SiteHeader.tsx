@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { BookOpen, Calculator, CalendarDays, FlaskConical, Home, LogIn, Shield, UserPlus, UserRound } from "lucide-react";
+import { BookOpen, Calculator, CalendarDays, FlaskConical, Home, LogIn, PenTool, Shield, UserPlus, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CartSheet } from "@/components/CartSheet";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,7 +27,7 @@ export function SiteHeader() {
 
   const navButton = (
     key: string,
-    to: "/" | "/calculator" | "/admin" | "/account" | "/auth" | "/auth/signup" | "/calendar" | "/research-lab",
+    to: "/" | "/calculator" | "/admin" | "/account" | "/auth" | "/auth/signup" | "/calendar" | "/research-lab" | "/pens",
     labelKey: string,
     Icon: typeof Home,
     variant: "ghost" | "outline" = "ghost",
@@ -64,10 +64,10 @@ export function SiteHeader() {
         navAlign === "right" && "justify-end",
       )}
     >
-      {[...tabOrder, "research", ...(signedIn ? ["calendar"] : [])].map((tab) => {
+      {[...tabOrder, "research", "pens", ...(signedIn ? ["calendar"] : [])].map((tab) => {
         if (tab === "home") return navButton(tab, "/", "header_nav_home", Home);
         if (tab === "range") return <Button key={tab} asChild variant="outline" size="icon"><Link to="/range" aria-label={catalogueName(content)} title={catalogueName(content)}><FlaskConical /></Link></Button>;
-        if (tab === "calculator") return navButton(tab, "/calculator", "header_nav_calculator", Calculator, "outline");\n        if (tab === "research") return <Button key={tab} asChild variant="outline" size="icon"><Link to="/research-lab" aria-label="Titan Research Lab" title="Titan Research Lab"><BookOpen /></Link></Button>;\n        if (tab === "calendar" && signedIn) return <Button key={tab} asChild variant="outline" size="icon"><Link to="/calendar" aria-label="My Calendar" title="My Calendar"><CalendarDays /></Link></Button>;
+        if (tab === "calculator") return navButton(tab, "/calculator", "header_nav_calculator", Calculator, "outline");\n        if (tab === "pens") return <Button key={tab} asChild variant="outline" size="icon"><Link to="/pens" aria-label="Disposable Pens" title="Disposable Pens"><PenTool /></Link></Button>;\n        if (tab === "research") return <Button key={tab} asChild variant="outline" size="icon"><Link to="/research-lab" aria-label="Titan Research Lab" title="Titan Research Lab"><BookOpen /></Link></Button>;\n        if (tab === "calendar" && signedIn) return <Button key={tab} asChild variant="outline" size="icon"><Link to="/calendar" aria-label="My Calendar" title="My Calendar"><CalendarDays /></Link></Button>;
         if (tab === "admin" && signedIn && isAdmin) return navButton(tab, "/admin", "header_nav_admin", Shield, "outline");
         if (tab === "account" && signedIn) return navButton(tab, "/account", "header_nav_account", UserRound, "outline");
         if (tab === "login" && !signedIn) return navButton(tab, "/auth", "header_nav_login", LogIn, "outline");
