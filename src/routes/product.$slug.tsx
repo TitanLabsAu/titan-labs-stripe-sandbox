@@ -181,6 +181,25 @@ function ProductPage() {
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
                     {allowsKit(product) ? "Vial size" : "Size"}
                   </p>
+                  {variants.length >= 4 ? (
+                    <select
+                      className="mt-3 h-11 w-full rounded-md border border-input bg-background px-3 text-sm font-semibold text-foreground"
+                      aria-label="Choose option"
+                      value={selected.variantId ?? ""}
+                      onChange={(e) => setVariantId(e.target.value)}
+                    >
+                      {variants.map((variant) => {
+                        const soldOut = stockState(variantStockFor(product, variant.id)) === "out";
+                        const vSoon = Boolean(variant.comingSoon) && !product.comingSoon;
+                        return (
+                          <option key={variant.id} value={variant.id}>
+                            {variant.label} — {formatPrice(variant.price)}
+                            {vSoon ? " · Coming soon" : soldOut ? " · Sold out" : ""}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  ) : (
                   <div className="mt-3 flex flex-wrap gap-2">
                     {variants.map((variant) => {
                       const soldOut = stockState(variantStockFor(product, variant.id)) === "out";
@@ -209,6 +228,20 @@ function ProductPage() {
                       );
                     })}
                   </div>
+                  )}
+                  {(() => {
+                    const items = variants.find((v) => v.id === selected.variantId)?.contents ?? [];
+                    return items.length ? (
+                      <div className="mt-3 rounded-md border border-primary/25 bg-primary/5 p-3">
+                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Bundle includes</p>
+                        <ul className="mt-1 space-y-0.5 text-sm text-foreground">
+                          {items.map((it, k) => (
+                            <li key={k}>{it.quantity} × {it.name}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null;
+                  })()}
                 </div>
               ) : null}
 
