@@ -1,3 +1,4 @@
+import { cmsValues } from "@/lib/storefrontContent";
 import { TitanPageHeading } from "@/components/TitanPageHeading";
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -204,6 +205,7 @@ export const Route = createFileRoute("/checkout")({
 });
 
 function CheckoutPage() {
+  const copy = cmsValues(useSiteContent().data, "checkout_copy");
   const { items, count, subtotal, getLinePrice, getLineLabel, clear } =
     useCart();
   const { getProduct } = useProducts();
@@ -608,7 +610,7 @@ function CheckoutPage() {
             </p>
             {confirmed.guest ? (
               <p className="mt-2 text-sm text-muted-foreground">
-                Guest order: your confirmation is sent to the email you entered. Keep your order number for any questions.
+                {copy.guest_confirmed_note}
               </p>
             ) : null}
             <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">
@@ -676,9 +678,7 @@ function CheckoutPage() {
           eyebrow="Review · Confirm · Complete"
           title="Order summary"
         />
-        <p className="mt-2 text-sm text-muted-foreground">
-          Confirm your delivery details and review your order.
-        </p>
+        {copy.intro ? <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{copy.intro}</p> : null}
         <FirstOfferBanner className="mt-4" />
         {authLost && !session ? (
           <div role="alert" className="mt-4 border border-destructive/60 bg-destructive/10 p-4 text-sm">
@@ -704,9 +704,11 @@ function CheckoutPage() {
         ) : null}
         {mode === "guest" ? (
           <div role="status" data-testid="guest-active" className="mt-4 border border-primary/60 bg-primary/10 p-4 text-sm">
-            <p className="font-bold text-foreground">Checking out as a guest.</p>
+            <p className="font-bold text-foreground">{copy.guest_active_title}</p>
             <p className="mt-1 text-muted-foreground">
-              Your confirmation will go to the email you enter below. <a className="underline" href="/auth?redirect=%2Fcheckout">Log in</a> instead to use member rewards.
+              {String(copy.guest_active_body).split("{login}").map((part: string, i: number) => (
+                <span key={i}>{i > 0 ? <a className="underline" href="/auth?redirect=%2Fcheckout">{copy.login_label}</a> : null}{part}</span>
+              ))}
             </p>
           </div>
         ) : null}
@@ -1093,10 +1095,10 @@ function CheckoutPage() {
                 <>
                   <div className="mt-6 grid gap-2">
                     <Button asChild size="lg" className="w-full font-bold uppercase tracking-wide">
-                      <a href="/auth?redirect=%2Fcheckout">Log in</a>
+                      <a href="/auth?redirect=%2Fcheckout">{copy.login_label}</a>
                     </Button>
                     <Button asChild size="lg" variant="outline" className="w-full font-bold uppercase tracking-wide">
-                      <a href="/auth/signup?redirect=%2Fcheckout">Join as a member</a>
+                      <a href="/auth/signup?redirect=%2Fcheckout">{copy.join_label}</a>
                     </Button>
                     <Button
                       type="button"
@@ -1106,12 +1108,12 @@ function CheckoutPage() {
                       disabled={startingGuest}
                       onClick={() => void chooseGuest()}
                     >
-                      {startingGuest ? "Starting…" : "Continue as guest"}
+                      {startingGuest ? "Starting…" : copy.guest_label}
                     </Button>
                   </div>
 
                   <p className="mt-3 text-center text-xs text-muted-foreground">
-                    Your cart is saved while you log in. Guests can check out without an account; member rewards and store credit need an account.
+                    {copy.choice_note}
                   </p>
                 </>
               )}

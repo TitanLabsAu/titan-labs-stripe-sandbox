@@ -328,6 +328,7 @@ export const HOME_SECTIONS: PageSection[] = [
   { key: "pillars", label: "Information boxes" },
   { key: "signup", label: "Sign-up box" },
   { key: "offer", label: "New-member offer banner", insertAfter: "start" },
+  { key: "page-heading", label: "Page heading", insertAfter: "start-after-offer" },
   { key: "testing", label: "Testing Transparency section", insertAfter: "pillars" },
 ];
 
@@ -354,6 +355,8 @@ export function pageSectionOrder(
   for (const section of sections) {
     if (order.includes(section.key)) continue;
     if (section.insertAfter === "start") order.unshift(section.key);
+    // Compatibility: a newly-ordered block that historically sat at the very top, just below a leading offer banner.
+    else if (section.insertAfter === "start-after-offer") order.splice(order[0] === "offer" ? 1 : 0, 0, section.key);
     else if (section.insertAfter && order.includes(section.insertAfter)) order.splice(order.indexOf(section.insertAfter) + 1, 0, section.key);
     else order.push(section.key);
   }

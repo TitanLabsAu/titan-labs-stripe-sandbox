@@ -1,4 +1,4 @@
-import { cmsKey, mergeSectionChanges, validateSection } from "@/lib/storefrontContent";
+import { assertResetBase, cmsKey, mergeSectionChanges, validateSection } from "@/lib/storefrontContent";
 import { allowsKit, sanitizeBundle } from "@/lib/products";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -672,13 +672,24 @@ export const adminSaveStorefrontSection = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context as any);
     const key = cmsKey(data.id);
-    let body = "{}";
-    if (!data.reset) {
-      const { data: row, error: readError } = await context.supabase.from("site_content").select("body").eq("key", key).maybeSingle();
-      if (readError) throw readError;
-      body = JSON.stringify(mergeSectionChanges(data.id, (row as any)?.body ?? undefined, data.changes, data.base));
+    const { data: row, error: readError } = await context.supabase.from("site_content").select("body").eq("key", key).maybeSingle();
+    if (readError) throw readError;
+    const currentRaw: string | undefined = (row as any)?.body ?? undefined;
+    const body = data.reset
+      ? (assertResetBase(data.id, currentRaw, data.base), "{}")
+      : JSON.stringify(mergeSectionChanges(data.id, currentRaw, data.changes, data.base));
+    const conflict = "This section was changed by someone else while you were editing. Reload and try again.";
+    if (row) {
+      // Compare-and-set: only write if the stored body is exactly what we merged against.
+      const { data: updated, error } = await context.supabase.from("site_content").update({ body }).eq("key", key).eq("body", currentRaw as string).select("key");
+      if (error) throw error;
+      if (!updated || updated.length !== 1) throw new Error(conflict);
+    } else {
+      const { error } = await context.supabase.from("site_content").insert({ key, body });
+      if (error) {
+        if ((error as any).code === "23505") throw new Error(conflict);
+        throw error;
+      }
     }
-    const { error } = await context.supabase.from("site_content").upsert({ key, body }, { onConflict: "key" });
-    if (error) throw error;
-    return { ok: true };
+    return { ok: true as const, raw: body };
   });

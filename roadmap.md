@@ -23,11 +23,11 @@
 - [x] Add the shared cart Equipment/BAC Water upsell and URL-addressable Equipment catalogue navigation.
 
 ## Referral / rewards program (in progress)
-- [ ] DB: settings, code kinds, ledger, reservations, settlement triggers
-- [ ] Admin: codes (kind/member/limits, default discount 0), settings, member credit panel
-- [ ] /referrals page + footer link; member account rewards card
-- [ ] Checkout: code + credit, server quote, all payment paths reprice, 20% cap
-- [ ] Tests + typecheck/build + preview checks (no publish)
+- [x] DB: settings, code kinds, ledger, reservations, settlement triggers
+- [x] Admin: codes (kind/member/limits, default discount 0), settings, member credit panel
+- [x] /referrals page + footer link; member account rewards card
+- [x] Checkout: code + credit, server quote, all payment paths reprice, 20% cap
+- [x] Tests + typecheck/build + preview checks (no publish)
 - [x] Move Referral Program footer link under Navigate
 - [x] Verify kit savings count toward 20% combined cap
 - [x] Rolled-back DB tests: concurrency, idempotency, refund, release; RPC privilege review
@@ -40,13 +40,13 @@
 - [x] Tests for all above + concurrency
 
 ## Guest checkout + first-purchase offer (rollout-updates-1-6, no publish)
-- [ ] Migration 0026 applied; journal renamed
-- [ ] Attached Stripe first-offer claims never expire while intent payable (release only on fail/cancel)
-- [ ] Eligibility uses verified auth email + contact email
-- [ ] AUTH_EXPIRED: try session refresh, then sign-in/guest choice; no silent downgrade
-- [ ] Guest cookie works across server fns and Stripe redirect
-- [ ] Server-side acknowledgement both paths; Stripe/webhook/PayID wired
-- [ ] Banner, Admin settings, guest labels, tests, build
+- [x] Migration 0026 applied; journal renamed
+- [x] Attached Stripe first-offer claims never expire while intent payable (release only on fail/cancel)
+- [x] Eligibility uses verified auth email + contact email
+- [x] AUTH_EXPIRED: try session refresh, then sign-in/guest choice; no silent downgrade
+- [x] Guest cookie works across server fns and Stripe redirect
+- [x] Server-side acknowledgement both paths; Stripe/webhook/PayID wired
+- [x] Banner, Admin settings, guest labels, tests, build
 
 ## Guest start fix (no publish)
 - [x] Keep guest cookie httpOnly/Secure/SameSite=Lax; no CSRF/auth weakening
@@ -60,4 +60,5 @@
 - [x] Extend: branding/site name, homepage heading/watermark, footer image/alt, calculator intro, account/calendar/research intros, login/signup copy, starter-kit copy, product info headings
 - [x] Concurrent-edit protection (save only changed fields over latest saved; warn on conflict)
 - [x] Coverage matrix doc (docs/cms-coverage.md)
-- [ ] Remaining gaps listed in docs/cms-coverage.md (reviews carousel, checkout copy, custom header links, product headings, research shell)
+- [x] Remaining gaps listed in docs/cms-coverage.md (reviews carousel, checkout copy, custom header links, product headings, research shell)
+- [x] CMS save hardening: compare-and-set save/reset, freeze editor during save, keep drafts across groups + leave warning, loading/error gate, stricter isSafeUrl/CmsLink

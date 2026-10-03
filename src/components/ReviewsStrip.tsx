@@ -5,6 +5,8 @@ import { Pause, Play, Quote, Star } from "lucide-react";
 import { listPublishedReviews } from "@/lib/reviews.functions";
 import type { CustomerReview } from "@/lib/reviews";
 import { cn } from "@/lib/utils";
+import { cmsValues } from "@/lib/storefrontContent";
+import { useSiteContent } from "@/lib/useCatalog";
 
 export function usePublishedReviews() {
   return useQuery({ queryKey: ["published-reviews"], queryFn: () => listPublishedReviews(), staleTime: 60_000 });
@@ -35,6 +37,7 @@ export function ReviewCard({ review, className }: { review: CustomerReview; clas
 export function ReviewsStrip() {
   const { data } = usePublishedReviews();
   const reviews = data ?? [];
+  const c = cmsValues(useSiteContent().data, "home_reviews");
   const [paused, setPaused] = useState(false);
   const [reduced, setReduced] = useState(false);
   useEffect(() => {
@@ -44,30 +47,31 @@ export function ReviewsStrip() {
     mq.addEventListener("change", on);
     return () => mq.removeEventListener("change", on);
   }, []);
-  if (reviews.length === 0) return null;
-  const animate = reviews.length > 1 && !reduced;
+  if (!c.visible || reviews.length === 0) return null;
+  const animate = c.autoplay === true && reviews.length > 1 && !reduced;
+  const perCard = c.speed === "slow" ? 13 : c.speed === "fast" ? 6 : 9;
 
   return (
     <section aria-labelledby="community-reviews" className="review-band py-14">
       <div className="page-shell">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="technical-label text-[color:var(--review-blue)]">Community</p>
-            <h2 id="community-reviews" className="font-display mt-2 text-2xl font-black uppercase sm:text-3xl">What our community says</h2>
+            <p className="technical-label text-[color:var(--review-blue)]">{c.eyebrow}</p>
+            <h2 id="community-reviews" className="font-display mt-2 text-2xl font-black uppercase sm:text-3xl">{c.title}</h2>
           </div>
           <div className="flex items-center gap-3">
             {animate ? (
               <button type="button" onClick={() => setPaused((p) => !p)} aria-pressed={paused} className="inline-flex items-center gap-2 rounded-full border border-[color:var(--review-line)] px-4 py-2 text-xs font-bold uppercase tracking-[0.14em]">
                 {paused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
-                {paused ? "Play" : "Pause"}
+                {paused ? c.play_label : c.pause_label}
               </button>
             ) : null}
-            <Link to="/reviews" className="text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--review-blue)] hover:underline">All reviews</Link>
+            {c.cta_label ? <Link to="/reviews" className="text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--review-blue)] hover:underline">{c.cta_label}</Link> : null}
           </div>
         </div>
       </div>
       <div className={cn("review-viewport mt-8", animate ? "overflow-hidden" : "overflow-x-auto")}>
-        <div className={cn("review-track flex w-max gap-5 px-4", animate && "review-track--animate", paused && "review-track--paused")} style={animate ? { animationDuration: `${Math.max(30, reviews.length * 9)}s` } : undefined}>
+        <div className={cn("review-track flex w-max gap-5 px-4", animate && "review-track--animate", paused && "review-track--paused")} style={animate ? { animationDuration: `${Math.max(20, reviews.length * perCard)}s` } : undefined}>
           {reviews.map((r) => <ReviewCard key={r.id} review={r} className="w-[19rem] sm:w-[22rem]" />)}
           {animate ? (
             <div aria-hidden="true" className="flex gap-5" inert>

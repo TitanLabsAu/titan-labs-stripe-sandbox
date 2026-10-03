@@ -13,6 +13,7 @@ export type CmsField =
   | { key: string; label: string; type: "url"; help?: string | undefined }
   | { key: string; label: string; type: "image"; help?: string | undefined }
   | { key: string; label: string; type: "toggle"; help?: string | undefined }
+  | { key: string; label: string; type: "choice"; options: [string, string][]; help?: string | undefined }
   | { key: string; label: string; type: "list"; itemFields: ListItemField[]; maxItems: number; help?: string | undefined };
 
 export type AdminShortcut = "products" | "reviews" | "discounts" | "members" | "edits";
@@ -83,6 +84,24 @@ export const CMS_SECTIONS: CmsSection[] = [
     shortcut: { tab: "discounts", label: "Change offer amount/settings" },
     fields: [B("visible", "Show on homepage"), T("text", "Banner text", 200), T("join_label", "Join link label", 30), T("login_label", "Log in link label", 30)],
     defaults: { visible: true, text: "New members receive {percent}% off their first purchase.", join_label: "Join", login_label: "Log in" },
+  },
+  {
+    id: "home_reviews",
+    group: "Homepage",
+    title: "Homepage reviews carousel",
+    description: "Shows only genuine published reviews. The carousel never moves for visitors who prefer reduced motion and always has a pause button.",
+    shortcut: { tab: "reviews", label: "Manage reviews" },
+    fields: [
+      B("visible", "Show on homepage"),
+      T("eyebrow", "Small heading", 60),
+      T("title", "Heading", 100),
+      T("cta_label", "All reviews link label (leave empty to hide)", 40),
+      B("autoplay", "Scroll automatically"),
+      { key: "speed", label: "Scroll speed", type: "choice", options: [["slow", "Slow"], ["normal", "Normal"], ["fast", "Fast"]] },
+      T("pause_label", "Pause button label", 20),
+      T("play_label", "Play button label", 20),
+    ],
+    defaults: { visible: true, eyebrow: "Community", title: "What our community says", cta_label: "All reviews", autoplay: true, speed: "normal", pause_label: "Pause", play_label: "Play" },
   },
   {
     id: "badge",
@@ -271,6 +290,73 @@ export const CMS_SECTIONS: CmsSection[] = [
     defaults: { visible: true, heading: "Need Equipment? Tap to browse", body: "Or add BAC Water below before checkout." },
   },
   {
+    id: "checkout_copy",
+    group: "Cart & checkout",
+    title: "Checkout guest & member wording",
+    description: "Explanatory wording only. Discounts, eligibility, acknowledgements and payment rules are not affected.",
+    fields: [
+      T("intro", "Checkout introduction", 200),
+      T("login_label", "Log in button", 40),
+      T("join_label", "Join button", 40),
+      T("guest_label", "Continue as guest button", 40),
+      P("choice_note", "Text under the buttons", 300),
+      T("guest_active_title", "Guest mode heading", 80),
+      P("guest_active_body", "Guest mode text ({login} becomes a Log in link)", 300),
+      P("guest_confirmed_note", "Guest order confirmation note", 300),
+    ],
+    defaults: {
+      intro: "Confirm your delivery details and review your order.",
+      login_label: "Log in",
+      join_label: "Join as a member",
+      guest_label: "Continue as guest",
+      choice_note: "Your cart is saved while you log in. Guests can check out without an account; member rewards and store credit need an account.",
+      guest_active_title: "Checking out as a guest.",
+      guest_active_body: "Your confirmation will go to the email you enter below. {login} instead to use member rewards.",
+      guest_confirmed_note: "Guest order: your confirmation is sent to the email you entered. Keep your order number for any questions.",
+    },
+  },
+  {
+    id: "product_page",
+    group: "Pages",
+    title: "Product page & catalogue labels",
+    shortcut: { tab: "products", label: "Manage products" },
+    fields: [
+      T("usage_heading", "Product information heading", 80),
+      T("more_heading", "\"More products\" heading (use {catalogue} for the catalogue name)", 80),
+      T("link_fallback", "Default label for product links", 40),
+      T("section_range", "Catalogue tab: Range", 30),
+      T("section_pens", "Catalogue tab: Pens", 30),
+      T("section_equipment", "Catalogue tab: Equipment", 30),
+    ],
+    defaults: { usage_heading: "How to use this product", more_heading: "More from {catalogue}", link_fallback: "View link", section_range: "Range", section_pens: "Pens", section_equipment: "Equipment" },
+  },
+  {
+    id: "research_entry",
+    group: "Pages",
+    title: "Research Lab entry labels",
+    description: "Labels on each Research Lab entry. Scientific content and research-use notices are managed in Research Lab.",
+    fields: [
+      T("map_area", "Research area label", 40), T("map_evidence", "Evidence label", 40), T("map_refs", "References label", 40), T("map_check", "Source check label", 40),
+      T("quick_read", "Quick read label", 40), T("level", "Research level heading", 60), T("studying", "\"What researchers are studying\" heading", 80),
+      T("related_eyebrow", "Related research label", 40), T("related_title", "Related research heading", 80), T("blends", "Titan Blends heading", 60),
+      T("details", "Research details heading", 60), T("composition", "Composition heading", 60), T("crossref", "Cross-reference heading", 80), T("references", "References heading", 40),
+    ],
+    defaults: {
+      map_area: "Research area", map_evidence: "Evidence", map_refs: "References", map_check: "Source check",
+      quick_read: "Quick read", level: "Research level", studying: "What researchers are studying",
+      related_eyebrow: "Related research", related_title: "Explore similar research", blends: "Found in Titan Blends",
+      details: "Research details", composition: "Composition & identifiers", crossref: "Cross-reference & regulatory status", references: "References",
+    },
+  },
+  {
+    id: "nav_header",
+    group: "Navigation",
+    title: "Header extra links",
+    description: "Extra text links in the top menu, shown after the built-in buttons. Log in, account, Admin and cart stay automatic.",
+    fields: [{ key: "links", label: "Links", type: "list", maxItems: 6, itemFields: [{ key: "label", label: "Label", type: "text", max: 30 }, { key: "url", label: "Link", type: "url" }, { key: "visible", label: "Visible", type: "toggle" }] }],
+    defaults: { links: [] },
+  },
+  {
     id: "nav_footer",
     group: "Navigation",
     title: "Footer extra links",
@@ -291,16 +377,28 @@ export const cmsKey = (id: string) => `cms:${id}`;
 export const cmsSection = (id: string) => CMS_SECTIONS.find((s) => s.id === id);
 
 /** Safe link: internal "/path" (not "//") or http(s) URL. Empty allowed. */
-export function isSafeUrl(v: string) {
+export function canonicalUrl(v: string): string | null {
   const s = v.trim();
-  if (!s) return true;
-  if (s.startsWith("/")) return !s.startsWith("//") && !s.startsWith("/\\") && !/[\s<>"]/.test(s);
+  if (!s) return "";
+  // No control chars, whitespace, backslashes or HTML-breaking characters anywhere.
+  if (/[\u0000-\u001f\u007f\s\\<>"'`]/.test(s)) return null;
+  if (s.startsWith("/")) return s.startsWith("//") ? null : s;
+  if (!/^https?:\/\/[^/]/i.test(s)) return null;
   try {
     const u = new URL(s);
-    return (u.protocol === "https:" || u.protocol === "http:") && !/[\s<>"]/.test(s);
+    return u.protocol === "https:" || u.protocol === "http:" ? s : null;
   } catch {
-    return false;
+    return null;
   }
+}
+export const isSafeUrl = (v: string) => canonicalUrl(v) !== null;
+
+/** Visible, labelled, safe items from a structured link list (keeps saved order). */
+export function visibleCmsLinks(links: unknown): { label: string; url: string }[] {
+  if (!Array.isArray(links)) return [];
+  return links
+    .filter((l) => l && l.visible !== false && typeof l.label === "string" && l.label.trim() && typeof l.url === "string" && canonicalUrl(l.url))
+    .map((l) => ({ label: l.label.trim(), url: canonicalUrl(l.url)! }));
 }
 export const isExternalUrl = (v: string) => /^https?:\/\//i.test(v.trim());
 
@@ -320,6 +418,8 @@ function fieldSchema(f: CmsField): z.ZodTypeAny {
       return urlSchema;
     case "toggle":
       return z.boolean();
+    case "choice":
+      return z.enum(f.options.map((o) => o[0]) as [string, ...string[]]);
     case "list":
       return z.array(z.object(Object.fromEntries(f.itemFields.map((i) => [i.key, itemSchema(i)]))).strict()).max(f.maxItems);
   }
@@ -380,4 +480,16 @@ export function mergeSectionChanges(
   }
   const overrides = validateSection(id, parseOverrides(currentRaw));
   return validateSection(id, { ...overrides, ...changes });
+}
+
+/** Reset guard: refuses to clear a section unless it still matches the snapshot the editor showed. */
+export function assertResetBase(id: string, currentRaw: string | undefined, base: Record<string, unknown>) {
+  const section = cmsSection(id);
+  if (!section) throw new Error("Unknown content section");
+  const current: Record<string, unknown> = cmsValues({ [cmsKey(id)]: currentRaw ?? "" }, id);
+  for (const f of section.fields) {
+    if (JSON.stringify(current[f.key]) !== JSON.stringify(base[f.key])) {
+      throw new Error(`"${f.label}" was changed by someone else. Reload before resetting.`);
+    }
+  }
 }

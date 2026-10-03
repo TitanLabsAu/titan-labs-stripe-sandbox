@@ -26,12 +26,15 @@ Editor: Admin > Website editor > Storefront content (grouped tabs). Older tabs (
 | Legal pages | Yes (existing) | Legal tab | Acknowledgement versioning fixed |
 | Payment copy | Yes (existing) | Payments tab | Payment logic fixed |
 
-## Not yet editable (known gaps)
-- Homepage reviews carousel heading/display settings (ReviewsStrip)
-- Checkout member-offer / guest explanation copy
-- Header nav: adding brand-new custom links (order/visibility of existing tabs already editable)
-- Product page fixed headings (e.g. "Product information"), catalogue category labels
-- Research entry page and shared Research Lab shell labels
-- Footer background image alt (decorative, intentionally empty)
+| Homepage reviews carousel (visibility, eyebrow, heading, All-reviews link, autoplay, speed, Play/Pause labels) | Yes | Homepage | Never animates under reduced motion; Pause always shown when moving; reviews in Reviews tab |
+| Homepage page heading as an ordered block | Yes | Home > section order | Default: offer banner, then heading (original position) |
+| Checkout guest/member wording (intro, buttons, notes, guest mode, guest confirmation) | Yes | Cart & checkout | Eligibility, discounts, acknowledgement, payments fixed |
+| Header extra links (label/link/order/visibility, max 6) | Yes | Navigation | Log in/Join/Account/Admin/Cart stay automatic |
+| Product info heading, More-products heading, link fallback, catalogue Range/Pens/Equipment tab names | Yes | Pages | Section assignment: Products |
+| Research Lab entry labels (map, quick read, headings, accordions) | Yes | Pages | Scientific text, research-use notice: Research Lab / fixed |
 
-Coverage is therefore partial, not 100%.
+## Intentionally fixed
+- Footer background image alt: decorative, intentionally empty.
+- Research-use and legal notices: compliance wording, managed in Research Lab / Legal.
+
+Every registry section is read by its storefront renderer (audited: each `cms:<id>` is used by at least one page component).

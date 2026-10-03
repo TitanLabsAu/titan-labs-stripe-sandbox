@@ -27,3 +27,61 @@ describe("storefront CMS", () => {
     expect(fillTokens("{percent}% off {x}", { percent: 10 })).toBe("10% off {x}");
   });
 });
+
+import { pageSectionOrder, HOME_SECTIONS } from "../src/lib/homeContent";
+import { assertResetBase, canonicalUrl, visibleCmsLinks } from "../src/lib/storefrontContent";
+
+describe("homepage order compatibility", () => {
+  const order = (saved?: string) => pageSectionOrder(saved === undefined ? {} : { home_layout_order: saved }, "home_layout_order", HOME_SECTIONS);
+  test("default keeps offer above heading and testing after pillars", () => {
+    const o = order();
+    expect(o.slice(0, 3)).toEqual(["offer", "page-heading", "tagline"]);
+    expect(o[o.indexOf("pillars") + 1]).toBe("testing");
+  });
+  test("legacy saved order (no offer/heading/testing) keeps relative order", () => {
+    const o = order("featured,tagline,headline,pillars,signup,intro");
+    expect(o).toEqual(["offer", "page-heading", "featured", "tagline", "headline", "pillars", "testing", "signup", "intro", "shipping", "range-button", "pictures"]);
+  });
+  test("saved order with offer moved keeps it; heading goes to the top", () => {
+    const o = order("tagline,offer,pillars,testing");
+    expect(o[0]).toBe("page-heading");
+    expect(o.indexOf("offer")).toBeGreaterThan(o.indexOf("tagline"));
+    expect(o.indexOf("testing")).toBe(o.indexOf("pillars") + 1);
+  });
+  test("explicitly saved heading position is respected", () => {
+    expect(order("tagline,page-heading,offer").slice(0, 3)).toEqual(["tagline", "page-heading", "offer"]);
+  });
+  test("unknown keys dropped, no duplicates", () => {
+    const o = order("bogus,tagline,tagline");
+    expect(o.includes("bogus" as never)).toBe(false);
+  });
+});
+
+describe("structured link lists", () => {
+  test("header links: order, visibility, unsafe and blank filtered, trimmed", () => {
+    const links = [
+      { label: "B", url: "/b", visible: true },
+      { label: "Hidden", url: "/h", visible: false },
+      { label: " A ", url: " https://a.com/x ", visible: true },
+      { label: "", url: "/empty", visible: true },
+      { label: "Bad", url: "javascript:alert(1)", visible: true },
+    ];
+    expect(visibleCmsLinks(links)).toEqual([{ label: "B", url: "/b" }, { label: "A", url: "https://a.com/x" }]);
+    expect(visibleCmsLinks(undefined)).toEqual([]);
+    expect(() => validateSection("nav_header", { links: Array.from({ length: 7 }, () => ({ label: "x", url: "/x", visible: true })) })).toThrow();
+    expect(validateSection("nav_header", { links: [{ label: "x", url: "/x", visible: true }] })).toBeTruthy();
+  });
+  test("hardened URLs", () => {
+    for (const bad of ["/a\\b", "/a\u0000b", "java\nscript:alert(1)", "\tjavascript:x", "https:/\\evil.com", "https:evil.com", "/a b", "data:image/png;base64,x"]) expect(canonicalUrl(bad)).toBeNull();
+    expect(canonicalUrl("  /range ")).toBe("/range");
+  });
+  test("choice field validated", () => {
+    expect(() => validateSection("home_reviews", { speed: "warp" })).toThrow();
+    expect(validateSection("home_reviews", { speed: "slow", autoplay: false })).toEqual({ speed: "slow", autoplay: false });
+  });
+  test("reset refuses when content changed since editor snapshot", () => {
+    const shown = cmsValues({}, "home_offer");
+    expect(() => assertResetBase("home_offer", JSON.stringify({ visible: false }), shown)).toThrow(/changed by someone else/);
+    expect(() => assertResetBase("home_offer", undefined, shown)).not.toThrow();
+  });
+});
