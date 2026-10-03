@@ -59,17 +59,33 @@ function SectionEditor({ section }: { section: CmsSection }) {
   const saved = useMemo(() => cmsValues(content, section.id), [content, section.id]);
   const usingDefaults = Object.keys(parseOverrides(content?.[cmsKey(section.id)])).length === 0;
   const [draft, setDraft] = useState<Record<string, any>>(saved);
-  useEffect(() => setDraft(saved), [saved]);
+  const savedJson = JSON.stringify(saved);
+  const [baseJson, setBaseJson] = useState(savedJson);
+  useEffect(() => {
+    // Adopt fresh saved values only when there are no unsaved edits here.
+    setDraft((d) => (JSON.stringify(d) === baseJson ? saved : d));
+    setBaseJson(savedJson);
+  }, [savedJson]);
   const dirty = JSON.stringify(draft) !== JSON.stringify(saved);
   const check = sectionSchema(section).safeParse(draft);
   const errors = new Map<string, string>();
   if (!check.success) for (const i of check.error.issues) errors.set(String(i.path[0]), i.message);
 
   const save = useMutation({
-    mutationFn: (values: Record<string, unknown>) => adminSaveStorefrontSection({ data: { id: section.id, values } }),
-    onSuccess: async (_d, values) => {
+    mutationFn: (input: { reset?: boolean }) => {
+      const changes: Record<string, unknown> = {};
+      const base: Record<string, unknown> = {};
+      for (const k of Object.keys(draft)) {
+        if (JSON.stringify(draft[k]) !== JSON.stringify(saved[k])) {
+          changes[k] = draft[k];
+          base[k] = saved[k];
+        }
+      }
+      return adminSaveStorefrontSection({ data: { id: section.id, reset: input.reset, changes, base } });
+    },
+    onSuccess: async (_d, input) => {
       await qc.invalidateQueries({ queryKey: ["site-content"] });
-      toast.success(Object.keys(values).length ? `${section.title} saved` : `${section.title} reset to default`);
+      toast.success(input.reset ? `${section.title} reset to default` : `${section.title} saved`);
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not save"),
   });
@@ -96,14 +112,14 @@ function SectionEditor({ section }: { section: CmsSection }) {
         ))}
       </div>
       <div className="mt-6 flex flex-wrap gap-2">
-        <Button disabled={!dirty || !check.success || save.isPending} onClick={() => save.mutate(draft)}>
+        <Button disabled={!dirty || !check.success || save.isPending} onClick={() => save.mutate({})}>
           {save.isPending ? <Loader2 className="animate-spin" aria-hidden /> : null} Save
         </Button>
         <Button variant="outline" disabled={!dirty || save.isPending} onClick={() => setDraft(saved)}>Discard changes</Button>
         <Button
           variant="ghost"
           disabled={usingDefaults || save.isPending}
-          onClick={() => window.confirm(`Reset "${section.title}" to its default content?`) && save.mutate({})}
+          onClick={() => window.confirm(`Reset "${section.title}" to its default content?`) && save.mutate({ reset: true })}
         >
           <RotateCcw aria-hidden /> Reset to default
         </Button>

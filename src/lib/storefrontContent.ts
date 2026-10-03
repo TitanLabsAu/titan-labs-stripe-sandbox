@@ -113,6 +113,69 @@ export const CMS_SECTIONS: CmsSection[] = [
     },
   },
   {
+    id: "branding",
+    group: "Homepage",
+    title: "Branding & homepage heading",
+    description: "The site name itself is edited in Home > Page name.",
+    fields: [
+      { key: "logo", label: "Logo image", type: "image", help: "Leave empty to use the built-in logo." },
+      T("home_eyebrow", "Homepage small heading", 80),
+      T("home_title", "Homepage big heading", 80),
+      { key: "watermark", label: "Homepage faded background logo", type: "image", help: "Leave empty to use the built-in logo." },
+      B("watermark_visible", "Show faded background logo"),
+      { key: "footer_image", label: "Footer background image", type: "image", help: "Leave empty to use the built-in picture." },
+    ],
+    defaults: { logo: "", home_eyebrow: "Australian owned · Quality tested", home_title: "Titan Labs // Aus", watermark: "", watermark_visible: true, footer_image: "" },
+  },
+  {
+    id: "page_intros",
+    group: "Pages",
+    title: "Page headings & introductions",
+    description: "Headings at the top of member, tool and guide pages. Leave an introduction empty to hide it.",
+    fields: [
+      T("calc_eyebrow", "Calculator: small heading", 60), T("calc_title", "Calculator: title", 80), P("calc_intro", "Calculator: introduction", 600, "The calculator maths is not editable."),
+      T("account_eyebrow", "Account: small heading", 60), T("account_title", "Account: title", 80), P("account_intro", "Account: introduction", 400),
+      T("calendar_eyebrow", "Calendar: small heading", 60), T("calendar_title", "Calendar: title", 80), P("calendar_intro", "Calendar: introduction", 400),
+      T("research_eyebrow", "Research Lab: small heading", 60), T("research_title", "Research Lab: title", 80), P("research_intro", "Research Lab: introduction", 600),
+      T("login_eyebrow", "Log in: small heading", 60), T("login_title", "Log in: title", 80), P("login_intro", "Log in: welcome text", 300),
+      T("signup_eyebrow", "Sign up: small heading", 60), T("signup_title", "Sign up: title", 80), P("signup_intro", "Sign up: welcome text", 300),
+    ],
+    defaults: {
+      calc_eyebrow: "Research tool", calc_title: "Reconstitution Calculator", calc_intro: "",
+      account_eyebrow: "Titan member area", account_title: "Your account", account_intro: "",
+      calendar_eyebrow: "Member research tool", calendar_title: "My Calendar", calendar_intro: "",
+      research_eyebrow: "", research_title: "", research_intro: "",
+      login_eyebrow: "Titan member access", login_title: "Member log in", login_intro: "",
+      signup_eyebrow: "Titan member access", signup_title: "Create account", signup_intro: "",
+    },
+  },
+  {
+    id: "guide_pages",
+    group: "Guides",
+    title: "Pen Guides page",
+    fields: [
+      T("eyebrow", "Small heading", 60), T("title", "Title", 80), P("intro", "Introduction", 600),
+      T("reusable_title", "Reusable pen guide heading", 80),
+      { key: "reusable_steps", label: "Reusable pen steps", type: "list", maxItems: 12, itemFields: [{ key: "title", label: "Step title", type: "text", max: 80 }, { key: "body", label: "Step text", type: "textarea", max: 500 }] },
+      T("products_title", "Product information heading", 80), P("products_body", "Product information text", 300),
+    ],
+    defaults: {
+      eyebrow: "Equipment reference", title: "Titan Pen Guides",
+      intro: "Reference information for Titan V2 reusable and disposable pens. Model-specific instructions supplied with the hardware take precedence. Products are for laboratory research only, not human or animal consumption.",
+      reusable_title: "Titan V2 reusable pen", reusable_steps: [],
+      products_title: "Product information & supplied guides", products_body: "Open the product information for its current options and documents.",
+    },
+  },
+  {
+    id: "starter_kit",
+    group: "Cart & checkout",
+    title: "Starter kit offer",
+    description: "Kit contents and price come from the kit product.",
+    shortcut: { tab: "products", label: "Manage starter kits" },
+    fields: [T("add_label", "Add button label", 40), T("coming_soon_label", "Coming soon label", 40), T("unavailable_label", "Unavailable label", 40)],
+    defaults: { add_label: "Add starter kit", coming_soon_label: "Coming soon", unavailable_label: "Starter kit unavailable" },
+  },
+  {
     id: "page_contact",
     group: "Pages",
     title: "Contact & support page",
@@ -149,14 +212,23 @@ export const CMS_SECTIONS: CmsSection[] = [
     id: "page_referrals",
     group: "Pages",
     title: "Referral program page",
-    description: "Reward amounts and limits always come from the Discounts settings.",
+    description: "Reward amounts and limits always come from the Discounts settings. Use {reward}, {max_credits}, {max_credit_value} and {cap} to insert the live values.",
     shortcut: { tab: "discounts", label: "Change reward settings" },
     fields: [
       T("title", "Page title", 80),
       P("intro", "Intro text", 600),
       { key: "steps", label: "How it works steps", type: "list", maxItems: 8, itemFields: [{ key: "title", label: "Step title", type: "text", max: 80 }, { key: "body", label: "Step text", type: "textarea", max: 300 }] },
     ],
-    defaults: { title: "Referral Program", intro: "", steps: [] },
+    defaults: {
+      title: "Referral Program",
+      intro: "",
+      steps: [
+        { title: "Get your code", body: "Members can request a personal referral code. You'll see it in My Profile once it's linked to your account." },
+        { title: "Share it", body: "Friends enter your code at checkout. Some codes also give them a discount — shown before they pay." },
+        { title: "Earn credit", body: "You earn {reward} store credit for every fully paid order placed with your code — repeat customers and repeat orders all count. Cancelled, failed or refunded orders don't count." },
+        { title: "Spend it", body: "Apply up to {max_credits} credits ({max_credit_value}) per order at checkout. Credit has no cash value." },
+      ],
+    },
   },
   {
     id: "guide_pen",
@@ -277,4 +349,28 @@ export function cmsValues<T extends Record<string, any> = Record<string, any>>(c
     if (schema[k]?.safeParse(v).success) out[k] = v;
   }
   return out as T;
+}
+
+/** Replace {token} placeholders with live values (unknown tokens stay as-is). */
+export function fillTokens(text: string, values: Record<string, string | number>) {
+  return text.replace(/\{(\w+)\}/g, (m, k) => (k in values ? String(values[k]) : m));
+}
+
+/** Server-side merge: apply only changed fields, refusing if someone else changed them since `base`. */
+export function mergeSectionChanges(
+  id: string,
+  currentRaw: string | undefined,
+  changes: Record<string, unknown>,
+  base: Record<string, unknown>,
+) {
+  const section = cmsSection(id);
+  if (!section) throw new Error("Unknown content section");
+  const current = cmsValues({ [cmsKey(id)]: currentRaw ?? "" }, id);
+  for (const k of Object.keys(changes)) {
+    if (JSON.stringify(current[k]) !== JSON.stringify(base[k])) {
+      throw new Error(`"${section.fields.find((f) => f.key === k)?.label ?? k}" was changed by someone else. Reload and try again.`);
+    }
+  }
+  const overrides = validateSection(id, parseOverrides(currentRaw));
+  return validateSection(id, { ...overrides, ...changes });
 }

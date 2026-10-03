@@ -1,4 +1,4 @@
-import { cmsKey, validateSection } from "@/lib/storefrontContent";
+import { cmsKey, mergeSectionChanges, validateSection } from "@/lib/storefrontContent";
 import { allowsKit, sanitizeBundle } from "@/lib/products";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -663,14 +663,22 @@ export const adminDeleteDiscountCode = createServerFn({ method: "POST" })
 
 export const adminSaveStorefrontSection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { id: string; values: Record<string, unknown> }) => {
-    return { id: String(input.id), values: validateSection(String(input.id), input.values) };
+  .inputValidator((input: { id: string; reset?: boolean; changes?: Record<string, unknown>; base?: Record<string, unknown> }) => {
+    const id = String(input.id);
+    const changes = validateSection(id, input.changes ?? {});
+    const base = input.base && typeof input.base === "object" ? input.base : {};
+    return { id, reset: input.reset === true, changes, base };
   })
   .handler(async ({ data, context }) => {
     await assertAdmin(context as any);
-    const { error } = await context.supabase
-      .from("site_content")
-      .upsert({ key: cmsKey(data.id), body: JSON.stringify(data.values) }, { onConflict: "key" });
+    const key = cmsKey(data.id);
+    let body = "{}";
+    if (!data.reset) {
+      const { data: row, error: readError } = await context.supabase.from("site_content").select("body").eq("key", key).maybeSingle();
+      if (readError) throw readError;
+      body = JSON.stringify(mergeSectionChanges(data.id, (row as any)?.body ?? undefined, data.changes, data.base));
+    }
+    const { error } = await context.supabase.from("site_content").upsert({ key, body }, { onConflict: "key" });
     if (error) throw error;
     return { ok: true };
   });
