@@ -251,7 +251,7 @@ function RangePage() {
                           : "border-input bg-card text-foreground hover:bg-muted",
                       )}
                     >
-                      {pp[`section_${s}`] || CATALOGUE_SECTION_LABELS[s]}
+                      {pp[`section_${s}`]}
                     </button>
                   ))}
                 </div>

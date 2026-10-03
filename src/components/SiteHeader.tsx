@@ -157,8 +157,8 @@ export function SiteHeader() {
               <Link
                 to="/research"
                 {...navState("/research")}
-                aria-label="Titan Research Lab"
-                title="Titan Research Lab"
+                aria-label={cmsValues(content, "nav_labels").research_label || "Titan Research Lab"}
+                title={cmsValues(content, "nav_labels").research_label || "Titan Research Lab"}
               >
                 <Microscope />
               </Link>

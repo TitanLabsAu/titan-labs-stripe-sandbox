@@ -71,7 +71,7 @@ export function ReviewsStrip() {
         </div>
       </div>
       <div className={cn("review-viewport mt-8", animate ? "overflow-hidden" : "overflow-x-auto")}>
-        <div className={cn("review-track flex w-max gap-5 px-4", animate && "review-track--animate", paused && "review-track--paused")} style={animate ? { animationDuration: `${Math.max(20, reviews.length * perCard)}s` } : undefined}>
+        <div className={cn("review-track flex w-max gap-5 px-4", animate && "review-track--animate", paused && "review-track--paused")} style={animate ? { animationDuration: `${Math.max(c.speed === "normal" ? 30 : c.speed === "slow" ? 45 : 20, reviews.length * perCard)}s` } : undefined}>
           {reviews.map((r) => <ReviewCard key={r.id} review={r} className="w-[19rem] sm:w-[22rem]" />)}
           {animate ? (
             <div aria-hidden="true" className="flex gap-5" inert>

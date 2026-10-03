@@ -7,9 +7,9 @@ import { useReferralSettings } from "@/lib/useReferralSettings";
 import { cn } from "@/lib/utils";
 
 /** Shown to signed-out visitors while the admin offer is on. Text follows saved settings. */
-export function FirstOfferBanner({ redirectTo = "/checkout", className }: { redirectTo?: string; className?: string }) {
+export function FirstOfferBanner({ redirectTo = "/checkout", className, placement = "checkout" }: { redirectTo?: string; className?: string; placement?: "home" | "checkout" }) {
   const { settings } = useReferralSettings();
-  const c = cmsValues(useSiteContent().data, "home_offer");
+  const c = cmsValues(useSiteContent().data, placement === "home" ? "home_offer" : "checkout_offer");
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
   useEffect(() => {
     let alive = true;
@@ -26,12 +26,12 @@ export function FirstOfferBanner({ redirectTo = "/checkout", className }: { redi
   return (
     <div className={cn("flex flex-wrap items-center gap-3 border border-accent/60 bg-accent/10 px-4 py-3 text-sm", className)}>
       <BadgePercent className="h-5 w-5 shrink-0 text-accent" aria-hidden />
-      <p className="min-w-0 flex-1 font-bold text-foreground">
+      <p className="min-w-0 flex-1 whitespace-pre-line font-bold text-foreground">
         {fillTokens(c.text, { percent: offer.percent })}
       </p>
       <span className="flex gap-3 text-xs font-bold uppercase tracking-wide">
-        <a className="text-accent underline underline-offset-4" href={`/auth/signup${q}`}>{c.join_label}</a>
-        <a className="text-accent underline underline-offset-4" href={`/auth${q}`}>{c.login_label}</a>
+        {c.join_label ? <a className="text-accent underline underline-offset-4" href={`/auth/signup${q}`}>{c.join_label}</a> : null}
+        {c.login_label ? <a className="text-accent underline underline-offset-4" href={`/auth${q}`}>{c.login_label}</a> : null}
       </span>
     </div>
   );

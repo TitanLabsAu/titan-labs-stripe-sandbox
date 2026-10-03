@@ -3,13 +3,15 @@ import { Button } from "@/components/ui/button";
 import laboratoryPhoto from "@/assets/testing-transparency-laboratory.png.asset.json";
 
 import { CmsLink } from "@/components/CmsLink";
-import { cmsValues } from "@/lib/storefrontContent";
+import { canonicalUrl, cmsValues } from "@/lib/storefrontContent";
 import { useSiteContent } from "@/lib/useCatalog";
 
 export function TestingTransparencySection() {
   const { data: content } = useSiteContent();
   const c = cmsValues(content, "home_testing");
   if (!c.visible) return null;
+  const showPrimary = Boolean(c.primary_label?.trim() && canonicalUrl(c.primary_url ?? ""));
+  const showSecondary = Boolean(c.secondary_label?.trim() && canonicalUrl(c.secondary_url ?? ""));
   const bullets = (c.bullets as { text: string }[]).filter((b) => b.text.trim());
   return (
     <section
@@ -55,7 +57,9 @@ export function TestingTransparencySection() {
               </li>
             ))}
           </ul>
-          <div className="grid min-w-0 gap-3 sm:grid-cols-2">
+          {showPrimary || showSecondary ? (
+          <div className={showPrimary && showSecondary ? "grid min-w-0 gap-3 sm:grid-cols-2" : "grid min-w-0 gap-3"}>
+            {showPrimary ? (
             <Button
               asChild
               size="lg"
@@ -65,6 +69,8 @@ export function TestingTransparencySection() {
                 {c.primary_label} <ArrowRight aria-hidden="true" />
               </CmsLink>
             </Button>
+            ) : null}
+            {showSecondary ? (
             <div className="min-w-0">
               <Button
                 asChild
@@ -82,7 +88,9 @@ export function TestingTransparencySection() {
                 </p>
               ) : null}
             </div>
+            ) : null}
           </div>
+          ) : null}
         </div>
       </div>
     </section>
