@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { CATEGORIES } from "@/lib/categories";
+import { useProducts } from "@/lib/useCatalog";
+import { sanitizeBundle, type BundleItem } from "@/lib/products";
 import {
   CATALOGUE_SECTIONS,
   CATALOGUE_SECTION_LABELS,
@@ -43,7 +45,69 @@ export type DraftVariant = {
   reconWaterMl: string;
   reconDoseMg: string;
   reconNotes: string;
+  contents: BundleItem[];
 };
+
+function BundleEditor({ items, onChange }: { items: BundleItem[]; onChange: (items: BundleItem[]) => void }) {
+  const { products } = useProducts();
+  const choices = products.flatMap((p) =>
+    (p.variants ?? []).length
+      ? (p.variants ?? []).map((v) => ({ slug: p.slug, name: `${p.name} ${v.label}` }))
+      : [{ slug: p.slug, name: p.name }],
+  );
+  const [pick, setPick] = useState("");
+  return (
+    <div className="mt-2 rounded-md border border-dashed border-input p-2">
+      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+        Bundle contents (optional) — the price above is charged for the whole bundle
+      </p>
+      {items.map((it, j) => (
+        <div key={j} className="mt-2 flex items-center gap-2">
+          <Input
+            type="number"
+            min={1}
+            max={99}
+            className="h-8 w-16"
+            aria-label={`Quantity of ${it.name}`}
+            value={it.quantity}
+            onChange={(e) =>
+              onChange(items.map((x, k) => (k === j ? { ...x, quantity: Math.min(99, Math.max(1, Math.trunc(Number(e.target.value)) || 1)) } : x)))
+            }
+          />
+          <span className="min-w-0 flex-1 truncate text-xs">{it.name}</span>
+          <Button variant="ghost" size="icon" aria-label={`Remove ${it.name}`} onClick={() => onChange(items.filter((_, k) => k !== j))}>
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      ))}
+      <div className="mt-2 flex gap-2">
+        <select
+          className="h-8 min-w-0 flex-1 rounded-md border border-input bg-background px-2 text-xs"
+          value={pick}
+          aria-label="Choose a product to add to this bundle"
+          onChange={(e) => setPick(e.target.value)}
+        >
+          <option value="">Choose item to include…</option>
+          {choices.map((c, k) => (
+            <option key={k} value={String(k)}>{c.name}</option>
+          ))}
+        </select>
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={pick === ""}
+          onClick={() => {
+            const c = choices[Number(pick)];
+            if (c) onChange([...items, { ...c, quantity: 1 }]);
+            setPick("");
+          }}
+        >
+          Add item
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 export type Draft = {
   id?: string;
@@ -148,6 +212,7 @@ export function toDraft(p: AdminProduct): Draft {
       reconWaterMl: v.reconWaterMl == null ? "" : String(v.reconWaterMl),
       reconDoseMg: v.reconDoseMg == null ? "" : String(v.reconDoseMg),
       reconNotes: v.reconNotes ?? "",
+      contents: sanitizeBundle(v.contents),
     })),
     image_url: p.image_url,
     alt: p.alt,
@@ -187,6 +252,7 @@ export function draftToPayload(d: Draft) {
       reconWaterMl: num(v.reconWaterMl),
       reconDoseMg: num(v.reconDoseMg),
       reconNotes: v.reconNotes,
+      contents: d.catalogue_section === "equipment" ? sanitizeBundle(v.contents) : [],
     }))
     .filter((v) => v.label && v.price > 0);
   const variantPrices = variants.map((v) => v.price).filter((p) => p > 0);
@@ -679,6 +745,18 @@ export function ProductEditor({
                         ? `Low stock — only ${Number(variant.stock) || 0} left`
                         : `${Number(variant.stock) || 0} in stock`}
                   </p>
+                  {draft.catalogue_section === "equipment" ? (
+                    <BundleEditor
+                      items={variant.contents}
+                      onChange={(contents) => {
+                        setDraft({
+                          ...draft,
+                          unlimited_stock: contents.length > 0 ? true : draft.unlimited_stock,
+                          variants: draft.variants.map((v, idx) => (idx === i ? { ...v, contents } : v)),
+                        });
+                      }}
+                    />
+                  ) : null}
                 </div>
               );
             })}
