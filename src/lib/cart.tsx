@@ -3,6 +3,7 @@ import {
   cartLineKey,
   effectivePack,
   getProductOption,
+  bundleSummary,
   type ProductPack,
   type Product,
 } from "./products";
