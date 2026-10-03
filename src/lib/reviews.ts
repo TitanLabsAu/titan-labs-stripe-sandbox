@@ -60,10 +60,12 @@ export function validateReviewInput(input: ReviewInput) {
 }
 
 /** Homepage uses at most three real, visible featured reviews in saved order. */
+/** Up to three featured reviews; if none are featured, falls back to the latest published reviews so the homepage block never silently disappears. */
 export function featuredReviews(reviews: CustomerReview[]) {
-  return reviews.filter((r) => r.published && !r.archived && r.featured)
-    .sort((a, b) => a.sort_order - b.sort_order || b.created_at.localeCompare(a.created_at) || a.id.localeCompare(b.id))
-    .slice(0, 3);
+  const order = (a: CustomerReview, b: CustomerReview) => a.sort_order - b.sort_order || b.created_at.localeCompare(a.created_at) || a.id.localeCompare(b.id);
+  const visible = reviews.filter((r) => r.published && !r.archived);
+  const featured = visible.filter((r) => r.featured);
+  return (featured.length ? featured : visible).sort(order).slice(0, 3);
 }
 
 export function reviewDateLabel(date: string | null) {
