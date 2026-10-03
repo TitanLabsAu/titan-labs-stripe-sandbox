@@ -1,3 +1,4 @@
+import { cmsValues } from "@/lib/storefrontContent";
 import { cn } from "@/lib/utils";
 import logoAsset from "@/assets/titan-labs-new-logo.png.asset.json";
 import { homeValue } from "@/lib/homeContent";
@@ -24,7 +25,7 @@ export function TitanLogo({ className, size = 56, showWordmark = true }: Props) 
         style={{ width: size, height: size }}
       >
         <img
-          src={logoAsset.url}
+          src={cmsValues(content, "branding").logo || logoAsset.url}
           alt={pageName}
           width={768}
           height={768}

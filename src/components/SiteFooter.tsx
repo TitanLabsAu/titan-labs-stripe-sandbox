@@ -1,3 +1,5 @@
+import { cmsValues } from "@/lib/storefrontContent";
+import { CmsLink } from "@/components/CmsLink";
 import { useSiteContent, useSiteLinks } from "@/lib/useCatalog";
 import { RichText } from "@/components/RichText";
 import { catalogueName, contentAlign, FOOTER_TABS, homeValue, pageSectionOrder, TEXT_ALIGN_CLASS } from "@/lib/homeContent";
@@ -15,10 +17,12 @@ export function SiteFooter() {
   const standardTitle = content?.["footer_standard_title"]?.trim() || `${pageName} standard`;
   const label = (key: string) => homeValue(content, key);
   const tabOrder = pageSectionOrder(content, "footer_layout_order", FOOTER_TABS);
+  const brand = cmsValues(content, "branding");
+  const extraLinks = (cmsValues(content, "nav_footer").links as { label: string; url: string; visible: boolean }[]).filter((l) => l.visible && l.label.trim());
 
   return (
     <footer className="relative overflow-hidden border-t border-primary/30 bg-background text-xs text-muted-foreground">
-      <img src={footerImage} alt="" width={1920} height={768} loading="lazy" className="titan-future-art titan-future-art-footer absolute inset-0 h-full w-full object-cover" />
+      <img src={brand.footer_image || footerImage} alt="" width={1920} height={768} loading="lazy" className="titan-future-art titan-future-art-footer absolute inset-0 h-full w-full object-cover" />
        <div className="titan-footer-surface absolute inset-0" />
        <div className="relative mx-auto max-w-7xl px-5 py-20 sm:px-6 sm:py-24">
         <div className="grid gap-10 border-b border-primary/25 pb-10 md:grid-cols-[1.15fr_0.85fr_1fr]">
@@ -39,10 +43,7 @@ export function SiteFooter() {
                  if (tab === "calculator") return <Link key={tab} to="/calculator">{label("header_nav_calculator")}</Link>;
                  return <Link key={tab} to="/auth">{label("header_nav_login")}</Link>;
                })}
-               <Link to="/pen-guide">Pen Guides</Link>
-               <Link to="/reviews">Reviews</Link>
-               <Link to="/referrals">Referral Program</Link>
-               <Link to="/certificates">Certificates</Link>
+               {extraLinks.map((l, i) => <CmsLink key={i} href={l.url}>{l.label}</CmsLink>)}
             </div>
           </div>
           <div className="space-y-3">
