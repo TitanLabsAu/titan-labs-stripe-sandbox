@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { confirmDiscardCmsDrafts } from "@/lib/cmsDirtyGuard";
 import type { ReactNode, RefObject } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -613,6 +614,7 @@ function CryptoOptionsEditor({
 }
 
 export function AdminEdits() {
+  const [editTab, setEditTab] = useState("home");
   const queryClient = useQueryClient();
   const { data } = useQuery({
     queryKey: ["site-content"],
