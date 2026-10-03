@@ -1,3 +1,4 @@
+import { cmsValues } from "@/lib/storefrontContent";
 import { DisposablePenGuide } from "@/components/DisposablePenGuide";
 import { StarterKitOffer } from "@/components/StarterKitOffer";
 import { TitanPageHeading } from "@/components/TitanPageHeading";
@@ -68,6 +69,7 @@ function ProductPage() {
   const { product } = Route.useLoaderData();
   const { products } = useProducts();
   const { data: content } = useSiteContent();
+  const pp = cmsValues(content, "product_page");
   const { addItem, items } = useCart();
   const variants = sortedProductVariants(product);
   const [variantId, setVariantId] = useState<string | null>(
@@ -386,7 +388,7 @@ function ProductPage() {
             {product.protocol ? (
               <div className="mt-6 rounded-xl border border-border bg-card p-5">
                 <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
-                  How to use this product
+                  {pp.usage_heading}
                 </h2>
                 <p className="mt-3 whitespace-pre-wrap text-sm text-muted-foreground">
                   {product.protocol}
@@ -404,7 +406,7 @@ function ProductPage() {
                     rel="noopener noreferrer"
                     className="brand-cut border border-accent px-4 py-2 text-xs font-bold uppercase text-accent hover:bg-accent/10"
                   >
-                    {l.label || "View link"}
+                    {l.label || pp.link_fallback}
                   </a>
                 ))}
               </div>
@@ -414,7 +416,7 @@ function ProductPage() {
 
         <section className="mt-16">
           <h2 className="font-display text-2xl font-black uppercase tracking-[0.08em] text-foreground">
-            More from {catalogueName(content)}
+            {String(pp.more_heading).replace(/\{catalogue\}/g, catalogueName(content))}
           </h2>
           <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {products

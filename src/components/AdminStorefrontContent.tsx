@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowDown, ArrowUp, ExternalLink, Loader2, Plus, RotateCcw, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
@@ -25,36 +25,67 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
+/** Section ids with unsaved edits (shared so shortcuts and page-leave can warn). */
+const dirtySections = new Set<string>();
+const confirmLeave = () => dirtySections.size === 0 || window.confirm("You have unsaved Storefront content changes. Leave without saving?");
+
 /** Ask the Admin page to switch to another management tab. */
 export function openAdminTab(tab: string) {
+  if (!confirmLeave()) return;
   window.dispatchEvent(new CustomEvent("titan-admin-tab", { detail: tab }));
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 export function AdminStorefrontContent() {
   const [group, setGroup] = useState<CmsGroup>("Homepage");
-  const sections = CMS_SECTIONS.filter((s) => s.group === group);
+  const [dirtyIds, setDirtyIds] = useState<string[]>([]);
+  const { data: content, isLoading, isError, refetch } = useSiteContent();
+  const markDirty = useCallback((id: string, dirty: boolean) => {
+    if (dirty) dirtySections.add(id);
+    else dirtySections.delete(id);
+    setDirtyIds([...dirtySections]);
+  }, []);
+  useEffect(() => {
+    const onLeave = (e: BeforeUnloadEvent) => {
+      if (dirtySections.size) { e.preventDefault(); e.returnValue = ""; }
+    };
+    window.addEventListener("beforeunload", onLeave);
+    return () => { window.removeEventListener("beforeunload", onLeave); dirtySections.clear(); };
+  }, []);
+  if (isLoading) return <p className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Loading saved content…</p>;
+  if (isError || !content)
+    return (
+      <div role="alert" className="rounded-xl border border-destructive/60 bg-destructive/10 p-4 text-sm">
+        <p className="font-bold">Saved content couldn't load, so editing is paused to avoid overwriting it.</p>
+        <Button size="sm" variant="outline" className="mt-3" onClick={() => void refetch()}>Try again</Button>
+      </div>
+    );
   return (
     <div className="space-y-5">
       <p className="text-sm text-muted-foreground">
         Edit storefront wording, links and pictures. Prices, stock, discounts, reviews and products are still managed in their own tabs.
       </p>
       <div role="tablist" aria-label="Content groups" className="flex gap-2 overflow-x-auto pb-1">
-        {CMS_GROUPS.map((g) => (
-          <Button key={g} role="tab" aria-selected={g === group} size="sm" variant={g === group ? "default" : "outline"} className="shrink-0" onClick={() => setGroup(g)}>
-            {g}
-          </Button>
-        ))}
+        {CMS_GROUPS.map((g) => {
+          const n = CMS_SECTIONS.filter((s) => s.group === g && dirtyIds.includes(s.id)).length;
+          return (
+            <Button key={g} role="tab" aria-selected={g === group} size="sm" variant={g === group ? "default" : "outline"} className="shrink-0" onClick={() => setGroup(g)}>
+              {g}{n ? ` · ${n} unsaved` : ""}
+            </Button>
+          );
+        })}
       </div>
-      {sections.map((s) => (
-        <SectionEditor key={s.id} section={s} />
+      {/* All editors stay mounted so unsaved drafts survive switching groups. */}
+      {CMS_SECTIONS.map((s) => (
+        <div key={s.id} hidden={s.group !== group}>
+          <SectionEditor section={s} content={content} onDirty={markDirty} />
+        </div>
       ))}
     </div>
   );
 }
 
-function SectionEditor({ section }: { section: CmsSection }) {
-  const { data: content } = useSiteContent();
+function SectionEditor({ section, content, onDirty }: { section: CmsSection; content: Record<string, string>; onDirty: (id: string, dirty: boolean) => void }) {
   const qc = useQueryClient();
   const saved = useMemo(() => cmsValues(content, section.id), [content, section.id]);
   const usingDefaults = Object.keys(parseOverrides(content?.[cmsKey(section.id)])).length === 0;
@@ -64,6 +95,7 @@ function SectionEditor({ section }: { section: CmsSection }) {
   const savedJson = JSON.stringify(saved);
   const dirty = JSON.stringify(draft) !== JSON.stringify(base);
   const stale = dirty && savedJson !== JSON.stringify(base);
+  useEffect(() => onDirty(section.id, dirty), [dirty, section.id, onDirty]);
   useEffect(() => {
     // Adopt fresh saved values only when there are no unsaved edits here.
     if (!dirty) {
@@ -76,24 +108,26 @@ function SectionEditor({ section }: { section: CmsSection }) {
   const errors = new Map<string, string>();
   if (!check.success) for (const i of check.error.issues) errors.set(String(i.path[0]), i.message);
 
-  const baseRef = base;
   const save = useMutation({
     mutationFn: (input: { reset?: boolean }) => {
-      const baseValues = input.reset ? {} : (baseRef as Record<string, any>);
+      if (input.reset) return adminSaveStorefrontSection({ data: { id: section.id, reset: true, changes: {}, base } });
       const changes: Record<string, unknown> = {};
-      const base: Record<string, unknown> = {};
+      const changedBase: Record<string, unknown> = {};
       for (const k of Object.keys(draft)) {
-        if (JSON.stringify(draft[k]) !== JSON.stringify(baseValues[k])) {
+        if (JSON.stringify(draft[k]) !== JSON.stringify(base[k])) {
           changes[k] = draft[k];
-          base[k] = baseValues[k];
+          changedBase[k] = base[k];
         }
       }
-      return adminSaveStorefrontSection({ data: { id: section.id, reset: input.reset === true, changes, base } });
+      return adminSaveStorefrontSection({ data: { id: section.id, reset: false, changes, base: changedBase } });
     },
-    onSuccess: async (_d, input) => {
-      const next = input.reset ? (section.defaults as Record<string, any>) : draft;
+    onSuccess: async (result, input) => {
+      // Fields are frozen during the request, so the server's saved values are exactly what's shown.
+      const raw = (result as { raw: string }).raw;
+      const next = cmsValues({ [cmsKey(section.id)]: raw }, section.id) as Record<string, any>;
       setDraft(next);
       setBase(next);
+      qc.setQueryData(["site-content"], (old: Record<string, string> | undefined) => (old ? { ...old, [cmsKey(section.id)]: raw } : old));
       await qc.invalidateQueries({ queryKey: ["site-content"] });
       toast.success(input.reset ? `${section.title} reset to default` : `${section.title} saved`);
     },
@@ -107,7 +141,7 @@ function SectionEditor({ section }: { section: CmsSection }) {
           <h3 id={`cms-${section.id}`} className="font-display text-lg font-bold uppercase">{section.title}</h3>
           {section.description ? <p className="mt-1 text-sm text-muted-foreground">{section.description}</p> : null}
           <p className="mt-1 text-xs font-bold uppercase text-accent">
-            {stale ? "Unsaved changes · newer content was saved elsewhere" : dirty ? "Unsaved changes" : usingDefaults ? "Using default content" : "Custom content saved"}
+            {save.isPending ? "Saving…" : stale ? "Unsaved changes · newer content was saved elsewhere" : dirty ? "Unsaved changes" : usingDefaults ? "Using default content" : "Custom content saved"}
           </p>
         </div>
         {section.shortcut ? (
@@ -116,11 +150,11 @@ function SectionEditor({ section }: { section: CmsSection }) {
           </Button>
         ) : null}
       </div>
-      <div className="mt-5 grid gap-5">
+      <fieldset disabled={save.isPending} aria-busy={save.isPending} className="mt-5 grid min-w-0 gap-5">
         {section.fields.map((f) => (
           <FieldEditor key={f.key} field={f} value={draft[f.key]} error={errors.get(f.key)} sectionId={section.id} onChange={(v) => setDraft((d) => ({ ...d, [f.key]: v }))} />
         ))}
-      </div>
+      </fieldset>
       <div className="mt-6 flex flex-wrap gap-2">
         <Button disabled={!dirty || !check.success || save.isPending} onClick={() => save.mutate({})}>
           {save.isPending ? <Loader2 className="animate-spin" aria-hidden /> : null} Save
@@ -128,7 +162,8 @@ function SectionEditor({ section }: { section: CmsSection }) {
         <Button variant="outline" disabled={!dirty || save.isPending} onClick={() => { setDraft(saved); setBase(saved); }}>Discard changes</Button>
         <Button
           variant="ghost"
-          disabled={usingDefaults || save.isPending}
+          disabled={usingDefaults || dirty || save.isPending}
+          title={dirty ? "Save or discard your changes first" : undefined}
           onClick={() => window.confirm(`Reset "${section.title}" to its default content?`) && save.mutate({ reset: true })}
         >
           <RotateCcw aria-hidden /> Reset to default
@@ -148,6 +183,15 @@ function FieldEditor({ field, value, error, sectionId, onChange }: { field: CmsF
       <div className="flex items-center gap-3">
         <Switch id={id} checked={Boolean(value)} onCheckedChange={onChange} />
         <Label htmlFor={id}>{field.label}</Label>
+      </div>
+    );
+  if (field.type === "choice")
+    return (
+      <div className="grid gap-1.5">
+        <Label htmlFor={id}>{field.label}</Label>
+        <select id={id} value={value ?? ""} onChange={(e) => onChange(e.target.value)} className="h-10 rounded-md border border-input bg-background px-3 text-sm">
+          {field.options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+        </select>
       </div>
     );
   if (field.type === "list") return <ListEditor field={field} value={Array.isArray(value) ? value : []} error={error} onChange={onChange} />;

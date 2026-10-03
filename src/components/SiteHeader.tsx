@@ -1,3 +1,5 @@
+import { cmsValues, visibleCmsLinks } from "@/lib/storefrontContent";
+import { CmsLink } from "@/components/CmsLink";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
@@ -225,6 +227,11 @@ export function SiteHeader() {
         if (tab === "cart") return <CartSheet key={tab} />;
         return null;
       })}
+      {visibleCmsLinks(cmsValues(content, "nav_header").links).map((l, i) => (
+        <Button key={`cms-${i}`} asChild variant="outline" size="sm" className="titan-nav-icon w-auto px-3 text-xs font-bold uppercase">
+          <CmsLink href={l.url}>{l.label}</CmsLink>
+        </Button>
+      ))}
     </nav>
   );
 

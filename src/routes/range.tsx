@@ -1,3 +1,4 @@
+import { cmsValues } from "@/lib/storefrontContent";
 import { TitanPageHeading } from "@/components/TitanPageHeading";
 import { FlaskConical } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -74,6 +75,7 @@ function RangePage() {
   const navigate = useNavigate({ from: "/range" });
   const { products, isLoading: productsLoading } = useProducts();
   const { data: content } = useSiteContent();
+  const pp = cmsValues(content, "product_page");
   const [mounted, setMounted] = useState(false);
   const [category, setCategory] = useState<string>("All");
   const [search, setSearch] = useState("");
@@ -249,7 +251,7 @@ function RangePage() {
                           : "border-input bg-card text-foreground hover:bg-muted",
                       )}
                     >
-                      {CATALOGUE_SECTION_LABELS[s]}
+                      {pp[`section_${s}`] || CATALOGUE_SECTION_LABELS[s]}
                     </button>
                   ))}
                 </div>
