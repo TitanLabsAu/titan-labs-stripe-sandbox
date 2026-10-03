@@ -88,8 +88,8 @@ export const CMS_SECTIONS: CmsSection[] = [
   {
     id: "home_reviews",
     group: "Homepage",
-    title: "Homepage reviews carousel",
-    description: "Shows only genuine published reviews. The carousel never moves for visitors who prefer reduced motion and always has a pause button.",
+    title: "Homepage featured reviews",
+    description: "Shows up to three genuine, published featured reviews. Move this block in Home page configuration. Existing scroll controls are retained.",
     shortcut: { tab: "reviews", label: "Manage reviews" },
     fields: [
       B("visible", "Show on homepage"),
@@ -101,7 +101,7 @@ export const CMS_SECTIONS: CmsSection[] = [
       T("pause_label", "Pause button label", 20),
       T("play_label", "Play button label", 20),
     ],
-    defaults: { visible: true, eyebrow: "Community", title: "What our community says", cta_label: "All reviews", autoplay: true, speed: "normal", pause_label: "Pause", play_label: "Play" },
+    defaults: { visible: true, eyebrow: "Community", title: "What Our Customers Say", cta_label: "View All Reviews", autoplay: true, speed: "normal", pause_label: "Pause", play_label: "Play" },
   },
   {
     id: "badge",
