@@ -1,5 +1,4 @@
-import * as cmsRegistry from "@/lib/storefrontContent";
-const require_cms = () => cmsRegistry;
+import { cmsKey, validateSection } from "@/lib/storefrontContent";
 import { allowsKit, sanitizeBundle } from "@/lib/products";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -665,12 +664,10 @@ export const adminDeleteDiscountCode = createServerFn({ method: "POST" })
 export const adminSaveStorefrontSection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string; values: Record<string, unknown> }) => {
-    const { validateSection } = require_cms();
     return { id: String(input.id), values: validateSection(String(input.id), input.values) };
   })
   .handler(async ({ data, context }) => {
     await assertAdmin(context as any);
-    const { cmsKey } = require_cms();
     const { error } = await context.supabase
       .from("site_content")
       .upsert({ key: cmsKey(data.id), body: JSON.stringify(data.values) }, { onConflict: "key" });
