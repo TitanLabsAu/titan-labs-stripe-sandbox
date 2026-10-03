@@ -26,3 +26,4 @@
 - Guest checkout ownership comes only from the hashed guest-session cookie or a verified member bearer, resolved server side in `checkout-buyer.server.ts` — posted IDs/emails are never trusted.
 - First-purchase offer claims stay held while a Stripe intent is payable and are released only after cancellation is confirmed — prevents a late payment using a released offer.
 - Testing Transparency uses a reusable homepage photo section and separate catalogue/footer banners; keep it attached to pillars without altering saved homepage order, and never imply certificate results before files are supplied.
+- Storefront CMS content lives in `site_content` rows `cms:<section>` (JSON overrides) defined by `src/lib/storefrontContent.ts`; saves go through `adminSaveStorefrontSection`, which validates and merges only changed fields with conflict checks — one registry keeps editor, server and storefront rules in sync.

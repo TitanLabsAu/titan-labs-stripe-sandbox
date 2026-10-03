@@ -1,3 +1,4 @@
+import { cmsValues } from "@/lib/storefrontContent";
 import { FirstOfferBanner } from "@/components/FirstOfferBanner";
 import { TitanPageHeading } from "@/components/TitanPageHeading";
 import { ShieldCheck } from "lucide-react";
@@ -67,6 +68,7 @@ function Index() {
     HOME_SECTIONS,
   );
 
+  const brand = cmsValues(content, "branding");
   const pillars = [1, 2, 3].map((n) => ({
     titleKey: `home_pillar${n}_title`,
     bodyKey: `home_pillar${n}_body`,
@@ -79,28 +81,32 @@ function Index() {
       <SiteHeader />
 
       <main className="titan-home relative">
-        <div className="page-shell pt-4"><FirstOfferBanner redirectTo="/range" /></div>
         <div className="page-shell pt-8 sm:pt-12">
           <TitanPageHeading
             icon={ShieldCheck}
-            eyebrow="Australian owned · Quality tested"
-            title="Titan Labs // Aus"
+            eyebrow={brand.home_eyebrow}
+            title={brand.home_title}
           />
         </div>
+        {brand.watermark_visible ? (
         <div
           className="home-logo-field pointer-events-none absolute inset-x-0 top-0 flex h-[34rem] items-center justify-center overflow-hidden"
           aria-hidden="true"
         >
           <img
-            src={logoAsset.url}
+            src={brand.watermark || logoAsset.url}
             alt=""
             width={768}
             height={768}
             className="home-watermark h-full w-full scale-110 object-contain sm:scale-125"
           />
         </div>
+        ) : null}
         <div className="h-7 sm:h-9" />
         {sectionOrder.map((section) => {
+          if (section === "offer")
+            return <div key={section} className="page-shell pt-4"><FirstOfferBanner redirectTo="/range" /></div>;
+          if (section === "testing") return <TestingTransparencySection key={section} />;
           if (section === "tagline")
             return (
               <section key={section} className="relative page-shell pb-6">
@@ -263,7 +269,6 @@ function Index() {
                     ))}
                   </div>
                 </section>
-                <TestingTransparencySection />
               </div>
             );
           if (section === "signup")

@@ -21,9 +21,11 @@ import { equipmentUpsellState } from "@/lib/cart-upsell";
 import { formatPrice, sortedProductVariants } from "@/lib/products";
 import { quoteOrder } from "@/lib/order-pricing";
 import { cartPriceLines, useReferralSettings } from "@/lib/useReferralSettings";
-import { useProducts } from "@/lib/useCatalog";
+import { useProducts, useSiteContent } from "@/lib/useCatalog";
+import { cmsValues } from "@/lib/storefrontContent";
 
 export function CartSheet({ floating = false }: { floating?: boolean }) {
+  const upsell = cmsValues(useSiteContent().data, "cart_upsell");
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const {
@@ -184,12 +186,13 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
                 })}
               </ul>
 
+              {upsell.visible ? (
               <section className="overflow-hidden rounded-lg border border-primary/35 bg-secondary/45">
                 <Link
                   to="/range"
                   search={{ section: "equipment" }}
                   onClick={() => setOpen(false)}
-                  aria-label="Need Equipment? Tap to browse the Equipment catalogue"
+                  aria-label={`${upsell.heading} — Equipment catalogue`}
                   className="group flex w-full items-center gap-3 border-b border-primary/20 bg-primary/10 px-4 py-3 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring hover:bg-primary/20"
                 >
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-primary/30 bg-background text-primary">
@@ -197,11 +200,9 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block font-display text-sm font-black uppercase text-foreground">
-                      Need Equipment? Tap to browse
+                      {upsell.heading}
                     </span>
-                    <span className="block text-xs text-muted-foreground">
-                      Or add BAC Water below before checkout.
-                    </span>
+                    {upsell.body ? <span className="block text-xs text-muted-foreground">{upsell.body}</span> : null}
                   </span>
                   <ChevronRight className="h-4 w-4 shrink-0 text-primary transition-transform group-hover:translate-x-0.5" />
                 </Link>
@@ -267,6 +268,7 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
                 ) : null}
 
               </section>
+              ) : null}
 
               <TitanStackBanner units={count} />
               <TitanTrustStrip />

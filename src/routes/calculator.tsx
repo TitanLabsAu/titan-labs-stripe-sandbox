@@ -1,3 +1,5 @@
+import { cmsValues } from "@/lib/storefrontContent";
+import { useSiteContent } from "@/lib/useCatalog";
 import { TitanPageHeading } from "@/components/TitanPageHeading";
 import { createFileRoute } from "@tanstack/react-router";
 import { Calculator } from "lucide-react";
@@ -31,6 +33,7 @@ export const Route = createFileRoute("/calculator")({
 });
 
 function CalculatorPage() {
+  const intro = cmsValues(useSiteContent().data, "page_intros");
   return (
     <div className="bg-hero min-h-screen">
       <SiteHeader />
@@ -38,9 +41,10 @@ function CalculatorPage() {
         <TitanPageHeading
           as="h1"
           icon={Calculator}
-          eyebrow="Research tool"
-          title="Reconstitution Calculator"
+          eyebrow={intro.calc_eyebrow}
+          title={intro.calc_title}
         />
+        {intro.calc_intro ? <p className="mt-4 max-w-3xl whitespace-pre-wrap text-sm leading-6 text-muted-foreground">{intro.calc_intro}</p> : null}
         <div className="h-7" />
         <ConcentrationCalculator />
       </main>

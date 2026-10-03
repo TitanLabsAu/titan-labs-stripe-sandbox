@@ -1,4 +1,6 @@
-import { Link } from "@tanstack/react-router";
+import { cmsValues } from "@/lib/storefrontContent";
+import { useSiteContent } from "@/lib/useCatalog";
+import { CmsLink } from "@/components/CmsLink";
 import { ArrowRight } from "lucide-react";
 import emblemAsset from "@/assets/testing-transparency-emblem.png.asset.json";
 import { cn } from "@/lib/utils";
@@ -6,12 +8,17 @@ import { cn } from "@/lib/utils";
 type TestingTransparencyBannerProps = {
   compact?: boolean;
   className?: string;
+  /** Where the badge is shown; respects the per-placement visibility setting. */
+  placement?: "catalogue" | "footer" | "certificates";
 };
 
 export function TestingTransparencyBanner({
   compact = false,
   className,
+  placement,
 }: TestingTransparencyBannerProps) {
+  const c = cmsValues(useSiteContent().data, "badge");
+  if (placement && !c[`show_${placement}`]) return null;
   return (
     <aside
       aria-labelledby={compact ? "testing-transparency-footer" : undefined}
@@ -29,8 +36,8 @@ export function TestingTransparencyBanner({
         )}
       >
         <img
-          src={emblemAsset.url}
-          alt=""
+          src={c.image || emblemAsset.url}
+          alt={c.image_alt}
           width={1254}
           height={1254}
           loading="lazy"
@@ -52,21 +59,21 @@ export function TestingTransparencyBanner({
               compact ? "text-lg" : "text-2xl sm:text-4xl",
             )}
           >
-            Testing Transparency
+            {c.headline}
           </h2>
           <p className={cn("text-muted-foreground", compact ? "mt-1 text-xs leading-4" : "mt-2 text-sm leading-5 sm:text-lg")}>
-            Titan Labs // Aus - Member of The Peptide Society
+            {c.membership}
           </p>
-          <Link
-            to="/certificates"
+          {c.link_label ? <CmsLink
+            href={c.link_url}
             className={cn(
               "group inline-flex max-w-full items-center gap-2 font-bold text-primary underline-offset-4 hover:underline focus-visible:rounded-sm",
               compact ? "mt-2 text-xs" : "mt-3 text-sm sm:mt-4 sm:text-base",
             )}
           >
-            <span>View product certificates</span>
+            <span>{c.link_label}</span>
             <ArrowRight className="h-4 w-4 shrink-0 transition-transform motion-reduce:transition-none group-hover:translate-x-1" aria-hidden="true" />
-          </Link>
+          </CmsLink> : null}
         </div>
       </div>
     </aside>

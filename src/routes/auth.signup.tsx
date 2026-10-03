@@ -1,3 +1,5 @@
+import { cmsValues } from "@/lib/storefrontContent";
+import { useSiteContent } from "@/lib/useCatalog";
 import { TitanPageHeading } from "@/components/TitanPageHeading";
 import { UserPlus } from "lucide-react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
@@ -47,6 +49,7 @@ const signupSchema = z.object({
 });
 
 function SignupPage() {
+  const intro = cmsValues(useSiteContent().data, "page_intros");
   const navigate = useNavigate();
   const [form, setForm] = useState({
     first_name: "",
@@ -128,13 +131,10 @@ function SignupPage() {
                 <TitanPageHeading
                   as="h1"
                   icon={UserPlus}
-                  eyebrow="Titan member access"
-                  title="Create account"
+                  eyebrow={intro.signup_eyebrow}
+                  title={intro.signup_title}
                 />
-                <p className="mt-2 text-left text-sm text-muted-foreground">
-                  Enter your details, then confirm your email to unlock
-                  ordering.
-                </p>
+                {intro.signup_intro ? <p className="mt-2 whitespace-pre-wrap text-left text-sm text-muted-foreground">{intro.signup_intro}</p> : null}
 
                 <form onSubmit={handleSubmit} className="mt-6 space-y-4">
                   <div className="grid gap-4 sm:grid-cols-2">

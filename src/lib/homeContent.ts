@@ -7,7 +7,7 @@ export type HomeField = {
   align?: TextAlign;
 };
 export type PageImageSlot = { key: string; label: string; page: "home" | "range" };
-export type PageSection = { key: string; label: string };
+export type PageSection = { key: string; label: string; /** Where a newly added section goes when missing from a saved order. */ insertAfter?: string | "start" };
 
 export const HOME_FIELDS: HomeField[] = [
   {
@@ -327,6 +327,8 @@ export const HOME_SECTIONS: PageSection[] = [
   { key: "featured", label: "Hot products" },
   { key: "pillars", label: "Information boxes" },
   { key: "signup", label: "Sign-up box" },
+  { key: "offer", label: "New-member offer banner", insertAfter: "start" },
+  { key: "testing", label: "Testing Transparency section", insertAfter: "pillars" },
 ];
 
 export const RANGE_SECTIONS: PageSection[] = [
@@ -348,8 +350,14 @@ export function pageSectionOrder(
     .split(",")
     .map((key) => key.trim())
     .filter((key) => available.has(key));
-  const missing = sections.map((section) => section.key).filter((key) => !saved.includes(key));
-  return [...saved, ...missing];
+  const order = saved.length ? [...saved] : sections.filter((s) => !s.insertAfter).map((s) => s.key);
+  for (const section of sections) {
+    if (order.includes(section.key)) continue;
+    if (section.insertAfter === "start") order.unshift(section.key);
+    else if (section.insertAfter && order.includes(section.insertAfter)) order.splice(order.indexOf(section.insertAfter) + 1, 0, section.key);
+    else order.push(section.key);
+  }
+  return order;
 }
 
 export const TEXT_ALIGN_CLASS: Record<TextAlign, string> = {

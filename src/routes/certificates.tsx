@@ -1,3 +1,6 @@
+import { cmsValues } from "@/lib/storefrontContent";
+import { useSiteContent } from "@/lib/useCatalog";
+import { CmsLink } from "@/components/CmsLink";
 import { TestingTransparencyBanner } from "@/components/TestingTransparencyBanner";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -25,19 +28,25 @@ export const Route = createFileRoute("/certificates")({
 });
 
 function CertificatesPage() {
+  const c = cmsValues(useSiteContent().data, "page_certificates");
   return (
     <div className="min-h-screen bg-hero">
       <SiteHeader />
       <main className="page-shell py-10 sm:py-14">
-        <TestingTransparencyBanner />
+        <TestingTransparencyBanner placement="certificates" />
         <section className="mx-auto max-w-3xl py-16 text-center sm:py-24" aria-labelledby="certificates-heading">
           <FileCheck2 className="mx-auto h-10 w-10 text-primary" aria-hidden="true" />
           <h1 id="certificates-heading" className="mt-5 font-display text-3xl font-black uppercase text-foreground sm:text-5xl">
-            Product Certificates
+            {c.title}
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-muted-foreground">
-            Certificates will appear here as they are added.
+            {c.intro}
           </p>
+          {c.verify_label ? (
+            <CmsLink href={c.verify_url} className="mt-6 inline-block font-bold text-primary underline underline-offset-4">
+              {c.verify_label}
+            </CmsLink>
+          ) : null}
         </section>
       </main>
       <SiteFooter />

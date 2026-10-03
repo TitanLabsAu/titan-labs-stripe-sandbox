@@ -54,3 +54,10 @@
 - [x] Unlimited Equipment stock: finance inventory/restock exclusion + live stock trigger audit
 - [x] Add preview-only Testing Transparency banners and an honest public certificates empty state.
 - [x] Replace only the homepage Testing Transparency banner with the approved photo section; verify tests, links and desktop/390/320 layouts without publishing.
+
+## Storefront CMS (Website Editor > Storefront content)
+- [x] Core registry/editor/validated save; wire testing section, badge, offer banner, contact, certificates, reviews, referrals, pen guide, cart upsell, footer links
+- [x] Extend: branding/site name, homepage heading/watermark, footer image/alt, calculator intro, account/calendar/research intros, login/signup copy, starter-kit copy, product info headings
+- [x] Concurrent-edit protection (save only changed fields over latest saved; warn on conflict)
+- [x] Coverage matrix doc (docs/cms-coverage.md)
+- [ ] Remaining gaps listed in docs/cms-coverage.md (reviews carousel, checkout copy, custom header links, product headings, research shell)

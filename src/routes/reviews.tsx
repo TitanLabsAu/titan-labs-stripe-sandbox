@@ -1,3 +1,5 @@
+import { cmsValues } from "@/lib/storefrontContent";
+import { useSiteContent } from "@/lib/useCatalog";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { MessageSquareQuote } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -22,18 +24,19 @@ export const Route = createFileRoute("/reviews")({
 function ReviewsPage() {
   const { data, isLoading } = usePublishedReviews();
   const reviews = data ?? [];
+  const c = cmsValues(useSiteContent().data, "page_reviews");
   return (
     <div className="bg-hero min-h-screen">
       <SiteHeader />
       <main className="page-shell pb-20 pt-8 sm:pt-12">
-        <TitanPageHeading icon={MessageSquareQuote} eyebrow="Community" title="Customer reviews" />
+        <TitanPageHeading icon={MessageSquareQuote} eyebrow={c.eyebrow} title={c.title} />
         {isLoading ? (
           <p className="py-10 text-sm text-muted-foreground">Loading reviews…</p>
         ) : reviews.length === 0 ? (
           <div className="mt-8 rounded-xl border border-border bg-card p-8 text-center">
-            <p className="font-bold uppercase">No reviews published yet</p>
-            <p className="mt-2 text-sm text-muted-foreground">Check back soon. In the meantime, browse the catalogue.</p>
-            <Link to="/range" className="mt-4 inline-block text-sm font-bold uppercase text-primary hover:underline">View catalogue</Link>
+            <p className="font-bold uppercase">{c.empty_title}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{c.empty_body}</p>
+            <Link to="/range" className="mt-4 inline-block text-sm font-bold uppercase text-primary hover:underline">{c.empty_cta}</Link>
           </div>
         ) : (
           <div className="review-band mt-8 grid gap-5 rounded-2xl p-5 sm:grid-cols-2 lg:grid-cols-3">

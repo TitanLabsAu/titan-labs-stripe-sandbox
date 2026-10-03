@@ -1,3 +1,5 @@
+import { cmsValues, fillTokens } from "@/lib/storefrontContent";
+import { useSiteContent } from "@/lib/useCatalog";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { LegalPage } from "@/components/LegalPage";
@@ -23,17 +25,15 @@ function ReferralsPage() {
   const { data } = useQuery({ queryKey: ["referral-settings"], queryFn: () => getReferralSettings() });
   const s = settingsFromRow(data);
   const unit = formatPrice((s.creditUnitCents * s.referralRewardUnits) / 100);
-  const steps = [
-    ["Get your code", "Members can request a personal referral code. You'll see it in My Profile once it's linked to your account."],
-    ["Share it", "Friends enter your code at checkout. Some codes also give them a discount — shown before they pay."],
-    ["Earn credit", `You earn ${unit} store credit for every fully paid order placed with your code — repeat customers and repeat orders all count. Cancelled, failed or refunded orders don't count.`],
-    ["Spend it", `Apply up to ${s.maxCreditUnits} credits (${formatPrice((s.creditUnitCents * s.maxCreditUnits) / 100)}) per order at checkout. Credit has no cash value.`],
-  ];
+  const c = cmsValues(useSiteContent().data, "page_referrals");
+  const tokens = { reward: unit, max_credits: s.maxCreditUnits, max_credit_value: formatPrice((s.creditUnitCents * s.maxCreditUnits) / 100), cap: `${s.combinedCapPercent}%` };
+  const steps = (c.steps as { title: string; body: string }[]).map((st) => [fillTokens(st.title, tokens), fillTokens(st.body, tokens)]);
   return (
-    <LegalPage eyebrow="Members" title="Referral Program">
+    <LegalPage eyebrow="Members" title={c.title}>
+      {c.intro ? <p className="mb-5 whitespace-pre-wrap text-sm text-muted-foreground">{fillTokens(c.intro, tokens)}</p> : null}
       <ol className="space-y-4">
         {steps.map(([h, b], i) => (
-          <li key={h} className="rounded-xl border border-border bg-card p-5">
+          <li key={i} className="rounded-xl border border-border bg-card p-5">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">Step {i + 1}</p>
             <h2 className="mt-1 text-lg font-extrabold uppercase text-foreground">{h}</h2>
             <p className="mt-1 text-sm text-muted-foreground">{b}</p>
