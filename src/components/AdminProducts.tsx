@@ -315,6 +315,7 @@ export function ProductEditor({
   showPromo?: boolean;
 }) {
   const [uploading, setUploading] = useState(false);
+  const [linkUploading, setLinkUploading] = useState<number | null>(null);
   const set = (patch: Partial<Draft>) => setDraft({ ...draft, ...patch });
   const toggleCategory = (c: string) =>
     set({
@@ -356,6 +357,32 @@ export function ProductEditor({
       throw error instanceof Error ? error : new Error("Could not upload the image");
     } finally {
       setUploading(false);
+    }
+  }
+
+  async function uploadLinkFile(i: number, file: File) {
+    if (file.size > 20 * 1024 * 1024) {
+      toast.error("File is too large (max 20MB)");
+      return;
+    }
+    setLinkUploading(i);
+    try {
+      const safe = file.name.replace(/[^a-zA-Z0-9._-]+/g, "-").slice(-80);
+      const path = `certificates/${(draft.slug || "product").replace(/[^a-z0-9-]/gi, "")}/${Date.now()}-${safe}`;
+      const { error } = await supabase.storage
+        .from("product-images")
+        .upload(path, file, { contentType: file.type || "application/octet-stream" });
+      if (error) throw error;
+      const label = draft.links[i]?.label?.trim() ? undefined : file.name.replace(/\.[^.]+$/, "");
+      setLink(i, {
+        url: `/api/public/product-image?path=${encodeURIComponent(path)}`,
+        ...(label ? { label } : {}),
+      });
+      toast.success("File uploaded — remember to save the product");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not upload the file");
+    } finally {
+      setLinkUploading(null);
     }
   }
 
@@ -800,9 +827,23 @@ export function ProductEditor({
               <Input
                 className="flex-1"
                 value={l.url}
-                placeholder="https://…"
+                placeholder="https://… or upload a file"
                 onChange={(e) => setLink(i, { url: e.target.value })}
               />
+              <label className="inline-flex cursor-pointer items-center gap-1 rounded-md border border-border px-3 text-sm font-bold uppercase text-foreground hover:bg-accent focus-within:ring-2 focus-within:ring-ring">
+                <Upload className="h-4 w-4" />
+                {linkUploading === i ? "Uploading…" : "Upload file"}
+                <input
+                  type="file"
+                  className="sr-only"
+                  disabled={linkUploading !== null}
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    e.target.value = "";
+                    if (f) void uploadLinkFile(i, f);
+                  }}
+                />
+              </label>
               <Button
                 variant="destructive"
                 size="icon"
