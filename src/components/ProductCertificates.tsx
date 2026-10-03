@@ -12,7 +12,7 @@ export function ProductCoaLink({product}:{product:Product}) {
   if (!reports.length || !c.coa_action) return null;
   const inner=<><img src={emblem.url} alt="" className="h-6 w-6 object-contain"/><span>{c.coa_action}</span></>;
   const cls="inline-flex min-h-7 items-center gap-1 text-xs font-semibold text-primary hover:underline";
-  return reports.length===1 ? <CmsLink href={reports[0]!.url} className={cls} aria-label={`${c.coa_action}: ${certificateTitle(product,reports[0]!)}`}>{inner}</CmsLink> : <Link to="/product/$slug" params={{slug:product.slug}} hash="certificates" className={cls} aria-label={`${c.coa_action}: ${product.name}, ${reports.length} reports`}>{inner}</Link>;
+  return reports.length===1 ? <CmsLink href={reports[0]!.url} newTab className={cls} aria-label={`${c.coa_action}: ${certificateTitle(product,reports[0]!)}`}>{inner}</CmsLink> : <Link to="/product/$slug" params={{slug:product.slug}} hash="certificates" className={cls} aria-label={`${c.coa_action}: ${product.name}, ${reports.length} reports`}>{inner}</Link>;
 }
 export function ProductCertificates({product, anchor=true}:{product:Product; anchor?:boolean}) {
   const c=cmsValues(useSiteContent().data,"product_page");
