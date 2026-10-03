@@ -25,6 +25,7 @@ import {
 import { cn } from "@/lib/utils";
 import { ReviewsStrip } from "@/components/ReviewsStrip";
 import logoAsset from "@/assets/titan-labs-new-logo.png.asset.json";
+import { TestingTransparencyBanner } from "@/components/TestingTransparencyBanner";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -60,11 +61,14 @@ function Index() {
     .map((s) => products.find((p) => p.slug === s))
     .filter((p): p is NonNullable<typeof p> => Boolean(p));
   const pictures = pageImageSlots(content, HOME_IMAGE_SLOTS);
-  const sectionOrder = pageSectionOrder(
+  const savedSectionOrder = pageSectionOrder(
     content,
     "home_layout_order",
     HOME_SECTIONS,
   );
+  const sectionOrder = savedSectionOrder.filter((section) => section !== "signup");
+  const pillarsIndex = sectionOrder.indexOf("pillars");
+  sectionOrder.splice(pillarsIndex + 1, 0, "signup");
 
   const pillars = [1, 2, 3].map((n) => ({
     titleKey: `home_pillar${n}_title`,
@@ -231,36 +235,41 @@ function Index() {
             ) : null;
           if (section === "pillars")
             return (
-              <section key={section} className="mx-auto max-w-6xl px-4 pb-20">
-                <div className="grid gap-3 sm:grid-cols-3">
-                  {pillars.map((p, index) => (
-                    <div
-                      key={p.title}
-                      className="rounded-xl border border-border bg-card p-6"
-                    >
-                      <p className="mb-5 text-[10px] font-black text-primary">
-                        0{index + 1} //
-                      </p>
-                      <h3
-                        className={cn(
-                          "text-sm font-bold uppercase text-accent",
-                          TEXT_ALIGN_CLASS[contentAlign(content, p.titleKey)],
-                        )}
+              <div key={section}>
+                <section className="mx-auto max-w-6xl px-4 pb-12">
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    {pillars.map((p, index) => (
+                      <div
+                        key={p.title}
+                        className="rounded-xl border border-border bg-card p-6"
                       >
-                        <RichText inline text={p.title} />
-                      </h3>
-                      <p
-                        className={cn(
-                          "mt-3 whitespace-pre-wrap text-sm leading-6 text-muted-foreground",
-                          TEXT_ALIGN_CLASS[contentAlign(content, p.bodyKey)],
-                        )}
-                      >
-                        <RichText inline text={p.body} />
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </section>
+                        <p className="mb-5 text-[10px] font-black text-primary">
+                          0{index + 1} //
+                        </p>
+                        <h3
+                          className={cn(
+                            "text-sm font-bold uppercase text-accent",
+                            TEXT_ALIGN_CLASS[contentAlign(content, p.titleKey)],
+                          )}
+                        >
+                          <RichText inline text={p.title} />
+                        </h3>
+                        <p
+                          className={cn(
+                            "mt-3 whitespace-pre-wrap text-sm leading-6 text-muted-foreground",
+                            TEXT_ALIGN_CLASS[contentAlign(content, p.bodyKey)],
+                          )}
+                        >
+                          <RichText inline text={p.body} />
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+                <section className="mx-auto max-w-6xl px-4 pb-20" aria-label="Testing transparency">
+                  <TestingTransparencyBanner />
+                </section>
+              </div>
             );
           if (section === "signup")
             return (
