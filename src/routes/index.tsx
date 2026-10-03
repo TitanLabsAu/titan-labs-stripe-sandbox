@@ -1,3 +1,4 @@
+import { cmsValues } from "@/lib/storefrontContent";
 import { FirstOfferBanner } from "@/components/FirstOfferBanner";
 import { TitanPageHeading } from "@/components/TitanPageHeading";
 import { ShieldCheck } from "lucide-react";
@@ -67,6 +68,7 @@ function Index() {
     HOME_SECTIONS,
   );
 
+  const brand = cmsValues(content, "branding");
   const pillars = [1, 2, 3].map((n) => ({
     titleKey: `home_pillar${n}_title`,
     bodyKey: `home_pillar${n}_body`,
@@ -86,6 +88,7 @@ function Index() {
             title={brand.home_title}
           />
         </div>
+        {brand.watermark_visible ? (
         <div
           className="home-logo-field pointer-events-none absolute inset-x-0 top-0 flex h-[34rem] items-center justify-center overflow-hidden"
           aria-hidden="true"
@@ -98,6 +101,7 @@ function Index() {
             className="home-watermark h-full w-full scale-110 object-contain sm:scale-125"
           />
         </div>
+        ) : null}
         <div className="h-7 sm:h-9" />
         {sectionOrder.map((section) => {
           if (section === "offer")
