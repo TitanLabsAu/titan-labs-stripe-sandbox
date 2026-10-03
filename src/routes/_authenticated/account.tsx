@@ -1,3 +1,4 @@
+import { cmsValues } from "@/lib/storefrontContent";
 import { useSiteContent } from "@/lib/useCatalog";
 import { TitanPageHeading } from "@/components/TitanPageHeading";
 import { UserRound } from "lucide-react";
@@ -60,6 +61,7 @@ const profileSchema = z.object({
 });
 
 function AccountPage() {
+  const intro = cmsValues(useSiteContent().data, "page_intros");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [saving, setSaving] = useState(false);

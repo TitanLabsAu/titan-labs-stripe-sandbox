@@ -1,3 +1,4 @@
+import { cmsValues } from "@/lib/storefrontContent";
 import { useSiteContent } from "@/lib/useCatalog";
 import { TitanPageHeading } from "@/components/TitanPageHeading";
 import { createFileRoute } from "@tanstack/react-router";

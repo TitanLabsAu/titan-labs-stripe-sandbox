@@ -1,3 +1,4 @@
+import { cmsValues } from "@/lib/storefrontContent";
 import { useSiteContent } from "@/lib/useCatalog";
 import { TitanPageHeading } from "@/components/TitanPageHeading";
 import { LogIn } from "lucide-react";
@@ -34,6 +35,7 @@ export const Route = createFileRoute("/auth/")({
 });
 
 function AuthPage() {
+  const intro = cmsValues(useSiteContent().data, "page_intros");
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

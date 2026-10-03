@@ -1,3 +1,4 @@
+import { cmsValues } from "@/lib/storefrontContent";
 import { useSiteContent } from "@/lib/useCatalog";
 import { TitanPageHeading } from "@/components/TitanPageHeading";
 import { UserPlus } from "lucide-react";
@@ -48,6 +49,7 @@ const signupSchema = z.object({
 });
 
 function SignupPage() {
+  const intro = cmsValues(useSiteContent().data, "page_intros");
   const navigate = useNavigate();
   const [form, setForm] = useState({
     first_name: "",

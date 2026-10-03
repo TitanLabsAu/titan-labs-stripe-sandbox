@@ -1,3 +1,4 @@
+import { cmsValues } from "@/lib/storefrontContent";
 import { useSiteContent } from "@/lib/useCatalog";
 import { useProducts } from "@/lib/useCatalog";
 import { researchProducts } from "@/lib/research-products";
@@ -19,6 +20,7 @@ export function ResearchIndexView({
   entries: ResearchEntry[];
   preview?: boolean;
 }) {
+  const intro = cmsValues(useSiteContent().data, "page_intros");
   const { products } = useProducts();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");

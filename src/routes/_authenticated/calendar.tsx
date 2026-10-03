@@ -1,3 +1,4 @@
+import { cmsValues } from "@/lib/storefrontContent";
 import { useSiteContent } from "@/lib/useCatalog";
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
@@ -45,6 +46,7 @@ const frequencyLabel: Record<Frequency, string> = {
   monthly: "Monthly",
 };
 function CalendarPage() {
+  const intro = cmsValues(useSiteContent().data, "page_intros");
   const { user } = Route.useRouteContext();
   const [entries, setEntries] = useState<CalendarEntry[]>([]);
   const [form, setForm] = useState(initialForm);
