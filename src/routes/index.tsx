@@ -25,7 +25,7 @@ import {
 import { cn } from "@/lib/utils";
 import { ReviewsStrip } from "@/components/ReviewsStrip";
 import logoAsset from "@/assets/titan-labs-new-logo.png.asset.json";
-import { TestingTransparencyBanner } from "@/components/TestingTransparencyBanner";
+import { TestingTransparencySection } from "@/components/TestingTransparencySection";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -263,9 +263,7 @@ function Index() {
                     ))}
                   </div>
                 </section>
-                <section className="mx-auto max-w-6xl px-4 pb-20" aria-label="Testing transparency">
-                  <TestingTransparencyBanner />
-                </section>
+                <TestingTransparencySection />
               </div>
             );
           if (section === "signup")
