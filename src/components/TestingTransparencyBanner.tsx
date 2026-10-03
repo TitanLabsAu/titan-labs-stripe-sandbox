@@ -1,4 +1,4 @@
-import { cmsValues, fillTokens as _ft } from "@/lib/storefrontContent";
+import { cmsValues } from "@/lib/storefrontContent";
 import { useSiteContent } from "@/lib/useCatalog";
 import { CmsLink } from "@/components/CmsLink";
 import { ArrowRight } from "lucide-react";

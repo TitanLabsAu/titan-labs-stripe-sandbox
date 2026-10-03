@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { PackagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useProducts } from "@/lib/useCatalog";
+import { useProducts, useSiteContent } from "@/lib/useCatalog";
+import { cmsValues } from "@/lib/storefrontContent";
 import { useCart } from "@/lib/cart";
 import { formatPrice, type Product } from "@/lib/products";
 import { canAddStarterKit, starterKitFor } from "@/lib/starter-kits";
@@ -9,6 +10,7 @@ import { canAddStarterKit, starterKitFor } from "@/lib/starter-kits";
 export function StarterKitOffer({ product }: { product: Product }) {
   const { products } = useProducts();
   const { items, addItem } = useCart();
+  const c = cmsValues(useSiteContent().data, "starter_kit");
   const kit = starterKitFor(product, products);
   if (!kit) return null;
   const available = canAddStarterKit(kit, items);
@@ -34,7 +36,7 @@ export function StarterKitOffer({ product }: { product: Product }) {
         disabled={!available}
         onClick={() => addItem(kit.slug, 1, { pack: "single" })}
       >
-        {available ? "Add starter kit" : kit.comingSoon ? "Coming soon" : "Starter kit unavailable"}
+        {available ? c.add_label : kit.comingSoon ? c.coming_soon_label : c.unavailable_label}
       </Button>
     </section>
   );
