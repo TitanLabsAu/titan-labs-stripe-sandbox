@@ -1,3 +1,4 @@
+import { confirmDiscardCmsDrafts } from "@/lib/cmsDirtyGuard";
 import { TitanPageHeading } from "@/components/TitanPageHeading";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
@@ -709,7 +710,7 @@ function AdminPage() {
 function AdminTabsPage() {
   const [adminTab, setAdminTab] = useState("orders");
   useEffect(() => {
-    const go = (e: Event) => setAdminTab(String((e as CustomEvent).detail));
+    const go = (e: Event) => { if (confirmDiscardCmsDrafts()) setAdminTab(String((e as CustomEvent).detail)); };
     window.addEventListener("titan-admin-tab", go);
     return () => window.removeEventListener("titan-admin-tab", go);
   }, []);
@@ -723,7 +724,7 @@ function AdminTabsPage() {
           eyebrow="Titan management"
           title="Admin"
         />
-        <Tabs value={adminTab} onValueChange={setAdminTab} className="mt-6">
+        <Tabs value={adminTab} onValueChange={(v) => { if (confirmDiscardCmsDrafts()) setAdminTab(v); }} className="mt-6">
           <TabsList className="flex-wrap">
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="members">Members</TabsTrigger>

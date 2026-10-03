@@ -927,7 +927,7 @@ export function AdminEdits() {
 
   return (
     <div className="space-y-6">
-      <Tabs defaultValue="home">
+      <Tabs value={editTab} onValueChange={(v) => { if (confirmDiscardCmsDrafts()) setEditTab(v); }}>
         <TabsList className="flex flex-wrap">
           <TabsTrigger value="appearance" className="font-bold uppercase">
             Appearance
