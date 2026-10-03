@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
 import {
   allComingSoon,
+  bundleSummary,
   allowsKit,
   singleLabelFor,
   firstAvailableVariant,
@@ -95,7 +96,25 @@ export function ProductCard({ product: p }: { product: Product }) {
             Low stock — only {stockCount} left
           </span>
         ) : null}
-        {variants.length > 0 ? (
+        {variants.length >= 4 ? (
+          <select
+            className="mt-2 h-8 w-full min-w-0 rounded-md border border-input bg-background px-2 text-[11px] font-semibold text-foreground"
+            aria-label="Choose option"
+            value={variantId ?? ""}
+            onChange={(e) => setVariantId(e.target.value)}
+          >
+            {variants.map((variant) => {
+              const soldOut = stockState(variantStockFor(p, variant.id)) === "out";
+              const vSoon = Boolean(variant.comingSoon) && !p.comingSoon;
+              return (
+                <option key={variant.id} value={variant.id}>
+                  {variant.label} — {formatPrice(variant.price)}
+                  {vSoon ? " · Soon" : soldOut ? " · Sold out" : ""}
+                </option>
+              );
+            })}
+          </select>
+        ) : variants.length > 0 ? (
           <div className="mt-2 flex flex-wrap gap-1" aria-label={kitAllowed ? "Vial size" : "Size"}>
             {variants.map((variant) => {
               const soldOut = stockState(variantStockFor(p, variant.id)) === "out";
@@ -146,6 +165,15 @@ export function ProductCard({ product: p }: { product: Product }) {
           ))}
         </div>
         ) : null}
+        {(() => {
+          const items = variants.find((v) => v.id === variantId)?.contents ?? [];
+          return items.length ? (
+            <p className="mt-2 text-[11px] leading-4 text-muted-foreground">
+              <span className="font-bold text-primary">Includes: </span>
+              {bundleSummary(items)}
+            </p>
+          ) : null;
+        })()}
         <StarterKitOffer product={p}/>
         <div className="mt-3 flex items-baseline gap-1">
           {p.wasPrice && pack === "single" ? (
