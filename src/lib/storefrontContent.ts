@@ -346,7 +346,8 @@ export function parseOverrides(raw: string | undefined): Record<string, unknown>
 }
 
 /** Resolved values for a section: defaults merged with valid overrides. */
-export function cmsValues<T extends Record<string, any> = Record<string, any>>(content: Record<string, string> | undefined, id: string): T {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function cmsValues(content: Record<string, string> | undefined, id: string): any {
   const section = cmsSection(id)!;
   const overrides = parseOverrides(content?.[cmsKey(id)]);
   const out: Record<string, unknown> = { ...section.defaults };
@@ -354,7 +355,7 @@ export function cmsValues<T extends Record<string, any> = Record<string, any>>(c
   for (const [k, v] of Object.entries(overrides)) {
     if (schema[k]?.safeParse(v).success) out[k] = v;
   }
-  return out as T;
+  return out;
 }
 
 /** Replace {token} placeholders with live values (unknown tokens stay as-is). */
@@ -371,7 +372,7 @@ export function mergeSectionChanges(
 ) {
   const section = cmsSection(id);
   if (!section) throw new Error("Unknown content section");
-  const current = cmsValues({ [cmsKey(id)]: currentRaw ?? "" }, id);
+  const current: Record<string, unknown> = cmsValues({ [cmsKey(id)]: currentRaw ?? "" }, id);
   for (const k of Object.keys(changes)) {
     if (JSON.stringify(current[k]) !== JSON.stringify(base[k])) {
       throw new Error(`"${section.fields.find((f) => f.key === k)?.label ?? k}" was changed by someone else. Reload and try again.`);

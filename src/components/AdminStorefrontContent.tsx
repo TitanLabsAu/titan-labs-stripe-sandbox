@@ -88,7 +88,7 @@ function SectionEditor({ section }: { section: CmsSection }) {
           base[k] = baseValues[k];
         }
       }
-      return adminSaveStorefrontSection({ data: { id: section.id, reset: input.reset, changes, base } });
+      return adminSaveStorefrontSection({ data: { id: section.id, reset: input.reset === true, changes, base } });
     },
     onSuccess: async (_d, input) => {
       const next = input.reset ? (section.defaults as Record<string, any>) : draft;
@@ -139,7 +139,7 @@ function SectionEditor({ section }: { section: CmsSection }) {
   );
 }
 
-function FieldEditor({ field, value, error, sectionId, onChange }: { field: CmsField; value: any; error?: string; sectionId: string; onChange: (v: any) => void }) {
+function FieldEditor({ field, value, error, sectionId, onChange }: { field: CmsField; value: any; error?: string | undefined; sectionId: string; onChange: (v: any) => void }) {
   const id = `cms-${sectionId}-${field.key}`;
   const help = field.help ? <p className="text-xs text-muted-foreground">{field.help}</p> : null;
   const err = error ? <p className="text-xs text-destructive">{error}</p> : null;
@@ -172,9 +172,15 @@ function FieldEditor({ field, value, error, sectionId, onChange }: { field: CmsF
 
 function ImageField({ id, label, value, sectionId, onChange, help, err }: { id: string; label: string; value: string; sectionId: string; onChange: (v: string) => void; help: React.ReactNode; err: React.ReactNode }) {
   const [busy, setBusy] = useState(false);
-  async function upload(file: File) {
-    if (!file.type.startsWith("image/")) return toast.error("Choose an image file");
-    if (file.size > 8 * 1024 * 1024) return toast.error("Image must be under 8MB");
+  async function upload(file: File): Promise<void> {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Choose an image file");
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      toast.error("Image must be under 8MB");
+      return;
+    }
     setBusy(true);
     try {
       const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
@@ -207,12 +213,12 @@ function ImageField({ id, label, value, sectionId, onChange, help, err }: { id: 
   );
 }
 
-function ListEditor({ field, value, error, onChange }: { field: Extract<CmsField, { type: "list" }>; value: Record<string, any>[]; error?: string; onChange: (v: any[]) => void }) {
+function ListEditor({ field, value, error, onChange }: { field: Extract<CmsField, { type: "list" }>; value: Record<string, any>[]; error?: string | undefined; onChange: (v: any[]) => void }) {
   const blank = () => Object.fromEntries(field.itemFields.map((f) => [f.key, f.type === "toggle" ? true : ""]));
   const move = (i: number, d: number) => {
     const next = [...value];
     const [x] = next.splice(i, 1);
-    next.splice(i + d, 0, x);
+    if (x) next.splice(i + d, 0, x);
     onChange(next);
   };
   return (
