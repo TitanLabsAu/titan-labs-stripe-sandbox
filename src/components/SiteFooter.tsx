@@ -6,6 +6,7 @@ import { Link } from "@tanstack/react-router";
 import { FlaskConical, MapPin, ShieldCheck } from "lucide-react";
 import footerImage from "@/assets/titan-light-footer.jpg";
 import { TitanLogo } from "@/components/TitanLogo";
+import { TestingTransparencyBanner } from "@/components/TestingTransparencyBanner";
 
 export function SiteFooter() {
   const { data: siteLinks } = useSiteLinks();
@@ -26,6 +27,7 @@ export function SiteFooter() {
             <div className={cn("mt-5 max-w-sm whitespace-pre-wrap text-sm leading-6", TEXT_ALIGN_CLASS[contentAlign(content, "footer_about")])}>
               <RichText text={label("footer_about")} />
             </div>
+            <TestingTransparencyBanner compact className="mt-6 max-w-md" />
           </div>
           <div>
             <p className="font-display text-xs font-black uppercase text-foreground">{label("footer_nav_title")}</p>
@@ -40,6 +42,7 @@ export function SiteFooter() {
                <Link to="/pen-guide">Pen Guides</Link>
                <Link to="/reviews">Reviews</Link>
                <Link to="/referrals">Referral Program</Link>
+               <Link to="/certificates">Certificates</Link>
             </div>
           </div>
           <div className="space-y-3">

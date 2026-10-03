@@ -25,3 +25,4 @@
 
 - Guest checkout ownership comes only from the hashed guest-session cookie or a verified member bearer, resolved server side in `checkout-buyer.server.ts` — posted IDs/emails are never trusted.
 - First-purchase offer claims stay held while a Stripe intent is payable and are released only after cancellation is confirmed — prevents a late payment using a released offer.
+- Testing Transparency uses one reusable banner linking to `/certificates`; membership wording is factual, and certificates/results are never implied before files are supplied.
