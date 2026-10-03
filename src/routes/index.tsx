@@ -61,11 +61,14 @@ function Index() {
     .map((s) => products.find((p) => p.slug === s))
     .filter((p): p is NonNullable<typeof p> => Boolean(p));
   const pictures = pageImageSlots(content, HOME_IMAGE_SLOTS);
-  const sectionOrder = pageSectionOrder(
+  const savedSectionOrder = pageSectionOrder(
     content,
     "home_layout_order",
     HOME_SECTIONS,
   );
+  const sectionOrder = savedSectionOrder.filter((section) => section !== "signup");
+  const pillarsIndex = sectionOrder.indexOf("pillars");
+  sectionOrder.splice(pillarsIndex + 1, 0, "signup");
 
   const pillars = [1, 2, 3].map((n) => ({
     titleKey: `home_pillar${n}_title`,
