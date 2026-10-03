@@ -588,7 +588,7 @@ export function ProductEditor({
                     reconVialMg: "",
                     reconWaterMl: "",
                     reconDoseMg: "",
-                    reconNotes: "",
+                    reconNotes: "", contents: [],
                   },
                 ],
               })
