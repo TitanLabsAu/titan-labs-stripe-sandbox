@@ -59,31 +59,40 @@ function SectionEditor({ section }: { section: CmsSection }) {
   const saved = useMemo(() => cmsValues(content, section.id), [content, section.id]);
   const usingDefaults = Object.keys(parseOverrides(content?.[cmsKey(section.id)])).length === 0;
   const [draft, setDraft] = useState<Record<string, any>>(saved);
+  // `base` = the saved values this draft started from; used for conflict checks.
+  const [base, setBase] = useState<Record<string, any>>(saved);
   const savedJson = JSON.stringify(saved);
-  const [baseJson, setBaseJson] = useState(savedJson);
+  const dirty = JSON.stringify(draft) !== JSON.stringify(base);
+  const stale = dirty && savedJson !== JSON.stringify(base);
   useEffect(() => {
     // Adopt fresh saved values only when there are no unsaved edits here.
-    setDraft((d) => (JSON.stringify(d) === baseJson ? saved : d));
-    setBaseJson(savedJson);
+    if (!dirty) {
+      setDraft(saved);
+      setBase(saved);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [savedJson]);
-  const dirty = JSON.stringify(draft) !== JSON.stringify(saved);
   const check = sectionSchema(section).safeParse(draft);
   const errors = new Map<string, string>();
   if (!check.success) for (const i of check.error.issues) errors.set(String(i.path[0]), i.message);
 
+  const baseRef = base;
   const save = useMutation({
     mutationFn: (input: { reset?: boolean }) => {
+      const baseValues = input.reset ? {} : (baseRef as Record<string, any>);
       const changes: Record<string, unknown> = {};
       const base: Record<string, unknown> = {};
       for (const k of Object.keys(draft)) {
-        if (JSON.stringify(draft[k]) !== JSON.stringify(saved[k])) {
+        if (JSON.stringify(draft[k]) !== JSON.stringify(baseValues[k])) {
           changes[k] = draft[k];
-          base[k] = saved[k];
+          base[k] = baseValues[k];
         }
       }
       return adminSaveStorefrontSection({ data: { id: section.id, reset: input.reset, changes, base } });
     },
     onSuccess: async (_d, input) => {
+      if (input.reset) setDraft(section.defaults as Record<string, any>);
+      setBase(draft);
       await qc.invalidateQueries({ queryKey: ["site-content"] });
       toast.success(input.reset ? `${section.title} reset to default` : `${section.title} saved`);
     },
@@ -97,7 +106,7 @@ function SectionEditor({ section }: { section: CmsSection }) {
           <h3 id={`cms-${section.id}`} className="font-display text-lg font-bold uppercase">{section.title}</h3>
           {section.description ? <p className="mt-1 text-sm text-muted-foreground">{section.description}</p> : null}
           <p className="mt-1 text-xs font-bold uppercase text-accent">
-            {dirty ? "Unsaved changes" : usingDefaults ? "Using default content" : "Custom content saved"}
+            {stale ? "Unsaved changes · newer content was saved elsewhere" : dirty ? "Unsaved changes" : usingDefaults ? "Using default content" : "Custom content saved"}
           </p>
         </div>
         {section.shortcut ? (
@@ -115,7 +124,7 @@ function SectionEditor({ section }: { section: CmsSection }) {
         <Button disabled={!dirty || !check.success || save.isPending} onClick={() => save.mutate({})}>
           {save.isPending ? <Loader2 className="animate-spin" aria-hidden /> : null} Save
         </Button>
-        <Button variant="outline" disabled={!dirty || save.isPending} onClick={() => setDraft(saved)}>Discard changes</Button>
+        <Button variant="outline" disabled={!dirty || save.isPending} onClick={() => { setDraft(saved); setBase(saved); }}>Discard changes</Button>
         <Button
           variant="ghost"
           disabled={usingDefaults || save.isPending}
