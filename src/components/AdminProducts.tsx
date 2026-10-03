@@ -315,6 +315,7 @@ export function ProductEditor({
   showPromo?: boolean;
 }) {
   const [uploading, setUploading] = useState(false);
+  const [linkUploading, setLinkUploading] = useState<number | null>(null);
   const set = (patch: Partial<Draft>) => setDraft({ ...draft, ...patch });
   const toggleCategory = (c: string) =>
     set({
