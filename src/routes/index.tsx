@@ -108,6 +108,7 @@ function Index() {
           if (section === "offer")
             return <div key={section} className="page-shell pt-4"><FirstOfferBanner redirectTo="/range" placement="home" /></div>;
           if (section === "testing") return <TestingTransparencySection key={section} />;
+          if (section === "reviews") return <ReviewsStrip key={section} />;
           if (section === "tagline")
             return (
               <section key={section} className="relative page-shell pb-6">
@@ -318,7 +319,6 @@ function Index() {
             );
           return null;
         })}
-        <ReviewsStrip />
       </main>
 
       <SiteFooter />

@@ -4,7 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 import { validateReviewInput, type CustomerReview, type ReviewInput } from "@/lib/reviews";
 
-const COLS = "id, reviewer_name, review_text, location, rating, published, sort_order, created_at";
+const COLS = "id, reviewer_name, review_text, location, rating, published, sort_order, created_at, featured, archived, review_date, product_slug";
 
 function publicClient() {
   const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
@@ -33,13 +33,18 @@ export const listPublishedReviews = createServerFn({ method: "GET" }).handler(
       .from("customer_reviews")
       .select(COLS)
       .eq("published", true)
+      .eq("archived", false)
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false });
     if (error) {
       console.error("listPublishedReviews", error);
       return [];
     }
-    return (data ?? []) as CustomerReview[];
+    const rows = (data ?? []) as CustomerReview[];
+    const slugs = [...new Set(rows.flatMap((r) => r.product_slug ? [r.product_slug] : []))];
+    if (!slugs.length) return rows;
+    const { data: products } = await publicClient().from("products").select("slug, name").eq("active", true).in("slug", slugs);
+    return rows.map((r) => ({ ...r, product_name: products?.find((p) => p.slug === r.product_slug)?.name ?? null }));
   },
 );
 
@@ -92,6 +97,23 @@ export const adminDeleteReview = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context as any);
     const { error } = await context.supabase.from("customer_reviews").delete().eq("id", data.id);
+    if (error) throw error;
+    return { ok: true };
+  });
+
+export const adminSetReviewFlags = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id: string; featured?: boolean; archived?: boolean }) => {
+    if (!/^[0-9a-f-]{36}$/i.test(input.id)) throw new Error("Invalid review");
+    const flags: { featured?: boolean; archived?: boolean } = {};
+    if (typeof input.featured === "boolean") flags.featured = input.featured;
+    if (typeof input.archived === "boolean") flags.archived = input.archived;
+    if (!Object.keys(flags).length) throw new Error("Choose a review setting");
+    return { id: input.id, flags };
+  })
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as any);
+    const { error } = await context.supabase.from("customer_reviews").update(data.flags).eq("id", data.id);
     if (error) throw error;
     return { ok: true };
   });
