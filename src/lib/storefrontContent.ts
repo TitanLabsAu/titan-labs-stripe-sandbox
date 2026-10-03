@@ -9,11 +9,11 @@ import { z } from "zod";
 
 export type ListItemField = { key: string; label: string; type: "text" | "textarea" | "url" | "toggle"; max?: number };
 export type CmsField =
-  | { key: string; label: string; type: "text" | "textarea"; max: number; help?: string }
-  | { key: string; label: string; type: "url"; help?: string }
-  | { key: string; label: string; type: "image"; help?: string }
-  | { key: string; label: string; type: "toggle"; help?: string }
-  | { key: string; label: string; type: "list"; itemFields: ListItemField[]; maxItems: number; help?: string };
+  | { key: string; label: string; type: "text" | "textarea"; max: number; help?: string | undefined }
+  | { key: string; label: string; type: "url"; help?: string | undefined }
+  | { key: string; label: string; type: "image"; help?: string | undefined }
+  | { key: string; label: string; type: "toggle"; help?: string | undefined }
+  | { key: string; label: string; type: "list"; itemFields: ListItemField[]; maxItems: number; help?: string | undefined };
 
 export type AdminShortcut = "products" | "reviews" | "discounts" | "members" | "edits";
 export type CmsSection = {
