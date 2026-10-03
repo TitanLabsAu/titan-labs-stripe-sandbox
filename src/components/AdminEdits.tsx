@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AdminStorefrontContent } from "@/components/AdminStorefrontContent";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { AdminLinks } from "@/components/AdminLinks";
@@ -952,7 +953,14 @@ export function AdminEdits() {
           <TabsTrigger value="research" className="font-bold uppercase">
             Research Lab
           </TabsTrigger>
+          <TabsTrigger value="storefront" className="font-bold uppercase">
+            Storefront content
+          </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="storefront" className="mt-6">
+          <AdminStorefrontContent />
+        </TabsContent>
 
         <TabsContent value="appearance" className="mt-6 space-y-6">
           <div className="rounded-xl border border-border bg-card p-6">

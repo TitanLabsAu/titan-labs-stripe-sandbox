@@ -702,6 +702,18 @@ function AdminPage() {
   }
 
   return (
+    <AdminTabsPage />
+  );
+}
+
+function AdminTabsPage() {
+  const [adminTab, setAdminTab] = useState("orders");
+  useEffect(() => {
+    const go = (e: Event) => setAdminTab(String((e as CustomEvent).detail));
+    window.addEventListener("titan-admin-tab", go);
+    return () => window.removeEventListener("titan-admin-tab", go);
+  }, []);
+  return (
     <div className="bg-hero flex min-h-screen flex-col">
       <SiteHeader />
       <main className="page-shell flex-1 pb-24 pt-8 sm:pt-12">
@@ -711,7 +723,7 @@ function AdminPage() {
           eyebrow="Titan management"
           title="Admin"
         />
-        <Tabs defaultValue="orders" className="mt-6">
+        <Tabs value={adminTab} onValueChange={setAdminTab} className="mt-6">
           <TabsList className="flex-wrap">
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="members">Members</TabsTrigger>
