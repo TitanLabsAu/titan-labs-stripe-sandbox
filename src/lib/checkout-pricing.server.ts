@@ -1,4 +1,4 @@
-import { effectivePack, effectiveStock, kitPriceFor } from "@/lib/products";
+import { effectivePack, effectiveStock, kitPriceFor, bundleSummary, sanitizeBundle } from "@/lib/products";
 import type { ShippingMethodKey } from "@/lib/pricing";
 import {
   fromCents,
@@ -143,13 +143,15 @@ export async function priceCheckout(
     const stock = effectiveStock(product, variant ? variant.stock : product.stock_quantity);
     if (stock != null && units > Number(stock))
       throw new Error("There is not enough stock for one of the items. Please update your cart.");
-    const label = variant?.label
+    const baseLabel = variant?.label
       ? String(variant.label)
       : product.catalogue_section === "pens"
         ? "Pre-filled Pen Only"
         : product.catalogue_section === "equipment"
           ? "Single item"
           : "Single vial";
+    const bundle = bundleSummary(sanitizeBundle((variant as any)?.contents));
+    const label = bundle ? `${baseLabel} (${bundle})`.slice(0, 500) : baseLabel;
     lines.push({
       product_slug: product.slug,
       product_name: product.name,

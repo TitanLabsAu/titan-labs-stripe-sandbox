@@ -3,6 +3,7 @@ import {
   cartLineKey,
   effectivePack,
   getProductOption,
+  bundleSummary,
   type ProductPack,
   type Product,
 } from "./products";
@@ -126,7 +127,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const getLineLabel = (item: CartItem, product?: Product | null) => {
       const found = product ?? getProduct(item.slug);
       if (!found) return item.variantLabel ?? "Selected option";
-      return getProductOption(found, item.variantId ?? null, item.pack ?? "single").label;
+      const base = getProductOption(found, item.variantId ?? null, item.pack ?? "single").label;
+      const bundle = bundleSummary(found.variants?.find((v) => v.id === item.variantId)?.contents);
+      return bundle ? `${base} (${bundle})` : base;
     };
     const count = items.reduce((sum, i) => sum + i.quantity, 0);
     const subtotal = items.reduce((sum, i) => sum + getLinePrice(i) * i.quantity, 0);
