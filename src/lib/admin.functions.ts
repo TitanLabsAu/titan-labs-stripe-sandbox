@@ -1,4 +1,4 @@
-import { allowsKit } from "@/lib/products";
+import { allowsKit, sanitizeBundle } from "@/lib/products";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { parseCatalogueSection, type CatalogueSection } from "@/lib/catalogue-sections";

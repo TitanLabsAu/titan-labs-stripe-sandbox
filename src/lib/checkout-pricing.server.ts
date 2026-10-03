@@ -1,4 +1,4 @@
-import { effectivePack, effectiveStock, kitPriceFor } from "@/lib/products";
+import { effectivePack, effectiveStock, kitPriceFor, bundleSummary, sanitizeBundle } from "@/lib/products";
 import type { ShippingMethodKey } from "@/lib/pricing";
 import {
   fromCents,
