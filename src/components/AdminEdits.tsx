@@ -57,6 +57,7 @@ import {
   RANGE_IMAGE_SLOTS,
   RANGE_SECTIONS,
   featuredSlugs,
+  pageSectionOrder,
   type HomeField,
   type PageImageSlot,
   type PageSection,
@@ -685,17 +686,7 @@ export function AdminEdits() {
 
       setValues(next);
       setFeatured(featuredSlugs(data));
-      const savedHomeOrder = (data["home_layout_order"] ?? "")
-        .split(",")
-        .filter(Boolean);
-      setHomeOrder([
-        ...savedHomeOrder.filter((key) =>
-          HOME_SECTIONS.some((section) => section.key === key),
-        ),
-        ...HOME_SECTIONS.map((section) => section.key).filter(
-          (key) => !savedHomeOrder.includes(key),
-        ),
-      ]);
+      setHomeOrder(pageSectionOrder(data, "home_layout_order", HOME_SECTIONS));
       const savedRangeOrder = (data["range_layout_order"] ?? "")
         .split(",")
         .filter(Boolean);

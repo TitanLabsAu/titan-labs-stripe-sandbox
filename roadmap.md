@@ -1,9 +1,9 @@
 # Roadmap
 
 ## Featured customer reviews
-- [ ] Extend existing reviews with featured/date/product/archive fields and Admin controls.
-- [ ] Display up to three featured reviews and add Reviews to homepage ordering.
-- [ ] Verify regressions and public/Admin flows without publishing or invented reviews.
+- [x] Extend existing reviews with featured/date/product/archive fields and Admin controls.
+- [x] Display up to three featured reviews and add Reviews to homepage ordering.
+- [x] Verify regressions and public/Admin flows without publishing or invented reviews.
 
 - [x] Replace fixed “The Range” product-listing references with the editable Catalogue name.
 - [x] Draft and populate a short full description and three key points for every active product.
