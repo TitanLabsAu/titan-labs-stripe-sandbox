@@ -61,9 +61,9 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
   };
   void subtotal;
 
-  // Mobile floating trigger is hidden on checkout pages — the checkout flow
-  // manages its own cart summary there.
-  if (floating && ((!catalogue && count === 0) || pathname.startsWith("/checkout"))) return null;
+  // Floating trigger only appears once something is in the cart, and never on
+  // checkout pages — the checkout flow manages its own cart summary there.
+  if (floating && (count === 0 || pathname.startsWith("/checkout"))) return null;
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
