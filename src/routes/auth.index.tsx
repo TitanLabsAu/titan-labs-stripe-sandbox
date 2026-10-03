@@ -1,3 +1,4 @@
+import { useSiteContent } from "@/lib/useCatalog";
 import { TitanPageHeading } from "@/components/TitanPageHeading";
 import { LogIn } from "lucide-react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
@@ -112,12 +113,10 @@ function AuthPage() {
             <TitanPageHeading
               as="h1"
               icon={LogIn}
-              eyebrow="Titan member access"
-              title="Member log in"
+              eyebrow={intro.login_eyebrow}
+              title={intro.login_title}
             />
-            <p className="mt-2 text-left text-sm text-muted-foreground">
-              Welcome back to Titan Labs Aus.
-            </p>
+            {intro.login_intro ? <p className="mt-2 whitespace-pre-wrap text-left text-sm text-muted-foreground">{intro.login_intro}</p> : null}
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
               <div className="space-y-2">

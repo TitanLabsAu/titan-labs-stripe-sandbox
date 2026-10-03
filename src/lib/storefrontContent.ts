@@ -143,10 +143,10 @@ export const CMS_SECTIONS: CmsSection[] = [
     defaults: {
       calc_eyebrow: "Research tool", calc_title: "Reconstitution Calculator", calc_intro: "",
       account_eyebrow: "Titan member area", account_title: "Your account", account_intro: "",
-      calendar_eyebrow: "Member research tool", calendar_title: "My Calendar", calendar_intro: "",
-      research_eyebrow: "", research_title: "", research_intro: "",
-      login_eyebrow: "Titan member access", login_title: "Member log in", login_intro: "",
-      signup_eyebrow: "Titan member access", signup_title: "Create account", signup_intro: "",
+      calendar_eyebrow: "Member research tool", calendar_title: "My Calendar", calendar_intro: "Record your own research measurements and reminders. Titan does not prescribe schedules or doses.",
+      research_eyebrow: "Explore · Understand · Go deeper", research_title: "Understand the research. Faster.", research_intro: "Start with a simple explanation, explore what researchers are studying, then open the science and references only when you want more detail.",
+      login_eyebrow: "Titan member access", login_title: "Member log in", login_intro: "Welcome back to Titan Labs Aus.",
+      signup_eyebrow: "Titan member access", signup_title: "Create account", signup_intro: "Enter your details, then confirm your email to unlock ordering.",
     },
   },
   {
@@ -162,7 +162,13 @@ export const CMS_SECTIONS: CmsSection[] = [
     defaults: {
       eyebrow: "Equipment reference", title: "Titan Pen Guides",
       intro: "Reference information for Titan V2 reusable and disposable pens. Model-specific instructions supplied with the hardware take precedence. Products are for laboratory research only, not human or animal consumption.",
-      reusable_title: "Titan V2 reusable pen", reusable_steps: [],
+      reusable_title: "Titan V2 reusable pen",
+      reusable_steps: [
+        { title: "Check compatibility", body: "Confirm the cartridge and accessories match the exact V2 pen model and manufacturer instructions." },
+        { title: "Inspect before handling", body: "Check packaging, labels and the device for damage. Follow the handling and cleaning instructions supplied with the hardware." },
+        { title: "Cartridge and unit scale", body: "Use only the manufacturer’s cartridge-loading and priming instructions. A pen’s unit scale must not be assumed to match a U-100 syringe." },
+        { title: "Storage and disposal", body: "Follow the device and research material storage instructions. Place sharp accessories in an appropriate sharps container." },
+      ],
       products_title: "Product information & supplied guides", products_body: "Open the product information for its current options and documents.",
     },
   },

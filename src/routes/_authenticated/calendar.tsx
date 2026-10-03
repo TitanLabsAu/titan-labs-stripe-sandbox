@@ -1,3 +1,4 @@
+import { useSiteContent } from "@/lib/useCatalog";
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { CalendarDays, ChevronLeft, ChevronRight, Pencil, Trash2 } from "lucide-react";
@@ -141,13 +142,10 @@ function CalendarPage() {
         <TitanPageHeading
           as="h1"
           icon={CalendarDays}
-          eyebrow="Member research tool"
-          title="My Calendar"
+          eyebrow={intro.calendar_eyebrow}
+          title={intro.calendar_title}
         />
-        <p className="mt-4 text-sm text-muted-foreground">
-          Record your own research measurements and reminders. Titan does not prescribe schedules or
-          doses.
-        </p>
+        {intro.calendar_intro ? <p className="mt-4 whitespace-pre-wrap text-sm text-muted-foreground">{intro.calendar_intro}</p> : null}
         <div className="mt-7 grid gap-6 lg:grid-cols-[22rem_minmax(0,1fr)]">
           <form onSubmit={save} className="space-y-4 rounded-xl border border-border bg-card p-5">
             <h2 className="font-display text-xl font-bold uppercase">

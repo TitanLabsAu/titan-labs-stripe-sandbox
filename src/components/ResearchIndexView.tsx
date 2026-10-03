@@ -1,3 +1,4 @@
+import { useSiteContent } from "@/lib/useCatalog";
 import { useProducts } from "@/lib/useCatalog";
 import { researchProducts } from "@/lib/research-products";
 import { safeUrl } from "@/lib/research";
@@ -56,13 +57,12 @@ export function ResearchIndexView({
     <>
       <div className="grid gap-6 border-b border-border pb-7 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div className="max-w-3xl">
-          <p className="technical-label text-accent">Explore · Understand · Go deeper</p>
+          <p className="technical-label text-accent">{intro.research_eyebrow}</p>
           <h1 className="mt-2 font-display text-[clamp(2rem,9vw,3rem)] font-black uppercase leading-none tracking-[0.055em] text-foreground sm:text-5xl sm:tracking-[0.08em]">
-            Understand the research. Faster.
+            {intro.research_title}
           </h1>
           <p className="mt-3 text-base leading-7 text-muted-foreground">
-            Start with a simple explanation, explore what researchers are studying, then open the
-            science and references only when you want more detail.
+            {intro.research_intro}
           </p>
         </div>
         <dl className="grid grid-cols-3 gap-5 border-l-2 border-l-primary pl-5">
