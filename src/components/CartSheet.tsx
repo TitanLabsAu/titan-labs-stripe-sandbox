@@ -202,7 +202,7 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
                     <span className="block font-display text-sm font-black uppercase text-foreground">
                       {upsell.heading}
                     </span>
-                    {upsell.body ? <span className="block text-xs text-muted-foreground">{upsell.body}</span> : null}
+                    {upsell.body ? <span className="block whitespace-pre-line text-xs text-muted-foreground">{upsell.body}</span> : null}
                   </span>
                   <ChevronRight className="h-4 w-4 shrink-0 text-primary transition-transform group-hover:translate-x-0.5" />
                 </Link>

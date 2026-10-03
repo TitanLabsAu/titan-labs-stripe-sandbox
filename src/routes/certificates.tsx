@@ -40,7 +40,7 @@ function CertificatesPage() {
             {c.title}
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-muted-foreground">
-            {c.intro}
+            <span className="whitespace-pre-line">{c.intro}</span>
           </p>
           {c.verify_label ? (
             <CmsLink href={c.verify_url} className="mt-6 inline-block font-bold text-primary underline underline-offset-4">

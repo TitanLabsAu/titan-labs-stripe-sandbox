@@ -60,7 +60,7 @@ function PenGuide() {
             {g.products_title}
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            {g.products_body}
+            <span className="whitespace-pre-line">{g.products_body}</span>
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             {guides.map((p) => (

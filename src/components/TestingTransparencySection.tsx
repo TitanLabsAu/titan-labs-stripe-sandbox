@@ -45,7 +45,7 @@ export function TestingTransparencySection() {
             {c.headline}
           </h2>
           <p className="mt-5 text-base leading-7 text-muted-foreground sm:text-lg">
-            {c.body}
+            <span className="whitespace-pre-line">{c.body}</span>
           </p>
           <ul className="my-6 space-y-4">
             {bullets.map(({ text: point }) => (
