@@ -218,7 +218,7 @@ function RangePage() {
           if (section === "products")
             return (
               <section key={section} className="border-t border-border py-7">
-                <TestingTransparencyBanner className="mb-8" />
+                <TestingTransparencyBanner placement="catalogue" className="mb-8" />
                 {availableSections.length > 0 && (
                 <div
                   role="tablist"

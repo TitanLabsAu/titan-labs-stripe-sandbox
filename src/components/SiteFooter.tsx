@@ -27,7 +27,7 @@ export function SiteFooter() {
             <div className={cn("mt-5 max-w-sm whitespace-pre-wrap text-sm leading-6", TEXT_ALIGN_CLASS[contentAlign(content, "footer_about")])}>
               <RichText text={label("footer_about")} />
             </div>
-            <TestingTransparencyBanner compact className="mt-6 max-w-md" />
+            <TestingTransparencyBanner placement="footer" compact className="mt-6 max-w-md" />
           </div>
           <div>
             <p className="font-display text-xs font-black uppercase text-foreground">{label("footer_nav_title")}</p>
