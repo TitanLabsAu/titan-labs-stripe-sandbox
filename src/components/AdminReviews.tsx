@@ -17,7 +17,7 @@ import {
 import type { CustomerReview } from "@/lib/reviews";
 
 type Draft = { id?: string; reviewer_name: string; review_text: string; location: string; rating: string; published: boolean; sort_order: string; featured: boolean; archived: boolean; review_date: string; product_slug: string };
-const empty: Draft = { reviewer_name: "", review_text: "", location: "", rating: "5", published: false, sort_order: "0", featured: false, archived: false, review_date: "", product_slug: "" };
+const empty: Draft = { reviewer_name: "", review_text: "", location: "", rating: "", published: false, sort_order: "0", featured: false, archived: false, review_date: "", product_slug: "" };
 
 export function AdminReviews() {
   const qc = useQueryClient();
@@ -75,13 +75,6 @@ export function AdminReviews() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div><Label htmlFor="review-name">Customer name</Label><Input id="review-name" value={draft.reviewer_name} maxLength={120} onChange={(e) => set({ reviewer_name: e.target.value })} /></div>
           <div><Label>Location (optional)</Label><Input value={draft.location} maxLength={120} placeholder="e.g. Melbourne, VIC" onChange={(e) => set({ location: e.target.value })} /></div>
-          <div>
-            <Label htmlFor="review-rating">Star rating</Label>
-            <select id="review-rating" value={draft.rating} onChange={(e) => set({ rating: e.target.value })} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
-              <option value="">No rating</option>
-              {[5, 4, 3, 2, 1].map((n) => <option key={n} value={n}>{n} / 5</option>)}
-            </select>
-          </div>
           <div><Label htmlFor="review-order">Featured display order</Label><Input id="review-order" type="number" step="1" value={draft.sort_order} onChange={(e) => set({ sort_order: e.target.value })} /></div>
           <div><Label htmlFor="review-date">Review date</Label><Input id="review-date" type="date" value={draft.review_date} onChange={(e) => set({ review_date: e.target.value })} /></div>
           <div>
@@ -108,6 +101,7 @@ export function AdminReviews() {
 
   return (
     <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">Customer submissions arrive unpublished and unfeatured. Review them here, then choose Publish; enable Featured to include them in the homepage selection.</p>
       <div className="flex justify-end"><Button className="font-bold uppercase" onClick={() => setDraft({ ...empty })}>Add review</Button></div>
       {error ? <p role="alert" className="text-sm text-destructive">Reviews could not be loaded. Please try again.</p> : isLoading ? <p className="text-sm text-muted-foreground">Loading reviews…</p> : (data ?? []).length === 0 ? (
         <p className="rounded-xl border border-border bg-card p-6 text-sm text-muted-foreground">No reviews yet. Add genuine customer reviews here; published ones appear on the home and Reviews pages.</p>
@@ -116,7 +110,7 @@ export function AdminReviews() {
           <div className="max-w-2xl text-sm">
             <p className="font-extrabold uppercase">{r.reviewer_name}{r.location ? <span className="font-normal normal-case text-muted-foreground"> · {r.location}</span> : null}</p>
             <p className="mt-1 break-words whitespace-pre-wrap text-muted-foreground">{r.review_text}</p>
-            <p className="mt-1 text-xs uppercase tracking-[0.14em] text-accent">{r.archived ? "Archived" : r.published ? "Published" : "Draft"}{r.featured ? " · Featured" : ""}{r.rating ? ` · ${r.rating}/5` : ""} · Order {r.sort_order}</p>
+            <p className="mt-1 text-xs uppercase tracking-[0.14em] text-accent">{r.archived ? "Archived" : r.published ? "Published" : "Pending approval"}{r.featured ? " · Featured" : ""} · Order {r.sort_order}</p>
             {r.review_date ? <p className="mt-1 text-xs text-muted-foreground">{r.review_date}</p> : null}
             {r.product_slug ? <p className="mt-1 text-xs text-muted-foreground">{products?.find((p) => p.slug === r.product_slug)?.name ?? r.product_slug}</p> : null}
           </div>

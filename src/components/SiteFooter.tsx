@@ -44,6 +44,7 @@ export function SiteFooter() {
                  if (tab === "calculator") return <Link key={tab} to="/calculator">{label("header_nav_calculator")}</Link>;
                  return <Link key={tab} to="/auth">{label("header_nav_login")}</Link>;
                })}
+               <Link to="/reviews" hash="leave-review" className="inline-flex min-h-10 w-fit items-center rounded-md border border-primary px-3 py-2 font-bold text-primary hover:bg-primary/10">{cmsValues(content,"review_submission").cta_label}</Link>
                {extraLinks.map((l, i) => <CmsLink key={i} href={l.url}>{l.label}</CmsLink>)}
             </div>
           </div>

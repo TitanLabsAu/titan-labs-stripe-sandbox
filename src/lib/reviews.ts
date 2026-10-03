@@ -72,3 +72,15 @@ export function reviewDateLabel(date: string | null) {
   if (!date) return "";
   return new Intl.DateTimeFormat("en-AU", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }).format(new Date(`${date}T00:00:00Z`));
 }
+
+/** Public submissions can create only pending, unfeatured, rating-free reviews. */
+export function validatePublicReview(input: unknown) {
+  if (!input || typeof input !== "object") throw new Error("Please complete the review form");
+  const v = input as Record<string, unknown>;
+  if (typeof v['website'] !== "string" || v['website'].trim()) throw new Error("Unable to submit this review");
+  if (v['consent'] !== true) throw new Error("Please confirm we may display your review");
+  if (typeof v['reviewer_name'] !== "string" || typeof v['review_text'] !== "string" || (v['location'] != null && typeof v['location'] !== "string")) throw new Error("Please check your review details");
+  if (v['review_text'].trim().length < 10) throw new Error("Please write at least 10 characters about your experience");
+  const row = validateReviewInput({reviewer_name:v['reviewer_name'],review_text:v['review_text'],location:typeof v['location'] === "string" ? v['location'] : null});
+  return {...row, rating:null, published:false, featured:false, archived:false, sort_order:0, product_slug:null, review_date:null};
+}

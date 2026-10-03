@@ -226,6 +226,12 @@ export const CMS_SECTIONS: CmsSection[] = [
     defaults: { title: "Product Certificates", intro: "Browse the available Certificates of Analysis attached to our products.", empty_text: "Certificates will appear here as they are added.", verify_label: "", verify_url: "https://peptidetestcanada.ca/verify" },
   },
   {
+    id: "review_submission", group: "Pages", title: "Leave a review form & buttons",
+    shortcut: {tab:"reviews",label:"Approve customer reviews"},
+    fields: [T("cta_label","Homepage / footer button label",40),T("heading","Form heading",80),P("intro","Form introduction",400),P("consent","Public display consent text",300),T("submit_label","Submit button label",40),P("success","Submission confirmation",300)],
+    defaults: {cta_label:"Leave a review",heading:"Leave a review",intro:"Tell us about your Titan Labs experience. Your review will be checked by our team before it appears on the website.",consent:"I confirm this is my genuine experience and give Titan Labs permission to display my review, name and optional location on the website.",submit_label:"Submit review",success:"Thank you! Your review has been received and is awaiting Admin approval."},
+  },
+  {
     id: "page_reviews",
     group: "Pages",
     title: "Reviews page",

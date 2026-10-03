@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Pause, Play, Quote, Star } from "lucide-react";
+import { Pause, Play, Quote } from "lucide-react";
 import { listPublishedReviews } from "@/lib/reviews.functions";
 import { featuredReviews, reviewDateLabel, type CustomerReview } from "@/lib/reviews";
 import { Button } from "@/components/ui/button";
@@ -14,18 +14,10 @@ export function usePublishedReviews() {
 }
 
 export function ReviewCard({ review, className }: { review: CustomerReview; className?: string }) {
-  const rating = review.rating ?? 0;
   return (
     <figure className={cn("review-card min-w-0 flex flex-col justify-between rounded-2xl border p-6", className)}>
       <div>
         <Quote className="h-6 w-6 text-[color:var(--review-gold)]" aria-hidden />
-        {review.rating ? (
-          <p className="mt-3 flex gap-0.5" aria-label={`${review.rating} out of 5`}>
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Star key={i} aria-hidden className={cn("h-4 w-4", i < rating ? "fill-[color:var(--review-gold)] text-[color:var(--review-gold)]" : "text-[color:var(--review-muted)]")} />
-            ))}
-          </p>
-        ) : null}
         <blockquote className="mt-3 break-words whitespace-pre-wrap text-sm leading-6">“{review.review_text}”</blockquote>
       </div>
       <figcaption className="mt-5 border-t border-[color:var(--review-line)] pt-4">
@@ -52,7 +44,8 @@ export function ReviewsStrip() {
     mq.addEventListener("change", on);
     return () => mq.removeEventListener("change", on);
   }, []);
-  if (!c.visible || reviews.length === 0) return null;
+  const submission=cmsValues(useSiteContent().data,"review_submission");
+  if (!c.visible) return null;
   const animate = c.autoplay === true && reviews.length > 1 && !reduced;
   const perCard = c.speed === "slow" ? 13 : c.speed === "fast" ? 6 : 9;
 
@@ -64,14 +57,15 @@ export function ReviewsStrip() {
             <p className="technical-label text-[color:var(--review-blue)]">{c.eyebrow}</p>
             <h2 id="community-reviews" className="font-display mt-2 text-2xl font-black uppercase sm:text-3xl">{c.title}</h2>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <Link to="/reviews" hash="leave-review" className="inline-flex min-h-11 items-center rounded-md border border-primary bg-primary px-5 text-sm font-bold uppercase text-primary-foreground">{submission.cta_label}</Link>
             {animate ? (
               <Button variant="outline" type="button" onClick={() => setPaused((p) => !p)} aria-label={paused ? "Play reviews" : "Pause reviews"} aria-pressed={paused} className="inline-flex items-center gap-2 rounded-full border border-[color:var(--review-line)] px-4 py-2 text-xs font-bold uppercase tracking-[0.14em]">
                 {paused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
                 {paused ? c.play_label : c.pause_label}
               </Button>
             ) : null}
-            {c.cta_label && allReviews.length > reviews.length ? <Link to="/reviews" className="text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--review-blue)] hover:underline">{c.cta_label}</Link> : null}
+            {c.cta_label && allReviews.length > 0 ? <Link to="/reviews" className="text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--review-blue)] hover:underline">{c.cta_label}</Link> : null}
           </div>
         </div>
       </div>

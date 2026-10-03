@@ -1,3 +1,4 @@
+import { LeaveReviewForm } from "@/components/LeaveReviewForm";
 import { cmsValues } from "@/lib/storefrontContent";
 import { useSiteContent } from "@/lib/useCatalog";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -24,12 +25,15 @@ export const Route = createFileRoute("/reviews")({
 function ReviewsPage() {
   const { data, isLoading } = usePublishedReviews();
   const reviews = data ?? [];
-  const c = cmsValues(useSiteContent().data, "page_reviews");
+  const content=useSiteContent().data;
+  const c = cmsValues(content, "page_reviews");
+  const submission=cmsValues(content,"review_submission");
   return (
     <div className="bg-hero min-h-screen">
       <SiteHeader />
       <main className="page-shell pb-20 pt-8 sm:pt-12">
         <TitanPageHeading icon={MessageSquareQuote} eyebrow={c.eyebrow} title={c.title} />
+        <Link to="/reviews" hash="leave-review" className="mt-6 inline-flex min-h-11 items-center rounded-md border border-primary bg-primary px-5 font-bold uppercase text-primary-foreground">{submission.cta_label}</Link>
         {isLoading ? (
           <p className="py-10 text-sm text-muted-foreground">Loading reviews…</p>
         ) : reviews.length === 0 ? (
@@ -43,6 +47,7 @@ function ReviewsPage() {
             {reviews.map((r) => <ReviewCard key={r.id} review={r} />)}
           </div>
         )}
+        <LeaveReviewForm/>
       </main>
       <SiteFooter />
     </div>

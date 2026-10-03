@@ -14,7 +14,7 @@
 - Research Lab member summaries live in `research_entries.at_a_glance`; protected `/research-preview` routes show drafts to admins without weakening public published-only reads.
 - The mobile floating cart reuses `CartSheet` from the root layout so cart behavior remains centralized.
 - Storefront sections live in `products.catalogue_section` (range/pens/equipment, DB check, default range) — kept separate from scientific `categories`.
-- Customer reviews use `customer_reviews` with admin-only writes and published/non-archived public reads; the shared featured selector limits the ordered homepage block to three, while preserving a separate full reviews page.
+- Customer reviews use `customer_reviews` with admin-only direct writes and published/non-archived public reads; anonymous review submissions go only through the validated, throttled submitCustomerReview server handler, always unpublished/unfeatured and with no rating; the shared featured selector limits the ordered homepage block to three, while preserving a separate full reviews page.
 - AI product photos go through the admin-checked `/api/admin-generate-image` route and are only stored in `product-images` after the admin chooses "Use image".
 - Equipment is single-item only via `allowsKit`/`effectivePack` in `src/lib/products.ts`, applied in UI, cart restore and every server price path — one rule so tampered kit requests cannot be charged.
 

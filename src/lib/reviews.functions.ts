@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
-import { validateReviewInput, type CustomerReview, type ReviewInput } from "@/lib/reviews";
+import { validateReviewInput, validatePublicReview, type CustomerReview, type ReviewInput } from "@/lib/reviews";
 
 const COLS = "id, reviewer_name, review_text, location, rating, published, sort_order, created_at, featured, archived, review_date, product_slug";
 
@@ -116,4 +116,26 @@ export const adminSetReviewFlags = createServerFn({ method: "POST" })
     const { error } = await context.supabase.from("customer_reviews").update(data.flags).eq("id", data.id);
     if (error) throw error;
     return { ok: true };
+  });
+
+/** Anonymous visitors may submit for moderation. Existing admin-only RLS is unchanged. */
+export const submitCustomerReview = createServerFn({method:"POST"})
+  .inputValidator(validatePublicReview)
+  .handler(async ({data}) => {
+    // Import only inside the server handler: never bundle the service key.
+    const {supabaseAdmin} = await import("@/integrations/supabase/client.server");
+    const since = new Date(Date.now()-60*60*1000).toISOString();
+    const {count,error:limitError} = await supabaseAdmin.from("customer_reviews").select("id",{count:"exact",head:true}).eq("published",false).gte("created_at",since);
+    if (limitError) throw new Error("Reviews are temporarily unavailable. Please try again later.");
+    if ((count ?? 0) >= 50) throw new Error("We are receiving many reviews. Please try again later.");
+    const {count:nameCount,error:nameError} = await supabaseAdmin.from("customer_reviews").select("id",{count:"exact",head:true}).eq("reviewer_name",data.reviewer_name).gte("created_at",since);
+    if (nameError) throw new Error("Reviews are temporarily unavailable. Please try again later.");
+    if ((nameCount ?? 0) >= 3) throw new Error("Please wait before submitting another review.");
+    // Retried submissions should not create duplicate moderation entries.
+    const {data:duplicates,error:duplicateError} = await supabaseAdmin.from("customer_reviews").select("id").eq("reviewer_name",data.reviewer_name).eq("review_text",data.review_text).gte("created_at",new Date(Date.now()-24*60*60*1000).toISOString()).limit(1);
+    if (duplicateError) throw new Error("Reviews are temporarily unavailable. Please try again later.");
+    if (duplicates?.length) return {ok:true};
+    const {error} = await supabaseAdmin.from("customer_reviews").insert(data);
+    if (error) throw new Error("Your review could not be saved. Please try again.");
+    return {ok:true};
   });
