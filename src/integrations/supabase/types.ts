@@ -60,39 +60,59 @@ export type Database = {
       }
       customer_reviews: {
         Row: {
+          archived: boolean
           created_at: string
+          featured: boolean
           id: string
           location: string | null
+          product_slug: string | null
           published: boolean
           rating: number | null
+          review_date: string | null
           review_text: string
           reviewer_name: string
           sort_order: number
           updated_at: string
         }
         Insert: {
+          archived?: boolean
           created_at?: string
+          featured?: boolean
           id?: string
           location?: string | null
+          product_slug?: string | null
           published?: boolean
           rating?: number | null
+          review_date?: string | null
           review_text: string
           reviewer_name: string
           sort_order?: number
           updated_at?: string
         }
         Update: {
+          archived?: boolean
           created_at?: string
+          featured?: boolean
           id?: string
           location?: string | null
+          product_slug?: string | null
           published?: boolean
           rating?: number | null
+          review_date?: string | null
           review_text?: string
           reviewer_name?: string
           sort_order?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "customer_reviews_product_slug_fkey"
+            columns: ["product_slug"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["slug"]
+          },
+        ]
       }
       discount_code_events: {
         Row: {

@@ -197,6 +197,13 @@
       "when": 1790982737094,
       "tag": "0029_equipment_unlimited_stock",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1791035240065,
+      "tag": "0028_featured_customer_reviews",
+      "breakpoints": true
     }
   ]
 }
