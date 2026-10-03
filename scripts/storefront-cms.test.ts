@@ -1,7 +1,12 @@
 import { describe, expect, test } from "vitest";
-import { cmsKey, cmsValues, isSafeUrl, mergeSectionChanges, validateSection, fillTokens } from "../src/lib/storefrontContent";
+import { CMS_SECTIONS, cmsKey, cmsValues, isSafeUrl, mergeSectionChanges, validateSection, fillTokens } from "../src/lib/storefrontContent";
 
 describe("storefront CMS", () => {
+  test("every built-in section is valid and malformed inherited keys cannot break the storefront", () => {
+    for (const section of CMS_SECTIONS) expect(validateSection(section.id, section.defaults)).toEqual(section.defaults);
+    const content = { [cmsKey("home_testing")]: '{"__proto__":{},"constructor":"invalid","caption":"Saved caption"}' };
+    expect(cmsValues(content, "home_testing").caption).toBe("Saved caption");
+  });
   test("link safety", () => {
     for (const ok of ["/range", "/api/public/product-image?path=a", "https://x.com", "http://x.com", ""]) expect(isSafeUrl(ok)).toBe(true);
     for (const bad of ["javascript:alert(1)", "data:text/html,x", "//evil.com", "/\\evil", "ftp://x", " vbscript:x"]) expect(isSafeUrl(bad)).toBe(false);

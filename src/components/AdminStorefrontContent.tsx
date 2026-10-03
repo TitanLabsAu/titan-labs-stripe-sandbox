@@ -82,10 +82,12 @@ function SectionEditor({ section, content, onDirty }: { section: CmsSection; con
   const [draft, setDraft] = useState<Record<string, any>>(saved);
   // `base` = the saved values this draft started from; used for conflict checks.
   const [base, setBase] = useState<Record<string, any>>(saved);
+  const [uploadingFields, setUploadingFields] = useState<string[]>([]);
+  const uploading = uploadingFields.length > 0;
   const savedJson = JSON.stringify(saved);
   const dirty = JSON.stringify(draft) !== JSON.stringify(base);
   const stale = dirty && savedJson !== JSON.stringify(base);
-  useEffect(() => onDirty(section.id, dirty), [dirty, section.id, onDirty]);
+  useEffect(() => onDirty(section.id, dirty || uploading), [dirty, uploading, section.id, onDirty]);
   useEffect(() => {
     // Adopt fresh saved values only when there are no unsaved edits here.
     if (!dirty) {
@@ -131,7 +133,7 @@ function SectionEditor({ section, content, onDirty }: { section: CmsSection; con
           <h3 id={`cms-${section.id}`} className="font-display text-lg font-bold uppercase">{section.title}</h3>
           {section.description ? <p className="mt-1 text-sm text-muted-foreground">{section.description}</p> : null}
           <p className="mt-1 text-xs font-bold uppercase text-accent">
-            {save.isPending ? "Saving…" : stale ? "Unsaved changes · newer content was saved elsewhere" : dirty ? "Unsaved changes" : usingDefaults ? "Using default content" : "Custom content saved"}
+            {uploading ? "Uploading image… wait before saving" : save.isPending ? "Saving…" : stale ? "Unsaved changes · newer content was saved elsewhere" : dirty ? "Unsaved changes" : usingDefaults ? "Using default content" : "Custom content saved"}
           </p>
         </div>
         {section.shortcut ? (
@@ -142,17 +144,17 @@ function SectionEditor({ section, content, onDirty }: { section: CmsSection; con
       </div>
       <fieldset disabled={save.isPending} aria-busy={save.isPending} className="mt-5 grid min-w-0 gap-5">
         {section.fields.map((f) => (
-          <FieldEditor key={f.key} field={f} value={draft[f.key]} error={errors.get(f.key)} sectionId={section.id} onChange={(v) => setDraft((d) => ({ ...d, [f.key]: v }))} />
+          <FieldEditor key={f.key} field={f} value={draft[f.key]} error={errors.get(f.key)} sectionId={section.id} onChange={(v) => setDraft((d) => ({ ...d, [f.key]: v }))} onUploadState={(busy) => setUploadingFields((keys) => busy ? [...new Set([...keys, f.key])] : keys.filter((key) => key !== f.key))} />
         ))}
       </fieldset>
       <div className="mt-6 flex flex-wrap gap-2">
-        <Button disabled={!dirty || !check.success || save.isPending} onClick={() => save.mutate({})}>
+        <Button disabled={!dirty || !check.success || save.isPending || uploading} onClick={() => save.mutate({})}>
           {save.isPending ? <Loader2 className="animate-spin" aria-hidden /> : null} Save
         </Button>
-        <Button variant="outline" disabled={!dirty || save.isPending} onClick={() => { setDraft(saved); setBase(saved); }}>Discard changes</Button>
+        <Button variant="outline" disabled={!dirty || save.isPending || uploading} onClick={() => { setDraft(saved); setBase(saved); }}>Discard changes</Button>
         <Button
           variant="ghost"
-          disabled={usingDefaults || dirty || save.isPending}
+          disabled={usingDefaults || dirty || save.isPending || uploading}
           title={dirty ? "Save or discard your changes first" : undefined}
           onClick={() => window.confirm(`Reset "${section.title}" to its default content?`) && save.mutate({ reset: true })}
         >
@@ -164,7 +166,7 @@ function SectionEditor({ section, content, onDirty }: { section: CmsSection; con
   );
 }
 
-function FieldEditor({ field, value, error, sectionId, onChange }: { field: CmsField; value: any; error?: string | undefined; sectionId: string; onChange: (v: any) => void }) {
+function FieldEditor({ field, value, error, sectionId, onChange, onUploadState }: { field: CmsField; value: any; error?: string | undefined; sectionId: string; onChange: (v: any) => void; onUploadState: (busy: boolean) => void }) {
   const id = `cms-${sectionId}-${field.key}`;
   const help = field.help ? <p className="text-xs text-muted-foreground">{field.help}</p> : null;
   const err = error ? <p className="text-xs text-destructive">{error}</p> : null;
@@ -185,7 +187,7 @@ function FieldEditor({ field, value, error, sectionId, onChange }: { field: CmsF
       </div>
     );
   if (field.type === "list") return <ListEditor field={field} value={Array.isArray(value) ? value : []} error={error} onChange={onChange} />;
-  if (field.type === "image") return <ImageField id={id} label={field.label} value={value ?? ""} sectionId={sectionId} onChange={onChange} help={help} err={err} />;
+  if (field.type === "image") return <ImageField id={id} label={field.label} value={value ?? ""} sectionId={sectionId} onChange={onChange} onUploadState={onUploadState} help={help} err={err} />;
   const max = "max" in field ? field.max : 500;
   const len = String(value ?? "").length;
   return (
@@ -204,7 +206,7 @@ function FieldEditor({ field, value, error, sectionId, onChange }: { field: CmsF
   );
 }
 
-function ImageField({ id, label, value, sectionId, onChange, help, err }: { id: string; label: string; value: string; sectionId: string; onChange: (v: string) => void; help: React.ReactNode; err: React.ReactNode }) {
+function ImageField({ id, label, value, sectionId, onChange, onUploadState, help, err }: { id: string; label: string; value: string; sectionId: string; onChange: (v: string) => void; onUploadState: (busy: boolean) => void; help: React.ReactNode; err: React.ReactNode }) {
   const [busy, setBusy] = useState(false);
   async function upload(file: File): Promise<void> {
     if (!file.type.startsWith("image/")) {
@@ -216,6 +218,7 @@ function ImageField({ id, label, value, sectionId, onChange, help, err }: { id: 
       return;
     }
     setBusy(true);
+    onUploadState(true);
     try {
       const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
       const path = `page-content/cms-${sectionId}/${crypto.randomUUID()}.${ext}`;
@@ -227,6 +230,7 @@ function ImageField({ id, label, value, sectionId, onChange, help, err }: { id: 
       toast.error(e instanceof Error ? e.message : "Upload failed");
     } finally {
       setBusy(false);
+      onUploadState(false);
     }
   }
   return (
@@ -239,7 +243,7 @@ function ImageField({ id, label, value, sectionId, onChange, help, err }: { id: 
             {busy ? <Loader2 className="animate-spin" aria-hidden /> : <Upload aria-hidden />} Upload image
           </label>
         </Button>
-        <input id={id} type="file" accept="image/*" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void upload(f); }} />
+        <input id={id} type="file" accept="image/*" disabled={busy} className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void upload(f); }} />
         {value ? <Button size="sm" variant="ghost" onClick={() => onChange("")}>Use built-in image</Button> : null}
       </div>
       {help}{err}

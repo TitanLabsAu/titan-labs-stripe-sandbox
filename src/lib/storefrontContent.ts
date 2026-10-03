@@ -143,8 +143,9 @@ export const CMS_SECTIONS: CmsSection[] = [
       { key: "watermark", label: "Homepage faded background logo", type: "image", help: "Leave empty to use the built-in logo." },
       B("watermark_visible", "Show faded background logo"),
       { key: "footer_image", label: "Footer background image", type: "image", help: "Leave empty to use the built-in picture." },
+      { key: "header_image", label: "Header background image", type: "image", help: "Leave empty to use the built-in picture." },
     ],
-    defaults: { logo: "", home_eyebrow: "Australian owned · Quality tested", home_title: "Titan Labs // Aus", watermark: "", watermark_visible: true, footer_image: "" },
+    defaults: { logo: "", home_eyebrow: "Australian owned · Quality tested", home_title: "Titan Labs // Aus", watermark: "", watermark_visible: true, footer_image: "", header_image: "" },
   },
   {
     id: "page_intros",
@@ -476,7 +477,7 @@ export function cmsValues(content: Record<string, string> | undefined, id: strin
   const out: Record<string, unknown> = { ...section.defaults };
   const schema = sectionSchema(section).shape as Record<string, z.ZodTypeAny>;
   for (const [k, v] of Object.entries(overrides)) {
-    if (schema[k]?.safeParse(v).success) out[k] = v;
+    if (Object.hasOwn(schema, k) && schema[k]!.safeParse(v).success) out[k] = v;
   }
   return out;
 }

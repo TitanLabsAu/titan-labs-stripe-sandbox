@@ -239,7 +239,7 @@ export function SiteHeader() {
     <header className="border-b border-primary/25 bg-background shadow-lg">
       <div className="relative overflow-hidden">
         <img
-          src={headerImage}
+          src={cmsValues(content, "branding").header_image || headerImage}
           alt=""
           width={1920}
           height={768}
@@ -277,4 +277,3 @@ export function SiteHeader() {
     </header>
   );
 }
-
