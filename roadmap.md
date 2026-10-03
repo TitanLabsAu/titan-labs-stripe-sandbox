@@ -53,4 +53,4 @@
 - [x] Inline guest error + visible guest-active state; server-side session check after start
 - [x] Unlimited Equipment stock: finance inventory/restock exclusion + live stock trigger audit
 - [x] Add preview-only Testing Transparency banners and an honest public certificates empty state.
-- [ ] Replace only the homepage Testing Transparency banner with the approved photo section; verify tests, links and desktop/390/320 layouts without publishing.
+- [x] Replace only the homepage Testing Transparency banner with the approved photo section; verify tests, links and desktop/390/320 layouts without publishing.
