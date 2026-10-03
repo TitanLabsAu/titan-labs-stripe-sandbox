@@ -350,8 +350,7 @@ export function pageSectionOrder(
     .split(",")
     .map((key) => key.trim())
     .filter((key) => available.has(key));
-  if (saved.length === 0) return sections.map((s) => s.key);
-  const order = [...saved];
+  const order = saved.length ? [...saved] : sections.filter((s) => !s.insertAfter).map((s) => s.key);
   for (const section of sections) {
     if (order.includes(section.key)) continue;
     if (section.insertAfter === "start") order.unshift(section.key);
