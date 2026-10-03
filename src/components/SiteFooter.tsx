@@ -16,6 +16,7 @@ export function SiteFooter() {
   const pageName = homeValue(content, "home_headline");
   const standardTitle = content?.["footer_standard_title"]?.trim() || `${pageName} standard`;
   const label = (key: string) => homeValue(content, key);
+  const navLabels = cmsValues(content, "nav_labels");
   const tabOrder = pageSectionOrder(content, "footer_layout_order", FOOTER_TABS);
   const brand = cmsValues(content, "branding");
   const extraLinks = (cmsValues(content, "nav_footer").links as { label: string; url: string; visible: boolean }[]).filter((l) => l.visible && l.label.trim());
@@ -39,7 +40,7 @@ export function SiteFooter() {
                {tabOrder.map((tab) => {
                  if (tab === "home") return <Link key={tab} to="/">{label("header_nav_home")}</Link>;
                   if (tab === "range") return <Link key={tab} to="/range">{catalogueName(content)}</Link>;
-                 if (tab === "research") return <Link key={tab} to="/research">Titan Research Lab</Link>;
+                 if (tab === "research") return navLabels.research_label ? <Link key={tab} to="/research">{navLabels.research_label}</Link> : null;
                  if (tab === "calculator") return <Link key={tab} to="/calculator">{label("header_nav_calculator")}</Link>;
                  return <Link key={tab} to="/auth">{label("header_nav_login")}</Link>;
                })}
@@ -54,10 +55,10 @@ export function SiteFooter() {
           </div>
         </div>
         <nav aria-label="Support and legal" className="mt-8 flex flex-wrap gap-x-5 gap-y-2 font-bold uppercase">
-          <Link to="/terms" hash="terms" className="text-foreground hover:text-primary">Terms &amp; Conditions</Link>
-          <Link to="/terms" hash="research-notice" className="text-foreground hover:text-primary">Research Use Notice</Link>
-          <Link to="/contact" target="_blank" rel="noopener noreferrer" className="text-foreground hover:text-primary">Contact &amp; Customer Support</Link>
-          <Link to="/privacy" className="text-foreground hover:text-primary">Privacy Policy</Link>
+          {navLabels.legal_terms ? <Link to="/terms" hash="terms" className="text-foreground hover:text-primary">{navLabels.legal_terms}</Link> : null}
+          {navLabels.legal_research ? <Link to="/terms" hash="research-notice" className="text-foreground hover:text-primary">{navLabels.legal_research}</Link> : null}
+          {navLabels.legal_contact ? <Link to="/contact" target="_blank" rel="noopener noreferrer" className="text-foreground hover:text-primary">{navLabels.legal_contact}</Link> : null}
+          {navLabels.legal_privacy ? <Link to="/privacy" className="text-foreground hover:text-primary">{navLabels.legal_privacy}</Link> : null}
         </nav>
         {siteLinks && siteLinks.length > 0 ? <p className="mt-8 flex flex-wrap gap-x-5 gap-y-2">{siteLinks.map((l) => <a key={l.id} href={l.url} target="_blank" rel="noopener noreferrer" className="font-bold text-accent hover:text-primary">{l.label}</a>)}</p> : null}
         <div className="mt-8 grid gap-3 border-t border-primary/25 pt-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">

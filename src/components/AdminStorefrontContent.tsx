@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { adminSaveStorefrontSection } from "@/lib/admin.functions";
 import { useSiteContent } from "@/lib/useCatalog";
+import { useBlocker } from "@tanstack/react-router";
+import { clearCmsDirty, cmsDirtyIds, cmsHasUnsavedChanges, confirmDiscardCmsDrafts, setCmsDirty, subscribeCmsDirty } from "@/lib/cmsDirtyGuard";
 import {
   CMS_GROUPS,
   CMS_SECTIONS,
@@ -25,13 +27,8 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
-/** Section ids with unsaved edits (shared so shortcuts and page-leave can warn). */
-const dirtySections = new Set<string>();
-const confirmLeave = () => dirtySections.size === 0 || window.confirm("You have unsaved Storefront content changes. Leave without saving?");
-
-/** Ask the Admin page to switch to another management tab. */
+/** Ask the Admin page to switch to another management tab (the Admin tab handler runs the single unsaved-changes check). */
 export function openAdminTab(tab: string) {
-  if (!confirmLeave()) return;
   window.dispatchEvent(new CustomEvent("titan-admin-tab", { detail: tab }));
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -40,18 +37,11 @@ export function AdminStorefrontContent() {
   const [group, setGroup] = useState<CmsGroup>("Homepage");
   const [dirtyIds, setDirtyIds] = useState<string[]>([]);
   const { data: content, isLoading, isError, refetch } = useSiteContent();
-  const markDirty = useCallback((id: string, dirty: boolean) => {
-    if (dirty) dirtySections.add(id);
-    else dirtySections.delete(id);
-    setDirtyIds([...dirtySections]);
-  }, []);
-  useEffect(() => {
-    const onLeave = (e: BeforeUnloadEvent) => {
-      if (dirtySections.size) { e.preventDefault(); e.returnValue = ""; }
-    };
-    window.addEventListener("beforeunload", onLeave);
-    return () => { window.removeEventListener("beforeunload", onLeave); dirtySections.clear(); };
-  }, []);
+  const markDirty = useCallback((id: string, dirty: boolean) => setCmsDirty(id, dirty), []);
+  useEffect(() => subscribeCmsDirty(() => setDirtyIds(cmsDirtyIds())), []);
+  // In-app route changes (links, back button). Tabs use confirmDiscardCmsDrafts in their own handlers.
+  useBlocker({ shouldBlockFn: () => !confirmDiscardCmsDrafts(), enableBeforeUnload: () => cmsHasUnsavedChanges() });
+  useEffect(() => () => clearCmsDirty(), []);
   if (isLoading) return <p className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Loading saved content…</p>;
   if (isError || !content)
     return (

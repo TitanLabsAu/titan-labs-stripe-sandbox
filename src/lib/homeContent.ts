@@ -350,7 +350,7 @@ export function pageSectionOrder(
   const saved = (content?.[storageKey] ?? "")
     .split(",")
     .map((key) => key.trim())
-    .filter((key) => available.has(key));
+    .filter((key, i, all) => available.has(key) && all.indexOf(key) === i);
   const order = saved.length ? [...saved] : sections.filter((s) => !s.insertAfter).map((s) => s.key);
   for (const section of sections) {
     if (order.includes(section.key)) continue;

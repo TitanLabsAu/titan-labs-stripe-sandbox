@@ -610,7 +610,7 @@ function CheckoutPage() {
             </p>
             {confirmed.guest ? (
               <p className="mt-2 text-sm text-muted-foreground">
-                {copy.guest_confirmed_note}
+                <span className="whitespace-pre-line">{copy.guest_confirmed_note}</span>
               </p>
             ) : null}
             <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">
@@ -705,7 +705,7 @@ function CheckoutPage() {
         {mode === "guest" ? (
           <div role="status" data-testid="guest-active" className="mt-4 border border-primary/60 bg-primary/10 p-4 text-sm">
             <p className="font-bold text-foreground">{copy.guest_active_title}</p>
-            <p className="mt-1 text-muted-foreground">
+            <p className="mt-1 whitespace-pre-line text-muted-foreground">
               {String(copy.guest_active_body).split("{login}").map((part: string, i: number) => (
                 <span key={i}>{i > 0 ? <a className="underline" href="/auth?redirect=%2Fcheckout">{copy.login_label}</a> : null}{part}</span>
               ))}
@@ -1113,7 +1113,7 @@ function CheckoutPage() {
                   </div>
 
                   <p className="mt-3 text-center text-xs text-muted-foreground">
-                    {copy.choice_note}
+                    <span className="whitespace-pre-line">{copy.choice_note}</span>
                   </p>
                 </>
               )}

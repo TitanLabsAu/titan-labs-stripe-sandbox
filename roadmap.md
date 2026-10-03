@@ -62,3 +62,4 @@
 - [x] Coverage matrix doc (docs/cms-coverage.md)
 - [x] Remaining gaps listed in docs/cms-coverage.md (reviews carousel, checkout copy, custom header links, product headings, research shell)
 - [x] CMS save hardening: compare-and-set save/reset, freeze editor during save, keep drafts across groups + leave warning, loading/error gate, stricter isSafeUrl/CmsLink
+- [x] CMS final review: outer/Admin tab + route dirty guard, footer support/legal labels, Research nav label, empty semantics, CTA hiding, line breaks, checkout offer settings, review duration, order dedupe

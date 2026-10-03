@@ -106,7 +106,7 @@ function Index() {
               </div>
             );
           if (section === "offer")
-            return <div key={section} className="page-shell pt-4"><FirstOfferBanner redirectTo="/range" /></div>;
+            return <div key={section} className="page-shell pt-4"><FirstOfferBanner redirectTo="/range" placement="home" /></div>;
           if (section === "testing") return <TestingTransparencySection key={section} />;
           if (section === "tagline")
             return (

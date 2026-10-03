@@ -33,6 +33,11 @@ Editor: Admin > Website editor > Storefront content (grouped tabs). Older tabs (
 | Product info heading, More-products heading, link fallback, catalogue Range/Pens/Equipment tab names | Yes | Pages | Section assignment: Products |
 | Research Lab entry labels (map, quick read, headings, accordions) | Yes | Pages | Scientific text, research-use notice: Research Lab / fixed |
 
+| Checkout new-member offer banner (own visibility/text/links, separate from homepage) | Yes | Cart & checkout | Discount % from Discounts |
+| Research Lab menu label, footer support/legal link labels (empty hides link) | Yes | Navigation > Menu & footer labels | Legal destinations fixed |
+
+Unsaved edits are protected on group tabs, Website Editor tabs, Admin tabs, in-app navigation and page close via one shared guard.
+
 ## Intentionally fixed
 - Footer background image alt: decorative, intentionally empty.
 - Research-use and legal notices: compliance wording, managed in Research Lab / Legal.

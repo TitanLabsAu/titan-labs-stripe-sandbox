@@ -290,6 +290,15 @@ export const CMS_SECTIONS: CmsSection[] = [
     defaults: { visible: true, heading: "Need Equipment? Tap to browse", body: "Or add BAC Water below before checkout." },
   },
   {
+    id: "checkout_offer",
+    group: "Cart & checkout",
+    title: "Checkout new-member offer banner",
+    description: "Separate from the homepage banner. Write {percent} where the discount should appear — the amount comes from Discounts settings.",
+    shortcut: { tab: "discounts", label: "Change offer amount/settings" },
+    fields: [B("visible", "Show on checkout"), T("text", "Banner text", 200), T("join_label", "Join link label", 30), T("login_label", "Log in link label", 30)],
+    defaults: { visible: true, text: "New members receive {percent}% off their first purchase.", join_label: "Join", login_label: "Log in" },
+  },
+  {
     id: "checkout_copy",
     group: "Cart & checkout",
     title: "Checkout guest & member wording",
@@ -355,6 +364,20 @@ export const CMS_SECTIONS: CmsSection[] = [
     description: "Extra text links in the top menu, shown after the built-in buttons. Log in, account, Admin and cart stay automatic.",
     fields: [{ key: "links", label: "Links", type: "list", maxItems: 6, itemFields: [{ key: "label", label: "Label", type: "text", max: 30 }, { key: "url", label: "Link", type: "url" }, { key: "visible", label: "Visible", type: "toggle" }] }],
     defaults: { links: [] },
+  },
+  {
+    id: "nav_labels",
+    group: "Navigation",
+    title: "Menu & footer labels",
+    description: "Leave a footer support/legal label empty to hide that link. Destinations stay fixed so legal links always work.",
+    fields: [
+      T("research_label", "Research Lab menu label", 40),
+      T("legal_terms", "Footer: Terms & Conditions", 40),
+      T("legal_research", "Footer: Research Use Notice", 40),
+      T("legal_contact", "Footer: Contact & Customer Support", 40),
+      T("legal_privacy", "Footer: Privacy Policy", 40),
+    ],
+    defaults: { research_label: "Titan Research Lab", legal_terms: "Terms & Conditions", legal_research: "Research Use Notice", legal_contact: "Contact & Customer Support", legal_privacy: "Privacy Policy" },
   },
   {
     id: "nav_footer",

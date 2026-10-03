@@ -64,7 +64,7 @@ export function ResearchIndexView({
             {intro.research_title}
           </h1>
           <p className="mt-3 text-base leading-7 text-muted-foreground">
-            {intro.research_intro}
+            <span className="whitespace-pre-line">{intro.research_intro}</span>
           </p>
         </div>
         <dl className="grid grid-cols-3 gap-5 border-l-2 border-l-primary pl-5">

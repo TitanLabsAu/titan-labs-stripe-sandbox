@@ -51,9 +51,12 @@ describe("homepage order compatibility", () => {
   test("explicitly saved heading position is respected", () => {
     expect(order("tagline,page-heading,offer").slice(0, 3)).toEqual(["tagline", "page-heading", "offer"]);
   });
-  test("unknown keys dropped, no duplicates", () => {
-    const o = order("bogus,tagline,tagline");
+  test("unknown keys dropped, duplicates removed, every block exactly once", () => {
+    const o = order("bogus,tagline,tagline,offer,pillars,offer,testing,pillars");
     expect(o.includes("bogus" as never)).toBe(false);
+    expect(new Set(o).size).toBe(o.length);
+    expect(o.length).toBe(HOME_SECTIONS.length);
+    expect(o.slice(0, 3)).toEqual(["page-heading", "tagline", "offer"]);
   });
 });
 
@@ -83,5 +86,35 @@ describe("structured link lists", () => {
     const shown = cmsValues({}, "home_offer");
     expect(() => assertResetBase("home_offer", JSON.stringify({ visible: false }), shown)).toThrow(/changed by someone else/);
     expect(() => assertResetBase("home_offer", undefined, shown)).not.toThrow();
+  });
+});
+
+import { clearCmsDirty, cmsHasUnsavedChanges, confirmDiscardCmsDrafts, setCmsDirty } from "../src/lib/cmsDirtyGuard";
+describe("shared dirty guard", () => {
+  test("asks once, clears on accept, keeps on cancel", () => {
+    let asked = 0;
+    (globalThis as any).window = { confirm: () => { asked++; return answer; } };
+    let answer = false;
+    clearCmsDirty();
+    expect(confirmDiscardCmsDrafts()).toBe(true);
+    expect(asked).toBe(0);
+    setCmsDirty("home_offer", true);
+    expect(confirmDiscardCmsDrafts()).toBe(false);
+    expect(cmsHasUnsavedChanges()).toBe(true);
+    answer = true;
+    expect(confirmDiscardCmsDrafts()).toBe(true);
+    expect(confirmDiscardCmsDrafts()).toBe(true); // no second prompt
+    expect(asked).toBe(2);
+  });
+});
+describe("separate offer settings and empty semantics", () => {
+  test("hiding homepage offer does not hide checkout offer", () => {
+    const c = { [cmsKey("home_offer")]: JSON.stringify({ visible: false }) };
+    expect(cmsValues(c, "home_offer").visible).toBe(false);
+    expect(cmsValues(c, "checkout_offer").visible).toBe(true);
+  });
+  test("cleared catalogue tab / footer labels stay empty", () => {
+    expect(cmsValues({ [cmsKey("product_page")]: JSON.stringify({ section_pens: "" }) }, "product_page").section_pens).toBe("");
+    expect(cmsValues({ [cmsKey("nav_labels")]: JSON.stringify({ legal_privacy: "" }) }, "nav_labels").legal_privacy).toBe("");
   });
 });

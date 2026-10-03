@@ -35,7 +35,7 @@ function ReviewsPage() {
         ) : reviews.length === 0 ? (
           <div className="mt-8 rounded-xl border border-border bg-card p-8 text-center">
             <p className="font-bold uppercase">{c.empty_title}</p>
-            <p className="mt-2 text-sm text-muted-foreground">{c.empty_body}</p>
+            <p className="mt-2 text-sm text-muted-foreground"><span className="whitespace-pre-line">{c.empty_body}</span></p>
             <Link to="/range" className="mt-4 inline-block text-sm font-bold uppercase text-primary hover:underline">{c.empty_cta}</Link>
           </div>
         ) : (

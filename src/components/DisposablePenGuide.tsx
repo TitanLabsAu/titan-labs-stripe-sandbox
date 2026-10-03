@@ -13,7 +13,7 @@ export function DisposablePenGuide() {
         {c.title}
       </h2>
       <p className="mt-3 text-sm leading-6 text-muted-foreground">
-        {c.intro}
+        <span className="whitespace-pre-line">{c.intro}</span>
       </p>
       <ol className="mt-5 space-y-5">
         {steps.map(({ title: heading, body }, i) => (
