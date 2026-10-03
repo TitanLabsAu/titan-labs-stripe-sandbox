@@ -17,8 +17,28 @@ export type ProductVariant = {
   reconWaterMl?: number | null;
   reconDoseMg?: number | null;
   reconNotes?: string;
+  /** Equipment bundles: display-only contents snapshot chosen by Admin. */
+  contents?: BundleItem[];
 };
 export type ProductPack = "single" | "kit";
+export type BundleItem = { slug: string; name: string; quantity: number };
+
+/** Sanitize untrusted bundle contents (max 20 rows, qty 1–99). */
+export function sanitizeBundle(raw: unknown): BundleItem[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((r: any) => ({
+      slug: String(r?.slug ?? "").trim().slice(0, 120),
+      name: String(r?.name ?? "").trim().slice(0, 160),
+      quantity: Math.min(99, Math.max(1, Math.trunc(Number(r?.quantity)) || 1)),
+    }))
+    .filter((r) => r.name)
+    .slice(0, 20);
+}
+
+export function bundleSummary(items?: BundleItem[] | null) {
+  return (items ?? []).map((i) => `${i.quantity} x ${i.name}`).join(", ");
+}
 
 export type Product = {
   slug: string;

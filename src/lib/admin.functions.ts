@@ -347,6 +347,7 @@ export type AdminProductVariant = {
   reconWaterMl?: number | null;
   reconDoseMg?: number | null;
   reconNotes?: string;
+  contents?: { slug: string; name: string; quantity: number }[];
 };
 
 export type AdminProduct = {
@@ -417,9 +418,10 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
         reconWaterMl: optNum(v.reconWaterMl),
         reconDoseMg: optNum(v.reconDoseMg),
         reconNotes: String(v.reconNotes ?? ""),
+        contents: sanitizeBundle(v.contents),
       }))
       .filter((v) => v.label && v.price > 0)
-      .map((v) => (isEquipment ? { ...v, kitPrice: null } : v));
+      .map((v) => (isEquipment ? { ...v, kitPrice: null } : { ...v, contents: [] }));
     const variantPrices = variants.map((v) => v.price).filter((p) => p > 0);
     const basePrice = variantPrices.length > 0 ? Math.min(...variantPrices) : Number(data.price ?? 0);
     const totalStock =

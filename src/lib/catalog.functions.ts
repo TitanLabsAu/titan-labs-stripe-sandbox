@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { normalizeCatalogueSection } from "@/lib/catalogue-sections";
-import { isUnlimitedStock, type Product, type ProductLink, type ProductVariant } from "@/lib/products";
+import { isUnlimitedStock, sanitizeBundle, type Product, type ProductLink, type ProductVariant } from "@/lib/products";
 
 export type SiteLink = { id: string; label: string; url: string; sort_order: number };
 
@@ -43,6 +43,7 @@ function toProduct(row: any): Product {
       reconWaterMl: optNum(v?.reconWaterMl),
       reconDoseMg: optNum(v?.reconDoseMg),
       reconNotes: String(v?.reconNotes ?? ""),
+      contents: sanitizeBundle(v?.contents),
     }))
     .filter((v: ProductVariant) => v.label && v.price > 0)
     .sort((a: ProductVariant, b: ProductVariant) => {
