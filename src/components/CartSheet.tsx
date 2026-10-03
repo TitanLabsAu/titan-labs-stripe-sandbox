@@ -28,6 +28,8 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
   const upsell = cmsValues(useSiteContent().data, "cart_upsell");
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const catalogue = pathname === "/range";
+  const copy = cmsValues(useSiteContent().data, "cart_summary");
   const {
     items,
     count,
@@ -61,18 +63,19 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
 
   // Mobile floating trigger is hidden on checkout pages — the checkout flow
   // manages its own cart summary there.
-  if (floating && (count === 0 || pathname.startsWith("/checkout"))) return null;
+  if (floating && ((!catalogue && count === 0) || pathname.startsWith("/checkout"))) return null;
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         {floating ? (
           <Button
-            className="fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] left-1/2 z-40 h-12 -translate-x-1/2 gap-3 border-accent bg-foreground px-5 text-background shadow-gold md:hidden"
-            aria-label={`View cart with ${count} ${count === 1 ? "item" : "items"}`}
+            className={`fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] left-1/2 z-40 h-12 max-w-[calc(100vw-2rem)] -translate-x-1/2 gap-3 border-accent bg-foreground px-5 text-background shadow-gold ${catalogue ? "" : "md:hidden"}`}
+            aria-label={`${catalogue ? copy.label : "View cart"} with ${count} ${count === 1 ? "item" : "items"}`}
           >
             <ShoppingCart className="h-5 w-5" />
-            <span>View cart</span>
+            <span>{catalogue ? copy.label : "View cart"}</span>
+            {catalogue ? <span className="whitespace-nowrap">{formatPrice(subtotal)}</span> : null}
             <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-accent px-1.5 text-xs font-bold text-accent-foreground">
               {count}
             </span>
@@ -93,9 +96,9 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
           </Button>
         )}
       </SheetTrigger>
-      <SheetContent className="flex w-full flex-col border-l-primary/30 bg-background sm:max-w-md">
+      <SheetContent side={catalogue ? "bottom" : "right"} className={catalogue ? "mx-auto flex h-[85dvh] max-h-[900px] w-full max-w-2xl flex-col rounded-t-2xl border-primary/30 bg-background" : "flex w-full flex-col border-l-primary/30 bg-background sm:max-w-md"}>
         <SheetHeader>
-          <SheetTitle className="uppercase tracking-wide">Your cart</SheetTitle>
+          <SheetTitle className="uppercase tracking-wide">{catalogue ? copy.label : "Your cart"}</SheetTitle>
           <SheetDescription>
             Review your items before checkout.
           </SheetDescription>

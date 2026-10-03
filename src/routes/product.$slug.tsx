@@ -1,3 +1,6 @@
+import { ProductCertificates } from "@/components/ProductCertificates";
+import { sanitizeProductLinks, isCertificate } from "@/lib/product-certificates";
+import { CmsLink } from "@/components/CmsLink";
 import { cmsValues } from "@/lib/storefrontContent";
 import { DisposablePenGuide } from "@/components/DisposablePenGuide";
 import { StarterKitOffer } from "@/components/StarterKitOffer";
@@ -396,18 +399,17 @@ function ProductPage() {
               </div>
             ) : null}
 
-            {(product.links ?? []).length > 0 ? (
+            <ProductCertificates product={product}/>
+            {sanitizeProductLinks(product.links).filter(l=>!isCertificate(l)).length > 0 ? (
               <div className="mt-5 flex flex-wrap gap-3">
-                {(product.links ?? []).map((l) => (
-                  <a
+                {sanitizeProductLinks(product.links).filter(l=>!isCertificate(l)).map((l) => (
+                  <CmsLink
                     key={l.url}
                     href={l.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
                     className="brand-cut border border-accent px-4 py-2 text-xs font-bold uppercase text-accent hover:bg-accent/10"
                   >
                     {l.label || pp.link_fallback}
-                  </a>
+                  </CmsLink>
                 ))}
               </div>
             ) : null}

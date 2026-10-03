@@ -3,7 +3,7 @@ import klow80 from "@/assets/klow80.asset.json";
 import wolverine from "@/assets/wolverine.asset.json";
 import nad1000 from "@/assets/nad1000.asset.json";
 
-export type ProductLink = { label: string; url: string };
+export type ProductLink = { label: string; url: string; kind?: "coa" | "document" | undefined; variantId?: string; strength?: string; batch?: string };
 export type ProductVariant = {
   id: string;
   label: string;

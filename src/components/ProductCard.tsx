@@ -1,3 +1,4 @@
+import { ProductCoaLink } from "./ProductCertificates";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { BookOpen } from "lucide-react";
@@ -82,7 +83,7 @@ export function ProductCard({ product: p }: { product: Product }) {
             </span>
           ) : null}
         </div>
-        <Link to="/product/$slug" params={{slug:p.slug}} className="mt-2 inline-flex min-h-7 w-fit items-center gap-1 text-xs font-semibold text-primary hover:underline"><BookOpen className="h-3 w-3"/>Product Info</Link>
+        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1"><Link to="/product/$slug" params={{slug:p.slug}} className="inline-flex min-h-7 w-fit items-center gap-1 text-xs font-semibold text-primary hover:underline"><BookOpen className="h-3 w-3"/>Product Info</Link><ProductCoaLink product={p}/></div>
         {soon && !bannerSoon ? (
           <span className="mt-2 inline-flex w-fit items-center border border-primary bg-primary px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-primary-foreground">
             This size coming soon

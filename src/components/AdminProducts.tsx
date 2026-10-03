@@ -283,7 +283,7 @@ export function draftToPayload(d: Draft) {
     recon_notes: d.recon_notes,
     categories: d.categories,
     product_links: d.links
-      .map((l) => ({ label: l.label.trim(), url: l.url.trim() }))
+      .map((l) => ({ ...l, label: l.label.trim(), url: l.url.trim() }))
       .filter((l) => l.url),
     active: d.active,
     sort_order: Number(d.sort_order) || 0,
@@ -395,7 +395,7 @@ export function ProductEditor({
         <div className="flex gap-3">
           <Button
             className="font-bold uppercase"
-            disabled={saving || uploading || !draft.name.trim() || !draft.image_url.trim()}
+            disabled={saving || uploading || linkUploading !== null || !draft.name.trim() || !draft.image_url.trim()}
             onClick={onSave}
           >
             {uploading ? "Uploading" : "Save product"}
@@ -815,9 +815,15 @@ export function ProductEditor({
         <Label>
           Links for this product (Certificates of Authenticity, guides…)
         </Label>
+        <p className="mt-2 text-sm text-muted-foreground">Choose Certificate of Analysis (COA), then upload or paste the report. Saved COAs on visible products automatically appear on the Product Certificates page. Select a product option or enter its strength; add a batch only if shown on the report.</p>
         <div className="mt-2 space-y-2">
           {draft.links.map((l, i) => (
-            <div key={i} className="flex flex-wrap gap-2">
+            <div key={i} className="flex flex-wrap gap-2 rounded-md border border-border p-3">
+              <select aria-label={`Document type ${i+1}`} className="h-10 rounded-md border border-input bg-background px-2" value={l.kind ?? "legacy"} onChange={e=>setLink(i,{kind:e.target.value === "legacy" ? undefined : e.target.value as "coa" | "document"})}>
+                <option value="legacy">Existing / auto-detect</option><option value="coa">Certificate of Analysis (COA)</option><option value="document">Other document / guide</option>
+              </select>
+              <Input aria-label={`COA strength ${i+1}`} className="max-w-[160px]" placeholder="Strength, e.g. 20mg" value={l.strength ?? ""} onChange={e=>setLink(i,{strength:e.target.value})}/>
+              <Input aria-label={`COA batch ${i+1}`} className="max-w-[180px]" placeholder="Batch (optional)" value={l.batch ?? ""} onChange={e=>setLink(i,{batch:e.target.value})}/>
               <Input
                 className="max-w-[220px]"
                 value={l.label}
@@ -860,7 +866,7 @@ export function ProductEditor({
             variant="outline"
             className="font-bold uppercase"
             onClick={() =>
-              set({ links: [...draft.links, { label: "", url: "" }] })
+              set({ links: [...draft.links, { label: "", url: "", kind: "coa" }] })
             }
           >
             Add link
@@ -880,7 +886,7 @@ export function ProductEditor({
       <div className="flex gap-3">
         <Button
           className="font-bold uppercase"
-          disabled={saving || uploading || !draft.name.trim() || !draft.image_url.trim()}
+          disabled={saving || uploading || linkUploading !== null || !draft.name.trim() || !draft.image_url.trim()}
           onClick={onSave}
         >
           {uploading ? (

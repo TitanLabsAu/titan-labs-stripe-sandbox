@@ -222,8 +222,8 @@ export const CMS_SECTIONS: CmsSection[] = [
     group: "Pages",
     title: "Certificates page",
     shortcut: { tab: "products", label: "Add certificate files to products" },
-    fields: [T("title", "Page title", 80), P("intro", "Intro / empty-state text", 600), T("verify_label", "Verify button label (leave empty to hide)", 40), U("verify_url", "Verify button link")],
-    defaults: { title: "Product Certificates", intro: "Certificates will appear here as they are added.", verify_label: "", verify_url: "https://peptidetestcanada.ca/verify" },
+    fields: [T("title", "Page title", 80), P("intro", "Intro text", 600), T("empty_text", "No certificates message", 200), T("verify_label", "Verify button label (leave empty to hide)", 40), U("verify_url", "Verify button link")],
+    defaults: { title: "Product Certificates", intro: "Browse the available Certificates of Analysis attached to our products.", empty_text: "Certificates will appear here as they are added.", verify_label: "", verify_url: "https://peptidetestcanada.ca/verify" },
   },
   {
     id: "page_reviews",
@@ -282,6 +282,9 @@ export const CMS_SECTIONS: CmsSection[] = [
     },
   },
   {
+    id: "cart_summary", group: "Cart & checkout", title: "Floating catalogue order summary", fields: [T("label", "Order summary label", 40)], defaults: { label: "Order Summary" },
+  },
+  {
     id: "cart_upsell",
     group: "Cart & checkout",
     title: "Cart equipment suggestion",
@@ -331,6 +334,7 @@ export const CMS_SECTIONS: CmsSection[] = [
     title: "Product page & catalogue labels",
     shortcut: { tab: "products", label: "Manage products" },
     fields: [
+      T("coa_heading", "COA section heading", 80), T("coa_action", "COA link label", 40),
       T("usage_heading", "Product information heading", 80),
       T("more_heading", "\"More products\" heading (use {catalogue} for the catalogue name)", 80),
       T("link_fallback", "Default label for product links", 40),
@@ -338,7 +342,7 @@ export const CMS_SECTIONS: CmsSection[] = [
       T("section_pens", "Catalogue tab: Pens", 30),
       T("section_equipment", "Catalogue tab: Equipment", 30),
     ],
-    defaults: { usage_heading: "How to use this product", more_heading: "More from {catalogue}", link_fallback: "View link", section_range: "Range", section_pens: "Pens", section_equipment: "Equipment" },
+    defaults: { coa_heading: "Certificates of Analysis", coa_action: "View COA", usage_heading: "How to use this product", more_heading: "More from {catalogue}", link_fallback: "View link", section_range: "Range", section_pens: "Pens", section_equipment: "Equipment" },
   },
   {
     id: "research_entry",

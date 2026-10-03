@@ -1,3 +1,4 @@
+import { sanitizeProductLinks } from "@/lib/product-certificates";
 import { assertResetBase, cmsKey, mergeSectionChanges, validateSection } from "@/lib/storefrontContent";
 import { allowsKit, sanitizeBundle } from "@/lib/products";
 import { createServerFn } from "@tanstack/react-start";
@@ -335,7 +336,7 @@ export const adminGetMemberOrders = createServerFn({ method: "POST" })
 
 /* ---------------- Products ---------------- */
 
-export type AdminProductLink = { label: string; url: string };
+export type AdminProductLink = import("./products").ProductLink;
 export type AdminProductVariant = {
   id: string;
   label: string;
@@ -455,7 +456,7 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
       details: data.details ?? [],
       categories: data.categories ?? [],
       protocol: data.protocol ?? "",
-      product_links: (data.product_links ?? []).filter((l) => l && l.url),
+      product_links: sanitizeProductLinks(data.product_links),
       active: data.active ?? true,
       sort_order: Number(data.sort_order ?? 0),
       stock_quantity: totalStock,

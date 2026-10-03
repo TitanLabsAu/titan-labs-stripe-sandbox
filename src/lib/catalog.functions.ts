@@ -1,3 +1,4 @@
+import { sanitizeProductLinks } from "@/lib/product-certificates";
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
@@ -25,7 +26,7 @@ function publicClient() {
 
 function toProduct(row: any): Product {
   const unlimited = isUnlimitedStock(row);
-  const links = Array.isArray(row.product_links) ? (row.product_links as ProductLink[]) : [];
+  const links = sanitizeProductLinks(row.product_links);
   const rawVariants = Array.isArray(row.product_variants) ? row.product_variants : [];
   const optNum = (value: any) =>
     value === null || value === undefined || value === "" || Number.isNaN(Number(value))

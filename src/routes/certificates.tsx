@@ -1,3 +1,7 @@
+import { ProductCertificates } from "@/components/ProductCertificates";
+import { useQuery } from "@tanstack/react-query";
+import { listProducts } from "@/lib/catalog.functions";
+import { productCertificates } from "@/lib/product-certificates";
 import { cmsValues } from "@/lib/storefrontContent";
 import { useSiteContent } from "@/lib/useCatalog";
 import { CmsLink } from "@/components/CmsLink";
@@ -28,6 +32,8 @@ export const Route = createFileRoute("/certificates")({
 });
 
 function CertificatesPage() {
+  const catalog=useQuery({queryKey:["catalog-products"],queryFn:()=>listProducts(),staleTime:30_000});
+  const certified=(catalog.data ?? []).filter(p=>productCertificates(p).length);
   const c = cmsValues(useSiteContent().data, "page_certificates");
   return (
     <div className="min-h-screen bg-hero">
@@ -48,6 +54,7 @@ function CertificatesPage() {
             </CmsLink>
           ) : null}
         </section>
+        {catalog.isLoading ? <p role="status">Loading product certificates…</p> : catalog.isError ? <p role="alert">Unable to load certificates. <button className="text-primary underline" onClick={()=>void catalog.refetch()}>Try again</button></p> : certified.length ? <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">{certified.map(p=><article key={p.slug}><h2 className="font-display text-xl font-bold uppercase">{p.name}</h2><ProductCertificates product={p} anchor={false}/></article>)}</div> : <p className="text-center text-muted-foreground">{c.empty_text}</p>}
       </main>
       <SiteFooter />
     </div>

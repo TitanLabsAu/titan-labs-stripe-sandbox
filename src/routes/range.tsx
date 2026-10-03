@@ -40,7 +40,7 @@ import {
   resolveCatalogueSection,
   type CatalogueSection,
 } from "@/lib/catalogue-sections";
-import { CatalogueOrderSummary } from "@/components/CatalogueOrderSummary";
+
 import { TestingTransparencyBanner } from "@/components/TestingTransparencyBanner";
 
 export const Route = createFileRoute("/range")({
@@ -146,7 +146,7 @@ function RangePage() {
     <div className="bg-hero min-h-screen">
       <SiteHeader />
 
-      <main id="range" className="page-shell pb-20 pt-8 sm:pt-12">
+      <main id="range" className="page-shell pb-32 pt-8 sm:pt-12">
         <TitanPageHeading
           icon={FlaskConical}
           eyebrow="Research product catalogue"
@@ -318,7 +318,7 @@ function RangePage() {
                     ))}
                   </div>
                 </div>
-                <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_21rem]">
+                <div className="mt-8">
                   <div>
                     <p className="technical-label mb-4 text-muted-foreground">
                       {visible.length} products
@@ -330,14 +330,14 @@ function RangePage() {
                           : "No products match your search — try another word or category."}
                       </p>
                     ) : (
-                      <div className="grid gap-3 md:grid-cols-2">
+                      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                         {visible.map((p) => (
                           <ProductCard key={p.slug} product={p} />
                         ))}
                       </div>
                     )}
                   </div>
-                  <CatalogueOrderSummary />
+
                 </div>
               </section>
             );

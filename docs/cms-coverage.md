@@ -43,3 +43,9 @@ Unsaved edits are protected on group tabs, Website Editor tabs, Admin tabs, in-a
 - Research-use and legal notices: compliance wording, managed in Research Lab / Legal.
 
 Every registry section is read by its storefront renderer (audited: each `cms:<id>` is used by at least one page component).
+
+## Product certificates and catalogue summary
+
+Product COAs are managed under Products > product links. Select Certificate of Analysis (COA), attach the report and optionally enter strength and batch. Saving a visible product automatically updates the Certificates page, product COA section and catalogue icon. Other documents remain separate; explicit document classification overrides legacy certificate detection. Report URLs are validated on save and read. Product links retain optional metadata in the existing JSON field; no schema migration is needed.
+
+Website editor > Storefront content > Pages controls the Certificates intro and empty state, COA section heading and link label. Cart & checkout controls the floating Order Summary label. The catalogue uses three columns at wide desktop widths, two on tablets and one on phones. Its existing shared cart opens upward with quantity controls, equipment suggestions and normal checkout; the floating cart remains hidden during checkout.
