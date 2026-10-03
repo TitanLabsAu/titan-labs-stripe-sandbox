@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as CalculatorRouteImport } from './routes/calculator'
+import { Route as CertificatesRouteImport } from './routes/certificates'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as PenGuideRouteImport } from './routes/pen-guide'
@@ -54,6 +55,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const CalculatorRoute = CalculatorRouteImport.update({
   id: '/calculator',
   path: '/calculator',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CertificatesRoute = CertificatesRouteImport.update({
+  id: '/certificates',
+  path: '/certificates',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutRoute = CheckoutRouteImport.update({
@@ -210,6 +216,7 @@ const LovableEmailTransactionalPreviewRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/calculator': typeof CalculatorRoute
+  '/certificates': typeof CertificatesRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/pen-guide': typeof PenGuideRoute
@@ -243,6 +250,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/calculator': typeof CalculatorRoute
+  '/certificates': typeof CertificatesRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/pen-guide': typeof PenGuideRoute
@@ -278,6 +286,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/calculator': typeof CalculatorRoute
+  '/certificates': typeof CertificatesRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/pen-guide': typeof PenGuideRoute
@@ -313,6 +322,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/calculator'
+    | '/certificates'
     | '/checkout'
     | '/contact'
     | '/pen-guide'
@@ -346,6 +356,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/calculator'
+    | '/certificates'
     | '/checkout'
     | '/contact'
     | '/pen-guide'
@@ -380,6 +391,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/calculator'
+    | '/certificates'
     | '/checkout'
     | '/contact'
     | '/pen-guide'
@@ -415,6 +427,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   CalculatorRoute: typeof CalculatorRoute
+  CertificatesRoute: typeof CertificatesRoute
   CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
   PenGuideRoute: typeof PenGuideRoute
@@ -460,6 +473,13 @@ declare module '@tanstack/react-router' {
       path: '/calculator'
       fullPath: '/calculator'
       preLoaderRoute: typeof CalculatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/certificates': {
+      id: '/certificates'
+      path: '/certificates'
+      fullPath: '/certificates'
+      preLoaderRoute: typeof CertificatesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout': {
@@ -696,6 +716,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   CalculatorRoute: CalculatorRoute,
+  CertificatesRoute: CertificatesRoute,
   CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
   PenGuideRoute: PenGuideRoute,
