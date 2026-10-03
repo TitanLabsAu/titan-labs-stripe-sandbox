@@ -91,8 +91,9 @@ function SectionEditor({ section }: { section: CmsSection }) {
       return adminSaveStorefrontSection({ data: { id: section.id, reset: input.reset, changes, base } });
     },
     onSuccess: async (_d, input) => {
-      if (input.reset) setDraft(section.defaults as Record<string, any>);
-      setBase(draft);
+      const next = input.reset ? (section.defaults as Record<string, any>) : draft;
+      setDraft(next);
+      setBase(next);
       await qc.invalidateQueries({ queryKey: ["site-content"] });
       toast.success(input.reset ? `${section.title} reset to default` : `${section.title} saved`);
     },
