@@ -26,7 +26,7 @@ export function SiteFooter() {
       <img src={brand.footer_image || footerImage} alt="" width={1920} height={768} loading="lazy" className="titan-future-art titan-future-art-footer absolute inset-0 h-full w-full object-cover" />
        <div className="titan-footer-surface absolute inset-0" />
        <div className="relative mx-auto max-w-7xl px-5 py-20 sm:px-6 sm:py-24">
-        <div className="grid gap-10 border-b border-primary/25 pb-10 md:grid-cols-[1.15fr_0.85fr_1fr]">
+        <div className="grid gap-10 border-b border-primary/25 pb-10 md:grid-cols-[1fr_1.2fr_1fr]">
           <div>
             <TitanLogo size={72} />
             <div className={cn("mt-5 max-w-sm whitespace-pre-wrap text-sm leading-6", TEXT_ALIGN_CLASS[contentAlign(content, "footer_about")])}>
@@ -36,7 +36,7 @@ export function SiteFooter() {
           </div>
           <div>
             <p className="font-display text-xs font-black uppercase text-foreground">{label("footer_nav_title")}</p>
-            <div className="mt-4 grid gap-3 font-bold uppercase">
+            <div className="mt-4 grid grid-cols-2 items-start gap-x-6 gap-y-3 font-bold uppercase [&>a]:min-w-0 [&>a]:break-words [&>a]:transition-colors [&>a:hover]:text-primary">
                {tabOrder.map((tab) => {
                  if (tab === "home") return <Link key={tab} to="/">{label("header_nav_home")}</Link>;
                   if (tab === "range") return <Link key={tab} to="/range">{catalogueName(content)}</Link>;
@@ -44,7 +44,7 @@ export function SiteFooter() {
                  if (tab === "calculator") return <Link key={tab} to="/calculator">{label("header_nav_calculator")}</Link>;
                  return <Link key={tab} to="/auth">{label("header_nav_login")}</Link>;
                })}
-               <Link to="/reviews" hash="leave-review" className="inline-flex min-h-10 w-fit items-center rounded-md border border-primary px-3 py-2 font-bold text-primary hover:bg-primary/10">{cmsValues(content,"review_submission").cta_label}</Link>
+               <Link to="/reviews" hash="leave-review">{cmsValues(content,"review_submission").cta_label}</Link>
                {extraLinks.map((l, i) => <CmsLink key={i} href={l.url}>{l.label}</CmsLink>)}
             </div>
           </div>
