@@ -1,7 +1,5 @@
 import { cmsValues } from "@/lib/storefrontContent";
 import { FirstOfferBanner } from "@/components/FirstOfferBanner";
-import { TitanPageHeading } from "@/components/TitanPageHeading";
-import { ShieldCheck } from "lucide-react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -80,7 +78,7 @@ function Index() {
     <div className="bg-hero min-h-screen">
       <SiteHeader />
 
-      <main className="titan-home relative">
+      <main className="titan-home relative pt-8 sm:pt-12">
         {brand.watermark_visible ? (
         <div
           className="home-logo-field pointer-events-none absolute inset-x-0 top-0 flex h-[34rem] items-center justify-center overflow-hidden"
@@ -96,15 +94,6 @@ function Index() {
         </div>
         ) : null}
         {sectionOrder.map((section) => {
-          if (section === "page-heading")
-            return (
-              <div key={section} className="relative">
-                <div className="page-shell pt-8 sm:pt-12">
-                  <TitanPageHeading icon={ShieldCheck} eyebrow={brand.home_eyebrow} title={brand.home_title} />
-                </div>
-                <div className="h-7 sm:h-9" />
-              </div>
-            );
           if (section === "offer")
             return <div key={section} className="page-shell pt-4"><FirstOfferBanner redirectTo="/range" placement="home" /></div>;
           if (section === "testing") return <TestingTransparencySection key={section} />;
