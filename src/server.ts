@@ -1,3 +1,5 @@
+import { listProducts } from "./lib/catalog.functions";
+import { sitemapXml, productUrl } from "./lib/seo";
 import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
@@ -47,6 +49,10 @@ function isH3SwallowedErrorBody(body: string): boolean {
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      if (new URL(request.url).pathname === "/sitemap.xml") {
+        const products = await listProducts();
+        return new Response(sitemapXml(["/", "/range", "/pen-guide", "/certificates", "/reviews", "/referrals", "/contact", "/research", ...products.map(p=>productUrl(p.slug))]), {headers:{"content-type":"application/xml; charset=utf-8","cache-control":"public, max-age=300"}});
+      }
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
@@ -59,3 +65,4 @@ export default {
     }
   },
 };
+

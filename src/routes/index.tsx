@@ -1,3 +1,6 @@
+import { getSiteContent } from "@/lib/catalog.functions";
+import { cmsValues } from "@/lib/storefrontContent";
+import { seoHead, SITE_ORIGIN } from "@/lib/seo";
 import { HotProductsStrip } from "@/components/HotProductsStrip";
 import { TitanMembership } from "@/components/TitanMembership";
 import { FirstOfferBanner } from "@/components/FirstOfferBanner";
@@ -28,27 +31,11 @@ import { DiscoveryWelcome, DiscoveryCatalogue } from "@/components/DiscoveryWelc
 import { TestingTransparencySection } from "@/components/TestingTransparencySection";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Titan Labs Aus | Premium Research Peptides Australia" },
-      {
-        name: "description",
-        content:
-          "Titan Labs Aus supplies premium-quality, lab-tested research peptides and wellness compounds with free express shipping on orders over $200.",
-      },
-      {
-        property: "og:title",
-        content: "Titan Labs Aus | Premium Research Peptides",
-      },
-      {
-        property: "og:description",
-        content:
-          "Premium quality, pure form, research use only. Free express shipping on orders over $200.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  loader: async () => ({seo:cmsValues(await getSiteContent(),"seo")}),
+  head: ({loaderData}) => {
+    const c = loaderData?.seo ?? cmsValues(undefined,"seo");
+    return seoHead(c.home_title,c.home_description,`${SITE_ORIGIN}/`,c.home_image);
+  },
   component: Index,
 });
 

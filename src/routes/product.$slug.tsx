@@ -1,3 +1,4 @@
+import { seoHead, productUrl, productSchema, jsonLd } from "@/lib/seo";
 import { ProductCertificates } from "@/components/ProductCertificates";
 import { sanitizeProductLinks, isCertificate } from "@/lib/product-certificates";
 import { CmsLink } from "@/components/CmsLink";
@@ -29,7 +30,7 @@ import {
   variantStockFor,
   type ProductPack,
 } from "@/lib/products";
-import { getProductBySlug } from "@/lib/catalog.functions";
+import { getProductBySlug, getSiteContent } from "@/lib/catalog.functions";
 import { useProducts, useSiteContent } from "@/lib/useCatalog";
 import { catalogueName } from "@/lib/homeContent";
 
@@ -37,7 +38,7 @@ export const Route = createFileRoute("/product/$slug")({
   loader: async ({ params }) => {
     const product = await getProductBySlug({ data: { slug: params.slug } });
     if (!product) throw notFound();
-    return { product };
+    return { product, seo: cmsValues(await getSiteContent(), "seo") };
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
@@ -49,21 +50,10 @@ export const Route = createFileRoute("/product/$slug")({
       };
     }
     const { product } = loaderData;
-    const title = `${product.name} | Titan Labs Aus`;
-    const description =
-      product.description ||
-      product.blurb ||
-      `${product.name} from Titan Labs Aus.`;
-    return {
-      meta: [
-        { title },
-        { name: "description", content: description },
-        { property: "og:title", content: title },
-        { property: "og:description", content: description },
-        { property: "og:type", content: "product" },
-        { name: "twitter:card", content: "summary_large_image" },
-      ],
-    };
+    const override = loaderData.seo.products.find((r: {slug:string})=>r.slug===product.slug);
+    const title = override?.title?.trim() || `${product.name} | Titan Labs Aus`;
+    const description = override?.description?.trim() || product.description || product.blurb || `${product.name} from Titan Labs Aus.`;
+    return {...seoHead(title,description,productUrl(product.slug),override?.image || product.image,"product"),scripts:[{type:"application/ld+json",children:jsonLd(productSchema(product))}]};
   },
   component: ProductPage,
 });
