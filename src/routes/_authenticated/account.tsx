@@ -1,7 +1,3 @@
-import { cmsValues } from "@/lib/storefrontContent";
-import { useSiteContent } from "@/lib/useCatalog";
-import { TitanPageHeading } from "@/components/TitanPageHeading";
-import { UserRound } from "lucide-react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -62,7 +58,6 @@ const profileSchema = z.object({
 });
 
 function AccountPage() {
-  const intro = cmsValues(useSiteContent().data, "page_intros");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [saving, setSaving] = useState(false);
@@ -170,14 +165,6 @@ function AccountPage() {
     <div className="bg-hero min-h-screen">
       <SiteHeader />
       <main className="page-shell py-8 sm:py-12">
-        <TitanPageHeading
-          as="h1"
-          icon={UserRound}
-          eyebrow={intro.account_eyebrow}
-          title={intro.account_title}
-        />
-        {intro.account_intro ? <p className="mt-4 max-w-3xl whitespace-pre-wrap text-sm text-muted-foreground">{intro.account_intro}</p> : null}
-        <div className="h-7" />
         <TitanMemberCard name={[profile?.first_name, profile?.last_name].filter(Boolean).join(" ")} loading={isLoading} />
         <ProfileMenu email={profile?.email} />
         <div className="rounded-xl border border-border bg-card p-6 sm:p-8">
