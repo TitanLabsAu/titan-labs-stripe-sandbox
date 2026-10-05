@@ -1,12 +1,15 @@
-import { ArrowRight, FlaskConical, PenTool, Wrench } from "lucide-react";
+import { ArrowRight, FlaskConical, PenTool, Truck, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CmsLink } from "@/components/CmsLink";
+import { RichText } from "@/components/RichText";
+import { homeValue } from "@/lib/homeContent";
 import { canonicalUrl, cmsValues } from "@/lib/storefrontContent";
 import { useProducts, useSiteContent } from "@/lib/useCatalog";
 import { filterBySection, CATALOGUE_SECTIONS } from "@/lib/catalogue-sections";
 
 export function DiscoveryWelcome() {
-  const c = cmsValues(useSiteContent().data, "home_welcome");
+  const { data: content } = useSiteContent();
+  const c = cmsValues(content, "home_welcome");
   return (
     <section aria-labelledby="discovery-welcome" className="discovery-welcome relative isolate overflow-hidden">
       <img className="discovery-art" src={c.image || "/images/titan-discovery.webp"} alt="" width={1672} height={941} fetchPriority="high" />
@@ -20,6 +23,7 @@ export function DiscoveryWelcome() {
             {c.primary_label && canonicalUrl(c.primary_url) ? <Button asChild size="lg" className="min-h-12 px-6 text-sm"><CmsLink href={c.primary_url}>{c.primary_label}<ArrowRight aria-hidden="true" /></CmsLink></Button> : null}
             {c.secondary_label && canonicalUrl(c.secondary_url) ? <Button asChild size="lg" variant="outline" className="min-h-12 border-primary px-6 text-sm"><CmsLink href={c.secondary_url}>{c.secondary_label}<ArrowRight aria-hidden="true" /></CmsLink></Button> : null}
           </div>
+          {homeValue(content, "home_shipping_banner") ? <div className="discovery-shipping mt-6 flex items-center gap-3 py-3"><Truck aria-hidden="true" className="h-6 w-6 shrink-0 text-primary" /><p className="font-display text-sm font-bold uppercase tracking-wide"><RichText inline text={homeValue(content, "home_shipping_banner")} /></p></div> : null}
           {c.notice ? <p className="mt-6 max-w-lg whitespace-pre-line text-xs leading-5 text-muted-foreground">{c.notice}</p> : null}
         </div>
       </div>

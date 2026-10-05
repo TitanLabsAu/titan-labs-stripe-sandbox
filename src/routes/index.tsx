@@ -65,13 +65,6 @@ function Index() {
     HOME_SECTIONS,
   );
 
-  const pillars = [1, 2, 3].map((n) => ({
-    titleKey: `home_pillar${n}_title`,
-    bodyKey: `home_pillar${n}_body`,
-    title: homeValue(content, `home_pillar${n}_title`),
-    body: homeValue(content, `home_pillar${n}_body`),
-  }));
-
   return (
     <div className="bg-hero min-h-screen">
       <SiteHeader />
@@ -84,29 +77,7 @@ function Index() {
           if (section === "catalogue-links") return <DiscoveryCatalogue key={section} />;
           if (section === "testing") return <TestingTransparencySection key={section} />;
           if (section === "reviews") return <ReviewsStrip key={section} />;
-          if (section === "shipping")
-            return (
-              <section
-                key={section}
-                className="relative mx-auto max-w-6xl px-4 pb-8"
-              >
-                <div
-                  className={cn(
-                    "flex",
-                    FLEX_ALIGN_CLASS[
-                      contentAlign(content, "home_shipping_banner")
-                    ],
-                  )}
-                >
-                  <p className="rounded-xl border border-border bg-card px-6 py-3 font-display text-sm font-black uppercase tracking-wider text-muted-foreground">
-                    <RichText
-                      inline
-                      text={homeValue(content, "home_shipping_banner")}
-                    />
-                  </p>
-                </div>
-              </section>
-            );
+          if (section === "shipping" || section === "pillars") return null;
           if (section === "pictures")
             return pictures.length ? (
               <section key={section} className="mx-auto max-w-6xl px-4 pb-16">
@@ -160,41 +131,6 @@ function Index() {
                 </div>
               </section>
             ) : null;
-          if (section === "pillars")
-            return (
-              <div key={section}>
-                <section className="mx-auto max-w-6xl px-4 pb-12">
-                  <div className="grid gap-3 sm:grid-cols-3">
-                    {pillars.map((p, index) => (
-                      <div
-                        key={p.title}
-                        className="rounded-xl border border-border bg-card p-6"
-                      >
-                        <p className="mb-5 text-[10px] font-black text-primary">
-                          0{index + 1} //
-                        </p>
-                        <h3
-                          className={cn(
-                            "text-sm font-bold uppercase text-accent",
-                            TEXT_ALIGN_CLASS[contentAlign(content, p.titleKey)],
-                          )}
-                        >
-                          <RichText inline text={p.title} />
-                        </h3>
-                        <p
-                          className={cn(
-                            "mt-3 whitespace-pre-wrap text-sm leading-6 text-muted-foreground",
-                            TEXT_ALIGN_CLASS[contentAlign(content, p.bodyKey)],
-                          )}
-                        >
-                          <RichText inline text={p.body} />
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              </div>
-            );
           if (section === "signup")
             return (
               <section key={section} className="mx-auto max-w-4xl px-4 pb-24">

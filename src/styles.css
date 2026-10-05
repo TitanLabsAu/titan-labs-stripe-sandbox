@@ -483,7 +483,7 @@
 }
 .titan-site-header nav { max-width: 100%; }
 .titan-site-header .titan-nav-icon { border-color: transparent; background: transparent; box-shadow: none; }
-.titan-site-header a[aria-current="page"] {
+.titan-site-header nav a[aria-current="page"] {
   color: var(--accent);
   border-color: color-mix(in oklab, var(--accent) 60%, transparent);
   background: color-mix(in oklab, var(--accent) 5%, transparent);
@@ -515,3 +515,8 @@
 @media (prefers-reduced-motion: reduce) {
   .titan-button, .discovery-category { transition: none; }
 }
+
+/* Keep the brand title integrated with the header instead of a selected-link box. */
+.titan-site-header > div > div > a { background: transparent; border-color: transparent; }
+.titan-home .discovery-welcome h1 { color: #ccecff; text-shadow: 0 2px 20px rgb(0 125 200 / 15%); }
+.discovery-shipping { border-top: 1px solid color-mix(in oklab, var(--primary) 32%, transparent); border-bottom: 1px solid color-mix(in oklab, var(--primary) 18%, transparent); color: #d5e9f4; }
