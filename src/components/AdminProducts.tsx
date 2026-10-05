@@ -35,6 +35,9 @@ import {
 } from "@/lib/admin.functions";
 
 export type DraftVariant = {
+  salePrice?: string;
+  promoLabel?: string;
+  hotProduct?: boolean | undefined;
   id: string;
   label: string;
   price: string;
@@ -205,6 +208,9 @@ export function toDraft(p: AdminProduct): Draft {
       id: v.id,
       label: v.label,
       price: String(v.price),
+      salePrice: v.salePrice == null ? "" : String(v.salePrice),
+      promoLabel: v.promoLabel ?? "",
+      hotProduct: v.hotProduct,
       kitPrice: v.kitPrice == null ? "" : String(v.kitPrice),
       stock: String(v.stock ?? 0),
       cost: v.cost == null ? "" : String(v.cost),
@@ -245,6 +251,9 @@ export function draftToPayload(d: Draft) {
       id: v.id || safeVariantId(v.label),
       label: v.label.trim(),
       price: Number(v.price) || 0,
+      salePrice: num(v.salePrice ?? ""),
+      promoLabel: v.promoLabel ?? "",
+      ...(typeof v.hotProduct === "boolean" ? { hotProduct: v.hotProduct } : {}),
       kitPrice: equipment ? null : num(v.kitPrice),
       stock: Math.max(0, Math.trunc(Number(v.stock)) || 0),
       cost: num(v.cost),
@@ -447,7 +456,7 @@ export function ProductEditor({
             </div>
           </>
         ) : null}
-        {showPromo ? (
+        {showPromo && draft.variants.length === 0 ? (
           <>
             <div>
               <Label>Sale price (AUD) — leave empty for no sale</Label>
@@ -773,6 +782,16 @@ export function ProductEditor({
                         ? `Low stock — only ${Number(variant.stock) || 0} left`
                         : `${Number(variant.stock) || 0} in stock`}
                   </p>
+                  <div className="grid gap-3 rounded-lg border border-accent/30 bg-background/40 p-3 sm:grid-cols-3">
+                    <label className="flex items-center gap-2 text-sm font-semibold">
+                      <input type="checkbox" checked={Boolean(variant.hotProduct)} aria-label={`Hot product: ${variant.label || "this size"}`}
+                        onChange={(e) => set({ variants: draft.variants.map((v, idx) => ({ ...v, hotProduct: idx === i ? e.target.checked : Boolean(v.hotProduct) })) })} />
+                      Hot product — this size only
+                    </label>
+                    <div><Label>Sale price for this size (AUD)</Label><Input type="number" min="0.01" step="0.01" value={variant.salePrice ?? ""} placeholder="No sale" onChange={(e) => setVariant(i, { salePrice: e.target.value })} /></div>
+                    <div><Label>Promotion label for this size</Label><Input value={variant.promoLabel ?? ""} placeholder="e.g. Special offer" onChange={(e) => setVariant(i, { promoLabel: e.target.value })} /></div>
+                    <p className="text-xs text-muted-foreground sm:col-span-3">Applies only to {variant.label || "this size"}. Regular prices and promotions for other sizes stay separate. Kit pricing is edited above.</p>
+                  </div>
                   {draft.catalogue_section === "equipment" ? (
                     <BundleEditor
                       items={variant.contents}

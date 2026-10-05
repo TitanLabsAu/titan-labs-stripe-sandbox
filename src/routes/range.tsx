@@ -1,3 +1,4 @@
+import { hotVariantIds, withHotSelections } from "@/lib/product-promotions";
 import { SITE_ORIGIN } from "@/lib/seo";
 import { cmsValues } from "@/lib/storefrontContent";
 import { useEffect, useState } from "react";
@@ -136,7 +137,7 @@ function RangePage() {
       .includes(term);
   });
   const hotSlugs = new Set(featuredSlugs(content));
-  const isHot = (p: typeof matched[number]) => hotSlugs.has(p.slug) || /^hot\s*products?$/i.test(p.promoLabel?.trim() ?? "");
+  const isHot = (p: typeof matched[number]) => (p.variants ?? []).length ? hotVariantIds(p, [...hotSlugs]).length > 0 : hotSlugs.has(p.slug) || /^hot\s*products?$/i.test(p.promoLabel?.trim() ?? "");
   const visible = [...matched].sort((a, b) => {
     if (activeSection === "range") {
       const priority = Number(isHot(b)) - Number(isHot(a));
@@ -337,7 +338,7 @@ function RangePage() {
                     ) : (
                       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                         {visible.map((p) => (
-                          <ProductCard key={p.slug} product={p} />
+                          <ProductCard key={p.slug} product={withHotSelections(p, [...hotSlugs])} />
                         ))}
                       </div>
                     )}

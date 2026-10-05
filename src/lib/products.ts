@@ -1,3 +1,4 @@
+import { promotedPrice } from "@/lib/variant-promotions";
 import { normalizeCatalogueSection, type CatalogueSection } from "@/lib/catalogue-sections";
 import klow80 from "@/assets/klow80.asset.json";
 import wolverine from "@/assets/wolverine.asset.json";
@@ -5,6 +6,10 @@ import nad1000 from "@/assets/nad1000.asset.json";
 
 export type ProductLink = { label: string; url: string; kind?: "coa" | "document" | undefined; variantId?: string; strength?: string; batch?: string };
 export type ProductVariant = {
+  salePrice?: number | null;
+  promoLabel?: string;
+  hotProduct?: boolean;
+
   id: string;
   label: string;
   price: number;
@@ -215,7 +220,7 @@ export function getProductOption(
 ) {
   const pack = effectivePack(product, requestedPack);
   const variant = (product.variants ?? []).find((v) => v.id === variantId) ?? null;
-  const singlePrice = variant ? variant.price : product.price;
+  const singlePrice = variant ? promotedPrice(variant.price, variant.salePrice) : product.price;
   const unitPrice = pack === "kit" ? kitPriceFor(singlePrice, variant?.kitPrice ?? product.kitPrice) : singlePrice;
   const variantLabel = variant?.label ?? singleLabelFor(product);
   return {
@@ -250,7 +255,7 @@ export function firstAvailableVariant(product: Product) {
 }
 
 export function productBasePrice(product: Product) {
-  const variantPrices = (product.variants ?? []).map((v) => v.price).filter((price) => price > 0);
+  const variantPrices = (product.variants ?? []).map((v) => promotedPrice(v.price, v.salePrice)).filter((price) => price > 0);
   return variantPrices.length > 0 ? Math.min(...variantPrices) : product.price;
 }
 

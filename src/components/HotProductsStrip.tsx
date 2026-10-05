@@ -31,8 +31,8 @@ export function HotProductsStrip({ products, content }: { products: Product[]; c
     </div>
     <div className={cn("review-viewport mt-8", animate ? "overflow-hidden" : "overflow-x-auto")}>
       <div className={cn("review-track flex w-max gap-5 px-4", animate && "review-track--animate", paused && "review-track--paused")} style={animate ? { animationDuration: `${Math.max(40, selection.length * 12)}s` } : undefined}>
-        {selection.map((p, i) => <div key={`${p.slug}-${i}`} className="w-[min(26rem,calc(100vw-2rem))] shrink-0"><ProductCard product={p} /></div>)}
-        {animate ? <div aria-hidden="true" inert className="flex gap-5">{selection.map((p, i) => <div key={`clone-${p.slug}-${i}`} className="w-[min(26rem,calc(100vw-2rem))] shrink-0"><ProductCard product={p} /></div>)}</div> : null}
+        {selection.map((p, i) => <div key={`${p.slug}-${p.variants?.[0]?.id ?? "base"}-${i}`} className="w-[min(26rem,calc(100vw-2rem))] shrink-0"><ProductCard product={p} /></div>)}
+        {animate ? <div aria-hidden="true" inert className="flex gap-5">{selection.map((p, i) => <div key={`clone-${p.slug}-${p.variants?.[0]?.id ?? "base"}-${i}`} className="w-[min(26rem,calc(100vw-2rem))] shrink-0"><ProductCard product={p} /></div>)}</div> : null}
       </div>
     </div>
   </section>;

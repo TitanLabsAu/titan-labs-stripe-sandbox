@@ -1,3 +1,4 @@
+import { hotProductSelections } from "@/lib/product-promotions";
 import { getSiteContent } from "@/lib/catalog.functions";
 import { cmsValues } from "@/lib/storefrontContent";
 import { seoHead, SITE_ORIGIN } from "@/lib/seo";
@@ -43,10 +44,7 @@ function Index() {
   const { products } = useProducts();
   const { data: content } = useSiteContent();
 
-  const slugs = [...new Set([...featuredSlugs(content), ...products.filter(p => /^hot\s*products?$/i.test(p.promoLabel?.trim() ?? "")).map(p => p.slug)])];
-  const featured = slugs
-    .map((s) => products.find((p) => p.slug === s))
-    .filter((p): p is NonNullable<typeof p> => Boolean(p));
+  const featured = hotProductSelections(products, featuredSlugs(content));
   const pictures = pageImageSlots(content, HOME_IMAGE_SLOTS);
   const sectionOrder = pageSectionOrder(
     content,
