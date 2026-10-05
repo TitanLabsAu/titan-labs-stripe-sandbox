@@ -1,3 +1,4 @@
+import { promotedPrice } from "@/lib/variant-promotions";
 import { productImageDelivery } from "@/lib/product-image-delivery";
 import { ProductCoaLink } from "./ProductCertificates";
 import { Link } from "@tanstack/react-router";
@@ -27,9 +28,12 @@ export function ProductCard({ product: p }: { product: Product }) {
   const { addItem, items, setQuantity } = useCart();
   const variants = sortedProductVariants(p);
   const [variantId, setVariantId] = useState<string | null>(
-    firstAvailableVariant(p)?.id ?? null,
+    variants.find(v => v.hotProduct && !isComingSoon(p, v.id) && stockState(variantStockFor(p, v.id)) !== "out")?.id ?? firstAvailableVariant(p)?.id ?? null,
   );
   const [pack, setPack] = useState<ProductPack>("single");
+  const selectedVariant = (p.variants ?? []).find(v => v.id === variantId);
+  const promoLabel = selectedVariant ? selectedVariant.promoLabel || (selectedVariant.hotProduct ? "Hot product" : (p.variants ?? []).some(v => typeof v.hotProduct === "boolean") ? "" : p.promoLabel || "") : p.promoLabel;
+  const wasPrice = selectedVariant && promotedPrice(selectedVariant.price, selectedVariant.salePrice) < selectedVariant.price ? selectedVariant.price : selectedVariant ? null : p.wasPrice;
   const singleOption = getProductOption(p, variantId, "single");
   const kitOption = getProductOption(p, variantId, "kit");
   const kitAllowed = allowsKit(p);
@@ -59,9 +63,9 @@ export function ProductCard({ product: p }: { product: Product }) {
           loading="lazy"
           className={`h-full w-full object-contain transition duration-300 hover:scale-[1.02] ${allOut ? "opacity-40 grayscale" : ""}`}
         />
-        {p.promoLabel && !bannerSoon ? (
+        {promoLabel && !bannerSoon ? (
           <span className="titan-promo-badge absolute left-2 top-2 px-2 py-1 text-[8px] font-bold uppercase tracking-wider">
-            {p.promoLabel}
+            {promoLabel}
           </span>
         ) : null}
         {bannerSoon ? (
@@ -162,9 +166,9 @@ export function ProductCard({ product: p }: { product: Product }) {
         })()}
         <StarterKitOffer product={p}/>
         <div className="mt-3 flex items-baseline gap-1">
-          {p.wasPrice && pack === "single" ? (
+          {wasPrice && pack === "single" ? (
             <span className="text-xs text-muted-foreground line-through">
-              {formatPrice(p.wasPrice)}
+              {formatPrice(wasPrice!)}
             </span>
           ) : null}
           <span className="font-display text-3xl font-bold text-[#ccecff]">

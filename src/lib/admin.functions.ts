@@ -338,6 +338,10 @@ export const adminGetMemberOrders = createServerFn({ method: "POST" })
 
 export type AdminProductLink = import("./products").ProductLink;
 export type AdminProductVariant = {
+  salePrice?: number | null;
+  promoLabel?: string;
+  hotProduct?: boolean;
+
   id: string;
   label: string;
   price: number;
@@ -413,6 +417,9 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
         label: String(v.label ?? "").trim(),
         price: Number(v.price ?? 0),
         kitPrice: optNum(v.kitPrice),
+        salePrice: optNum(v.salePrice),
+        promoLabel: String(v.promoLabel ?? "").trim().slice(0, 80),
+        ...(typeof v.hotProduct === "boolean" ? { hotProduct: v.hotProduct } : {}),
         stock: Math.max(0, Math.trunc(Number(v.stock ?? 0)) || 0),
         cost: optNum(v.cost),
         comingSoon: Boolean(v.comingSoon),
@@ -424,6 +431,10 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
       }))
       .filter((v) => v.label && v.price > 0)
       .map((v) => (isEquipment ? { ...v, kitPrice: null } : { ...v, contents: [] }));
+    for (const v of variants) {
+      if (v.salePrice !== null && (!Number.isFinite(v.salePrice) || v.salePrice <= 0 || v.salePrice >= v.price))
+        throw new Error(`Sale price for ${v.label} must be greater than zero and below its regular price.`);
+    }
     const variantPrices = variants.map((v) => v.price).filter((p) => p > 0);
     const basePrice = variantPrices.length > 0 ? Math.min(...variantPrices) : Number(data.price ?? 0);
     const totalStock =

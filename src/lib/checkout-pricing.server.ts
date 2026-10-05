@@ -1,3 +1,4 @@
+import { promotedPrice } from "@/lib/variant-promotions";
 import { effectivePack, effectiveStock, kitPriceFor, bundleSummary, sanitizeBundle } from "@/lib/products";
 import type { ShippingMethodKey } from "@/lib/pricing";
 import {
@@ -127,7 +128,7 @@ export async function priceCheckout(
     const listPrice = Number(product.price);
     const sale = product.sale_price == null ? null : Number(product.sale_price);
     const basePrice = sale != null && sale > 0 && sale < listPrice ? sale : listPrice;
-    const singlePrice = variant ? Number(variant.price) : basePrice;
+    const singlePrice = variant ? promotedPrice(Number(variant.price), variant.salePrice == null ? null : Number(variant.salePrice)) : basePrice;
     const pack = effectivePack(product, item.pack);
     const unitPrice =
       pack === "kit"

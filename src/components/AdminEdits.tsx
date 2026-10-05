@@ -856,13 +856,19 @@ export function AdminEdits() {
   });
 
   const saveFeatured = useMutation({
-    mutationFn: (slugs: string[]) =>
-      adminSaveContent({
-        data: { key: "home_featured", body: slugs.join(",") },
-      }),
+    mutationFn: async (slugs: string[]) => {
+      for (const p of products ?? []) {
+        const selectedIds = (p.product_variants ?? []).filter(v => slugs.includes(`${p.slug}::${v.id}`) && v.hotProduct !== true).map(v => v.id);
+        if (selectedIds.length) {
+          const d = toDraft(p); d.variants = d.variants.map(v => selectedIds.includes(v.id) ? { ...v, hotProduct: true } : v);
+          await adminSaveProduct({ data: draftToPayload(d) as any });
+        }
+      }
+      return adminSaveContent({ data: { key: "home_featured", body: slugs.join(",") } });
+    },
     onSuccess: () => {
       toast.success("Home page products updated");
-      refreshContent();
+      refreshContent(); refreshProducts();
     },
     onError: () => toast.error("Could not update the home page products"),
   });
@@ -880,38 +886,32 @@ export function AdminEdits() {
   });
 
   const removeFeatured = useMutation({
-    mutationFn: async (p: NonNullable<typeof products>[number]) => {
-      const slugs = featured.filter((s) => s !== p.slug);
+    mutationFn: async (item: { product: NonNullable<typeof products>[number]; selectionKey: string; variantId?: string }) => {
+      const slugs = selectionKeys.filter(s => s !== item.selectionKey);
+      await adminSaveContent({ data: { key: "home_featured", body: slugs.join(",") } });
+      const d = toDraft(item.product);
+      if (item.variantId) d.variants = d.variants.map(v => ({ ...v, hotProduct: v.id === item.variantId ? false : Boolean(v.hotProduct) }));
+      else { d.promo_label = /^hot\s*products?$/i.test(d.promo_label.trim()) ? "" : d.promo_label; d.variants = d.variants.map(v => ({ ...v, hotProduct: false })); }
+      await adminSaveProduct({ data: draftToPayload(d) as any });
       setFeatured(slugs);
-      await adminSaveContent({
-        data: { key: "home_featured", body: slugs.join(",") },
-      });
-      if (p.sale_price != null || (p.promo_label ?? "") !== "") {
-        await adminSaveProduct({
-          data: draftToPayload({
-            ...toDraft(p),
-            sale_price: "",
-            promo_label: "",
-            active: true,
-          }) as any,
-        });
-      }
     },
-    onSuccess: () => {
-      toast.success(
-        "Removed from the home page and reverted to its normal price",
-      );
-      refreshContent();
-      refreshProducts();
-    },
-    onError: () => toast.error("Could not remove that product"),
+    onSuccess: () => { toast.success("Removed from Hot Products. Sale prices are unchanged."); refreshContent(); refreshProducts(); },
+    onError: (e: any) => toast.error(e?.message ?? "Could not remove that item"),
   });
 
   const list = products ?? [];
-  const featuredProducts = featured
-    .map((s) => list.find((p) => p.slug === s))
-    .filter((p): p is NonNullable<typeof p> => Boolean(p));
-  const addable = list.filter((p) => !featured.includes(p.slug));
+  type PromotionChoice = NonNullable<typeof products>[number] & { selectionKey: string; variantId: string | undefined; displayName: string; displayPrice: number; displaySale: number | null; displayBadge: string };
+  const choices = list.flatMap<PromotionChoice>(p => (p.product_variants ?? []).length
+    ? p.product_variants.map(v => ({ ...p, selectionKey: `${p.slug}::${v.id}`, variantId: v.id, displayName: `${p.name} — ${v.label}`, displayPrice: v.price, displaySale: v.salePrice ?? null, displayBadge: v.promoLabel ?? "" }))
+    : [{ ...p, selectionKey: p.slug, variantId: undefined, displayName: p.name, displayPrice: p.price, displaySale: p.sale_price, displayBadge: p.promo_label }]);
+  const selectionKeys = [...new Set([...featured.filter(key => { const [slug, id] = key.split("::"); const p = list.find(p => p.slug === slug); return id ? p?.product_variants?.find(v => v.id === id)?.hotProduct !== false : !p?.product_variants?.some(v => typeof v.hotProduct === "boolean"); }), ...list.flatMap(p => (p.product_variants ?? []).filter(v => v.hotProduct).map(v => `${p.slug}::${v.id}`))])];
+  const featuredProducts = selectionKeys.map(key => {
+    const choice = choices.find(c => c.selectionKey === key);
+    if (choice) return choice;
+    const p = list.find(p => p.slug === key);
+    return p ? { ...p, selectionKey: key, variantId: undefined, displayName: `${p.name} — all sizes (existing selection)`, displayPrice: p.price, displaySale: p.sale_price, displayBadge: p.promo_label } : null;
+  }).filter((p): p is NonNullable<typeof p> => Boolean(p));
+  const addable = choices.filter(p => !selectionKeys.includes(p.selectionKey) && !featured.includes(p.slug));
 
   const setFeaturedAndSave = (slugs: string[]) => {
     setFeatured(slugs);
@@ -1335,9 +1335,7 @@ export function AdminEdits() {
               Hot products on the home page
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Pick the products you want on the front page. Anything you change
-              here — price, sale price, badge, wording — updates that product
-              everywhere on the website.
+              Choose an individual size for the front page. Edit its Hot Product flag, sale price and label under Products. Removing a Hot Product does not cancel its sale.
             </p>
 
             <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -1349,10 +1347,10 @@ export function AdminEdits() {
                     setFeaturedAndSave([...featured, e.target.value]);
                 }}
               >
-                <option value="">Add a product…</option>
+                <option value="">Add an individual item…</option>
                 {addable.map((p) => (
-                  <option key={p.id} value={p.slug}>
-                    {p.name}
+                  <option key={p.selectionKey} value={p.selectionKey}>
+                    {p.displayName}
                   </option>
                 ))}
               </select>
@@ -1372,7 +1370,7 @@ export function AdminEdits() {
               ) : (
                 featuredProducts.map((p, i) => (
                   <div
-                    key={p.id}
+                    key={p.selectionKey}
                     className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/20 bg-background/45 p-4"
                   >
                     <div className="flex items-center gap-3 text-sm text-muted-foreground">
@@ -1386,22 +1384,22 @@ export function AdminEdits() {
                       ) : null}
                       <div>
                         <p className="font-extrabold uppercase text-foreground">
-                          {p.name}
+                          {p.displayName}
                         </p>
                         <p>
-                          {p.sale_price != null ? (
+                          {p.displaySale != null ? (
                             <>
                               <span className="line-through">
-                                {formatPrice(Number(p.price))}
+                                {formatPrice(Number(p.displayPrice))}
                               </span>{" "}
                               <span className="font-bold text-accent">
-                                {formatPrice(Number(p.sale_price))}
+                                {formatPrice(Number(p.displaySale))}
                               </span>
                             </>
                           ) : (
-                            formatPrice(Number(p.price))
+                            formatPrice(Number(p.displayPrice))
                           )}
-                          {p.promo_label ? ` · ${p.promo_label}` : ""}
+                          {p.displayBadge ? ` · ${p.displayBadge}` : ""}
                         </p>
                       </div>
                     </div>
@@ -1411,8 +1409,8 @@ export function AdminEdits() {
                         className="font-bold uppercase"
                         disabled={i === 0}
                         onClick={() => {
-                          const next = [...featured];
-                          const j = next.indexOf(p.slug);
+                          const next = [...selectionKeys];
+                          const j = next.indexOf(p.selectionKey);
                           if (j <= 0) return;
                           const current = next[j];
                           const previous = next[j - 1];
@@ -1427,7 +1425,7 @@ export function AdminEdits() {
                       <Button
                         variant="outline"
                         className="font-bold uppercase"
-                        onClick={() => setDraft(toDraft(p))}
+                        onClick={() => setDraft(toDraft(list.find(item => item.id === p.id)!))}
                       >
                         Edit details
                       </Button>
@@ -1435,7 +1433,7 @@ export function AdminEdits() {
                         variant="destructive"
                         className="font-bold uppercase"
                         disabled={removeFeatured.isPending}
-                        onClick={() => removeFeatured.mutate(p)}
+                        onClick={() => removeFeatured.mutate({ product: list.find(item => item.id === p.id)!, selectionKey: p.selectionKey, ...(p.variantId ? { variantId: p.variantId } : {}) })}
                       >
                         Remove
                       </Button>

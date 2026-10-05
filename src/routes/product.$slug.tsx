@@ -1,3 +1,4 @@
+import { promotedPrice } from "@/lib/variant-promotions";
 import { productImageDelivery } from "@/lib/product-image-delivery";
 import { seoHead, productUrl, productSchema, jsonLd } from "@/lib/seo";
 import { ProductCertificates } from "@/components/ProductCertificates";
@@ -100,6 +101,9 @@ function ProductPage() {
     setSynced({ key: selectedKey, carted });
   }
 
+  const selectedVariant = (product.variants ?? []).find(v => v.id === variantId);
+  const promoLabel = selectedVariant ? selectedVariant.promoLabel || (selectedVariant.hotProduct ? "Hot product" : (product.variants ?? []).some(v => typeof v.hotProduct === "boolean") ? "" : product.promoLabel || "") : product.promoLabel;
+  const wasPrice = selectedVariant && promotedPrice(selectedVariant.price, selectedVariant.salePrice) < selectedVariant.price ? selectedVariant.price : selectedVariant ? null : product.wasPrice;
   const singleOption = getProductOption(product, variantId, "single");
   const kitOption = getProductOption(product, variantId, "kit");
   const total = selected.unitPrice * qty;
@@ -139,9 +143,9 @@ function ProductPage() {
           <div>
             <h1 className="titan-hero-heading">{product.name}</h1>
             <p className="mt-3 flex flex-wrap items-baseline gap-3">
-              {product.wasPrice && variants.length === 0 ? (
+              {wasPrice ? (
                 <span className="text-lg text-muted-foreground line-through">
-                  {formatPrice(product.wasPrice)}
+                  {formatPrice(wasPrice!)}
                 </span>
               ) : null}
               <span className="text-2xl font-extrabold text-accent">
@@ -149,9 +153,9 @@ function ProductPage() {
                   ? formatPrice(singleOption.unitPrice)
                   : formatPrice(product.price)}
               </span>
-              {product.promoLabel ? (
+              {promoLabel ? (
                 <span className="brand-cut bg-accent px-3 py-1 text-[10px] font-extrabold uppercase text-accent-foreground">
-                  {product.promoLabel}
+                  {promoLabel}
                 </span>
               ) : null}
             </p>
@@ -190,7 +194,7 @@ function ProductPage() {
                         const vSoon = Boolean(variant.comingSoon) && !product.comingSoon;
                         return (
                           <option key={variant.id} value={variant.id}>
-                            {variant.label} — {formatPrice(variant.price)}
+                            {variant.label} — {formatPrice(promotedPrice(variant.price, variant.salePrice))}
                             {vSoon ? " · Coming soon" : soldOut ? " · Sold out" : ""}
                           </option>
                         );
