@@ -15,10 +15,12 @@ export function StarterKitOffer({ product }: { product: Product }) {
   if (!kit) return null;
   const available = canAddStarterKit(kit, items);
   return (
-    <section
-      className="mt-3 rounded-lg border border-primary/25 bg-primary/5 p-3"
+    <details
+      className="titan-kit-offer mt-3 rounded-lg border border-primary/25 bg-primary/5 p-3"
       aria-label={`${kit.name} add-on`}
     >
+      <summary className="cursor-pointer font-display text-sm font-bold text-foreground">{kit.name} · {formatPrice(kit.price)}</summary>
+      <div className="pt-3">
       <Link
         to="/product/$slug"
         params={{ slug: kit.slug }}
@@ -38,6 +40,7 @@ export function StarterKitOffer({ product }: { product: Product }) {
       >
         {available ? c.add_label : kit.comingSoon ? c.coming_soon_label : c.unavailable_label}
       </Button>
-    </section>
+      </div>
+    </details>
   );
 }

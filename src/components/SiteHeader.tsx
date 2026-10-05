@@ -140,7 +140,7 @@ export function SiteHeader() {
                 aria-label={catalogueName(content)}
                 title={catalogueName(content)}
               >
-                <FlaskConical />
+                <FlaskConical className="lg:hidden" /><span className="hidden lg:inline">{catalogueName(content)}</span>
               </Link>
             </Button>
           );
@@ -159,7 +159,7 @@ export function SiteHeader() {
                 aria-label={cmsValues(content, "nav_labels").research_label || "Titan Research Lab"}
                 title={cmsValues(content, "nav_labels").research_label || "Titan Research Lab"}
               >
-                <Microscope />
+                <Microscope className="lg:hidden" /><span className="hidden lg:inline">{cmsValues(content, "nav_labels").research_label || "Research Lab"}</span>
               </Link>
             </Button>
           );
@@ -172,7 +172,7 @@ export function SiteHeader() {
                 aria-label="Disposable Pens"
                 title="Disposable Pens"
               >
-                <PenTool />
+                <PenTool className="lg:hidden" /><span className="hidden lg:inline">Pens</span>
               </Link>
             </Button>
           );

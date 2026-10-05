@@ -548,3 +548,42 @@
 .titan-promotion > span a { color: var(--primary); text-decoration: none; }
 .titan-promotion > span a:hover { text-decoration: underline; }
 .titan-promo-badge { border: 1px solid var(--primary); border-left: 2px solid var(--accent); border-radius: 0.2rem; background: color-mix(in oklab, var(--background) 94%, transparent); color: var(--accent); box-shadow: 0 0 14px -8px var(--primary); }
+
+/* Approved compact cinematic storefront and vertical catalogue cards. */
+.titan-product-card { background: linear-gradient(150deg,#0a1c29,#030f19); }
+.titan-product-card > div { color: #dcebf3; }
+.titan-product-card a { text-underline-offset: 3px; }
+.titan-product-card [aria-label="Buy option"] { border-radius: .4rem; }
+.titan-kit-offer summary::marker { color: var(--accent); }
+.titan-kit-offer[open] { border-color: color-mix(in oklab,var(--accent) 55%,transparent); }
+.titan-site-footer { background:#030f19; }
+.titan-site-footer p.font-display { color:var(--accent); letter-spacing:.15em; }
+.titan-site-footer .relative { padding-block:2.5rem; }
+.discovery-testing figure { border-radius:0; mask-image:linear-gradient(90deg,#000 70%,transparent),linear-gradient(180deg,#000 88%,transparent); mask-composite:intersect; }
+.discovery-testing h2 { font-size:clamp(2rem,3.6vw,3.5rem); }
+.discovery-testing ul { margin-block:1rem; gap:.5rem; }
+.discovery-testing li { font-size:.8rem; line-height:1.4; gap:.6rem; }
+.discovery-testing li svg { width:1rem; height:1rem; }
+.discovery-testing p { font-size:1rem; line-height:1.6; }
+@media(min-width:1024px) {
+  .titan-site-header > div > .page-shell { display:flex; flex-direction:row; justify-content:space-between; gap:1rem; padding-block:.8rem; }
+  .titan-site-header .titan-nav-icon { width:auto; padding-inline:.55rem; font-size:.65rem; }
+  .titan-site-header nav { gap:.2rem; }
+  .titan-site-header nav a[aria-current="page"] { border-radius:0; border-width:0 0 1px; background:transparent; color:var(--accent); }
+  .titan-site-header .font-display.text-2xl { font-size:1.5rem; }
+  .titan-home { --titan-banner-height:36rem; }
+  .titan-home .discovery-welcome h1 { font-size:clamp(2.8rem,4.6vw,4rem); max-width:38rem; }
+  .discovery-copy > div { max-width:48%; }
+  .discovery-copy { padding-block:2.5rem; }
+  .discovery-testing > div { padding-block:2.5rem; }
+  .discovery-testing figure img { aspect-ratio:4/3; }
+  .discovery-testing figure { margin-left:-2.5rem; }
+}
+@media(max-width:767px) {
+ .titan-product-photo { aspect-ratio:4/3; }
+ .discovery-testing figure img { aspect-ratio:4/3; }
+ .discovery-category { min-height:12rem; }
+}
+@media(prefers-reduced-motion:reduce) {
+ .titan-product-card *, .discovery-category img { transition:none; }
+}

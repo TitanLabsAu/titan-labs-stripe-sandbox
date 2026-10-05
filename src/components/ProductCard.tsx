@@ -45,17 +45,17 @@ export function ProductCard({ product: p }: { product: Product }) {
     ((stockCount != null && (inCart!.quantity + 1) * vialsPer > stockCount) ||
       inCart!.quantity >= 99);
   return (
-    <article className="group grid min-h-48 grid-cols-[7rem_minmax(0,1fr)] overflow-hidden rounded-xl border border-border bg-card transition hover:border-primary/55 hover:shadow-glow sm:min-h-40 sm:grid-cols-[8rem_minmax(0,1fr)]">
+    <article className="titan-product-card group flex h-full min-w-0 flex-col overflow-hidden rounded-xl border border-primary/25 bg-card transition hover:border-primary/65 hover:shadow-glow">
       <Link
         to="/product/$slug"
         params={{ slug: p.slug }}
-        className="relative overflow-hidden border-r border-border bg-secondary/30"
+        className="titan-product-photo relative block aspect-[4/3] overflow-hidden border-b border-primary/20 bg-[#030f19]"
       >
         <img
           src={p.image}
           alt={p.alt}
           loading="lazy"
-          className={`h-full w-full object-cover transition duration-300 hover:scale-[1.02] ${allOut ? "opacity-40 grayscale" : ""}`}
+          className={`h-full w-full object-contain transition duration-300 hover:scale-[1.02] ${allOut ? "opacity-40 grayscale" : ""}`}
         />
         {p.promoLabel && !bannerSoon ? (
           <span className="titan-promo-badge absolute left-2 top-2 px-2 py-1 text-[8px] font-bold uppercase tracking-wider">
@@ -68,12 +68,12 @@ export function ProductCard({ product: p }: { product: Product }) {
           </span>
         ) : null}
       </Link>
-      <div className="flex min-w-0 flex-col p-4">
+      <div className="flex min-w-0 flex-1 flex-col gap-1 p-5">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
           <Link
             to="/product/$slug"
             params={{ slug: p.slug }}
-            className="min-w-0 font-display text-base font-bold uppercase tracking-wide text-foreground transition group-hover:text-primary"
+            className="min-w-0 font-display text-xl font-bold uppercase tracking-wide text-foreground transition group-hover:text-primary"
           >
             {p.name}
           </Link>
@@ -99,7 +99,7 @@ export function ProductCard({ product: p }: { product: Product }) {
         ) : null}
         {variants.length >= 4 ? (
           <select
-            className="mt-2 h-8 w-full min-w-0 rounded-md border border-input bg-background px-2 text-[11px] font-semibold text-foreground"
+            className="mt-2 h-11 w-full min-w-0 rounded-md border border-input bg-background px-2 text-[11px] font-semibold text-foreground"
             aria-label="Choose option"
             value={variantId ?? ""}
             onChange={(e) => setVariantId(e.target.value)}
@@ -126,7 +126,7 @@ export function ProductCard({ product: p }: { product: Product }) {
                   type="button"
                   size="sm"
                   variant={variantId === variant.id ? "default" : "outline"}
-                  className={`h-7 min-w-0 px-2 text-[9px] ${soldOut ? "opacity-60" : ""}`}
+                  className={`h-10 min-w-10 px-3 text-xs ${soldOut ? "opacity-60" : ""}`}
                   onClick={() => setVariantId(variant.id)}
                 >
                   {variant.label}
@@ -156,7 +156,7 @@ export function ProductCard({ product: p }: { product: Product }) {
               type="button"
               aria-pressed={pack === key}
               onClick={() => setPack(key)}
-              className={`flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 text-[9px] font-semibold uppercase tracking-[0.08em] transition-colors ${pack === key ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+              className={`flex flex-col items-center justify-center gap-1 px-2 py-3 text-[11px] font-semibold uppercase tracking-[0.08em] transition-colors ${pack === key ? "border-accent bg-accent/10 text-foreground shadow-[inset_0_0_0_1px_var(--accent)]" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
             >
               <span className="truncate">{label}</span>
               <span className="text-[10px] font-bold">
@@ -223,7 +223,7 @@ export function ProductCard({ product: p }: { product: Product }) {
           </div>
         ) : (
           <Button
-            className="mt-auto w-full"
+            className="mt-4 w-full min-h-12"
             disabled={soon || stock === "out"}
             onClick={() =>
               addItem(p.slug, 1, {
