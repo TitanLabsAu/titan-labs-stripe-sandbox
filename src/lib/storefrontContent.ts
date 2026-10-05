@@ -203,12 +203,13 @@ export const CMS_SECTIONS: CmsSection[] = [
     title: "Pen Guides page",
     fields: [
       T("eyebrow", "Small heading", 60), T("title", "Title", 80), P("intro", "Introduction", 600),
+      { key: "banner_image", label: "Pen guide banner artwork", type: "image" }, T("shop_label", "Shop Pens button", 60),
       T("reusable_title", "Reusable pen guide heading", 80),
       { key: "reusable_steps", label: "Reusable pen steps", type: "list", maxItems: 12, itemFields: [{ key: "title", label: "Step title", type: "text", max: 80 }, { key: "body", label: "Step text", type: "textarea", max: 500 }] },
       T("products_title", "Product information heading", 80), P("products_body", "Product information text", 300),
     ],
     defaults: {
-      eyebrow: "Equipment reference", title: "Titan Pen Guides",
+      eyebrow: "Compare • Learn • Explore", title: "Titan Pen Guides", banner_image: "", shop_label: "Shop Pens",
       intro: "Reference information for Titan V2 reusable and disposable pens. Model-specific instructions supplied with the hardware take precedence. Products are for laboratory research only, not human or animal consumption.",
       reusable_title: "Titan V2 reusable pen",
       reusable_steps: [

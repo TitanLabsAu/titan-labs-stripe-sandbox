@@ -163,14 +163,14 @@ export function SiteHeader() {
               </Link>
             </Button>
           );
-        if (tab === "pens" && hasPens)
+        if (tab === "pens")
           return (
             <Button key={tab} asChild variant="outline" size="icon" className="titan-nav-icon">
               <Link
-                to="/pens"
-                {...navState("/pens")}
-                aria-label="Disposable Pens"
-                title="Disposable Pens"
+                to="/pen-guide"
+                {...navState("/pen-guide")}
+                aria-label="Titan Pen Guides"
+                title="Titan Pen Guides"
               >
                 {display(tab) === "icon" ? <PenTool /> : <span>Pens</span>}
               </Link>

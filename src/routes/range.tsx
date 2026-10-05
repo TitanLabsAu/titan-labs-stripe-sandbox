@@ -20,6 +20,7 @@ import { CATEGORIES } from "@/lib/categories";
 import {
   BLOCK_ALIGN_CLASS,
   catalogueName,
+  featuredSlugs,
   contentAlign,
   RANGE_IMAGE_SLOTS,
   RANGE_SECTIONS,
@@ -133,7 +134,13 @@ function RangePage() {
       .toLowerCase()
       .includes(term);
   });
+  const hotSlugs = new Set(featuredSlugs(content));
+  const isHot = (p: typeof matched[number]) => hotSlugs.has(p.slug) || /^hot\s*products?$/i.test(p.promoLabel?.trim() ?? "");
   const visible = [...matched].sort((a, b) => {
+    if (activeSection === "range") {
+      const priority = Number(isHot(b)) - Number(isHot(a));
+      if (priority) return priority;
+    }
     if (activeSort === "price-asc")
       return productBasePrice(a) - productBasePrice(b);
     if (activeSort === "price-desc")
