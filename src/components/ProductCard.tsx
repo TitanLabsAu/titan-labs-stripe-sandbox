@@ -1,3 +1,4 @@
+import { productImageDelivery } from "@/lib/product-image-delivery";
 import { ProductCoaLink } from "./ProductCertificates";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
@@ -53,6 +54,7 @@ export function ProductCard({ product: p }: { product: Product }) {
       >
         <img
           src={p.image}
+              {...productImageDelivery(p.image, "(min-width: 1024px) 420px, (min-width: 640px) 50vw, 100vw")}
           alt={p.alt}
           loading="lazy"
           className={`h-full w-full object-contain transition duration-300 hover:scale-[1.02] ${allOut ? "opacity-40 grayscale" : ""}`}
@@ -229,4 +231,3 @@ export function ProductCard({ product: p }: { product: Product }) {
     </article>
   );
 }
-

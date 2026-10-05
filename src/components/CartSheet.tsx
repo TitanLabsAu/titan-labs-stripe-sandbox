@@ -1,3 +1,4 @@
+import { productImageDelivery } from "@/lib/product-image-delivery";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Check, ChevronRight, Minus, Plus, ShoppingCart, Trash2, Wrench } from "lucide-react";
 import { useState } from "react";
@@ -61,9 +62,9 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
   };
   void subtotal;
 
-  // Floating trigger only appears once something is in the cart, and never on
-  // checkout pages — the checkout flow manages its own cart summary there.
-  if (floating && (count === 0 || pathname.startsWith("/checkout"))) return null;
+  // Mobile floating trigger is hidden on checkout pages — the checkout flow
+  // manages its own cart summary there.
+  if (floating && ((!catalogue && count === 0) || pathname.startsWith("/checkout"))) return null;
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -125,6 +126,7 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
                     >
                       <img
                         src={product.image}
+              {...productImageDelivery(product.image, "80px")}
                         alt={product.alt}
                         className="brand-cut h-16 w-16 object-cover"
                       />

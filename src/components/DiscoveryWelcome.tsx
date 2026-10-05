@@ -1,3 +1,4 @@
+import { productImageDelivery } from "@/lib/product-image-delivery";
 import { ArrowRight, FlaskConical, PenTool, Truck, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CmsLink } from "@/components/CmsLink";
@@ -47,7 +48,7 @@ export function DiscoveryCatalogue() {
     {c.body ? <p className="mt-3 max-w-xl whitespace-pre-line text-base leading-7 text-muted-foreground">{c.body}</p> : null}
     <div className="mt-7 grid gap-4 sm:grid-cols-3">
       {sections.map(s => { const Icon = icons[s]; const photo = categoryTilePhoto(products, s, photos[`${s}_slug`]); return <CmsLink key={s} href={`/range?section=${s}`} className="discovery-category group relative flex min-h-52 flex-col justify-end overflow-hidden rounded-md border border-primary/40 bg-card p-6 hover:border-accent">
-        {photo ? <img src={photo} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-75 transition duration-300 group-hover:scale-105" /> : <Icon aria-hidden="true" className="h-9 w-9 text-primary" strokeWidth={1.3} />}
+        {photo ? <img src={photo} {...productImageDelivery(photo, "(min-width: 1024px) 33vw, 100vw")} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-75 transition duration-300 group-hover:scale-105" /> : <Icon aria-hidden="true" className="h-9 w-9 text-primary" strokeWidth={1.3} />}
         <div className="absolute inset-0 bg-gradient-to-t from-[#030f19] via-transparent to-transparent" />
         <span className="mt-6 flex items-center justify-between gap-3 font-display text-xl font-bold uppercase">{labels[`section_${s}`]}<ArrowRight aria-hidden="true" className="h-5 w-5 text-accent transition-transform group-hover:translate-x-1" /></span>
       </CmsLink>; })}

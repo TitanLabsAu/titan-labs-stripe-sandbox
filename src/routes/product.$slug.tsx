@@ -1,3 +1,4 @@
+import { productImageDelivery } from "@/lib/product-image-delivery";
 import { seoHead, productUrl, productSchema, jsonLd } from "@/lib/seo";
 import { ProductCertificates } from "@/components/ProductCertificates";
 import { sanitizeProductLinks, isCertificate } from "@/lib/product-certificates";
@@ -129,6 +130,7 @@ function ProductPage() {
           <div>
             <img
               src={product.image}
+              {...productImageDelivery(product.image, "(min-width: 1024px) 50vw, 100vw")}
               alt={product.alt}
               className="w-full rounded-xl border border-border bg-card object-cover"
             />
@@ -422,6 +424,7 @@ function ProductPage() {
                 >
                   <img
                     src={p.image}
+                    {...productImageDelivery(p.image, "80px")}
                     alt={p.alt}
                     loading="lazy"
                     className="aspect-[4/3] w-full object-cover transition-transform group-hover:scale-[1.02]"

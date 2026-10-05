@@ -1,3 +1,4 @@
+import { optimizedProductImage } from "./product-image-delivery";
 import { sanitizeProductLinks } from "@/lib/product-certificates";
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
@@ -65,7 +66,7 @@ function toProduct(row: any): Product {
     promoLabel: row.promo_label ?? "",
     kitPrice: row.kit_price === null || row.kit_price === undefined ? null : Number(row.kit_price),
     variants,
-    image: row.image_url,
+    image: optimizedProductImage(row.image_url),
     alt: row.alt || row.name,
     blurb: row.blurb ?? "",
     description: row.description ?? "",
