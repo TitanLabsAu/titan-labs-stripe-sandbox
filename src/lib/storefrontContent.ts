@@ -37,6 +37,17 @@ const B = (key: string, label: string, help?: string): CmsField => ({ key, label
 
 export const CMS_SECTIONS: CmsSection[] = [
   {
+    id: "home_membership", group: "Homepage", title: "Join Titan Labs",
+    description: "The illustrated membership section. First-purchase offer follows your discount settings and Homepage offer text.",
+    fields: [B("visible", "Show membership section"), T("eyebrow", "Small heading", 60), T("title", "Heading", 100), P("body", "Introduction", 800),
+      { key: "image", label: "Membership artwork", type: "image", help: "Leave empty to use the approved Titan helmet artwork." },
+      T("primary_label", "Sign-up button label", 40), U("primary_url", "Sign-up button link"),
+      T("login_prompt", "Login introduction", 80), T("login_label", "Login link label", 40), U("login_url", "Login link"),
+      P("help", "Sign-up guidance", 300)],
+    defaults: { visible: true, eyebrow: "Become a Titan member", title: "Join Titan Labs", body: "Create your account to explore the full catalogue, manage your orders and access member rewards.", image: "", primary_label: "Create account", primary_url: "/auth/signup", login_prompt: "Already a member?", login_label: "Log in", login_url: "/auth", help: "Confirm your email, complete your profile, then start exploring." },
+  },
+
+  {
     id: "home_welcome", group: "Homepage", title: "Discovery welcome interface",
     description: "The integrated homepage welcome, including its background artwork and live buttons. Replaces the old welcome blocks.",
     fields: [T("eyebrow", "Small heading", 60), P("headline", "Headline", 160), P("body", "Welcome text", 800),

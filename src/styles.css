@@ -520,3 +520,23 @@
 .titan-site-header > div > div > a { background: transparent; border-color: transparent; }
 .titan-home .discovery-welcome h1 { color: #ccecff; text-shadow: 0 2px 20px rgb(0 125 200 / 15%); }
 .discovery-shipping { border-top: 1px solid color-mix(in oklab, var(--primary) 32%, transparent); border-bottom: 1px solid color-mix(in oklab, var(--primary) 18%, transparent); color: #d5e9f4; }
+
+/* Shared desktop banner height; mobile remains content-driven. */
+@media (min-width: 1024px) {
+  .titan-home { --titan-banner-height: 43rem; }
+  .discovery-copy { min-height: var(--titan-banner-height); padding-block: 3rem; }
+  .discovery-testing { min-height: var(--titan-banner-height); padding-bottom: 0; }
+  .discovery-testing > div { min-height: var(--titan-banner-height); padding-block: 3rem; }
+}
+
+.titan-membership { background: #030f19; color: #eaf3f8; --foreground: oklch(0.965 0.008 235); --muted-foreground: oklch(0.8 0.022 235); }
+.membership-art { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; object-position: right center; }
+.membership-shade { position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, #030f19 4%, rgb(3 15 25 / 90%) 30%, transparent 75%); }
+.titan-membership h2 { color: #ccecff; }
+.membership-offer { border-color: rgb(0 161 230 / 45%); border-left-color: var(--accent); background: linear-gradient(90deg, rgb(205 155 40 / 10%), rgb(0 130 200 / 12%), transparent); }
+.membership-offer > span { display: none; }
+@media (max-width: 767px) {
+  .membership-art { height: 23rem; object-position: 85% top; }
+  .membership-shade { background: linear-gradient(0deg, #030f19 38%, rgb(3 15 25 / 92%) 60%, transparent 95%); }
+  .titan-membership > .page-shell { padding-top: 18rem; }
+}

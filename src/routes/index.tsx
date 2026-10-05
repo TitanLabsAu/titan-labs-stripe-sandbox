@@ -1,3 +1,4 @@
+import { TitanMembership } from "@/components/TitanMembership";
 import { FirstOfferBanner } from "@/components/FirstOfferBanner";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
@@ -131,50 +132,7 @@ function Index() {
                 </div>
               </section>
             ) : null;
-          if (section === "signup")
-            return (
-              <section key={section} className="mx-auto max-w-4xl px-4 pb-24">
-                <div className="rounded-xl border border-border border-l-2 border-l-primary bg-card px-6 py-8">
-                  <h2
-                    className={cn(
-                      "text-foreground text-4xl font-extrabold uppercase",
-                      TEXT_ALIGN_CLASS[contentAlign(content, "home_cta_title")],
-                    )}
-                  >
-                    <RichText
-                      inline
-                      text={homeValue(content, "home_cta_title")}
-                    />
-                  </h2>
-                  <p
-                    className={cn(
-                      "mt-4 max-w-xl whitespace-pre-wrap text-muted-foreground",
-                      BLOCK_ALIGN_CLASS[contentAlign(content, "home_cta_body")],
-                      TEXT_ALIGN_CLASS[contentAlign(content, "home_cta_body")],
-                    )}
-                  >
-                    <RichText
-                      inline
-                      text={homeValue(content, "home_cta_body")}
-                    />
-                  </p>
-                  <div
-                    className={cn(
-                      "mt-8 flex",
-                      FLEX_ALIGN_CLASS[
-                        contentAlign(content, "home_cta_button")
-                      ],
-                    )}
-                  >
-                    <Button asChild size="lg" className="font-bold uppercase">
-                      <Link to="/auth/signup">
-                        {homeValue(content, "home_cta_button")}
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
-              </section>
-            );
+          if (section === "signup") return <TitanMembership key={section} />;
           return null;
         })}
       </main>
