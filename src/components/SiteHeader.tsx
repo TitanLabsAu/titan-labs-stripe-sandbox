@@ -223,7 +223,7 @@ export function SiteHeader() {
             UserPlus,
             "outline",
           );
-        if (tab === "cart") return <CartSheet key={tab} />;
+        if (tab === "cart") return <span key={tab} className="hidden md:contents"><CartSheet /></span>;
         return null;
       })}
       {visibleCmsLinks(cmsValues(content, "nav_header").links).map((l, i) => (
