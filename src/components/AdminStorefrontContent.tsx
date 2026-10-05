@@ -4,7 +4,7 @@ import { ArrowDown, ArrowUp, ExternalLink, Loader2, Plus, RotateCcw, Trash2, Upl
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { adminSaveStorefrontSection } from "@/lib/admin.functions";
-import { useSiteContent } from "@/lib/useCatalog";
+import { useProducts, useSiteContent } from "@/lib/useCatalog";
 import { useBlocker } from "@tanstack/react-router";
 import { clearCmsDirty, cmsDirtyIds, cmsHasUnsavedChanges, confirmDiscardCmsDrafts, setCmsDirty, subscribeCmsDirty } from "@/lib/cmsDirtyGuard";
 import {
@@ -186,6 +186,7 @@ function FieldEditor({ field, value, error, sectionId, onChange, onUploadState }
         </select>
       </div>
     );
+  if (field.type === "product") return <ProductField id={id} field={field} value={value} onChange={onChange} />;
   if (field.type === "list") return <ListEditor field={field} value={Array.isArray(value) ? value : []} error={error} onChange={onChange} />;
   if (field.type === "image") return <ImageField id={id} label={field.label} value={value ?? ""} sectionId={sectionId} onChange={onChange} onUploadState={onUploadState} help={help} err={err} />;
   const max = "max" in field ? field.max : 500;
@@ -300,4 +301,9 @@ function ItemInput({ f, value, onChange }: { f: ListItemField; value: any; onCha
       {bad ? <span className="text-destructive">Use a link starting with / or https://</span> : null}
     </label>
   );
+}
+
+function ProductField({ id, field, value, onChange }: { id: string; field: CmsField; value: string; onChange: (value: string) => void }) {
+  const { products, isLoading } = useProducts();
+  return <div className="grid gap-1.5"><Label htmlFor={id}>{field.label}</Label><select id={id} value={value ?? ""} disabled={isLoading} onChange={e => onChange(e.target.value)} className="h-10 rounded-md border border-input bg-background px-3 text-sm"><option value="">No product — keep existing welcome artwork</option>{value && !products.some(p => p.slug === value) ? <option value={value}>Unavailable product: {value}</option> : null}{products.map(p => <option key={p.slug} value={p.slug}>{p.name}</option>)}</select></div>;
 }

@@ -12,6 +12,7 @@ export type CmsField =
   | { key: string; label: string; type: "text" | "textarea"; max: number; help?: string | undefined }
   | { key: string; label: string; type: "url"; help?: string | undefined }
   | { key: string; label: string; type: "image"; help?: string | undefined }
+  | { key: string; label: string; type: "product"; help?: string | undefined }
   | { key: string; label: string; type: "toggle"; help?: string | undefined }
   | { key: string; label: string; type: "choice"; options: [string, string][]; help?: string | undefined }
   | { key: string; label: string; type: "list"; itemFields: ListItemField[]; maxItems: number; help?: string | undefined };
@@ -36,6 +37,65 @@ const U = (key: string, label: string, help?: string): CmsField => ({ key, label
 const B = (key: string, label: string, help?: string): CmsField => ({ key, label, type: "toggle", help });
 
 export const CMS_SECTIONS: CmsSection[] = [
+  {
+    id: "home_banner_product", group: "Homepage", title: "Homepage banner product",
+    description: "Choose a catalogue product to display beside the homepage welcome. Its current photo and name update automatically. Leave empty to keep the artwork-only welcome.",
+    shortcut: { tab: "products", label: "Choose homepage banner product" },
+    fields: [{ key: "product_slug", label: "Featured banner product", type: "product" }, T("eyebrow", "Small heading", 60), T("button_label", "Product button", 60)],
+    defaults: { product_slug: "", eyebrow: "In the spotlight", button_label: "Explore product" },
+  },
+  {
+    id: "guide_learning", group: "Guides", title: "Pen comparison & Pens 101",
+    fields: [T("title", "Guide section heading", 100), P("intro", "Guide section introduction", 600),
+      { key: "comparison", label: "Pen comparison rows", type: "list", maxItems: 8, itemFields: [{ key: "topic", label: "Topic", type: "text", max: 80 }, { key: "reusable", label: "V2 reusable", type: "textarea", max: 300 }, { key: "disposable", label: "Disposable", type: "textarea", max: 300 }] },
+      { key: "reusable_steps", label: "V2 equipment guide", type: "list", maxItems: 12, itemFields: [{ key: "title", label: "Step heading", type: "text", max: 80 }, { key: "body", label: "Step information", type: "textarea", max: 600 }] },
+      { key: "disposable_steps", label: "Disposable equipment guide", type: "list", maxItems: 12, itemFields: [{ key: "title", label: "Step heading", type: "text", max: 80 }, { key: "body", label: "Step information", type: "textarea", max: 600 }] },
+      T("faq_title", "Pens 101 heading", 100), P("faq_intro", "Pens 101 introduction", 500),
+      { key: "questions", label: "Pens 101 questions", type: "list", maxItems: 16, itemFields: [{ key: "title", label: "Question", type: "text", max: 120 }, { key: "body", label: "Answer", type: "textarea", max: 1000 }] },
+      T("checklist_title", "Checklist heading", 100),
+      { key: "checklist", label: "Equipment checklist", type: "list", maxItems: 10, itemFields: [{ key: "text", label: "Checklist item", type: "text", max: 200 }] }],
+    defaults: {
+      title: "Get to know your pen", intro: "Compare the two formats, understand the components and find the right supplied instructions for your exact model.",
+      comparison: [
+        { topic: "Device format", reusable: "A reusable pen body with a replaceable, compatible cartridge.", disposable: "A pre-filled device supplied as one complete unit." },
+        { topic: "Cartridge", reusable: "Replace only with a cartridge approved for the exact V2 model.", disposable: "Do not open, refill or replace the built-in cartridge." },
+        { topic: "Accessories", reusable: "Check the exact model’s compatible pen pins and cartridge specifications.", disposable: "Check the supplied device’s accessory requirements; do not assume all pens share a fitting." },
+        { topic: "End of use", reusable: "Retain the pen body only as directed by its manufacturer; dispose of sharps appropriately.", disposable: "Follow the supplied instructions for disposal of the complete device." },
+      ],
+      reusable_steps: [
+        { title: "Identify your V2 model", body: "Check the model name, packaging and supplied manual. Keep the model-specific instructions available alongside the device." },
+        { title: "Inspect the components", body: "Check the pen body, cartridge holder and cartridge for damage. Do not use equipment with damaged packaging, missing parts or unclear labels." },
+        { title: "Confirm cartridge compatibility", body: "Match the cartridge dimensions, fitting and specifications to the exact pen. Similar-looking cartridges are not automatically interchangeable." },
+        { title: "Follow the loading instructions", body: "Use the manufacturer’s illustrated cartridge-loading sequence. Do not force components or improvise a fitting when parts do not align." },
+        { title: "Check pen-pin compatibility", body: "Use only accessories specified for the device. Single-use accessories need intact packaging and must not be reused." },
+        { title: "Understand the display", body: "Read the model’s scale and display instructions. Click counts, units and milligrams are different measures; a setting alone does not establish the amount of a compound." },
+        { title: "Storage and care", body: "Follow the device manual for cleaning and storage, and the separately supplied material instructions for temperature and handling." },
+        { title: "Plan disposal", body: "Keep an appropriate sharps container available. Retain or replace the reusable body only according to the manufacturer’s instructions." },
+      ],
+      disposable_steps: [
+        { title: "Identify the supplied pen", body: "Check the product name, labelled contents, model and supplied documentation. A pre-filled format does not make different devices interchangeable." },
+        { title: "Inspect before handling", body: "Check the sealed packaging, device and labels for damage or tampering. Set aside equipment that does not match its supplied description." },
+        { title: "Check accessory requirements", body: "Confirm whether your exact model requires a separate pen pin and which fitting it supports. Follow the supplied accessory instructions." },
+        { title: "Read the device instructions", body: "Operating, checking and preparing a device vary by model. Use the manufacturer’s instructions supplied with the actual pen." },
+        { title: "Understand the display", body: "Do not assume one click or displayed unit equals a milligram. The display describes the device setting, while the product label describes its contents." },
+        { title: "Keep the device intact", body: "Do not open or refill a disposable device. Storage requirements depend on both the device and its labelled contents." },
+        { title: "Dispose as directed", body: "Follow the supplied directions and local sharps disposal arrangements when the device reaches the end of its intended use." },
+      ],
+      faq_title: "Pens 101", faq_intro: "The essentials, explained. Open a topic to learn more about pens, pen pins and compatible equipment.",
+      questions: [
+        { title: "What are pen pins?", body: "Pen pins is a common name for detachable pen needles. They are accessories fitted to compatible pen devices. Check the exact fitting and the supplied instructions rather than relying on appearance alone." },
+        { title: "What do length and gauge mean?", body: "Length is usually expressed in millimetres (mm); gauge is expressed as G. They describe different physical dimensions. Match the accessory specification to the device instructions; these measurements do not describe the contents or strength of a product." },
+        { title: "Are pen pins single-use?", body: "Accessories labelled single-use must not be reused. Check the packaging, expiry information and manufacturer’s directions. A reusable pen body does not make its disposable accessories reusable." },
+        { title: "How are accessories attached and removed?", body: "Use the method shown in the exact device and accessory instructions. Threaded, push-fit and protected designs can differ. Do not force a connection or improvise removal of a sharp accessory." },
+        { title: "How should sharps be disposed of?", body: "Use an appropriate sharps container and follow its fill limit and closure instructions. Do not place loose sharps in household waste or recycling. Arrange disposal through an appropriate local service." },
+        { title: "Will every pen pin fit every pen?", body: "No universal fit is assumed here. Confirm compatibility using the exact manufacturer, model and accessory specification before selecting an item." },
+        { title: "Are clicks, units and milligrams the same?", body: "No. A click is a mechanical increment, a displayed unit is a device scale, and milligrams describe mass. These are not interchangeable. Consult the supplied model documentation and product specifications." },
+        { title: "How do I store a pen?", body: "Read both the device instructions and the labelled contents’ storage requirements. Do not assume a single temperature rule applies to every empty device, cartridge or pre-filled product." },
+      ],
+      checklist_title: "Quick equipment checklist",
+      checklist: [{ text: "Exact model and supplied instructions identified" }, { text: "Packaging, labels and components inspected" }, { text: "Cartridge and accessories confirmed compatible" }, { text: "Display and scale terminology understood" }, { text: "Storage instructions checked" }, { text: "Sharps container and disposal plan ready" }],
+    },
+  },
   { id: "catalogue_banner", group: "Pages", title: "Catalogue banner", fields: [T("eyebrow", "Small heading", 60), { key: "image", label: "Banner artwork", type: "image" }, T("search_placeholder", "Search placeholder", 100)], defaults: { eyebrow: "The", image: "", search_placeholder: "Search products…" } },
   { id: "footer_design", group: "Navigation", title: "Footer presentation", fields: [T("support_title", "Support column heading", 60)], defaults: { support_title: "Support" } },
   {
@@ -479,6 +539,8 @@ function fieldSchema(f: CmsField): z.ZodTypeAny {
     case "url":
     case "image":
       return urlSchema;
+    case "product":
+      return z.string().max(160).regex(/^[a-z0-9-]*$/, "Choose a valid catalogue product");
     case "toggle":
       return z.boolean();
     case "choice":
