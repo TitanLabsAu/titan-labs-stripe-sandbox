@@ -78,6 +78,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content: "Premium quality research peptides and wellness compounds, shipped across Australia.",
       },
       { name: "author", content: "Titan Labs Aus" },
+      { name: "google-site-verification", content: "g42yt-AWaJHJggWstL01w9xMVQDQADtsGFyCvW3fevY" },
       { property: "og:title", content: "Titan Labs Aus" },
       {
         property: "og:description",
