@@ -16,7 +16,7 @@ export function TestingTransparencySection() {
   return (
     <section
       aria-labelledby="homepage-testing-transparency"
-      className="discovery-testing relative mx-auto max-w-6xl px-4 pb-20"
+      className="discovery-testing page-shell relative pb-16 sm:pb-20"
     >
       <div className="grid min-w-0 items-center gap-8 lg:grid-cols-2 lg:gap-10">
         <figure className="relative min-w-0 overflow-hidden rounded-md">
@@ -26,7 +26,7 @@ export function TestingTransparencySection() {
             width={768}
             height={768}
             loading="lazy"
-            className="aspect-square w-full object-cover"
+            className="aspect-square w-full object-cover lg:aspect-[16/9]"
           />
           {c.caption ? (
             <figcaption className="absolute bottom-3 left-3 rounded-sm bg-background/90 px-2 py-1 text-xs text-muted-foreground">
