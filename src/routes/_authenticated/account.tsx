@@ -16,6 +16,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { AddressFields, combineAddress } from "@/components/AddressFields";
 import { ProfileMenu } from "@/components/ProfileMenu";
 import { ChangePasswordCard } from "@/components/ChangePasswordCard";
+import { TitanMemberCard } from "@/components/TitanMemberCard";
 import { MyRewardsCard } from "@/components/MyRewardsCard";
 
 export const Route = createFileRoute("/_authenticated/account")({
@@ -177,6 +178,7 @@ function AccountPage() {
         />
         {intro.account_intro ? <p className="mt-4 max-w-3xl whitespace-pre-wrap text-sm text-muted-foreground">{intro.account_intro}</p> : null}
         <div className="h-7" />
+        <TitanMemberCard name={[profile?.first_name, profile?.last_name].filter(Boolean).join(" ")} loading={isLoading} />
         <ProfileMenu email={profile?.email} />
         <div className="rounded-xl border border-border bg-card p-6 sm:p-8">
           <div className="border-b border-primary/20 pb-5">
