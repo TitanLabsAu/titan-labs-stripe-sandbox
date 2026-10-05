@@ -330,6 +330,7 @@ export const HOME_SECTIONS: PageSection[] = [
   { key: "offer", label: "New-member offer banner", insertAfter: "start" },
   { key: "page-heading", label: "Page heading", insertAfter: "start-after-offer" },
   { key: "testing", label: "Testing Transparency section", insertAfter: "pillars" },
+  { key: "catalogue-links", label: "Catalogue discovery links", insertAfter: "testing" },
   { key: "reviews", label: "Reviews", insertAfter: "end" },
 ];
 

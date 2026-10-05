@@ -16,10 +16,10 @@ export function TestingTransparencySection() {
   return (
     <section
       aria-labelledby="homepage-testing-transparency"
-      className="relative mx-auto max-w-6xl px-4 pb-20"
+      className="discovery-testing relative mx-auto max-w-6xl px-4 pb-20"
     >
       <div className="grid min-w-0 items-center gap-8 lg:grid-cols-2 lg:gap-10">
-        <figure className="relative min-w-0 overflow-hidden rounded-lg border border-primary/50">
+        <figure className="relative min-w-0 overflow-hidden rounded-md">
           <img
             src={c.image || laboratoryPhoto.url}
             alt={c.image_alt}
@@ -63,7 +63,7 @@ export function TestingTransparencySection() {
             <Button
               asChild
               size="lg"
-              className="h-14 min-w-0 rounded-lg border-primary bg-primary px-4 text-lg tracking-normal text-primary-foreground hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-offset-4"
+              className="h-14 min-w-0 rounded-md border-primary bg-foreground px-4 text-base tracking-normal text-background hover:bg-primary hover:text-primary-foreground focus-visible:ring-2 focus-visible:ring-offset-4"
             >
               <CmsLink href={c.primary_url}>
                 {c.primary_label} <ArrowRight aria-hidden="true" />
@@ -76,7 +76,7 @@ export function TestingTransparencySection() {
                 asChild
                 variant="outline"
                 size="lg"
-                className="h-14 w-full min-w-0 rounded-lg border-2 border-primary bg-background px-4 text-lg tracking-normal text-foreground focus-visible:ring-2 focus-visible:ring-offset-4"
+                className="h-14 w-full min-w-0 rounded-md border border-primary bg-background px-4 text-lg tracking-normal text-foreground focus-visible:ring-2 focus-visible:ring-offset-4"
               >
                 <CmsLink href={c.secondary_url} aria-describedby={c.secondary_helper ? "coa-external-destination" : undefined}>
                   {c.secondary_label} <ArrowUpRight aria-hidden="true" />

@@ -135,7 +135,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <CartProvider>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
+        <div className="titan-interface min-h-screen"><Outlet /></div>
         <CartSheet floating />
       </CartProvider>
       <Toaster position="top-center" richColors />

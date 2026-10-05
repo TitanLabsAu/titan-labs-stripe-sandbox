@@ -29,7 +29,6 @@ import {
   pageSectionOrder,
 } from "@/lib/homeContent";
 import { cn } from "@/lib/utils";
-import headerImage from "@/assets/titan-light-header.jpg";
 
 export function SiteHeader() {
   const pathname = useRouterState({
@@ -236,19 +235,19 @@ export function SiteHeader() {
   );
 
   return (
-    <header className="border-b border-primary/25 bg-background shadow-lg">
+    <header className="titan-site-header border-b border-primary/25 bg-background">
       <div className="relative overflow-hidden">
-        <img
-          src={cmsValues(content, "branding").header_image || headerImage}
+        {cmsValues(content, "branding").header_image ? <img
+          src={cmsValues(content, "branding").header_image}
           alt=""
           width={1920}
           height={768}
           className="titan-future-art absolute inset-0 h-full w-full object-cover object-center"
-        />
+        /> : null}
         <div className="titan-header-surface absolute inset-0" />
         <div
           className={cn(
-            "relative page-shell min-h-32 items-center gap-4 py-5 sm:min-h-36 sm:py-6",
+            "relative page-shell items-center gap-4 py-4 sm:py-4",
             layout === "inline" &&
               "flex flex-col items-stretch lg:grid lg:grid-cols-[minmax(0,1fr)_auto]",
             layout === "stacked" && "flex flex-col items-stretch gap-4",

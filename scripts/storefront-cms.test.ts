@@ -45,7 +45,7 @@ describe("homepage order compatibility", () => {
   });
   test("legacy saved order (no offer/heading/testing) keeps relative order", () => {
     const o = order("featured,tagline,headline,pillars,signup,intro");
-    expect(o).toEqual(["offer", "page-heading", "featured", "tagline", "headline", "pillars", "testing", "signup", "intro", "shipping", "range-button", "pictures", "reviews"]);
+    expect(o).toEqual(["offer", "page-heading", "featured", "tagline", "headline", "pillars", "testing", "catalogue-links", "signup", "intro", "shipping", "range-button", "pictures", "reviews"]);
   });
   test("saved order with offer moved keeps it; heading goes to the top", () => {
     const o = order("tagline,offer,pillars,testing");

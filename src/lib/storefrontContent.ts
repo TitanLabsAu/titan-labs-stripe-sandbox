@@ -37,6 +37,21 @@ const B = (key: string, label: string, help?: string): CmsField => ({ key, label
 
 export const CMS_SECTIONS: CmsSection[] = [
   {
+    id: "home_welcome", group: "Homepage", title: "Discovery welcome interface",
+    description: "The integrated homepage welcome, including its background artwork and live buttons. Replaces the old welcome blocks.",
+    fields: [T("eyebrow", "Small heading", 60), P("headline", "Headline", 160), P("body", "Welcome text", 800),
+      { key: "image", label: "Welcome artwork", type: "image", help: "Leave empty to use the approved blue and gold helmet artwork." },
+      T("primary_label", "Catalogue button label", 40), U("primary_url", "Catalogue button link"),
+      T("secondary_label", "Certificates button label", 40), U("secondary_url", "Certificates button link"), P("notice", "Research notice", 300)],
+    defaults: { eyebrow: "Welcome to Titan", headline: "Your next discovery\nstarts here.", body: "Explore the Range, discover our Pens and Equipment, and view available product certificates — all in one place.", image: "", primary_label: "Explore Catalogue", primary_url: "/range", secondary_label: "View Certificates", secondary_url: "/certificates", notice: "For laboratory research only. Not for human or animal consumption." },
+  },
+  {
+    id: "home_catalogue", group: "Homepage", title: "Catalogue discovery links",
+    description: "Category links automatically hide when a category has no products. Category names come from Product page settings.",
+    fields: [B("visible", "Show catalogue links"), T("eyebrow", "Small heading", 60), T("title", "Heading", 100), P("body", "Introduction", 500)],
+    defaults: { visible: true, eyebrow: "Browse", title: "The Catalogue", body: "Explore our Range, Pens and laboratory Equipment." },
+  },
+  {
     id: "home_testing",
     group: "Homepage",
     title: "Testing Transparency section",

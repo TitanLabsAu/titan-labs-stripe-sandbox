@@ -1,4 +1,3 @@
-import { cmsValues } from "@/lib/storefrontContent";
 import { FirstOfferBanner } from "@/components/FirstOfferBanner";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
@@ -23,7 +22,7 @@ import {
 } from "@/lib/homeContent";
 import { cn } from "@/lib/utils";
 import { ReviewsStrip } from "@/components/ReviewsStrip";
-import logoAsset from "@/assets/titan-labs-new-logo.png.asset.json";
+import { DiscoveryWelcome, DiscoveryCatalogue } from "@/components/DiscoveryWelcome";
 import { TestingTransparencySection } from "@/components/TestingTransparencySection";
 
 export const Route = createFileRoute("/")({
@@ -66,7 +65,6 @@ function Index() {
     HOME_SECTIONS,
   );
 
-  const brand = cmsValues(content, "branding");
   const pillars = [1, 2, 3].map((n) => ({
     titleKey: `home_pillar${n}_title`,
     bodyKey: `home_pillar${n}_body`,
@@ -78,66 +76,14 @@ function Index() {
     <div className="bg-hero min-h-screen">
       <SiteHeader />
 
-      <main className="titan-home relative pt-8 sm:pt-12">
-        {brand.watermark_visible ? (
-        <div
-          className="home-logo-field pointer-events-none absolute inset-x-0 top-0 flex h-[34rem] items-center justify-center overflow-hidden"
-          aria-hidden="true"
-        >
-          <img
-            src={brand.watermark || logoAsset.url}
-            alt=""
-            width={768}
-            height={768}
-            className="home-watermark h-full w-full scale-110 object-contain sm:scale-125"
-          />
-        </div>
-        ) : null}
+      <main className="titan-home relative">
+        <DiscoveryWelcome />
         {sectionOrder.map((section) => {
           if (section === "offer")
-            return <div key={section} className="page-shell pt-4"><FirstOfferBanner redirectTo="/range" placement="home" /></div>;
+            return <div key={section} className="page-shell pb-12"><FirstOfferBanner redirectTo="/range" placement="home" /></div>;
+          if (section === "catalogue-links") return <DiscoveryCatalogue key={section} />;
           if (section === "testing") return <TestingTransparencySection key={section} />;
           if (section === "reviews") return <ReviewsStrip key={section} />;
-          if (section === "tagline")
-            return (
-              <section key={section} className="relative page-shell pb-6">
-                <p
-                  className={cn(
-                    "technical-label text-accent",
-                    TEXT_ALIGN_CLASS[contentAlign(content, "home_tagline")],
-                  )}
-                >
-                  <RichText inline text={homeValue(content, "home_tagline")} />
-                </p>
-              </section>
-            );
-          if (section === "headline")
-            return (
-              <section key={section} className="relative page-shell pb-5">
-                <h1
-                  className={cn(
-                    "max-w-5xl font-display text-[clamp(2.65rem,12vw,4.5rem)] font-black uppercase leading-[0.92] tracking-[0.045em] text-foreground sm:text-7xl sm:tracking-[0.08em]",
-                    TEXT_ALIGN_CLASS[contentAlign(content, "home_headline")],
-                  )}
-                >
-                  <RichText inline text={homeValue(content, "home_headline")} />
-                </h1>
-              </section>
-            );
-          if (section === "intro")
-            return (
-              <section key={section} className="relative page-shell pb-8">
-                <p
-                  className={cn(
-                    "max-w-2xl whitespace-pre-wrap text-base leading-7 text-muted-foreground",
-                    BLOCK_ALIGN_CLASS[contentAlign(content, "home_subtext")],
-                    TEXT_ALIGN_CLASS[contentAlign(content, "home_subtext")],
-                  )}
-                >
-                  <RichText inline text={homeValue(content, "home_subtext")} />
-                </p>
-              </section>
-            );
           if (section === "shipping")
             return (
               <section
@@ -158,19 +104,6 @@ function Index() {
                       text={homeValue(content, "home_shipping_banner")}
                     />
                   </p>
-                </div>
-              </section>
-            );
-          if (section === "range-button")
-            return (
-              <section key={section} className="page-shell pb-10">
-                <div className="relative flex flex-wrap gap-3">
-                  <Button asChild size="lg">
-                    <Link to="/range">View {catalogueName(content)}</Link>
-                  </Button>
-                  <Button asChild size="lg" variant="outline">
-                    <Link to="/auth/signup">Create account</Link>
-                  </Button>
                 </div>
               </section>
             );

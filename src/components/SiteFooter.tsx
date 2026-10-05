@@ -6,7 +6,6 @@ import { catalogueName, contentAlign, FOOTER_TABS, homeValue, pageSectionOrder, 
 import { cn } from "@/lib/utils";
 import { Link } from "@tanstack/react-router";
 import { FlaskConical, MapPin, ShieldCheck } from "lucide-react";
-import footerImage from "@/assets/titan-light-footer.jpg";
 import { TitanLogo } from "@/components/TitanLogo";
 import { TestingTransparencyBanner } from "@/components/TestingTransparencyBanner";
 
@@ -22,10 +21,10 @@ export function SiteFooter() {
   const extraLinks = (cmsValues(content, "nav_footer").links as { label: string; url: string; visible: boolean }[]).filter((l) => l.visible && l.label.trim());
 
   return (
-    <footer className="relative overflow-hidden border-t border-primary/30 bg-background text-xs text-muted-foreground">
-      <img src={brand.footer_image || footerImage} alt="" width={1920} height={768} loading="lazy" className="titan-future-art titan-future-art-footer absolute inset-0 h-full w-full object-cover" />
+    <footer className="titan-site-footer relative overflow-hidden border-t border-primary/30 bg-background text-xs text-muted-foreground">
+      {brand.footer_image ? <img src={brand.footer_image} alt="" width={1920} height={768} loading="lazy" className="titan-future-art titan-future-art-footer absolute inset-0 h-full w-full object-cover" /> : null}
        <div className="titan-footer-surface absolute inset-0" />
-       <div className="relative mx-auto max-w-7xl px-5 py-20 sm:px-6 sm:py-24">
+       <div className="relative mx-auto max-w-7xl px-5 py-12 sm:px-6 sm:py-16">
         <div className="grid gap-10 border-b border-primary/25 pb-10 md:grid-cols-[1fr_1.2fr_1fr]">
           <div>
             <TitanLogo size={72} />
