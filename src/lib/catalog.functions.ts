@@ -8,8 +8,8 @@ import { isUnlimitedStock, sanitizeBundle, type Product, type ProductLink, type 
 export type SiteLink = { id: string; label: string; url: string; sort_order: number };
 
 function publicClient() {
-  const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
-  return createClient<Database>(process.env["SUPABASE_URL"]!, key, {
+  const key = process.env["SUPABASE_PUBLISHABLE_KEY"] || import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"];
+  return createClient<Database>(process.env["SUPABASE_URL"] || import.meta.env["VITE_SUPABASE_URL"], key, {
     auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
     global: {
       fetch: (input, init) => {
