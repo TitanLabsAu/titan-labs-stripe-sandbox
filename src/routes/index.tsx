@@ -31,7 +31,7 @@ import { DiscoveryWelcome, DiscoveryCatalogue } from "@/components/DiscoveryWelc
 import { TestingTransparencySection } from "@/components/TestingTransparencySection";
 
 export const Route = createFileRoute("/")({
-  loader: async () => ({seo:cmsValues(await getSiteContent(),"seo")}),
+  loader: async () => ({seo:cmsValues(await getSiteContent().catch(() => ({})),"seo")}),
   head: ({loaderData}) => {
     const c = loaderData?.seo ?? cmsValues(undefined,"seo");
     return seoHead(c.home_title,c.home_description,`${SITE_ORIGIN}/`,c.home_image);

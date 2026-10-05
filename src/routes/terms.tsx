@@ -1,10 +1,11 @@
+import { SITE_ORIGIN } from "@/lib/seo";
 import { createFileRoute } from "@tanstack/react-router";
 import { LegalPage, LegalSection } from "@/components/LegalPage";
 import { useSiteContent } from "@/lib/useCatalog";
 import { contentAlign, homeValue, termsVersion } from "@/lib/homeContent";
 
 export const Route = createFileRoute("/terms")({
-  head: () => ({
+  head: () => ({ links: [{rel:"canonical",href:`${SITE_ORIGIN}/terms`}],
     meta: [
       { title: "Terms & Conditions | Titan Labs Australia" },
       { name: "description", content: "Terms & Conditions, Research Use Notice and shipping information for Titan Labs Australia orders." },
@@ -27,3 +28,4 @@ function TermsPage() {
     </LegalPage>
   );
 }
+

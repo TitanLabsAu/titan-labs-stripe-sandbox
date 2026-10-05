@@ -1,3 +1,4 @@
+import { SITE_ORIGIN } from "@/lib/seo";
 import { cmsValues } from "@/lib/storefrontContent";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PenTool, RotateCcw, ArrowRight, Check, Info, Ruler, ShieldCheck, Trash2, Settings, BookOpen } from "lucide-react";
@@ -6,7 +7,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { Button } from "@/components/ui/button";
 import { useSiteContent } from "@/lib/useCatalog";
 export const Route = createFileRoute("/pen-guide")({
-  head: () => ({ meta: [{ title: "Titan V2 & Disposable Pen Guides | Titan Labs Aus" }] }),
+  head: () => ({ links: [{rel:"canonical",href:`${SITE_ORIGIN}/pen-guide`}], meta: [{ title: "Titan V2 & Disposable Pen Guides | Titan Labs Aus" }] }),
   component: PenGuide,
 });
 

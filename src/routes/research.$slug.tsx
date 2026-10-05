@@ -1,3 +1,4 @@
+import { SITE_ORIGIN } from "@/lib/seo";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { ResearchEntryView } from "@/components/ResearchEntryView";
@@ -14,13 +15,13 @@ export const Route = createFileRoute("/research/$slug")({
   loader: async ({ context, params }) => {
     const entry = await context.queryClient.ensureQueryData(entryQuery(params.slug));
     if (!entry) throw notFound();
-    return { title: entry.title, summary: entry.at_a_glance || entry.summary };
+    return { slug: entry.slug, title: entry.title, summary: entry.at_a_glance || entry.summary };
   },
   head: ({ loaderData }) => {
     if (!loaderData) return { meta: [{ title: "Research entry unavailable | Titan Labs Australia" }, { name: "robots", content: "noindex" }] };
     const title = `${loaderData.title} research overview | Titan Labs Australia`;
     const description = loaderData.summary.slice(0, 155);
-    return { meta: [
+    return { links:[{rel:"canonical",href:`${SITE_ORIGIN}/research/${encodeURIComponent(loaderData.slug)}`}], meta: [
       { title },
       { name: "description", content: description },
       { property: "og:title", content: title },
@@ -45,3 +46,4 @@ function EntryPage() {
   if (!entry) return <EntryUnavailable />;
   return <ResearchLabShell><ResearchEntryView entry={entry} entries={entries} /></ResearchLabShell>;
 }
+

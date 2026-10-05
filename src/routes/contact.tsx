@@ -1,3 +1,4 @@
+import { SITE_ORIGIN } from "@/lib/seo";
 import { cmsValues } from "@/lib/storefrontContent";
 import { useSiteContent } from "@/lib/useCatalog";
 import { CmsLink } from "@/components/CmsLink";
@@ -9,7 +10,7 @@ import { TitanPageHeading } from "@/components/TitanPageHeading";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/contact")({
-  head: () => ({
+  head: () => ({ links: [{rel:"canonical",href:`${SITE_ORIGIN}/contact`}],
     meta: [
       { title: "Contact & Customer Support | Titan Labs // Aus" },
       { name: "description", content: "Contact the Titan Labs // Aus Sales Rep on WhatsApp for order enquiries and customer support." },

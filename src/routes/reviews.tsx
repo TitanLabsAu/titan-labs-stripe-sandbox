@@ -1,3 +1,4 @@
+import { SITE_ORIGIN } from "@/lib/seo";
 import { LeaveReviewForm } from "@/components/LeaveReviewForm";
 import { cmsValues } from "@/lib/storefrontContent";
 import { useSiteContent } from "@/lib/useCatalog";
@@ -9,7 +10,7 @@ import { TitanPageHeading } from "@/components/TitanPageHeading";
 import { ReviewCard, usePublishedReviews } from "@/components/ReviewsStrip";
 
 export const Route = createFileRoute("/reviews")({
-  head: () => ({
+  head: () => ({ links: [{rel:"canonical",href:`${SITE_ORIGIN}/reviews`}],
     meta: [
       { title: "Customer Reviews | Titan Labs Aus" },
       { name: "description", content: "Read genuine reviews from the Titan Labs Aus community." },

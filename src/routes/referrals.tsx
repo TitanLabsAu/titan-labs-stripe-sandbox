@@ -1,3 +1,4 @@
+import { SITE_ORIGIN } from "@/lib/seo";
 import { cmsValues, fillTokens } from "@/lib/storefrontContent";
 import { useSiteContent } from "@/lib/useCatalog";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -8,7 +9,7 @@ import { settingsFromRow } from "@/lib/order-pricing";
 import { formatPrice } from "@/lib/products";
 
 export const Route = createFileRoute("/referrals")({
-  head: () => ({
+  head: () => ({ links: [{rel:"canonical",href:`${SITE_ORIGIN}/referrals`}],
     meta: [
       { title: "Referral Program | Titan Labs Australia" },
       { name: "description", content: "How Titan Labs Australia referral codes, store credit and milestone rewards work." },

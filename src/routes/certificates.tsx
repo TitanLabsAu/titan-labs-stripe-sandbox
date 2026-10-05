@@ -1,3 +1,4 @@
+import { SITE_ORIGIN } from "@/lib/seo";
 import { ProductCertificates } from "@/components/ProductCertificates";
 import { useQuery } from "@tanstack/react-query";
 import { listProducts } from "@/lib/catalog.functions";
@@ -12,7 +13,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { FileCheck2 } from "lucide-react";
 
 export const Route = createFileRoute("/certificates")({
-  head: () => ({
+  head: () => ({ links: [{rel:"canonical",href:`${SITE_ORIGIN}/certificates`}],
     meta: [
       { title: "Product Certificates | Titan Labs Aus" },
       {

@@ -1,3 +1,4 @@
+import { SITE_ORIGIN } from "@/lib/seo";
 import { cmsValues } from "@/lib/storefrontContent";
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -48,7 +49,7 @@ export const Route = createFileRoute("/range")({
       ? { section: search["section"] }
       : {}),
   }),
-  head: () => ({
+  head: () => ({ links: [{rel:"canonical",href:`${SITE_ORIGIN}/range`}],
     meta: [
       { title: "Catalogue | Titan Labs Aus Research Peptides" },
       {

@@ -38,7 +38,7 @@ export const Route = createFileRoute("/product/$slug")({
   loader: async ({ params }) => {
     const product = await getProductBySlug({ data: { slug: params.slug } });
     if (!product) throw notFound();
-    return { product, seo: cmsValues(await getSiteContent(), "seo") };
+    return { product, seo: cmsValues(await getSiteContent().catch(() => ({})), "seo") };
   },
   head: ({ loaderData }) => {
     if (!loaderData) {

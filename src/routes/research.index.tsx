@@ -1,3 +1,4 @@
+import { SITE_ORIGIN } from "@/lib/seo";
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { ResearchIndexView } from "@/components/ResearchIndexView";
@@ -11,7 +12,7 @@ const researchQuery = queryOptions({
 });
 
 export const Route = createFileRoute("/research/")({
-  head: () => ({
+  head: () => ({ links: [{rel:"canonical",href:`${SITE_ORIGIN}/research`}],
     meta: [
       { title: "Titan Research Lab | Titan Labs Australia" },
       { name: "description", content: "Browse plain-language compound research summaries with evidence context, technical details and cited sources." },
@@ -31,3 +32,4 @@ function ResearchIndex() {
   const { data: entries } = useSuspenseQuery(researchQuery);
   return <ResearchLabShell><ResearchIndexView entries={entries} /></ResearchLabShell>;
 }
+
