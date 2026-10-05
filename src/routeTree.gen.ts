@@ -22,7 +22,6 @@ import { Route as RangeRouteImport } from './routes/range'
 import { Route as ReferralsRouteImport } from './routes/referrals'
 import { Route as ResearchLabRouteImport } from './routes/research-lab'
 import { Route as ReviewsRouteImport } from './routes/reviews'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as StacksRouteImport } from './routes/stacks'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
@@ -106,11 +105,6 @@ const ResearchLabRoute = ResearchLabRouteImport.update({
 const ReviewsRoute = ReviewsRouteImport.update({
   id: '/reviews',
   path: '/reviews',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StacksRoute = StacksRouteImport.update({
@@ -232,7 +226,6 @@ export interface FileRoutesByFullPath {
   '/referrals': typeof ReferralsRoute
   '/research-lab': typeof ResearchLabRoute
   '/reviews': typeof ReviewsRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stacks': typeof StacksRoute
   '/terms': typeof TermsRoute
   '/account': typeof AuthenticatedAccountRoute
@@ -267,7 +260,6 @@ export interface FileRoutesByTo {
   '/referrals': typeof ReferralsRoute
   '/research-lab': typeof ResearchLabRoute
   '/reviews': typeof ReviewsRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stacks': typeof StacksRoute
   '/terms': typeof TermsRoute
   '/account': typeof AuthenticatedAccountRoute
@@ -304,7 +296,6 @@ export interface FileRoutesById {
   '/referrals': typeof ReferralsRoute
   '/research-lab': typeof ResearchLabRoute
   '/reviews': typeof ReviewsRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stacks': typeof StacksRoute
   '/terms': typeof TermsRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
@@ -341,7 +332,6 @@ export interface FileRouteTypes {
     | '/referrals'
     | '/research-lab'
     | '/reviews'
-    | '/sitemap.xml'
     | '/stacks'
     | '/terms'
     | '/account'
@@ -376,7 +366,6 @@ export interface FileRouteTypes {
     | '/referrals'
     | '/research-lab'
     | '/reviews'
-    | '/sitemap.xml'
     | '/stacks'
     | '/terms'
     | '/account'
@@ -412,7 +401,6 @@ export interface FileRouteTypes {
     | '/referrals'
     | '/research-lab'
     | '/reviews'
-    | '/sitemap.xml'
     | '/stacks'
     | '/terms'
     | '/_authenticated/account'
@@ -449,7 +437,6 @@ export interface RootRouteChildren {
   ReferralsRoute: typeof ReferralsRoute
   ResearchLabRoute: typeof ResearchLabRoute
   ReviewsRoute: typeof ReviewsRoute
-  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StacksRoute: typeof StacksRoute
   TermsRoute: typeof TermsRoute
   ApiAdminGenerateImageRoute: typeof ApiAdminGenerateImageRoute
@@ -556,13 +543,6 @@ declare module '@tanstack/react-router' {
       path: '/reviews'
       fullPath: '/reviews'
       preLoaderRoute: typeof ReviewsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/stacks': {
@@ -746,7 +726,6 @@ const rootRouteChildren: RootRouteChildren = {
   ReferralsRoute: ReferralsRoute,
   ResearchLabRoute: ResearchLabRoute,
   ReviewsRoute: ReviewsRoute,
-  SitemapDotxmlRoute: SitemapDotxmlRoute,
   StacksRoute: StacksRoute,
   TermsRoute: TermsRoute,
   ApiAdminGenerateImageRoute: ApiAdminGenerateImageRoute,
