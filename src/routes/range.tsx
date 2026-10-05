@@ -148,6 +148,7 @@ function RangePage() {
 
       <main id="range" className="page-shell pb-32 pt-8 sm:pt-12">
         <TitanPageHeading
+          as="h1"
           icon={FlaskConical}
           eyebrow="Research product catalogue"
           title={catalogueName(content)}
@@ -155,15 +156,7 @@ function RangePage() {
         {sectionOrder.map((section) => {
           if (section === "title")
             return (
-              <section key={section} className="border-b border-border py-7">
-                <h1
-                  className={cn(
-                    "titan-hero-heading",
-                    TEXT_ALIGN_CLASS[contentAlign(content, "home_range_title")],
-                  )}
-                >
-                  <RichText inline text={catalogueName(content)} />
-                </h1>
+              <section key={section} className="py-3">
                 <p className="mt-3 text-sm text-muted-foreground">
                   All prices displayed in AUD.
                 </p>
