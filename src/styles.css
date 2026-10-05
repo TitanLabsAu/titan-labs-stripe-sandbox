@@ -621,3 +621,42 @@
 .titan-product-card .titan-buy-options { border:0; }
 .titan-product-card .titan-buy-options button[aria-pressed="true"] { border-color:var(--accent); box-shadow:0 0 8px -4px var(--accent); }
 .titan-product-card > div > button:last-child { font-size:.9rem; letter-spacing:.1em; border-radius:.4rem; box-shadow:0 0 14px -9px var(--primary); }
+
+/* Prominent corner ribbons stay clipped inside the product photograph. */
+.titan-promo-ribbon {
+  position: absolute;
+  z-index: 2;
+  top: 2.375rem;
+  left: -3.8125rem;
+  width: 15.5rem;
+  padding: .7rem 1rem;
+  transform: rotate(-45deg);
+  border: 2px solid #f2cc76;
+  border-radius: 0;
+  color: #031321;
+  background: linear-gradient(100deg, #d5a844, #ffe3a0 52%, #d5a844);
+  box-shadow: 0 5px 18px #0009;
+  text-align: center;
+  font-size: .875rem;
+  line-height: 1.25rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.titan-promo-ribbon--flash {
+  color: #fff;
+  background: linear-gradient(100deg, #0854b4, #087de3 52%, #0854b4);
+  border-color: #7dd3ff;
+  text-shadow: 0 1px 2px #001c46;
+}
+@media (max-width: 400px) {
+  .titan-promo-ribbon {
+    top: 2.125rem;
+    left: -3.5rem;
+    width: 14rem;
+    padding-block: .6rem;
+    font-size: .8125rem;
+  }
+}
