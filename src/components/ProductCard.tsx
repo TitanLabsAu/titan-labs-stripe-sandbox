@@ -49,7 +49,7 @@ export function ProductCard({ product: p }: { product: Product }) {
       <Link
         to="/product/$slug"
         params={{ slug: p.slug }}
-        className="titan-product-photo relative block aspect-[4/3] overflow-hidden border-b border-primary/20 bg-[#030f19]"
+        className="titan-product-photo relative block aspect-square overflow-hidden border-b border-primary/20 bg-[#030f19]"
       >
         <img
           src={p.image}
@@ -73,12 +73,12 @@ export function ProductCard({ product: p }: { product: Product }) {
           <Link
             to="/product/$slug"
             params={{ slug: p.slug }}
-            className="min-w-0 font-display text-xl font-bold uppercase tracking-wide text-foreground transition group-hover:text-primary"
+            className="min-w-0 font-display text-2xl font-bold uppercase tracking-wide text-foreground transition group-hover:text-primary"
           >
             {p.name}
           </Link>
           {(p.categories ?? []).length ? (
-            <span className="self-start border border-border px-2 py-1 text-[8px] text-primary">
+            <span className="sr-only">
               {p.categories?.[0]}
             </span>
           ) : null}
@@ -97,10 +97,12 @@ export function ProductCard({ product: p }: { product: Product }) {
             Low stock — only {stockCount} left
           </span>
         ) : null}
-        {variants.length >= 4 ? (
+        {variants.length > 0 ? (
+          <label className="mt-3 grid grid-cols-[3rem_minmax(0,1fr)] items-center gap-3 text-xs font-display uppercase tracking-wide">
+          <span>Size</span>
           <select
-            className="mt-2 h-11 w-full min-w-0 rounded-md border border-input bg-background px-2 text-[11px] font-semibold text-foreground"
-            aria-label="Choose option"
+            className="h-11 w-full min-w-0 rounded-md border border-input bg-background px-2 text-[11px] font-semibold text-foreground"
+            aria-label="Choose size"
             value={variantId ?? ""}
             onChange={(e) => setVariantId(e.target.value)}
           >
@@ -109,32 +111,13 @@ export function ProductCard({ product: p }: { product: Product }) {
               const vSoon = Boolean(variant.comingSoon) && !p.comingSoon;
               return (
                 <option key={variant.id} value={variant.id}>
-                  {variant.label} — {formatPrice(variant.price)}
+                  {variant.label}
                   {vSoon ? " · Soon" : soldOut ? " · Sold out" : ""}
                 </option>
               );
             })}
           </select>
-        ) : variants.length > 0 ? (
-          <div className="mt-2 flex flex-wrap gap-1" aria-label={kitAllowed ? "Vial size" : "Size"}>
-            {variants.map((variant) => {
-              const soldOut = stockState(variantStockFor(p, variant.id)) === "out";
-              const vSoon = Boolean(variant.comingSoon) && !p.comingSoon;
-              return (
-                <Button
-                  key={variant.id}
-                  type="button"
-                  size="sm"
-                  variant={variantId === variant.id ? "default" : "outline"}
-                  className={`h-10 min-w-10 px-3 text-xs ${soldOut ? "opacity-60" : ""}`}
-                  onClick={() => setVariantId(variant.id)}
-                >
-                  {variant.label}
-                  {vSoon ? " · Soon" : soldOut ? " · Sold out" : ""}
-                </Button>
-              );
-            })}
-          </div>
+          </label>
         ) : (
           <p className="mt-2 text-[10px] font-semibold text-muted-foreground">
             {singleLabelFor(p)}
@@ -142,7 +125,7 @@ export function ProductCard({ product: p }: { product: Product }) {
         )}
         {kitAllowed ? (
         <div
-          className="mt-3 grid grid-cols-2 overflow-hidden border border-input divide-x divide-input"
+          className="titan-buy-options mt-3 grid grid-cols-2 gap-2"
           aria-label="Buy option"
         >
           {(
@@ -156,10 +139,10 @@ export function ProductCard({ product: p }: { product: Product }) {
               type="button"
               aria-pressed={pack === key}
               onClick={() => setPack(key)}
-              className={`flex flex-col items-center justify-center gap-1 px-2 py-3 text-[11px] font-semibold uppercase tracking-[0.08em] transition-colors ${pack === key ? "border-accent bg-accent/10 text-foreground shadow-[inset_0_0_0_1px_var(--accent)]" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+              className={`rounded-md border border-primary/30 flex flex-col items-center justify-center gap-1 px-2 py-3 text-[11px] font-semibold uppercase tracking-[0.08em] transition-colors ${pack === key ? "border-accent bg-accent/10 text-foreground shadow-[inset_0_0_0_1px_var(--accent)]" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
             >
               <span className="truncate">{label}</span>
-              <span className="text-[10px] font-bold">
+              <span className="sr-only">
                 {formatPrice(price)}
               </span>
             </button>
@@ -182,7 +165,7 @@ export function ProductCard({ product: p }: { product: Product }) {
               {formatPrice(p.wasPrice)}
             </span>
           ) : null}
-          <span className="text-lg font-semibold text-foreground">
+          <span className="font-display text-3xl font-bold text-[#ccecff]">
             {formatPrice(option.unitPrice)}
           </span>
         </div>

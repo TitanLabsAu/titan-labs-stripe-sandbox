@@ -87,9 +87,9 @@ function RangePage() {
   );
   // Keep the notice visible beside discovery without making it the opening hero.
   const sectionOrder = configuredSections.filter(
-    (section) => section !== "disclaimer",
+    (section) => !["disclaimer", "intro", "title"].includes(section),
   );
-  sectionOrder.splice(sectionOrder.indexOf("products") + 1, 0, "disclaimer");
+  sectionOrder.splice(sectionOrder.indexOf("products") + 1, 0, ...configuredSections.filter(s => ["title", "intro"].includes(s)), "disclaimer");
 
   useEffect(() => setMounted(true), []);
 
@@ -262,8 +262,8 @@ function RangePage() {
           if (section === "products")
             return (
               <section key={section} className="py-5">
-                <TestingTransparencyBanner placement="catalogue" compact className="mb-5" />
-                <div className="grid gap-3 lg:grid-cols-[13rem_auto]">
+                <details className="mb-4 text-sm text-muted-foreground"><summary className="cursor-pointer font-display uppercase tracking-wide text-accent">Filters and sorting</summary>
+                <div className="mt-3 grid gap-3 lg:grid-cols-[13rem_auto]">
                   <select
                     value={activeCategory}
                     onChange={(e) => setCategory(e.target.value)}
@@ -314,7 +314,8 @@ function RangePage() {
                     ))}
                   </div>
                 </div>
-                <div className="mt-8">
+                </details>
+                <div className="mt-4">
                   <div>
                     <p className="technical-label mb-4 text-muted-foreground">
                       {visible.length} products
@@ -335,6 +336,7 @@ function RangePage() {
                   </div>
 
                 </div>
+                <TestingTransparencyBanner placement="catalogue" compact className="mt-8" />
               </section>
             );
           if (section === "note")
