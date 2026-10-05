@@ -30,7 +30,7 @@ export default defineConfig({
         if (!url || !key) throw new Error("Public sitemap configuration unavailable");
         const read = async (table: string, filter: string) => {
           const headers: Record<string,string> = {apikey:key};
-          if (!key.startsWith("sb_")) headers.Authorization = `Bearer ${key}`;
+          if (!key.startsWith("sb_")) headers["Authorization"] = `Bearer ${key}`;
           const response = await fetch(`${url}/rest/v1/${table}?select=slug&${filter}&limit=10000`,{headers,signal:AbortSignal.timeout(20000)});
           if (!response.ok) throw new Error(`Public sitemap read failed: ${table} (${response.status})`);
           return await response.json() as {slug:string}[];
