@@ -56,7 +56,7 @@ function Index() {
   const { products } = useProducts();
   const { data: content } = useSiteContent();
 
-  const slugs = featuredSlugs(content);
+  const slugs = [...new Set([...featuredSlugs(content), ...products.filter(p => /^hot\s*products?$/i.test(p.promoLabel?.trim() ?? "")).map(p => p.slug)])];
   const featured = slugs
     .map((s) => products.find((p) => p.slug === s))
     .filter((p): p is NonNullable<typeof p> => Boolean(p));
