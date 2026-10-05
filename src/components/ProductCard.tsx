@@ -58,7 +58,7 @@ export function ProductCard({ product: p }: { product: Product }) {
           className={`h-full w-full object-cover transition duration-300 hover:scale-[1.02] ${allOut ? "opacity-40 grayscale" : ""}`}
         />
         {p.promoLabel && !bannerSoon ? (
-          <span className="absolute left-2 top-2 border border-accent bg-accent px-2 py-0.5 text-[8px] font-bold uppercase text-accent-foreground">
+          <span className="titan-promo-badge absolute left-2 top-2 px-2 py-1 text-[8px] font-bold uppercase tracking-wider">
             {p.promoLabel}
           </span>
         ) : null}

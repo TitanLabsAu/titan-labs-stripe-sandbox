@@ -1,3 +1,4 @@
+import { HotProductsStrip } from "@/components/HotProductsStrip";
 import { TitanMembership } from "@/components/TitanMembership";
 import { FirstOfferBanner } from "@/components/FirstOfferBanner";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -85,53 +86,7 @@ function Index() {
                 <PageImageBoxes images={pictures} />
               </section>
             ) : null;
-          if (section === "featured")
-            return featured.length ? (
-              <section
-                key={section}
-                className="relative border-y border-primary/20 bg-secondary/45 py-16"
-              >
-                <div className="mx-auto max-w-6xl px-4">
-                  <p className="mb-2 text-[10px] font-bold uppercase text-primary">
-                    Selected // Current
-                  </p>
-                  <h2
-                    className={cn(
-                      "font-display text-3xl font-black uppercase tracking-[0.08em] text-foreground",
-                      TEXT_ALIGN_CLASS[
-                        contentAlign(content, "home_featured_title")
-                      ],
-                    )}
-                  >
-                    <RichText
-                      inline
-                      text={homeValue(content, "home_featured_title")}
-                    />
-                  </h2>
-                  <p
-                    className={cn(
-                      "mt-3 max-w-2xl whitespace-pre-wrap text-sm text-muted-foreground",
-                      BLOCK_ALIGN_CLASS[
-                        contentAlign(content, "home_featured_note")
-                      ],
-                      TEXT_ALIGN_CLASS[
-                        contentAlign(content, "home_featured_note")
-                      ],
-                    )}
-                  >
-                    <RichText
-                      inline
-                      text={homeValue(content, "home_featured_note")}
-                    />
-                  </p>
-                  <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {featured.map((p) => (
-                      <ProductCard key={p.slug} product={p} />
-                    ))}
-                  </div>
-                </div>
-              </section>
-            ) : null;
+          if (section === "featured") return <HotProductsStrip key={section} products={featured} content={content} />;
           if (section === "signup") return <TitanMembership key={section} />;
           return null;
         })}

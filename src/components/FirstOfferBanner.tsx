@@ -24,7 +24,7 @@ export function FirstOfferBanner({ redirectTo = "/checkout", className, placemen
   if (!c.visible || !offer.enabled || !(offer.percent > 0) || signedIn !== false) return null;
   const q = `?redirect=${encodeURIComponent(redirectTo)}`;
   return (
-    <div className={cn("flex flex-wrap items-center gap-3 border border-accent/60 bg-accent/10 px-4 py-3 text-sm", className)}>
+    <div className={cn("titan-promotion flex flex-wrap items-center gap-3 px-5 py-4 text-sm", className)}>
       <BadgePercent className="h-5 w-5 shrink-0 text-accent" aria-hidden />
       <p className="min-w-0 flex-1 whitespace-pre-line font-bold text-foreground">
         {fillTokens(c.text, { percent: offer.percent })}
