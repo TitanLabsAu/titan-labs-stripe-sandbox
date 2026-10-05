@@ -36,6 +36,8 @@ const U = (key: string, label: string, help?: string): CmsField => ({ key, label
 const B = (key: string, label: string, help?: string): CmsField => ({ key, label, type: "toggle", help });
 
 export const CMS_SECTIONS: CmsSection[] = [
+  { id: "catalogue_banner", group: "Pages", title: "Catalogue banner", fields: [T("eyebrow", "Small heading", 60), { key: "image", label: "Banner artwork", type: "image" }, T("search_placeholder", "Search placeholder", 100)], defaults: { eyebrow: "The", image: "", search_placeholder: "Search products…" } },
+  { id: "footer_design", group: "Navigation", title: "Footer presentation", fields: [T("support_title", "Support column heading", 60)], defaults: { support_title: "Support" } },
   {
     id: "home_membership", group: "Homepage", title: "Join Titan Labs",
     description: "The illustrated membership section. First-purchase offer follows your discount settings and Homepage offer text.",

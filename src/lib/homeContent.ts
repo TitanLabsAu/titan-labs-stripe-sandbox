@@ -268,6 +268,10 @@ export type HeaderDisplayOption = {
 
 /** Header items whose visible treatment can be changed in Admin Edits. */
 export const HEADER_DISPLAY_OPTIONS: HeaderDisplayOption[] = [
+  { key: "range", label: "Catalogue", contentKey: "header_display_range", fallback: "icon" },
+  { key: "research", label: "Research Lab", contentKey: "header_display_research", fallback: "icon" },
+  { key: "pens", label: "Pens", contentKey: "header_display_pens", fallback: "icon" },
+  { key: "calendar", label: "My Calendar", contentKey: "header_display_calendar", fallback: "icon" },
   { key: "home", label: "Home", contentKey: "header_display_home", fallback: "text" },
   { key: "calculator", label: "Calculator", contentKey: "header_display_calculator", fallback: "icon" },
   { key: "admin", label: "Admin", contentKey: "header_display_admin", fallback: "text" },
@@ -281,7 +285,8 @@ export function headerDisplayMode(
   key: string,
 ): HeaderDisplayMode {
   const option = HEADER_DISPLAY_OPTIONS.find((item) => item.key === key);
-  return content?.[option?.contentKey ?? ""] === "icon" ? "icon" : option?.fallback ?? "text";
+  const saved = content?.[option?.contentKey ?? ""];
+  return saved === "icon" || saved === "text" ? saved : option?.fallback ?? "text";
 }
 
 export const FOOTER_TABS: PageSection[] = [

@@ -1,6 +1,4 @@
 import { cmsValues } from "@/lib/storefrontContent";
-import { TitanPageHeading } from "@/components/TitanPageHeading";
-import { FlaskConical } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
@@ -76,6 +74,7 @@ function RangePage() {
   const { products, isLoading: productsLoading } = useProducts();
   const { data: content } = useSiteContent();
   const pp = cmsValues(content, "product_page");
+  const banner = cmsValues(content, "catalogue_banner");
   const [mounted, setMounted] = useState(false);
   const [category, setCategory] = useState<string>("All");
   const [search, setSearch] = useState("");
@@ -147,12 +146,62 @@ function RangePage() {
       <SiteHeader />
 
       <main id="range" className="page-shell pb-32 pt-8 sm:pt-12">
-        <TitanPageHeading
-          as="h1"
-          icon={FlaskConical}
-          eyebrow="Research product catalogue"
-          title={catalogueName(content)}
-        />
+        <section aria-labelledby="catalogue-banner-heading" className="catalogue-banner relative isolate overflow-hidden rounded-lg border border-primary/35 p-6 sm:p-8">
+          <img src={banner.image || "/images/titan-catalogue-banner.webp"} alt="" className="absolute inset-0 -z-20 h-full w-full object-cover object-right" />
+          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#030f19]/95 via-[#030f19]/45 to-[#030f19]/10" />
+          <p className="font-display text-2xl font-bold uppercase tracking-wide text-[#ccecff]">{banner.eyebrow}</p>
+          <h1 id="catalogue-banner-heading" className="font-display text-[clamp(3rem,7vw,6rem)] font-bold uppercase leading-none text-[#ccecff]">{catalogueName(content)}</h1>
+          <div className="mt-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                {availableSections.length > 0 && (
+                <div
+                  role="tablist"
+                  aria-label="Catalogue sections"
+                  className={cn(
+                    "catalogue-banner-tabs flex flex-wrap gap-5",
+                    availableSections.length === 1 && "grid-cols-1 max-w-[12rem]",
+                    availableSections.length === 2 && "grid-cols-2 sm:max-w-sm",
+                    availableSections.length >= 3 && "grid-cols-3 sm:max-w-xl",
+                  )}
+                >
+                  {availableSections.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      role="tab"
+                      aria-selected={activeSection === s}
+                      onClick={() => {
+                        setCategory("All");
+                        void navigate({
+                          search: (previous) => ({ ...previous, section: s }),
+                        });
+                      }}
+                      className={cn(
+                        "h-11 border-b-2 border-transparent bg-transparent px-2 font-display text-sm font-bold uppercase tracking-wide transition-colors",
+                        activeSection === s
+                          ? "border-accent text-foreground"
+                          : "text-muted-foreground hover:text-foreground",
+                      )}
+                    >
+                      {pp[`section_${s}`]}
+                    </button>
+                  ))}
+                </div>
+                )}
+
+                  <label className="catalogue-banner-search relative block w-full lg:max-w-sm">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      type="search"
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      placeholder={banner.search_placeholder}
+                      aria-label="Search products"
+                      className="h-11 rounded-full border-primary/60 bg-[#030f19]/90 pl-10"
+                    />
+                  </label>
+
+          </div>
+        </section>
         {sectionOrder.map((section) => {
           if (section === "title")
             return (
@@ -212,55 +261,9 @@ function RangePage() {
             ) : null;
           if (section === "products")
             return (
-              <section key={section} className="border-t border-border py-7">
-                <TestingTransparencyBanner placement="catalogue" className="mb-8" />
-                {availableSections.length > 0 && (
-                <div
-                  role="tablist"
-                  aria-label="Catalogue sections"
-                  className={cn(
-                    "mb-5 grid gap-2",
-                    availableSections.length === 1 && "grid-cols-1 max-w-[12rem]",
-                    availableSections.length === 2 && "grid-cols-2 sm:max-w-sm",
-                    availableSections.length >= 3 && "grid-cols-3 sm:max-w-xl",
-                  )}
-                >
-                  {availableSections.map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      role="tab"
-                      aria-selected={activeSection === s}
-                      onClick={() => {
-                        setCategory("All");
-                        void navigate({
-                          search: (previous) => ({ ...previous, section: s }),
-                        });
-                      }}
-                      className={cn(
-                        "h-12 rounded-xl border font-display text-sm font-black uppercase tracking-[0.14em] transition-colors",
-                        activeSection === s
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-input bg-card text-foreground hover:bg-muted",
-                      )}
-                    >
-                      {pp[`section_${s}`]}
-                    </button>
-                  ))}
-                </div>
-                )}
-                <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_13rem_auto]">
-                  <label className="relative">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      type="search"
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      placeholder="Search by product name, category or specification..."
-                      aria-label="Search products"
-                      className="h-11 pl-10"
-                    />
-                  </label>
+              <section key={section} className="py-5">
+                <TestingTransparencyBanner placement="catalogue" compact className="mb-5" />
+                <div className="grid gap-3 lg:grid-cols-[13rem_auto]">
                   <select
                     value={activeCategory}
                     onChange={(e) => setCategory(e.target.value)}

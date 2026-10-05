@@ -1187,8 +1187,8 @@ export function AdminEdits() {
                 Tab appearance
               </h4>
               <p className="mt-1 text-sm text-muted-foreground">
-                Choose an icon or its editable tab name. The Catalogue always
-                uses the test beaker.
+                Choose an icon or text for each menu item. These settings apply
+                on desktop and mobile.
               </p>
               <div className="mt-3 grid gap-4 sm:grid-cols-2">
                 {HEADER_DISPLAY_OPTIONS.map((option) => (

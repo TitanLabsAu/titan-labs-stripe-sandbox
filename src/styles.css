@@ -587,3 +587,24 @@
 @media(prefers-reduced-motion:reduce) {
  .titan-product-card *, .discovery-category img { transition:none; }
 }
+
+/* Reference catalogue masthead and shared compact brand framing. */
+.catalogue-banner { min-height:14rem; background:#030f19; }
+.catalogue-banner-search input { box-shadow:0 0 15px -10px var(--primary); }
+.catalogue-banner-tabs button { border-radius:0; background:transparent; box-shadow:none; }
+.titan-site-header > div > .page-shell > a .font-display { letter-spacing:.12em; }
+.titan-site-footer [aria-label="Support and legal"] a { color:var(--muted-foreground); text-transform:none; }
+.titan-site-footer [aria-label="Support and legal"] a:hover { color:var(--primary); }
+.titan-site-footer .relative > .grid { grid-template-columns:1.4fr 1fr 1fr; }
+@media(min-width:1024px) {
+ .titan-site-header .titan-nav-icon { min-width:2.75rem; font-size:.72rem; }
+ .titan-site-header .titan-nav-icon:has(svg) { padding-inline:.8rem; }
+ .titan-site-header nav { gap:.5rem; }
+ .titan-site-header > div > .page-shell { padding-block:1.1rem; }
+}
+@media(max-width:767px) {
+ .catalogue-banner { min-height:18rem; }
+ .catalogue-banner > img { object-position:65% center; }
+ .catalogue-banner-tabs { gap:1rem; }
+ .titan-site-footer .relative > .grid { grid-template-columns:1fr; }
+}
