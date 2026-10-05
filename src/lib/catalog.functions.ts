@@ -134,3 +134,15 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
   },
 );
 
+
+/** Sitemap reads use the anonymous client directly, outside the server-function request context. */
+export async function publicSitemapPaths(): Promise<string[]> {
+  const client = publicClient();
+  const [products, research] = await Promise.all([
+    client.from("products").select("slug").eq("active", true),
+    client.from("research_entries").select("slug").eq("published", true),
+  ]);
+  if (products.error) throw products.error;
+  if (research.error) throw research.error;
+  return [...(products.data ?? []).map(p=>`/product/${encodeURIComponent(p.slug)}`), ...(research.data ?? []).map(e=>`/research/${encodeURIComponent(e.slug)}`)];
+}
