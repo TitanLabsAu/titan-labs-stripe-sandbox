@@ -2,7 +2,6 @@ import { cmsValues } from "@/lib/storefrontContent";
 import { useSiteContent } from "@/lib/useCatalog";
 import { CmsLink } from "@/components/CmsLink";
 import { ArrowRight } from "lucide-react";
-import emblemAsset from "@/assets/testing-transparency-emblem.png.asset.json";
 import { cn } from "@/lib/utils";
 
 type TestingTransparencyBannerProps = {
@@ -36,7 +35,7 @@ export function TestingTransparencyBanner({
         )}
       >
         <img
-          src={c.image || emblemAsset.url}
+          src={c.image || "/images/titan-testing-emblem.webp"}
           alt={c.image_alt}
           width={1254}
           height={1254}

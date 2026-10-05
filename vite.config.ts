@@ -36,7 +36,7 @@ export default defineConfig({
           return await response.json() as {slug:string}[];
         };
         const [products,research] = await Promise.all([read("products","active=eq.true"),read("research_entries","published=eq.true")]);
-        const paths=["/","/range","/pen-guide","/certificates","/reviews","/referrals","/contact","/research","/terms","/privacy",...products.map(p=>`/product/${encodeURIComponent(p.slug)}`),...research.map(e=>`/research/${encodeURIComponent(e.slug)}`)];
+        const paths=["/","/range","/pen-guide","/pens","/calculator","/certificates","/reviews","/referrals","/contact","/research","/terms","/privacy",...products.map(p=>`/product/${encodeURIComponent(p.slug)}`),...research.map(e=>`/research/${encodeURIComponent(e.slug)}`)];
         const xml=`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${[...new Set(paths)].map(p=>`<url><loc>${origin}${p}</loc></url>`).join("")}</urlset>`;
         await writeFile(path.resolve(import.meta.dirname,"public/sitemap.xml"),xml);
       },

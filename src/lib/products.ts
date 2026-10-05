@@ -172,7 +172,7 @@ export const products: Product[] = [
     details: ["80mg per vial", "Lab tested for purity", "Express, insured shipping"],
   },
   {
-    slug: "nad-1000mg",
+    slug: "nad",
     name: "NAD+ 1000mg",
     price: 120,
     image: nad1000.url,

@@ -1,3 +1,4 @@
+import { SITE_ORIGIN, seoHead } from "@/lib/seo";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PenTool } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -8,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useProducts } from "@/lib/useCatalog";
 import { filterBySection } from "@/lib/catalogue-sections";
 export const Route = createFileRoute("/pens")({
-  head: () => ({ meta: [{ title: "Disposable Pens | Titan Labs Aus" }] }),
+  head: () => seoHead("Disposable Pens | Titan Labs Aus", "Browse Titan Labs Aus disposable pens, view product details and available certificates, and compare pen options in the Titan Pen Guides.", `${SITE_ORIGIN}/pens`, "/images/titan-catalogue-banner.webp"),
   component: PensPage,
 });
 function PensPage() {

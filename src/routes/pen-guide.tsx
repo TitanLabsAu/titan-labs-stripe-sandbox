@@ -1,4 +1,4 @@
-import { SITE_ORIGIN } from "@/lib/seo";
+import { SITE_ORIGIN, seoHead } from "@/lib/seo";
 import { cmsValues } from "@/lib/storefrontContent";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PenTool, RotateCcw, ArrowRight, Check, Info, Ruler, ShieldCheck, Trash2, Settings, BookOpen } from "lucide-react";
@@ -7,7 +7,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { Button } from "@/components/ui/button";
 import { useSiteContent } from "@/lib/useCatalog";
 export const Route = createFileRoute("/pen-guide")({
-  head: () => ({ links: [{rel:"canonical",href:`${SITE_ORIGIN}/pen-guide`}], meta: [{ title: "Titan V2 & Disposable Pen Guides | Titan Labs Aus" }] }),
+  head: () => seoHead("Titan V2 & Disposable Pen Guides | Titan Labs Aus", "Compare Titan V2 reusable and disposable pens. Explore pen features, handling guides, common questions and links to the Pens catalogue.", `${SITE_ORIGIN}/pen-guide`, "/images/titan-catalogue-banner.webp"),
   component: PenGuide,
 });
 

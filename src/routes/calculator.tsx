@@ -1,3 +1,4 @@
+import { SITE_ORIGIN } from "@/lib/seo";
 import { cmsValues } from "@/lib/storefrontContent";
 import { useSiteContent } from "@/lib/useCatalog";
 import { TitanPageHeading } from "@/components/TitanPageHeading";
@@ -9,6 +10,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 
 export const Route = createFileRoute("/calculator")({
   head: () => ({
+    links: [{ rel: "canonical", href: `${SITE_ORIGIN}/calculator` }],
     meta: [
       { title: "Reconstitution Calculator | Titan Labs Australia" },
       {

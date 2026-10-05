@@ -52,7 +52,7 @@ export const Route = createFileRoute("/product/$slug")({
     const { product } = loaderData;
     const override = loaderData.seo.products.find((r: {slug:string})=>r.slug===product.slug);
     const title = override?.title?.trim() || `${product.name} | Titan Labs Aus`;
-    const description = override?.description?.trim() || product.description || product.blurb || `${product.name} from Titan Labs Aus.`;
+    const description = override?.description?.trim() || `${product.name}. ${product.description || product.blurb || "Explore product details and available certificates from Titan Labs Aus."}`;
     return {...seoHead(title,description,productUrl(product.slug),override?.image || product.image,"product"),scripts:[{type:"application/ld+json",children:jsonLd(productSchema(product))}]};
   },
   component: ProductPage,

@@ -1,6 +1,5 @@
 import { ArrowRight, ArrowUpRight, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import laboratoryPhoto from "@/assets/testing-transparency-laboratory.png.asset.json";
 
 import { CmsLink } from "@/components/CmsLink";
 import { canonicalUrl, cmsValues } from "@/lib/storefrontContent";
@@ -21,7 +20,7 @@ export function TestingTransparencySection() {
       <div className="grid min-w-0 items-center gap-8 lg:grid-cols-2 lg:gap-10">
         <figure className="relative min-w-0 overflow-hidden rounded-md">
           <img
-            src={c.image || laboratoryPhoto.url}
+            src={c.image || "/images/titan-testing-laboratory.webp"}
             alt={c.image_alt}
             width={768}
             height={768}
