@@ -1,4 +1,4 @@
-import { HomeBannerProductPicker } from "@/components/HomeBannerProductPicker";
+import { HomeCategoryPhotoButton } from "@/components/HomeCategoryPhotoButton";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -1005,7 +1005,6 @@ export function AdminProducts() {
 
   return (
     <div className="space-y-4">
-      <HomeBannerProductPicker />
       <div className="flex justify-end">
         <Button
           className="font-bold uppercase"
@@ -1161,6 +1160,7 @@ export function AdminProducts() {
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
+              <HomeCategoryPhotoButton product={p} />
               <Button
                 variant="outline"
                 className="font-bold uppercase"

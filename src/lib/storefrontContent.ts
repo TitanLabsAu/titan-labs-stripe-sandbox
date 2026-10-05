@@ -12,7 +12,7 @@ export type CmsField =
   | { key: string; label: string; type: "text" | "textarea"; max: number; help?: string | undefined }
   | { key: string; label: string; type: "url"; help?: string | undefined }
   | { key: string; label: string; type: "image"; help?: string | undefined }
-  | { key: string; label: string; type: "product"; help?: string | undefined }
+  | { key: string; label: string; type: "product"; section?: "range" | "pens" | "equipment"; help?: string | undefined }
   | { key: string; label: string; type: "toggle"; help?: string | undefined }
   | { key: string; label: string; type: "choice"; options: [string, string][]; help?: string | undefined }
   | { key: string; label: string; type: "list"; itemFields: ListItemField[]; maxItems: number; help?: string | undefined };
@@ -38,11 +38,15 @@ const B = (key: string, label: string, help?: string): CmsField => ({ key, label
 
 export const CMS_SECTIONS: CmsSection[] = [
   {
-    id: "home_banner_product", group: "Homepage", title: "Homepage banner product",
-    description: "Choose a catalogue product to display beside the homepage welcome. Its current photo and name update automatically. Leave empty to keep the artwork-only welcome.",
-    shortcut: { tab: "products", label: "Choose homepage banner product" },
-    fields: [{ key: "product_slug", label: "Featured banner product", type: "product" }, T("eyebrow", "Small heading", 60), T("button_label", "Product button", 60)],
-    defaults: { product_slug: "", eyebrow: "In the spotlight", button_label: "Explore product" },
+    id: "home_category_photos", group: "Homepage", title: "Range, Pens & Equipment tile photos",
+    description: "Choose one product photo for each homepage catalogue tile. You can also select it beside each product in Admin > Products. Empty or unavailable selections fall back to another visible product photo in that section.",
+    shortcut: { tab: "products", label: "Choose photos beside products" },
+    fields: [
+      { key: "range_slug", label: "Range tile product", type: "product", section: "range" },
+      { key: "pens_slug", label: "Pens tile product", type: "product", section: "pens" },
+      { key: "equipment_slug", label: "Equipment tile product", type: "product", section: "equipment" },
+    ],
+    defaults: { range_slug: "", pens_slug: "", equipment_slug: "" },
   },
   {
     id: "guide_learning", group: "Guides", title: "Pen comparison & Pens 101",

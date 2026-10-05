@@ -1,3 +1,4 @@
+import { filterBySection } from "@/lib/catalogue-sections";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowDown, ArrowUp, ExternalLink, Loader2, Plus, RotateCcw, Trash2, Upload } from "lucide-react";
@@ -304,6 +305,8 @@ function ItemInput({ f, value, onChange }: { f: ListItemField; value: any; onCha
 }
 
 function ProductField({ id, field, value, onChange }: { id: string; field: CmsField; value: string; onChange: (value: string) => void }) {
-  const { products, isLoading } = useProducts();
-  return <div className="grid gap-1.5"><Label htmlFor={id}>{field.label}</Label><select id={id} value={value ?? ""} disabled={isLoading} onChange={e => onChange(e.target.value)} className="h-10 rounded-md border border-input bg-background px-3 text-sm"><option value="">No product — keep existing welcome artwork</option>{value && !products.some(p => p.slug === value) ? <option value={value}>Unavailable product: {value}</option> : null}{products.map(p => <option key={p.slug} value={p.slug}>{p.name}</option>)}</select></div>;
+  const { products: allProducts, isLoading } = useProducts();
+  const section = field.type === "product" ? field.section : undefined;
+  const products = section ? filterBySection(allProducts, section) : allProducts;
+  return <div className="grid gap-1.5"><Label htmlFor={id}>{field.label}</Label><select id={id} value={value ?? ""} disabled={isLoading} onChange={e => onChange(e.target.value)} className="h-10 rounded-md border border-input bg-background px-3 text-sm"><option value="">Automatic — first available photo</option>{value && !products.some(p => p.slug === value) ? <option value={value}>Unavailable product: {value}</option> : null}{products.map(p => <option key={p.slug} value={p.slug}>{p.name}</option>)}</select></div>;
 }
