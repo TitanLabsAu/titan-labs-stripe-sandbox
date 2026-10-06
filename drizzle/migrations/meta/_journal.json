@@ -211,6 +211,13 @@
       "when": 1791255949860,
       "tag": "0029_referral_percent_rewards",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1791255978234,
+      "tag": "0030_ledger_unit_cents_nonnegative",
+      "breakpoints": true
     }
   ]
 }
