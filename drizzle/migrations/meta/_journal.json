@@ -218,6 +218,13 @@
       "when": 1791255978234,
       "tag": "0030_ledger_unit_cents_nonnegative",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1791261253772,
+      "tag": "0031_remove_referral_milestones",
+      "breakpoints": true
     }
   ]
 }
