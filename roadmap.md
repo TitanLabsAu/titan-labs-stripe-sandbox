@@ -1,75 +1,8 @@
 # Roadmap
 
-## Current SEO findings (no publish)
-- [x] List current failing findings and correct the homepage heading and default search/social titles.
-- [x] Check route metadata coverage and verify the rendered preview.
-- [x] Record completed corrections for scanner re-verification.
-
-## Featured customer reviews
-- [x] Extend existing reviews with featured/date/product/archive fields and Admin controls.
-- [x] Display up to three featured reviews and add Reviews to homepage ordering.
-- [x] Verify regressions and public/Admin flows without publishing or invented reviews.
-
-- [x] Replace fixed “The Range” product-listing references with the editable Catalogue name.
-- [x] Draft and populate a short full description and three key points for every active product.
-- [x] Verify catalogue naming and product copy in the live site.
-- [x] Replace all active-product descriptions and key points with concise, product-specific informative copy.
-- [x] Checkout payment method selection (PayID / USDC) with details shown on selection.
-
-- [x] Submit order records the order (no on-site payment) and shows an Order Received screen.
-- [x] Admin Edits: editable PayID and crypto wallet details.
-- [x] Admin order cards show chosen payment method and reference.
-
-- [x] Titan Stack discounts, shipping method choice, crypto QR + AUD conversion, cart redesign, payment badge row (PayID/Crypto/Wise/AusPost)
-- [x] Redeploy preview so the Stripe webhook signing secret is bound to the deployed server runtime.
-- [x] Legal pages (/terms, /privacy) editable in Admin, footer links
-- [x] Checkout research-use acknowledgement, recorded per order, shown in Admin
-- [x] Titan's Research Lab: admin editor + public /research pages
-- [x] Calculator upgrade (neutral maths, U-100 scale visualiser)
-- [x] Add real Research Lab entries (owner content)
-- [x] Add separate member-facing Research Lab summaries, evidence-first pages, and protected draft previews.
-- [ ] Owner to review legal wording
-- [x] Add a mobile floating cart shortcut and show numeric-only catalogue quantities.
-- [x] Add the shared cart Equipment/BAC Water upsell and URL-addressable Equipment catalogue navigation.
-
-## Referral / rewards program (in progress)
-- [x] DB: settings, code kinds, ledger, reservations, settlement triggers
-- [x] Admin: codes (kind/member/limits, default discount 0), settings, member credit panel
-- [x] /referrals page + footer link; member account rewards card
-- [x] Checkout: code + credit, server quote, all payment paths reprice, 20% cap
-- [x] Tests + typecheck/build + preview checks (no publish)
-- [x] Move Referral Program footer link under Navigate
-- [x] Verify kit savings count toward 20% combined cap
-- [x] Rolled-back DB tests: concurrency, idempotency, refund, release; RPC privilege review
-- [x] Rename referral migration to 0019 (journal tag only, no reapply)
-- [x] DB-aggregated credit summaries (no LIMIT-based balances)
-- [x] Fix credit unit at AUD10 (no admin edit, DB enforced)
-- [x] Settlement uses order snapshot reward units
-- [x] Zero-value referral keeps attribution when multi-buy wins
-- [x] Reservations: no TTL consumption after release/respend; no negative balance
-- [x] Tests for all above + concurrency
-
-## Guest checkout + first-purchase offer (rollout-updates-1-6, no publish)
-- [x] Migration 0026 applied; journal renamed
-- [x] Attached Stripe first-offer claims never expire while intent payable (release only on fail/cancel)
-- [x] Eligibility uses verified auth email + contact email
-- [x] AUTH_EXPIRED: try session refresh, then sign-in/guest choice; no silent downgrade
-- [x] Guest cookie works across server fns and Stripe redirect
-- [x] Server-side acknowledgement both paths; Stripe/webhook/PayID wired
-- [x] Banner, Admin settings, guest labels, tests, build
-
-## Guest start fix (no publish)
-- [x] Keep guest cookie httpOnly/Secure/SameSite=Lax; no CSRF/auth weakening
-- [x] Inline guest error + visible guest-active state; server-side session check after start
-- [x] Unlimited Equipment stock: finance inventory/restock exclusion + live stock trigger audit
-- [x] Add preview-only Testing Transparency banners and an honest public certificates empty state.
-- [x] Replace only the homepage Testing Transparency banner with the approved photo section; verify tests, links and desktop/390/320 layouts without publishing.
-
-## Storefront CMS (Website Editor > Storefront content)
-- [x] Core registry/editor/validated save; wire testing section, badge, offer banner, contact, certificates, reviews, referrals, pen guide, cart upsell, footer links
-- [x] Extend: branding/site name, homepage heading/watermark, footer image/alt, calculator intro, account/calendar/research intros, login/signup copy, starter-kit copy, product info headings
-- [x] Concurrent-edit protection (save only changed fields over latest saved; warn on conflict)
-- [x] Coverage matrix doc (docs/cms-coverage.md)
-- [x] Remaining gaps listed in docs/cms-coverage.md (reviews carousel, checkout copy, custom header links, product headings, research shell)
-- [x] CMS save hardening: compare-and-set save/reset, freeze editor during save, keep drafts across groups + leave warning, loading/error gate, stricter isSafeUrl/CmsLink
-- [x] CMS final review: outer/Admin tab + route dirty guard, footer support/legal labels, Research nav label, empty semantics, CTA hiding, line breaks, checkout offer settings, review duration, order dedupe
+- [x] Remove referral-program milestones site-wide (keep every-5-referrals = 10% reward; keep member purchase milestones untouched)
+  - referrals page fine print
+  - Admin discounts settings field
+  - Admin member rewards display
+  - order-pricing settings + referrals.functions
+  - DB: clear milestone_thresholds, drop milestone block from orders_referral_settlement

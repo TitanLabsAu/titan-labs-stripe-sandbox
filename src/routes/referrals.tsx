@@ -46,9 +46,6 @@ function ReferralsPage() {
           <li>Referral rewards, multi-buy, kit and crypto savings stack up to a {s.combinedCapPercent}% maximum off a single purchase.</li>
           <li>Every paid order placed with your code counts towards your next reward, including discounted orders.</li>
           <li>Each {s.rewardPercent}% reward expires {s.rewardExpiryDays} days after it's earned.</li>
-          {s.milestoneThresholds.length ? (
-            <li>We recognise referrers reaching {s.milestoneThresholds.join(", ")} paid referral orders.</li>
-          ) : null}
           <li>We may adjust or end the program; credit already earned stays on your account.</li>
         </ul>
         <p className="mt-3">

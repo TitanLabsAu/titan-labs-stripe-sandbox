@@ -81,7 +81,6 @@ export const adminSaveReferralSettings = createServerFn({ method: "POST" })
       .map((t: any) => ({ units: Math.max(1, Math.floor(Number(t.units) || 0)), percent: pct(t.percent) }))
       .filter((t: any) => t.units >= 1)
       .slice(0, 10);
-    const thresholds = [...new Set((Array.isArray(data.milestone_thresholds) ? data.milestone_thresholds : []).map((n: any) => Math.floor(Number(n))).filter((n: number) => n > 0 && n < 100000))].sort((a: any, b: any) => a - b).slice(0, 20);
     const row = {
       multibuy_tiers: tiers,
       crypto_percent: pct(data.crypto_percent),
@@ -95,7 +94,6 @@ export const adminSaveReferralSettings = createServerFn({ method: "POST" })
       reward_percent: Math.min(50, pct(data.reward_percent)),
       reward_every_referrals: Math.max(1, Math.min(100, Math.floor(Number(data.reward_every_referrals) || 5))),
       reward_expiry_days: Math.max(1, Math.min(3650, Math.floor(Number(data.reward_expiry_days) || 90))),
-      milestone_thresholds: thresholds,
       program_enabled: Boolean(data.program_enabled),
       first_offer_enabled: Boolean(data.first_offer_enabled),
       first_offer_percent: Math.min(50, pct(data.first_offer_percent)),
@@ -116,11 +114,10 @@ export const adminGetMemberRewards = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const sb = context.supabase as any;
-    const [codes, ledger, reservations, milestones, summary] = await Promise.all([
+    const [codes, ledger, reservations, summary] = await Promise.all([
       sb.from("discount_codes").select("*").eq("user_id", data.userId).order("created_at"),
       sb.from("store_credit_ledger").select("*").eq("user_id", data.userId).order("created_at", { ascending: false }).limit(500),
       sb.from("store_credit_reservations").select("*").eq("user_id", data.userId).order("created_at", { ascending: false }).limit(100),
-      sb.from("referral_milestone_awards").select("threshold, created_at").eq("user_id", data.userId).order("threshold"),
       sb.rpc("store_credit_summary", { _user_id: data.userId }),
     ]);
     const codeIds = (codes.data ?? []).map((c: any) => c.id);
@@ -131,7 +128,6 @@ export const adminGetMemberRewards = createServerFn({ method: "POST" })
       codes: codes.data ?? [],
       ledger: ledger.data ?? [],
       reservations: reservations.data ?? [],
-      milestones: milestones.data ?? [],
       codeEvents: events.data ?? [],
       summary: toSummary(summary),
     };
