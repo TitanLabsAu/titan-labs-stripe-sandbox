@@ -10,3 +10,6 @@
   - Admin member rewards display
   - order-pricing settings + referrals.functions
   - DB: clear milestone_thresholds, drop milestone block from orders_referral_settlement
+
+- [x] Promotions: remove arrows, edge-hover scroll
+- [x] Restore welcome headline "Your next discovery starts here."

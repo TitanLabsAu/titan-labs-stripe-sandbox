@@ -127,7 +127,7 @@ export const CMS_SECTIONS: CmsSection[] = [
       { key: "image", label: "Welcome artwork", type: "image", help: "Leave empty to use the approved blue and gold helmet artwork." },
       T("primary_label", "Catalogue button label", 40), U("primary_url", "Catalogue button link"),
       T("secondary_label", "Certificates button label", 40), U("secondary_url", "Certificates button link"), P("notice", "Research notice", 300)],
-    defaults: { eyebrow: "Welcome to Titan", headline: "Research products,\npens & equipment", body: "Explore the Range, discover our Pens and Equipment, and view available product certificates — all in one place.", image: "", primary_label: "Explore Catalogue", primary_url: "/range", secondary_label: "View Certificates", secondary_url: "/certificates", notice: "For laboratory research only. Not for human or animal consumption." },
+    defaults: { eyebrow: "Welcome to Titan", headline: "Your next discovery\nstarts here.", body: "Explore the Range, discover our Pens and Equipment, and view available product certificates — all in one place.", image: "", primary_label: "Explore Catalogue", primary_url: "/range", secondary_label: "View Certificates", secondary_url: "/certificates", notice: "For laboratory research only. Not for human or animal consumption." },
   },
   {
     id: "home_catalogue", group: "Homepage", title: "Catalogue discovery links",
