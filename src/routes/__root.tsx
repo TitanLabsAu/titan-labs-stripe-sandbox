@@ -72,17 +72,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Titan Labs Aus | Research Products, Pens & Equipment" },
+      { title: "Titan Labs Australia | Research Products & Equipment" },
       {
         name: "description",
-        content: "Explore Titan Labs Aus research products, pens and laboratory equipment. View available product certificates and Australia-wide shipping information.",
+        content: "Titan Labs Australia supplies high quality research compounds and accessories.  Product certificates and Australia-wide express shipping. For research use only.",
       },
       { name: "author", content: "Titan Labs Aus" },
       { name: "google-site-verification", content: "g42yt-AWaJHJggWstL01w9xMVQDQADtsGFyCvW3fevY" },
-      { property: "og:title", content: "Titan Labs Aus | Research Products, Pens & Equipment" },
+      { property: "og:title", content: "Titan Labs Australia | Research Products & Equipment" },
       {
         property: "og:description",
-        content: "Explore Titan Labs Aus research products, pens and laboratory equipment. View available product certificates and Australia-wide shipping information.",
+        content: "Titan Labs Australia supplies high quality research compounds and accessories.  Product certificates and Australia-wide express shipping. For research use only.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
