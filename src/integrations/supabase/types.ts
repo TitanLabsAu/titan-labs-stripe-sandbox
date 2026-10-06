@@ -945,6 +945,9 @@ export type Database = {
           multibuy_tiers: Json
           program_enabled: boolean
           referral_reward_units: number
+          reward_every_referrals: number
+          reward_expiry_days: number
+          reward_percent: number
           updated_at: string
           updated_by: string | null
         }
@@ -969,6 +972,9 @@ export type Database = {
           multibuy_tiers?: Json
           program_enabled?: boolean
           referral_reward_units?: number
+          reward_every_referrals?: number
+          reward_expiry_days?: number
+          reward_percent?: number
           updated_at?: string
           updated_by?: string | null
         }
@@ -993,6 +999,9 @@ export type Database = {
           multibuy_tiers?: Json
           program_enabled?: boolean
           referral_reward_units?: number
+          reward_every_referrals?: number
+          reward_expiry_days?: number
+          reward_percent?: number
           updated_at?: string
           updated_by?: string | null
         }
@@ -1128,6 +1137,7 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string | null
+          expires_at: string | null
           id: string
           kind: string
           order_id: string | null
@@ -1139,6 +1149,7 @@ export type Database = {
         Insert: {
           created_at?: string
           created_by?: string | null
+          expires_at?: string | null
           id?: string
           kind: string
           order_id?: string | null
@@ -1150,6 +1161,7 @@ export type Database = {
         Update: {
           created_at?: string
           created_by?: string | null
+          expires_at?: string | null
           id?: string
           kind?: string
           order_id?: string | null
@@ -1340,6 +1352,13 @@ export type Database = {
       store_credit_available_units: {
         Args: { _user_id: string }
         Returns: number
+      }
+      store_credit_lots: {
+        Args: { _user_id: string }
+        Returns: {
+          expires_at: string
+          units: number
+        }[]
       }
       store_credit_summary: { Args: { _user_id: string }; Returns: Json }
     }
