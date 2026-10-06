@@ -5,15 +5,14 @@ import { Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { formatPrice } from "@/lib/products";
 import { adminListDiscountCodes } from "@/lib/admin.functions";
 import { adminAdjustCredit, adminGetMemberRewards, adminSaveCode } from "@/lib/referrals.functions";
 
 const KIND_LABEL: Record<string, string> = {
-  referral_earned: "Referral earned",
-  referral_reversed: "Referral reversed",
+  referral_earned: "Reward earned",
+  referral_reversed: "Reward reversed",
   redeemed: "Redeemed at checkout",
-  redemption_reversed: "Credit returned",
+  redemption_reversed: "Reward returned",
   adjustment: "Admin adjustment",
 };
 
@@ -34,7 +33,7 @@ export function AdminMemberRewards({ userId }: { userId: string }) {
   const adjust = useMutation({
     mutationFn: () => adminAdjustCredit({ data: { userId, units: Number(units), reason } }),
     onSuccess: () => {
-      toast.success("Credit adjusted");
+      toast.success("Rewards adjusted");
       setReason("");
       refresh();
     },
@@ -71,22 +70,21 @@ export function AdminMemberRewards({ userId }: { userId: string }) {
   });
 
   if (!data) return <p className="text-sm text-muted-foreground">Loading rewards…</p>;
-  const unit = 10;
   const s = data.summary;
   const unassigned = (allCodes ?? []).filter((c) => c.code_kind === "referral" && !c.user_id);
 
   return (
     <section className="space-y-4 rounded-xl border border-border bg-card p-4">
       <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">
-        <Gift className="h-4 w-4 text-accent" /> Referrals &amp; store credit
+        <Gift className="h-4 w-4 text-accent" /> Referral rewards
       </h3>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
         {[
           ["Paid referral orders", String(s.paidReferralOrders)],
-          ["Earned", `${s.earnedUnits} (${formatPrice(s.earnedUnits * unit)})`],
+          ["Earned", `${s.earnedUnits} × 10%`],
           ["Redeemed", `${s.redeemedUnits}`],
           ["Reserved", `${s.reservedUnits}`],
-          ["Available", `${s.availableUnits} (${formatPrice(s.availableUnits * unit)})`],
+          ["Available", `${s.availableUnits}`],
         ].map(([l, v]) => (
           <div key={l} className="rounded border border-border p-2">
             <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{l}</p>
@@ -94,6 +92,10 @@ export function AdminMemberRewards({ userId }: { userId: string }) {
           </div>
         ))}
       </div>
+      <p className="text-xs text-muted-foreground">
+        Next reward in {s.rewardEvery - (s.paidReferralOrders % s.rewardEvery)} paid referral(s).
+        {s.lots.length ? ` Unused: ${s.lots.map((l) => `${l.units}${l.expiresAt ? ` until ${new Date(l.expiresAt).toLocaleDateString("en-AU")}` : ""}`).join(", ")}.` : ""}
+      </p>
       {data.milestones.length ? (
         <p className="text-xs text-muted-foreground">Milestones reached: {data.milestones.map((m: any) => m.threshold).join(", ")}</p>
       ) : null}
@@ -145,7 +147,7 @@ export function AdminMemberRewards({ userId }: { userId: string }) {
 
       <div className="grid gap-2 sm:grid-cols-[120px_1fr_auto] sm:items-end">
         <div>
-          <Label htmlFor="adj-units">Units (±)</Label>
+          <Label htmlFor="adj-units">Rewards (±)</Label>
           <Input id="adj-units" type="number" value={units} onChange={(e) => setUnits(e.target.value)} />
         </div>
         <div>
@@ -153,7 +155,7 @@ export function AdminMemberRewards({ userId }: { userId: string }) {
           <Input id="adj-reason" value={reason} maxLength={300} onChange={(e) => setReason(e.target.value)} />
         </div>
         <Button disabled={adjust.isPending || reason.trim().length < 3} onClick={() => adjust.mutate()}>
-          Adjust credit
+          Adjust rewards
         </Button>
       </div>
 

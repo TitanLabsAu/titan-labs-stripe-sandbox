@@ -31,7 +31,7 @@ describe("referral pricing", () => {
   test("credit capped at max units and available", () => {
     const r = q({ lines: [line(200)], creditUnits: 5, availableCreditUnits: 5 });
     expect(r.creditUnits).toBe(2);
-    expect(r.creditCents).toBe(2000);
+    expect(r.creditCents).toBe(4000);
     const r2 = q({ lines: [line(200)], creditUnits: 2, availableCreditUnits: 1 });
     expect(r2.creditUnits).toBe(1);
   });
@@ -74,7 +74,11 @@ describe("referral attribution", () => {
     const r = quoteOrder({ shippingMethod: "standard", paymentMethod: "payid", lines: [{ unitCents: 10000, baseCents: 10000, quantity: 4 }], code: code({ kind: "member", value: 1 }) }, S);
     expect(r.codeApplied).toBe(false);
   });
-  test("credit unit is fixed at $10 regardless of stored value", () => {
-    expect(settingsFromRow({ credit_unit_cents: 5000 }).creditUnitCents).toBe(1000);
+  test("each reward is 10% and rewards stop at the 20% cap", () => {
+    const one = q({ lines: [line(100)], creditUnits: 1, availableCreditUnits: 2 });
+    expect(one.creditCents).toBe(1000);
+    const capped = q({ lines: [line(100, 3)], creditUnits: 2, availableCreditUnits: 2 });
+    expect(capped.multibuyCents + capped.creditCents).toBeLessThanOrEqual(6000);
+    expect(capped.creditUnits).toBe(1);
   });
 });
