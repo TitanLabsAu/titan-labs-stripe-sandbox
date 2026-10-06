@@ -17,7 +17,7 @@ export function TitanMemberCard({ name, loading = false }: { name: string; loadi
   return <section aria-labelledby="titan-account-heading" className="relative mb-7 overflow-hidden rounded-xl border border-primary/30 bg-[#030f19]">
     <div className="relative aspect-[1.1] overflow-hidden sm:aspect-[16/9]">
       <img src="/images/titan-membership-card-v2.png" alt="" width={1672} height={941} className="absolute right-0 top-0 h-full w-auto max-w-none sm:w-full" />
-      <div className="absolute left-[56.5%] top-[61%] flex w-[36%] -translate-x-1/2 -translate-y-1/2 rotate-[-2deg] flex-col items-center gap-[0.35em] text-center sm:left-[73.5%] sm:w-[26%]">
+      <div className="absolute left-[56.5%] top-[61%] flex w-[36%] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-[0.35em] text-center sm:left-[73.5%] sm:w-[26%]">
         <p aria-hidden="true" className="whitespace-nowrap font-display font-semibold uppercase leading-none tracking-[0.28em] text-[#d9c39a] text-[clamp(8px,1.7vw,18px)] sm:text-[clamp(8px,1.05vw,18px)]">
           Titan Labs <span className="text-[#d8aa48]">// Aus</span>
         </p>
