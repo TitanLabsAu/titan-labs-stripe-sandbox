@@ -40,6 +40,8 @@ function toSummary(res: { data: any; error: any }) {
     balanceUnits: n("balanceUnits"),
     availableUnits: n("availableUnits"),
     paidReferralOrders: n("paidReferralOrders"),
+    rewardEvery: Math.max(1, n("rewardEvery") || 5),
+    lots: (Array.isArray(d.lots) ? d.lots : []).map((l: any) => ({ expiresAt: l?.expiresAt ?? null, units: Number(l?.units) || 0 })) as { expiresAt: string | null; units: number }[],
   };
 }
 
@@ -51,7 +53,7 @@ export const getMyRewards = createServerFn({ method: "POST" })
       sb.from("discount_codes").select("id, code, code_kind, discount_type, value, active, expires_at, max_uses, times_used").eq("user_id", context.userId),
       sb.from("store_credit_ledger").select("id, kind, units, unit_cents, order_id, reason, created_at").eq("user_id", context.userId).order("created_at", { ascending: false }).limit(200),
       sb.rpc("store_credit_summary", { _user_id: context.userId }),
-      sb.from("referral_settings").select("credit_unit_cents, max_credit_units, referral_reward_units").eq("id", 1).maybeSingle(),
+      sb.from("referral_settings").select("credit_unit_cents, max_credit_units, reward_percent, reward_every_referrals, reward_expiry_days, combined_cap_percent").eq("id", 1).maybeSingle(),
     ]);
     const l = (ledger.data ?? []) as any[];
     return {
@@ -61,6 +63,10 @@ export const getMyRewards = createServerFn({ method: "POST" })
       summary: toSummary(summary),
       unitCents: Number(settings.data?.credit_unit_cents ?? 1000),
       maxCreditUnits: Number(settings.data?.max_credit_units ?? 2),
+      rewardPercent: Number(settings.data?.reward_percent ?? 10),
+      rewardEvery: Number(settings.data?.reward_every_referrals ?? 5),
+      rewardExpiryDays: Number(settings.data?.reward_expiry_days ?? 90),
+      capPercent: Number(settings.data?.combined_cap_percent ?? 20),
     };
   });
 
@@ -86,7 +92,9 @@ export const adminSaveReferralSettings = createServerFn({ method: "POST" })
       allow_credit_code: Boolean(data.allow_credit_code),
       allow_credit_discounts: Boolean(data.allow_credit_discounts),
       max_credit_units: Math.max(0, Math.min(20, Math.floor(Number(data.max_credit_units) || 0))),
-      referral_reward_units: Math.max(0, Math.min(20, Math.floor(Number(data.referral_reward_units) || 0))),
+      reward_percent: Math.min(50, pct(data.reward_percent)),
+      reward_every_referrals: Math.max(1, Math.min(100, Math.floor(Number(data.reward_every_referrals) || 5))),
+      reward_expiry_days: Math.max(1, Math.min(3650, Math.floor(Number(data.reward_expiry_days) || 90))),
       milestone_thresholds: thresholds,
       program_enabled: Boolean(data.program_enabled),
       first_offer_enabled: Boolean(data.first_offer_enabled),
@@ -136,15 +144,17 @@ export const adminAdjustCredit = createServerFn({ method: "POST" })
     await assertAdmin(context);
     const units = Math.trunc(Number(data.units));
     const reason = String(data.reason ?? "").trim().slice(0, 300);
-    if (!units || Math.abs(units) > 100) throw new Error("Enter a whole number of credit units (not zero).");
+    if (!units || Math.abs(units) > 100) throw new Error("Enter a whole number of rewards (not zero).");
     if (reason.length < 3) throw new Error("Please give a reason for this adjustment.");
-    const { data: settings } = await (context.supabase as any).from("referral_settings").select("credit_unit_cents").eq("id", 1).maybeSingle();
+    const { data: settings } = await (context.supabase as any).from("referral_settings").select("reward_expiry_days").eq("id", 1).maybeSingle();
+    const days = Math.max(1, Number(settings?.reward_expiry_days ?? 90));
     const { error } = await (context.supabase as any).from("store_credit_ledger").insert({
       user_id: data.userId,
       kind: "adjustment",
       units,
-      unit_cents: Number(settings?.credit_unit_cents ?? 1000),
+      unit_cents: 0,
       reason,
+      expires_at: units > 0 ? new Date(Date.now() + days * 86400000).toISOString() : null,
       created_by: context.userId,
     });
     if (error) throw error;

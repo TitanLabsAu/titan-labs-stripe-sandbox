@@ -16,6 +16,10 @@ export type PricingSettings = {
   creditUnitCents: number;
   maxCreditUnits: number;
   referralRewardUnits: number;
+  /** Percent off per referral reward (one reward per `rewardEvery` paid referrals). */
+  rewardPercent: number;
+  rewardEvery: number;
+  rewardExpiryDays: number;
   milestoneThresholds: number[];
   programEnabled: boolean;
   firstOffer: FirstOfferSettings;
@@ -47,6 +51,9 @@ export const DEFAULT_PRICING_SETTINGS: PricingSettings = {
   creditUnitCents: 1000,
   maxCreditUnits: 2,
   referralRewardUnits: 1,
+  rewardPercent: 10,
+  rewardEvery: 5,
+  rewardExpiryDays: 90,
   milestoneThresholds: [5, 10, 25, 50, 100],
   programEnabled: true,
   firstOffer: {
@@ -82,6 +89,9 @@ export function settingsFromRow(row: any | null | undefined): PricingSettings {
     creditUnitCents: 1000, // fixed AUD10 denomination
     maxCreditUnits: num(row.max_credit_units, d.maxCreditUnits),
     referralRewardUnits: num(row.referral_reward_units, d.referralRewardUnits),
+    rewardPercent: Math.min(100, Math.max(0, num(row.reward_percent, d.rewardPercent))),
+    rewardEvery: Math.max(1, Math.floor(num(row.reward_every_referrals, d.rewardEvery))),
+    rewardExpiryDays: Math.max(1, Math.floor(num(row.reward_expiry_days, d.rewardExpiryDays))),
     milestoneThresholds: Array.isArray(row.milestone_thresholds)
       ? row.milestone_thresholds.map(Number).filter((n: number) => n > 0)
       : d.milestoneThresholds,
@@ -220,14 +230,22 @@ function evaluate(
   if (requested > 0) {
     const codeOk = !code || (s.allowCreditCode && code.combineCredit);
     const discountsOk = pctCents === 0 || s.allowCreditDiscounts;
-    if (offer && offerCents > 0 && !offer.combineCredit) notices.push("Store credit can't be combined with the first-purchase offer.");
-    else if (!codeOk) notices.push("Store credit can't be combined with this code.");
-    else if (!discountsOk) notices.push("Store credit can't be combined with multi-buy or crypto discounts.");
+    if (offer && offerCents > 0 && !offer.combineCredit) notices.push("Referral rewards can't be combined with the first-purchase offer.");
+    else if (!codeOk) notices.push("Referral rewards can't be combined with this code.");
+    else if (!discountsOk) notices.push("Referral rewards can't be combined with multi-buy or crypto discounts.");
     else {
-      const maxByMerch = Math.floor(afterCode / s.creditUnitCents);
-      creditUnits = Math.min(requested, s.maxCreditUnits, Math.max(0, input.availableCreditUnits ?? requested), maxByMerch);
-      creditCents = creditUnits * s.creditUnitCents;
-      if (creditUnits < requested) notices.push(`Only ${creditUnits} credit unit(s) can be used on this order.`);
+      // Each referral reward takes rewardPercent off the products; all discounts share the combined cap.
+      const perUnit = Math.round((afterCode * s.rewardPercent) / 100);
+      const capRoom = Math.max(0, Math.floor((baseCents * s.combinedCapPercent) / 100) - (baseCents - afterCode));
+      const usable = perUnit > 0 ? Math.ceil(Math.min(capRoom, afterCode) / perUnit) : 0;
+      creditUnits = Math.min(requested, s.maxCreditUnits, Math.max(0, input.availableCreditUnits ?? requested), usable);
+      creditCents = Math.min(creditUnits * perUnit, capRoom, afterCode);
+      if (creditUnits < requested)
+        notices.push(
+          creditUnits === 0
+            ? `Your discounts already reach the ${s.combinedCapPercent}% maximum, so no referral reward was used.`
+            : `Only ${creditUnits} referral reward(s) can be used — the ${s.combinedCapPercent}% maximum applies.`,
+        );
     }
   }
   const merchandiseCents = Math.max(0, afterCode - creditCents);

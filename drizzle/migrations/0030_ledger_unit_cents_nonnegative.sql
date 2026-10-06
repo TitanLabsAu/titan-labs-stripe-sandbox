@@ -1,0 +1,2 @@
+ALTER TABLE public.store_credit_ledger DROP CONSTRAINT store_credit_ledger_unit_cents_check;
+ALTER TABLE public.store_credit_ledger ADD CONSTRAINT store_credit_ledger_unit_cents_check CHECK (unit_cents >= 0);

@@ -102,7 +102,9 @@ function ProgramSettings() {
         cap: String(s.combinedCapPercent),
         unit: String(s.creditUnitCents / 100),
         maxUnits: String(s.maxCreditUnits),
-        reward: String(s.referralRewardUnits),
+        rewardPercent: String(s.rewardPercent),
+        rewardEvery: String(s.rewardEvery),
+        rewardExpiry: String(s.rewardExpiryDays),
         milestones: s.milestoneThresholds.join(", "),
         allowMultibuyCrypto: s.allowMultibuyCrypto,
         allowCodeMultibuy: s.allowCodeMultibuy,
@@ -131,7 +133,9 @@ function ProgramSettings() {
           crypto_percent: Number(f.crypto),
           combined_cap_percent: Number(f.cap),
           max_credit_units: Number(f.maxUnits),
-          referral_reward_units: Number(f.reward),
+          reward_percent: Number(f.rewardPercent),
+          reward_every_referrals: Number(f.rewardEvery),
+          reward_expiry_days: Number(f.rewardExpiry),
           milestone_thresholds: String(f.milestones).split(",").map((x: string) => Number(x.trim())),
           allow_multibuy_crypto: f.allowMultibuyCrypto,
           allow_code_multibuy: f.allowCodeMultibuy,
@@ -174,20 +178,24 @@ function ProgramSettings() {
           <Input className="mt-2" type="number" min={0} max={100} value={f.crypto} onChange={(e) => set("crypto")(e.target.value)} />
         </div>
         <div>
-          <Label>Combined cap — multi-buy + kit + crypto (%)</Label>
+          <Label>Combined cap — all discounts incl. rewards (%)</Label>
           <Input className="mt-2" type="number" min={0} max={100} value={f.cap} onChange={(e) => set("cap")(e.target.value)} />
         </div>
         <div>
-          <Label>Credit unit value</Label>
-          <p className="mt-2 flex h-10 items-center text-sm text-muted-foreground">Fixed at $10 per unit</p>
+          <Label>Reward size (% off next purchase)</Label>
+          <Input className="mt-2" type="number" min={0} max={50} value={f.rewardPercent} onChange={(e) => set("rewardPercent")(e.target.value)} />
         </div>
         <div>
-          <Label>Max credit units per order</Label>
+          <Label>Max rewards per order</Label>
           <Input className="mt-2" type="number" min={0} max={20} value={f.maxUnits} onChange={(e) => set("maxUnits")(e.target.value)} />
         </div>
         <div>
-          <Label>Units earned per paid referral ($10 each)</Label>
-          <Input className="mt-2" type="number" min={0} max={20} value={f.reward} onChange={(e) => set("reward")(e.target.value)} />
+          <Label>Paid referrals per reward</Label>
+          <Input className="mt-2" type="number" min={1} max={100} value={f.rewardEvery} onChange={(e) => set("rewardEvery")(e.target.value)} />
+        </div>
+        <div>
+          <Label>Reward expires after (days)</Label>
+          <Input className="mt-2" type="number" min={1} max={3650} value={f.rewardExpiry} onChange={(e) => set("rewardExpiry")(e.target.value)} />
         </div>
         <div className="sm:col-span-2">
           <Label>Referral milestones (paid referral orders)</Label>
@@ -199,8 +207,8 @@ function ProgramSettings() {
         <Check label="Multi-buy stacks with crypto (within cap)" checked={f.allowMultibuyCrypto} onChange={set("allowMultibuyCrypto")} />
         <Check label="Codes stack with multi-buy" checked={f.allowCodeMultibuy} onChange={set("allowCodeMultibuy")} />
         <Check label="Codes stack with crypto" checked={f.allowCodeCrypto} onChange={set("allowCodeCrypto")} />
-        <Check label="Store credit stacks with codes" checked={f.allowCreditCode} onChange={set("allowCreditCode")} />
-        <Check label="Store credit stacks with multi-buy / crypto" checked={f.allowCreditDiscounts} onChange={set("allowCreditDiscounts")} />
+        <Check label="Referral rewards stack with codes" checked={f.allowCreditCode} onChange={set("allowCreditCode")} />
+        <Check label="Referral rewards stack with multi-buy / crypto" checked={f.allowCreditDiscounts} onChange={set("allowCreditDiscounts")} />
       </div>
       <div className="mt-6 border-t border-border pt-5">
         <p className="technical-label text-foreground">New-member first purchase offer</p>
@@ -218,7 +226,7 @@ function ProgramSettings() {
           <Check label="Offer stacks with multi-buy (within cap)" checked={f.foMultibuy} onChange={set("foMultibuy")} />
           <Check label="Offer stacks with crypto (within cap)" checked={f.foCrypto} onChange={set("foCrypto")} />
           <Check label="Offer stacks with codes" checked={f.foCode} onChange={set("foCode")} />
-          <Check label="Offer stacks with store credit" checked={f.foCredit} onChange={set("foCredit")} />
+          <Check label="Offer stacks with referral rewards" checked={f.foCredit} onChange={set("foCredit")} />
         </div>
       </div>
       <Button className="mt-5 font-bold uppercase" disabled={save.isPending} onClick={() => save.mutate()}>
@@ -299,8 +307,8 @@ export function AdminDiscounts() {
           <Tag className="h-5 w-5 text-accent" /> {form.id ? `Edit ${form.code}` : "Create a code"}
         </h3>
         <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-          Referral codes can be shared; when linked to a member they earn that member store credit on every paid order.
-          Unlinked referral codes still give the customer discount but earn nobody credit until you link a member.
+          Referral codes can be shared; when linked to a member, every 5 paid orders (discounted or not) earn that member a 10% reward.
+          Unlinked referral codes still give the customer discount but earn nobody rewards until you link a member.
           Member-only codes work only for the linked member.
         </p>
 
@@ -324,7 +332,7 @@ export function AdminDiscounts() {
             </select>
           </div>
           <div>
-            <Label>Linked member {form.code_kind === "member" ? "(required)" : "(optional — earns credit)"}</Label>
+            <Label>Linked member {form.code_kind === "member" ? "(required)" : "(optional — earns rewards)"}</Label>
             <select className={selectCls} value={form.userId} onChange={(e) => set("userId")(e.target.value)}>
               <option value="">Not linked yet</option>
               {(members ?? []).map((m) => (
@@ -365,7 +373,7 @@ export function AdminDiscounts() {
         <div className="mt-4 flex flex-wrap gap-4">
           <Check label="Can stack with multi-buy" checked={form.combine_multibuy} onChange={set("combine_multibuy")} />
           <Check label="Can stack with crypto" checked={form.combine_crypto} onChange={set("combine_crypto")} />
-          <Check label="Can stack with store credit" checked={form.combine_credit} onChange={set("combine_credit")} />
+          <Check label="Can stack with referral rewards" checked={form.combine_credit} onChange={set("combine_credit")} />
         </div>
         <p className="mt-2 text-xs text-muted-foreground">Global rules above must also allow a combination for it to apply.</p>
 

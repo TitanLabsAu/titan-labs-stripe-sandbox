@@ -246,7 +246,7 @@ export function pricingNote(q: Quote) {
     parts.push(`first purchase ${q.firstOfferPercent}% (−$${fromCents(q.firstOfferCents).toFixed(2)})`);
   if (q.codeCents && q.code) parts.push(`code ${q.code} (−$${fromCents(q.codeCents).toFixed(2)})`);
   if (q.creditCents)
-    parts.push(`store credit ${q.creditUnits}x (−$${fromCents(q.creditCents).toFixed(2)})`);
+    parts.push(`referral reward ${q.creditUnits}x (−$${fromCents(q.creditCents).toFixed(2)})`);
   return parts.length ? `Discounts: ${parts.join(", ")}` : "";
 }
 
