@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import { Flame, Pause, Play } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 import AutoScroll from "embla-carousel-auto-scroll";
@@ -40,7 +40,7 @@ export function HotProductsStrip({ products, content }: { products: Product[]; c
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
   }, [carousel]);
-  const onEdgeMove = (event: React.MouseEvent<HTMLDivElement>) => {
+  const onEdgeMove = (event: MouseEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
     const zone = Math.min(220, rect.width * 0.22);
     const x = event.clientX - rect.left;
