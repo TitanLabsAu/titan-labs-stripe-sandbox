@@ -12,7 +12,7 @@ export function TitanMemberCard({ name, loading = false }: { name: string; loadi
 
   const fetchRewards = useServerFn(getMyRewards);
   const { data: rewards } = useQuery({ queryKey: ["my-rewards"], queryFn: () => fetchRewards() });
-  const referralCode = "STUART10"; // TEMP-PREVIEW
+  const referralCode = rewards?.codes.find((c) => c.code_kind === "referral" && c.active)?.code ?? null;
 
   return <section aria-labelledby="titan-account-heading" className="relative mb-7 overflow-hidden rounded-xl border border-primary/30 bg-[#030f19]">
     <div className="relative aspect-[1.1] overflow-hidden sm:aspect-[16/9]">
