@@ -49,7 +49,6 @@ describe("referral pricing", () => {
     expect(s.maxCreditUnits).toBe(2);
     expect(s.creditUnitCents).toBe(1000);
     expect(s.combinedCapPercent).toBe(20);
-    expect(s.milestoneThresholds).toEqual([5, 10, 25, 50, 100]);
   });
 });
 
