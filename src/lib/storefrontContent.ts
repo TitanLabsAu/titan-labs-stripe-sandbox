@@ -344,7 +344,7 @@ export const CMS_SECTIONS: CmsSection[] = [
     id: "page_referrals",
     group: "Pages",
     title: "Referral program page",
-    description: "Reward amounts and limits always come from the Discounts settings. Use {reward}, {max_credits}, {max_credit_value} and {cap} to insert the live values.",
+    description: "Reward amounts and limits always come from the Discounts settings. Use {reward}, {every}, {expiry_days}, {max_credits} and {cap} to insert the live values.",
     shortcut: { tab: "discounts", label: "Change reward settings" },
     fields: [
       T("title", "Page title", 80),
@@ -357,8 +357,8 @@ export const CMS_SECTIONS: CmsSection[] = [
       steps: [
         { title: "Get your code", body: "Members can request a personal referral code. You'll see it in My Profile once it's linked to your account." },
         { title: "Share it", body: "Friends enter your code at checkout. Some codes also give them a discount — shown before they pay." },
-        { title: "Earn credit", body: "You earn {reward} store credit for every fully paid order placed with your code — repeat customers and repeat orders all count. Cancelled, failed or refunded orders don't count." },
-        { title: "Spend it", body: "Apply up to {max_credits} credits ({max_credit_value}) per order at checkout. Credit has no cash value." },
+        { title: "Earn rewards", body: "Every {every} paid orders placed with your code earns you {reward} off your next purchase. Discounted orders count too — repeat customers and repeat orders all count. Cancelled, failed or refunded orders don't count." },
+        { title: "Use them", body: "Use up to {max_credits} rewards on one order. They stack with your other discounts up to a maximum of {cap} off a single purchase. Rewards expire {expiry_days} days after they're earned and have no cash value." },
       ],
     },
   },
@@ -428,7 +428,7 @@ export const CMS_SECTIONS: CmsSection[] = [
       login_label: "Log in",
       join_label: "Join as a member",
       guest_label: "Continue as guest",
-      choice_note: "Your cart is saved while you log in. Guests can check out without an account; member rewards and store credit need an account.",
+      choice_note: "Your cart is saved while you log in. Guests can check out without an account; member and referral rewards need an account.",
       guest_active_title: "Checking out as a guest.",
       guest_active_body: "Your confirmation will go to the email you enter below. {login} instead to use member rewards.",
       guest_confirmed_note: "Guest order: your confirmation is sent to the email you entered. Keep your order number for any questions.",

@@ -6,15 +6,14 @@ import { useQuery } from "@tanstack/react-query";
 import { LegalPage } from "@/components/LegalPage";
 import { getReferralSettings } from "@/lib/referrals.functions";
 import { settingsFromRow } from "@/lib/order-pricing";
-import { formatPrice } from "@/lib/products";
 
 export const Route = createFileRoute("/referrals")({
   head: () => ({ links: [{rel:"canonical",href:`${SITE_ORIGIN}/referrals`}],
     meta: [
       { title: "Referral Program | Titan Labs Australia" },
-      { name: "description", content: "How Titan Labs Australia referral codes, store credit and milestone rewards work." },
+      { name: "description", content: "How Titan Labs Australia referral codes and 10% referral rewards work." },
       { property: "og:title", content: "Referral Program | Titan Labs Australia" },
-      { property: "og:description", content: "Share your code, earn store credit on every paid referral order." },
+      { property: "og:description", content: "Share your code — every 5 paid referral orders earns 10% off your next purchase." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -25,9 +24,8 @@ export const Route = createFileRoute("/referrals")({
 function ReferralsPage() {
   const { data } = useQuery({ queryKey: ["referral-settings"], queryFn: () => getReferralSettings() });
   const s = settingsFromRow(data);
-  const unit = formatPrice((s.creditUnitCents * s.referralRewardUnits) / 100);
   const c = cmsValues(useSiteContent().data, "page_referrals");
-  const tokens = { reward: unit, max_credits: s.maxCreditUnits, max_credit_value: formatPrice((s.creditUnitCents * s.maxCreditUnits) / 100), cap: `${s.combinedCapPercent}%` };
+  const tokens = { reward: `${s.rewardPercent}%`, every: s.rewardEvery, expiry_days: s.rewardExpiryDays, max_credits: s.maxCreditUnits, max_credit_value: `${s.rewardPercent * s.maxCreditUnits}%`, cap: `${s.combinedCapPercent}%` };
   const steps = (c.steps as { title: string; body: string }[]).map((st) => [fillTokens(st.title, tokens), fillTokens(st.body, tokens)]);
   return (
     <LegalPage eyebrow="Members" title={c.title}>
@@ -45,14 +43,16 @@ function ReferralsPage() {
         <h2 className="text-lg font-extrabold uppercase text-foreground">Fine print</h2>
         <ul className="mt-2 list-disc space-y-1 pl-5">
           <li>You can't use your own referral code.</li>
-          <li>Multi-buy, kit and crypto savings are combined up to a {s.combinedCapPercent}% maximum.</li>
+          <li>Referral rewards, multi-buy, kit and crypto savings stack up to a {s.combinedCapPercent}% maximum off a single purchase.</li>
+          <li>Every paid order placed with your code counts towards your next reward, including discounted orders.</li>
+          <li>Each {s.rewardPercent}% reward expires {s.rewardExpiryDays} days after it's earned.</li>
           {s.milestoneThresholds.length ? (
             <li>We recognise referrers reaching {s.milestoneThresholds.join(", ")} paid referral orders.</li>
           ) : null}
           <li>We may adjust or end the program; credit already earned stays on your account.</li>
         </ul>
         <p className="mt-3">
-          See your code and balance in <Link to="/account" className="text-primary underline">My Profile</Link>.
+          See your code, progress and rewards in <Link to="/account" className="text-primary underline">My Profile</Link>.
         </p>
       </section>
     </LegalPage>

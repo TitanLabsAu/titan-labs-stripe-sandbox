@@ -381,7 +381,6 @@ function CheckoutPage() {
   const codeError = serverQuote.data?.codeError ?? null;
   const availableCredit = serverQuote.data?.availableCreditUnits ?? 0;
   const maxCredit = Math.min(serverQuote.data?.maxCreditUnits ?? settings.maxCreditUnits, availableCredit);
-  const unitDollars = (serverQuote.data?.creditUnitCents ?? settings.creditUnitCents) / 100;
   useEffect(() => {
     if (creditUnits > maxCredit && serverQuote.data) setCreditUnits(Math.max(0, maxCredit));
   }, [creditUnits, maxCredit, serverQuote.data]);
@@ -936,7 +935,7 @@ function CheckoutPage() {
               </div>
 
               <div className="mt-6 space-y-3 border-t border-border pt-4">
-                <p className="technical-label text-foreground">Code &amp; store credit</p>
+                <p className="technical-label text-foreground">Code &amp; referral rewards</p>
                 {mode ? (
                   <>
                     {appliedCode && !codeError ? (
@@ -964,12 +963,12 @@ function CheckoutPage() {
                     {session && availableCredit > 0 && settings.maxCreditUnits > 0 ? (
                       <div>
                         <p className="text-xs text-muted-foreground">
-                          You have {availableCredit} × {formatPrice(unitDollars)} store credit available. Use up to {settings.maxCreditUnits} per order on products (not shipping).
+                          You have {availableCredit} referral reward{availableCredit === 1 ? "" : "s"} ({settings.rewardPercent}% off each). Use up to {settings.maxCreditUnits} per order on products (not shipping); all discounts stop at {settings.combinedCapPercent}% off.
                         </p>
-                        <div className="mt-2 flex flex-wrap gap-2" role="radiogroup" aria-label="Store credit to use">
+                        <div className="mt-2 flex flex-wrap gap-2" role="radiogroup" aria-label="Referral rewards to use">
                           {Array.from({ length: Math.max(0, maxCredit) + 1 }, (_, n) => (
                             <Button key={n} type="button" size="sm" role="radio" aria-checked={creditUnits === n} variant={creditUnits === n ? "default" : "outline"} disabled={Boolean(stripeClientSecret)} onClick={() => setCreditUnits(n)}>
-                              {n === 0 ? "None" : `${n} × ${formatPrice(unitDollars)}`}
+                              {n === 0 ? "None" : `${n} × ${settings.rewardPercent}% off`}
                             </Button>
                           ))}
                         </div>
@@ -977,7 +976,7 @@ function CheckoutPage() {
                     ) : null}
                   </>
                 ) : (
-                  <p className="text-xs text-muted-foreground">Log in or continue as guest to apply a code. Store credit is for members.</p>
+                  <p className="text-xs text-muted-foreground">Log in or continue as guest to apply a code. Referral rewards are for members.</p>
                 )}
                 {quote.notices.filter((n) => n !== codeError).map((n) => (
                   <p key={n} className="text-xs text-muted-foreground">{n}</p>
@@ -1021,7 +1020,7 @@ function CheckoutPage() {
                 ) : null}
                 {quote.creditCents > 0 ? (
                   <div className="flex justify-between font-bold text-accent">
-                    <span>Store credit ({quote.creditUnits}×)</span>
+                    <span>Referral reward ({quote.creditUnits}×)</span>
                     <span>−{formatPrice(quote.creditCents / 100)}</span>
                   </div>
                 ) : null}
