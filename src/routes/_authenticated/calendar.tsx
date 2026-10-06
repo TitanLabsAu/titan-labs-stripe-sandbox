@@ -25,7 +25,15 @@ import {
 
 export const Route = createFileRoute("/_authenticated/calendar")({
   head: () => ({
-    meta: [{ title: "My Calendar | Titan Labs Aus" }, { name: "robots", content: "noindex" }],
+    meta: [
+      { title: "My Calendar | Titan Labs Aus" },
+      { name: "description", content: "View and manage your private Titan Labs Aus member calendar entries." },
+      { property: "og:title", content: "My Calendar | Titan Labs Aus" },
+      { property: "og:description", content: "View and manage your private Titan Labs Aus member calendar entries." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex" },
+    ],
   }),
   component: CalendarPage,
 });

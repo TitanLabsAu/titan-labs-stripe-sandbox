@@ -1,5 +1,10 @@
 # Roadmap
 
+## Current SEO findings (no publish)
+- [x] List current failing findings and correct the homepage heading and default search/social titles.
+- [x] Check route metadata coverage and verify the rendered preview.
+- [x] Record completed corrections for scanner re-verification.
+
 ## Featured customer reviews
 - [x] Extend existing reviews with featured/date/product/archive fields and Admin controls.
 - [x] Display up to three featured reviews and add Reviews to homepage ordering.
