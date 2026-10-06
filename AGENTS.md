@@ -9,6 +9,8 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
+- Homepage promotions use Embla with auto-scroll for hover/focus pausing and manual drag/swipe navigation, keeping product controls interactive.
+
 - Checkout acknowledgements live in `order_acknowledgements`, recorded before payment and linked via `link_order_acknowledgement` RPC — keeps Stripe finalisation untouched.
 - Research Lab content lives in `research_entries` (admin CRUD via RLS, public reads published-only through a server fn) — independent from products.
 - Research Lab member summaries live in `research_entries.at_a_glance`; protected `/research-preview` routes show drafts to admins without weakening public published-only reads.
