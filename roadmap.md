@@ -2,7 +2,7 @@
 
 ## Current SEO findings (no publish)
 - [x] List current failing findings and correct the homepage heading and default search/social titles.
-- [ ] Check route metadata coverage and verify the rendered preview.
+- [x] Check route metadata coverage and verify the rendered preview.
 - [ ] Record completed corrections for scanner re-verification.
 
 ## Featured customer reviews
