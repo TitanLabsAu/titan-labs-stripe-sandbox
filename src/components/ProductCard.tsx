@@ -64,7 +64,7 @@ export function ProductCard({ product: p }: { product: Product }) {
           className={`h-full w-full object-contain transition duration-300 hover:scale-[1.02] ${allOut ? "opacity-40 grayscale" : ""}`}
         />
         {promoLabel && !bannerSoon ? (
-          <span className={`titan-promo-badge ${/^hot\s*products?$/i.test(promoLabel.trim()) ? "titan-promo-ribbon titan-promo-ribbon--hot" : /^flash\s*sale$/i.test(promoLabel.trim()) ? "titan-promo-ribbon titan-promo-ribbon--flash" : "absolute left-2 top-2 px-2 py-1 text-[8px] font-bold uppercase tracking-wider"}`}>
+          <span className={`titan-promo-badge ${/^hot\s*products?$/i.test(promoLabel.trim()) ? "titan-promo-ribbon titan-promo-ribbon--hot" : /^flash\s*sale$/i.test(promoLabel.trim()) ? "titan-promo-ribbon titan-promo-ribbon--flash" : /^new\s*products?$/i.test(promoLabel.trim()) ? "titan-promo-ribbon titan-promo-ribbon--new" : "absolute left-2 top-2 px-2 py-1 text-[8px] font-bold uppercase tracking-wider"}`}>
             {promoLabel}
           </span>
         ) : null}

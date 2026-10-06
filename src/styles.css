@@ -645,6 +645,12 @@
   white-space: nowrap;
   pointer-events: none;
 }
+.titan-promo-ribbon--new {
+  color: var(--primary-foreground);
+  background: var(--primary);
+  border-color: var(--primary-foreground);
+  letter-spacing: 0;
+}
 .titan-promo-ribbon--flash {
   color: #fff;
   background: linear-gradient(100deg, #0854b4, #087de3 52%, #0854b4);
