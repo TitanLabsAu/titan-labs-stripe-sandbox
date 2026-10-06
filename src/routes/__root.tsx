@@ -72,17 +72,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Titan Labs Aus" },
+      { title: "Titan Labs Aus | Research Products, Pens & Equipment" },
       {
         name: "description",
-        content: "Premium quality research peptides and wellness compounds, shipped across Australia.",
+        content: "Explore Titan Labs Aus research products, pens and laboratory equipment. View available product certificates and Australia-wide shipping information.",
       },
       { name: "author", content: "Titan Labs Aus" },
       { name: "google-site-verification", content: "g42yt-AWaJHJggWstL01w9xMVQDQADtsGFyCvW3fevY" },
-      { property: "og:title", content: "Titan Labs Aus" },
+      { property: "og:title", content: "Titan Labs Aus | Research Products, Pens & Equipment" },
       {
         property: "og:description",
-        content: "Premium quality research peptides and wellness compounds, shipped across Australia.",
+        content: "Explore Titan Labs Aus research products, pens and laboratory equipment. View available product certificates and Australia-wide shipping information.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
