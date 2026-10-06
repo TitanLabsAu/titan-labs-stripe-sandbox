@@ -105,7 +105,6 @@ function ProgramSettings() {
         rewardPercent: String(s.rewardPercent),
         rewardEvery: String(s.rewardEvery),
         rewardExpiry: String(s.rewardExpiryDays),
-        milestones: s.milestoneThresholds.join(", "),
         allowMultibuyCrypto: s.allowMultibuyCrypto,
         allowCodeMultibuy: s.allowCodeMultibuy,
         allowCodeCrypto: s.allowCodeCrypto,
@@ -136,7 +135,6 @@ function ProgramSettings() {
           reward_percent: Number(f.rewardPercent),
           reward_every_referrals: Number(f.rewardEvery),
           reward_expiry_days: Number(f.rewardExpiry),
-          milestone_thresholds: String(f.milestones).split(",").map((x: string) => Number(x.trim())),
           allow_multibuy_crypto: f.allowMultibuyCrypto,
           allow_code_multibuy: f.allowCodeMultibuy,
           allow_code_crypto: f.allowCodeCrypto,
@@ -196,10 +194,6 @@ function ProgramSettings() {
         <div>
           <Label>Reward expires after (days)</Label>
           <Input className="mt-2" type="number" min={1} max={3650} value={f.rewardExpiry} onChange={(e) => set("rewardExpiry")(e.target.value)} />
-        </div>
-        <div className="sm:col-span-2">
-          <Label>Referral milestones (paid referral orders)</Label>
-          <Input className="mt-2" value={f.milestones} onChange={(e) => set("milestones")(e.target.value)} placeholder="5, 10, 25, 50, 100" />
         </div>
       </div>
       <div className="mt-4 grid gap-2 sm:grid-cols-2">

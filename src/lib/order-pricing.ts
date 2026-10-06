@@ -20,7 +20,6 @@ export type PricingSettings = {
   rewardPercent: number;
   rewardEvery: number;
   rewardExpiryDays: number;
-  milestoneThresholds: number[];
   programEnabled: boolean;
   firstOffer: FirstOfferSettings;
 };
@@ -54,7 +53,6 @@ export const DEFAULT_PRICING_SETTINGS: PricingSettings = {
   rewardPercent: 10,
   rewardEvery: 5,
   rewardExpiryDays: 90,
-  milestoneThresholds: [5, 10, 25, 50, 100],
   programEnabled: true,
   firstOffer: {
     enabled: true,
@@ -92,9 +90,6 @@ export function settingsFromRow(row: any | null | undefined): PricingSettings {
     rewardPercent: Math.min(100, Math.max(0, num(row.reward_percent, d.rewardPercent))),
     rewardEvery: Math.max(1, Math.floor(num(row.reward_every_referrals, d.rewardEvery))),
     rewardExpiryDays: Math.max(1, Math.floor(num(row.reward_expiry_days, d.rewardExpiryDays))),
-    milestoneThresholds: Array.isArray(row.milestone_thresholds)
-      ? row.milestone_thresholds.map(Number).filter((n: number) => n > 0)
-      : d.milestoneThresholds,
     programEnabled: row.program_enabled ?? d.programEnabled,
     firstOffer: {
       enabled: row.first_offer_enabled ?? d.firstOffer.enabled,

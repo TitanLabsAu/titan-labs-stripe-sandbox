@@ -96,9 +96,6 @@ export function AdminMemberRewards({ userId }: { userId: string }) {
         Next reward in {s.rewardEvery - (s.paidReferralOrders % s.rewardEvery)} paid referral(s).
         {s.lots.length ? ` Unused: ${s.lots.map((l) => `${l.units}${l.expiresAt ? ` until ${new Date(l.expiresAt).toLocaleDateString("en-AU")}` : ""}`).join(", ")}.` : ""}
       </p>
-      {data.milestones.length ? (
-        <p className="text-xs text-muted-foreground">Milestones reached: {data.milestones.map((m: any) => m.threshold).join(", ")}</p>
-      ) : null}
 
       <div>
         <p className="text-xs font-bold uppercase tracking-wide text-foreground">Codes linked to this member</p>
