@@ -42,7 +42,7 @@ export const CMS_SECTIONS: CmsSection[] = [
     description: "These settings change search metadata and shared-link previews only. They do not change visible storefront headings or product descriptions. Leave product overrides blank to use automatic defaults.",
     fields: [T("home_title", "Homepage search title", 160), P("home_description", "Homepage search description", 320), {key: "home_image", label: "Homepage social preview image", type: "image"},
       {key: "products", label: "Product search overrides", type: "list", maxItems: 200, itemFields: [{key:"slug",label:"Product slug (from its URL)",type:"text",max:160},{key:"title",label:"Search title",type:"text",max:160},{key:"description",label:"Search description",type:"textarea",max:320},{key:"image",label:"Social preview image URL",type:"url"}]}],
-    defaults: {home_title:"Titan Labs Aus | Research Products, Pens & Equipment", home_description:"Explore Titan Labs Aus research products, pens and laboratory equipment. View available product certificates and Australia-wide shipping information.",home_image:"",products:[]},
+    defaults: {home_title:"Titan Labs Australia | Research Products & Equipment", home_description:"Titan Labs Australia supplies high quality research compounds and accessories.  Product certificates and Australia-wide express shipping. For research use only.",home_image:"",products:[]},
   },
   {
     id: "home_category_photos", group: "Homepage", title: "Range, Pens & Equipment tile photos",
