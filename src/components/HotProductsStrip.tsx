@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, Flame, Pause, Play } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Flame, Pause, Play } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 import AutoScroll from "embla-carousel-auto-scroll";
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,26 @@ export function HotProductsStrip({ products, content }: { products: Product[]; c
     carousel.on("pointerDown", down).on("pointerUp", up);
     return () => { carousel.off("pointerDown", down).off("pointerUp", up); };
   }, [carousel]);
+  // Edge-hover scrolling: cursor near the left/right edge moves the strip, faster closer to the edge.
+  const edgeSpeed = useRef(0);
+  useEffect(() => {
+    if (!carousel) return;
+    let frame = 0;
+    const tick = () => {
+      if (edgeSpeed.current) carousel.internalEngine().scrollTo.distance(edgeSpeed.current, false);
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [carousel]);
+  const onEdgeMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const zone = Math.min(220, rect.width * 0.22);
+    const x = event.clientX - rect.left;
+    if (x < zone) edgeSpeed.current = 14 * (1 - x / zone);
+    else if (x > rect.width - zone) edgeSpeed.current = -14 * (1 - (rect.width - x) / zone);
+    else edgeSpeed.current = 0;
+  };
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     const update = () => setReduced(mq.matches);
@@ -46,13 +66,11 @@ export function HotProductsStrip({ products, content }: { products: Product[]; c
         <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground"><RichText inline text={homeValue(content, "home_featured_note")} /></p>
       </div>
       <div className="flex items-center gap-2">
-        <Button variant="outline" size="icon" onClick={() => carousel?.scrollPrev()} aria-label="Previous promotion" title="Previous promotion"><ArrowLeft aria-hidden="true" /></Button>
-        <Button variant="outline" size="icon" onClick={() => carousel?.scrollNext()} aria-label="Next promotion" title="Next promotion"><ArrowRight aria-hidden="true" /></Button>
         {animate ? <Button variant="outline" size="sm" onClick={() => setPaused(v => !v)} aria-label={paused ? "Play hot products" : "Pause hot products"} aria-pressed={paused}>{paused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}{paused ? "Play" : "Pause"}</Button> : null}
       </div>
     </div>
     <div ref={carouselRef} className="promotions-viewport mt-8 overflow-hidden" role="region" aria-label="Promotions" aria-roledescription="carousel"
-      onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
+      onMouseEnter={() => setHovered(true)} onMouseMove={onEdgeMove} onMouseLeave={() => { setHovered(false); edgeSpeed.current = 0; }}
       onFocusCapture={() => setFocused(true)} onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false); }}>
       <div className="flex touch-pan-y pinch-zoom cursor-grab active:cursor-grabbing">
         {selection.map((p, i) => <div key={`${p.slug}-${p.variants?.[0]?.id ?? "base"}-${i}`} className="min-w-0 flex-[0_0_min(26rem,calc(100vw-2rem))] pl-5"><ProductCard product={p} /></div>)}
