@@ -45,6 +45,7 @@ const initialForm = {
   frequency: "once" as Frequency,
   time_of_day: "",
   notes: "",
+  reminder_enabled: false,
 };
 const frequencyLabel: Record<Frequency, string> = {
   once: "Once",
@@ -236,6 +237,15 @@ function CalendarPage() {
                 onChange={(e) => setForm({ ...form, notes: e.target.value })}
               />
             </div>
+            <label className="flex items-start gap-2 text-sm">
+              <input
+                type="checkbox"
+                className="mt-1 h-4 w-4"
+                checked={form.reminder_enabled}
+                onChange={(e) => setForm({ ...form, reminder_enabled: e.target.checked })}
+              />
+              <span>Email me a reminder on each scheduled day</span>
+            </label>
             <Button disabled={saving || !form.product_name.trim()} className="w-full">
               {saving ? "Saving…" : editId ? "Save changes" : "Add to calendar"}
             </Button>
@@ -365,6 +375,7 @@ function CalendarPage() {
                     <p className="text-xs text-muted-foreground">
                       {frequencyLabel[e.frequency]} · {e.start_date}
                       {e.end_date ? ` to ${e.end_date}` : ""}
+                      {e.reminder_enabled ? " · Reminders on" : ""}
                     </p>
                     <p className="break-words text-sm text-muted-foreground">{e.dose_label}</p>
                   </div>
@@ -384,6 +395,7 @@ function CalendarPage() {
                           frequency: e.frequency,
                           time_of_day: e.time_of_day?.slice(0, 5) ?? "",
                           notes: e.notes,
+                          reminder_enabled: !!e.reminder_enabled,
                         });
                       }}
                     >
