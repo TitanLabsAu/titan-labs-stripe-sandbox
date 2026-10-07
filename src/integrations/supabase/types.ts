@@ -332,6 +332,7 @@ export type Database = {
           id: string
           notes: string
           product_name: string
+          reminder_enabled: boolean
           start_date: string
           time_of_day: string | null
           updated_at: string
@@ -345,6 +346,7 @@ export type Database = {
           id?: string
           notes?: string
           product_name: string
+          reminder_enabled?: boolean
           start_date: string
           time_of_day?: string | null
           updated_at?: string
@@ -358,12 +360,39 @@ export type Database = {
           id?: string
           notes?: string
           product_name?: string
+          reminder_enabled?: boolean
           start_date?: string
           time_of_day?: string | null
           updated_at?: string
           user_id?: string
         }
         Relationships: []
+      }
+      member_calendar_reminder_sends: {
+        Row: {
+          created_at: string
+          entry_id: string
+          occurs_on: string
+        }
+        Insert: {
+          created_at?: string
+          entry_id: string
+          occurs_on: string
+        }
+        Update: {
+          created_at?: string
+          entry_id?: string
+          occurs_on?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_calendar_reminder_sends_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "member_calendar_entries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       order_acknowledgements: {
         Row: {

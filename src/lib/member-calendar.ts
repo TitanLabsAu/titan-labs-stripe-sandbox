@@ -10,6 +10,7 @@ export type CalendarEntry = {
   frequency: Frequency;
   time_of_day: string | null;
   notes: string;
+  reminder_enabled?: boolean;
 };
 export function localDate(date = new Date()): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;

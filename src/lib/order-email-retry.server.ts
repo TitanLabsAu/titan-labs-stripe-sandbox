@@ -27,7 +27,14 @@ export async function retryOrderEmails(request: Request): Promise<Response> {
     await tryOrderCheckpointEmails();
     const { sendPendingMilestoneEmails } = await import("@/lib/milestone-email.server");
     const milestones = await sendPendingMilestoneEmails();
-    return Response.json({ ok: true, confirmations, milestoneEmails: milestones.sent });
+    let calendarReminders = 0;
+    try {
+      const { sendCalendarReminders } = await import("@/lib/calendar-reminders.server");
+      calendarReminders = await sendCalendarReminders();
+    } catch (error) {
+      console.error("[calendar-reminders]", error);
+    }
+    return Response.json({ ok: true, confirmations, milestoneEmails: milestones.sent, calendarReminders });
   } catch (error) {
     console.error("[order-email-retry]", error);
     return Response.json({ ok: false, error: "Email retry failed" }, { status: 500 });
