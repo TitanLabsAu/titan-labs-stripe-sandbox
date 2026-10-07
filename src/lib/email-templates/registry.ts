@@ -18,6 +18,7 @@ import { template as adminMilestoneTemplate } from './admin-milestone'
 import { template as orderConfirmationTemplate } from './order-confirmation'
 import { template as orderDispatchedTemplate } from './order-dispatched'
 import { template as orderCheckpointTemplate } from './order-checkpoint'
+import { template as calendarReminderTemplate } from './calendar-reminder'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'order-delivered': orderDeliveredTemplate,
@@ -25,5 +26,6 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'order-confirmation': orderConfirmationTemplate,
   'order-dispatched': orderDispatchedTemplate,
   'order-checkpoint': orderCheckpointTemplate,
+  'calendar-reminder': calendarReminderTemplate,
 }
 
