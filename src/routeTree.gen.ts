@@ -24,7 +24,6 @@ import { Route as ResearchLabRouteImport } from './routes/research-lab'
 import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as StacksRouteImport } from './routes/stacks'
 import { Route as TermsRouteImport } from './routes/terms'
-import { Route as ZzDemoFinanceRouteImport } from './routes/zz-demo-finance'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticated/calendar'
@@ -116,11 +115,6 @@ const StacksRoute = StacksRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ZzDemoFinanceRoute = ZzDemoFinanceRouteImport.update({
-  id: '/zz-demo-finance',
-  path: '/zz-demo-finance',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
@@ -234,7 +228,6 @@ export interface FileRoutesByFullPath {
   '/reviews': typeof ReviewsRoute
   '/stacks': typeof StacksRoute
   '/terms': typeof TermsRoute
-  '/zz-demo-finance': typeof ZzDemoFinanceRoute
   '/account': typeof AuthenticatedAccountRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/calendar': typeof AuthenticatedCalendarRoute
@@ -269,7 +262,6 @@ export interface FileRoutesByTo {
   '/reviews': typeof ReviewsRoute
   '/stacks': typeof StacksRoute
   '/terms': typeof TermsRoute
-  '/zz-demo-finance': typeof ZzDemoFinanceRoute
   '/account': typeof AuthenticatedAccountRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/calendar': typeof AuthenticatedCalendarRoute
@@ -306,7 +298,6 @@ export interface FileRoutesById {
   '/reviews': typeof ReviewsRoute
   '/stacks': typeof StacksRoute
   '/terms': typeof TermsRoute
-  '/zz-demo-finance': typeof ZzDemoFinanceRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/calendar': typeof AuthenticatedCalendarRoute
@@ -343,7 +334,6 @@ export interface FileRouteTypes {
     | '/reviews'
     | '/stacks'
     | '/terms'
-    | '/zz-demo-finance'
     | '/account'
     | '/admin'
     | '/calendar'
@@ -378,7 +368,6 @@ export interface FileRouteTypes {
     | '/reviews'
     | '/stacks'
     | '/terms'
-    | '/zz-demo-finance'
     | '/account'
     | '/admin'
     | '/calendar'
@@ -414,7 +403,6 @@ export interface FileRouteTypes {
     | '/reviews'
     | '/stacks'
     | '/terms'
-    | '/zz-demo-finance'
     | '/_authenticated/account'
     | '/_authenticated/admin'
     | '/_authenticated/calendar'
@@ -451,7 +439,6 @@ export interface RootRouteChildren {
   ReviewsRoute: typeof ReviewsRoute
   StacksRoute: typeof StacksRoute
   TermsRoute: typeof TermsRoute
-  ZzDemoFinanceRoute: typeof ZzDemoFinanceRoute
   ApiAdminGenerateImageRoute: typeof ApiAdminGenerateImageRoute
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
   AuthSignupRoute: typeof AuthSignupRoute
@@ -570,13 +557,6 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/zz-demo-finance': {
-      id: '/zz-demo-finance'
-      path: '/zz-demo-finance'
-      fullPath: '/zz-demo-finance'
-      preLoaderRoute: typeof ZzDemoFinanceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/account': {
@@ -748,7 +728,6 @@ const rootRouteChildren: RootRouteChildren = {
   ReviewsRoute: ReviewsRoute,
   StacksRoute: StacksRoute,
   TermsRoute: TermsRoute,
-  ZzDemoFinanceRoute: ZzDemoFinanceRoute,
   ApiAdminGenerateImageRoute: ApiAdminGenerateImageRoute,
   AuthResetPasswordRoute: AuthResetPasswordRoute,
   AuthSignupRoute: AuthSignupRoute,
