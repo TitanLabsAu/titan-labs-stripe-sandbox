@@ -718,3 +718,4 @@
 .light .testing-transparency { background: linear-gradient(115deg, var(--card), color-mix(in oklab, var(--primary) 7%, var(--card))); color: var(--foreground); }
 .light input, .light select, .light textarea { border-color: var(--input); }
 .light a:focus-visible, .light button:focus-visible, .light select:focus-visible, .light input:focus-visible, .light textarea:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+.light .titan-card-price { color: var(--primary); }

@@ -172,7 +172,7 @@ export function ProductCard({ product: p }: { product: Product }) {
               {formatPrice(wasPrice!)}
             </span>
           ) : null}
-          <span className="font-display text-2xl font-bold text-[#ccecff]">
+          <span className="font-display text-2xl font-bold text-[#ccecff] titan-card-price">
             {formatPrice(option.unitPrice)}
           </span>
         </div>
