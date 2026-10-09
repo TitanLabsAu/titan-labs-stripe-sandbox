@@ -24,6 +24,7 @@ import { Route as ResearchLabRouteImport } from './routes/research-lab'
 import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as StacksRouteImport } from './routes/stacks'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as ZzDemoPurchaseRouteImport } from './routes/zz-demo-purchase'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticated/calendar'
@@ -115,6 +116,11 @@ const StacksRoute = StacksRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ZzDemoPurchaseRoute = ZzDemoPurchaseRouteImport.update({
+  id: '/zz-demo-purchase',
+  path: '/zz-demo-purchase',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
@@ -228,6 +234,7 @@ export interface FileRoutesByFullPath {
   '/reviews': typeof ReviewsRoute
   '/stacks': typeof StacksRoute
   '/terms': typeof TermsRoute
+  '/zz-demo-purchase': typeof ZzDemoPurchaseRoute
   '/account': typeof AuthenticatedAccountRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/calendar': typeof AuthenticatedCalendarRoute
@@ -262,6 +269,7 @@ export interface FileRoutesByTo {
   '/reviews': typeof ReviewsRoute
   '/stacks': typeof StacksRoute
   '/terms': typeof TermsRoute
+  '/zz-demo-purchase': typeof ZzDemoPurchaseRoute
   '/account': typeof AuthenticatedAccountRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/calendar': typeof AuthenticatedCalendarRoute
@@ -298,6 +306,7 @@ export interface FileRoutesById {
   '/reviews': typeof ReviewsRoute
   '/stacks': typeof StacksRoute
   '/terms': typeof TermsRoute
+  '/zz-demo-purchase': typeof ZzDemoPurchaseRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/calendar': typeof AuthenticatedCalendarRoute
@@ -334,6 +343,7 @@ export interface FileRouteTypes {
     | '/reviews'
     | '/stacks'
     | '/terms'
+    | '/zz-demo-purchase'
     | '/account'
     | '/admin'
     | '/calendar'
@@ -368,6 +378,7 @@ export interface FileRouteTypes {
     | '/reviews'
     | '/stacks'
     | '/terms'
+    | '/zz-demo-purchase'
     | '/account'
     | '/admin'
     | '/calendar'
@@ -403,6 +414,7 @@ export interface FileRouteTypes {
     | '/reviews'
     | '/stacks'
     | '/terms'
+    | '/zz-demo-purchase'
     | '/_authenticated/account'
     | '/_authenticated/admin'
     | '/_authenticated/calendar'
@@ -439,6 +451,7 @@ export interface RootRouteChildren {
   ReviewsRoute: typeof ReviewsRoute
   StacksRoute: typeof StacksRoute
   TermsRoute: typeof TermsRoute
+  ZzDemoPurchaseRoute: typeof ZzDemoPurchaseRoute
   ApiAdminGenerateImageRoute: typeof ApiAdminGenerateImageRoute
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
   AuthSignupRoute: typeof AuthSignupRoute
@@ -557,6 +570,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/zz-demo-purchase': {
+      id: '/zz-demo-purchase'
+      path: '/zz-demo-purchase'
+      fullPath: '/zz-demo-purchase'
+      preLoaderRoute: typeof ZzDemoPurchaseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/account': {
@@ -728,6 +748,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReviewsRoute: ReviewsRoute,
   StacksRoute: StacksRoute,
   TermsRoute: TermsRoute,
+  ZzDemoPurchaseRoute: ZzDemoPurchaseRoute,
   ApiAdminGenerateImageRoute: ApiAdminGenerateImageRoute,
   AuthResetPasswordRoute: AuthResetPasswordRoute,
   AuthSignupRoute: AuthSignupRoute,
