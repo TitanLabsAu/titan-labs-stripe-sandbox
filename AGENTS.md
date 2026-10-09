@@ -9,7 +9,7 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Homepage promotions use Embla with auto-scroll for hover/focus pausing and manual drag/swipe navigation, keeping product controls interactive.
+- Homepage promotions use Embla with auto-scroll for hover/focus pausing and manual drag/swipe navigation; playback resolves the initialized plugin from the current carousel and checks current snaps, preventing stale candidate calls after Fast Refresh or resize while keeping product controls interactive.
 
 - Pen Guide and account artwork use shared CSS-paired ThemedArt delivery with page-scoped light text roles; Pens 101 uses equal implicit grid rows so all cards grow together without clipping CMS content.
 

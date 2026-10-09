@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
+import { imageSize } from "./theme-test-image-size";
 import { artDelivery } from "../src/lib/theme-art";
 import { CMS_SECTIONS } from "../src/lib/storefrontContent";
 
