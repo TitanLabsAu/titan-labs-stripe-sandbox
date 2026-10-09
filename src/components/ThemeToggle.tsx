@@ -15,10 +15,10 @@ export function ThemeToggle() {
       aria-label={`Toggle theme: switch to ${next} theme`}
       title={`Switch to ${next} theme`}
       onClick={() => setTheme(next)}
-      className="titan-nav-icon titan-theme-toggle min-h-11 min-w-11 gap-2 px-3 text-xs font-bold uppercase"
+      className="titan-nav-icon titan-theme-toggle min-h-11 min-w-11 shrink-0 p-0"
     >
-      {isLight ? <Moon aria-hidden="true" /> : <Sun aria-hidden="true" />}
-      <span>Toggle Theme</span>
+      {/* Sun marks light mode, Moon marks dark mode. */}
+      {isLight ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}
     </Button>
   );
 }
