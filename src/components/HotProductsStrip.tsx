@@ -73,7 +73,7 @@ export function HotProductsStrip({ products, content }: { products: Product[]; c
       onMouseEnter={() => setHovered(true)} onMouseMove={onEdgeMove} onMouseLeave={() => { setHovered(false); edgeSpeed.current = 0; }}
       onFocusCapture={() => setFocused(true)} onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false); }}>
       <div className="flex touch-pan-y pinch-zoom cursor-grab active:cursor-grabbing">
-        {selection.map((p, i) => <div key={`${p.slug}-${p.variants?.[0]?.id ?? "base"}-${i}`} className="min-w-0 flex-[0_0_min(26rem,calc(100vw-2rem))] pl-5"><ProductCard product={p} /></div>)}
+        {selection.map((p, i) => <div key={`${p.slug}-${p.variants?.[0]?.id ?? "base"}-${i}`} className="min-w-0 flex-[0_0_min(20rem,calc(100vw-2rem))] pl-4"><ProductCard product={p} /></div>)}
       </div>
     </div>
   </section>;

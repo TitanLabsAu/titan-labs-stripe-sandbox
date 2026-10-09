@@ -616,7 +616,7 @@
 .titan-site-footer .testing-transparency > .relative { padding:0; }
 
 .titan-product-card { border-color:rgb(28 152 227 / 45%); border-radius:.5rem; box-shadow:0 0 18px -16px #1eafff; }
-.titan-product-card .titan-product-photo { aspect-ratio:1; }
+.titan-product-card .titan-product-photo { aspect-ratio:5 / 4; max-height:15rem; }
 .titan-product-card a:has(svg) { text-decoration:underline; font-size:.8rem; }
 .titan-product-card .titan-buy-options { border:0; }
 .titan-product-card .titan-buy-options button[aria-pressed="true"] { border-color:var(--accent); box-shadow:0 0 8px -4px var(--accent); }
@@ -626,10 +626,10 @@
 .titan-promo-ribbon {
   position: absolute;
   z-index: 2;
-  top: 2.375rem;
-  left: -3.8125rem;
-  width: 15.5rem;
-  padding: .7rem 1rem;
+  top: 2rem;
+  left: -3.2rem;
+  width: 13rem;
+  padding: .55rem .8rem;
   transform: rotate(-45deg);
   border: 2px solid #f2cc76;
   border-radius: 0;
@@ -637,8 +637,8 @@
   background: linear-gradient(100deg, #d5a844, #ffe3a0 52%, #d5a844);
   box-shadow: 0 5px 18px #0009;
   text-align: center;
-  font-size: .875rem;
-  line-height: 1.25rem;
+  font-size: .75rem;
+  line-height: 1.0625rem;
   font-weight: 900;
   letter-spacing: .08em;
   text-transform: uppercase;
@@ -659,10 +659,13 @@
 }
 @media (max-width: 400px) {
   .titan-promo-ribbon {
-    top: 2.125rem;
-    left: -3.5rem;
-    width: 14rem;
-    padding-block: .6rem;
-    font-size: .8125rem;
+    top: 1.8rem;
+    left: -2.9rem;
+    width: 11.75rem;
+    padding-block: .5rem;
+    font-size: .6875rem;
   }
 }
+
+/* Keep the starter-kit disclosure compact within listing cards. */
+.titan-product-card .titan-kit-offer { margin-top:.5rem; padding:.6875rem .75rem; }
