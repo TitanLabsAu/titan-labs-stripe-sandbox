@@ -627,14 +627,9 @@ export function AdminEdits() {
   });
 
   const [values, setValues] = useState<Record<string, string>>({});
-  const [siteTheme, setSiteTheme] = useState<SiteTheme>("dark");
-
-  useEffect(() => {
-    setSiteTheme(getStoredTheme());
-  }, []);
+  const { theme: siteTheme, setTheme: applyDeviceTheme } = useSiteTheme();
   const chooseTheme = (theme: SiteTheme) => {
-    setSiteTheme(theme);
-    applySiteTheme(theme);
+    applyDeviceTheme(theme);
     toast.success(
       `${theme === "dark" ? "Dark" : "Light"} theme preview applied on this device`,
     );

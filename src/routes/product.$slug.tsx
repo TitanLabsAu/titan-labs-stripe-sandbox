@@ -1,6 +1,5 @@
 import { promotedPrice } from "@/lib/variant-promotions";
 import { ThemedProductImage } from "@/components/ThemedImage";
-import { productImageDelivery } from "@/lib/product-image-delivery";
 import { seoHead, productUrl, productSchema, jsonLd } from "@/lib/seo";
 import { ProductCertificates } from "@/components/ProductCertificates";
 import { sanitizeProductLinks, isCertificate } from "@/lib/product-certificates";

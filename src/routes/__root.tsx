@@ -8,7 +8,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
-import { applySiteTheme, getStoredTheme } from "@/lib/site-theme";
+import { THEME_BOOT_SCRIPT, applySiteTheme, getStoredTheme } from "@/lib/site-theme";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -108,6 +108,7 @@ function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
         <HeadContent />
       </head>
       <body>
@@ -119,7 +120,7 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 function RootComponent() {
-  useEffect(() => { applySiteTheme(getStoredTheme()); }, []);
+  useEffect(() => { if (getStoredTheme() === "light") applySiteTheme("light"); }, []);
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
 

@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CartSheet } from "@/components/CartSheet";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useProducts, useSiteContent } from "@/lib/useCatalog";
@@ -226,6 +227,7 @@ export function SiteHeader() {
         if (tab === "cart") return <span key={tab} className="hidden md:contents"><CartSheet /></span>;
         return null;
       })}
+      <ThemeToggle />
       {visibleCmsLinks(cmsValues(content, "nav_header").links).map((l, i) => (
         <Button key={`cms-${i}`} asChild variant="outline" size="sm" className="titan-nav-icon w-auto px-3 text-xs font-bold uppercase">
           <CmsLink href={l.url}>{l.label}</CmsLink>

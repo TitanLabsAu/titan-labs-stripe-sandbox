@@ -1,4 +1,3 @@
-import { productImageDelivery } from "@/lib/product-image-delivery";
 import { ThemedProductImage } from "@/components/ThemedImage";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Check, ChevronRight, Minus, Plus, ShoppingCart, Trash2, Wrench } from "lucide-react";

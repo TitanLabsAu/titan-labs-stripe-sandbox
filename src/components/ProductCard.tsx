@@ -1,6 +1,5 @@
 import { promotedPrice } from "@/lib/variant-promotions";
 import { ThemedProductImage } from "@/components/ThemedImage";
-import { productImageDelivery } from "@/lib/product-image-delivery";
 import { ProductCoaLink } from "./ProductCertificates";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";

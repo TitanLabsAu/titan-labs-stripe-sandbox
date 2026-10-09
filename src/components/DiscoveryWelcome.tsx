@@ -1,4 +1,3 @@
-import { productImageDelivery } from "@/lib/product-image-delivery";
 import { ThemedProductImage, useThemedArt } from "@/components/ThemedImage";
 import { ArrowRight, FlaskConical, PenTool, Truck, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
