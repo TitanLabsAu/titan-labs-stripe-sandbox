@@ -24,7 +24,7 @@ export function StockPurchaseForm({
   products: PurchaseProduct[];
   onSaved: () => void;
 }) {
-  const [lines, setLines] = useState<DraftLine[]>(() => [newLine()]);
+  const [lines, setLines] = useState<DraftLine[]>(() => [{ ...newLine(), key: "line-initial" }]);
   const [mode, setMode] = useState<CostMode>("line");
   const [other, setOther] = useState("");
   const [discount, setDiscount] = useState("");
