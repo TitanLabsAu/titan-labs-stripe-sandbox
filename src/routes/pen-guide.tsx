@@ -18,7 +18,7 @@ function PenGuide() {
   const d = cmsValues(content, "guide_pen");
   const learning = cmsValues(content, "guide_learning");
   const faqIcons = [PenTool, Ruler, RotateCcw, Settings, Trash2, ShieldCheck, Info, BookOpen];
-  const banner = themedArtPair(g.banner_image || "/images/titan-catalogue-banner.webp", g.banner_image_light);
+  const banner = themedArtPair(g.banner_image || "/images/titan-catalogue-banner.webp", g.banner_image_light, "/images/titan-pen-guide-banner-light.webp");
   return (
     <div className="bg-hero min-h-screen">
       <SiteHeader />

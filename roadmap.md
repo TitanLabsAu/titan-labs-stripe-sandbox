@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Replace only Pen Guide default light banner with supplied original-composition counterpart; verify responsive decoding, contrast and both themes without publishing.
+
 - [x] Finish Pen Guide paired banner, scoped light contrast and equal-height FAQ rows; verify both themes/zoom. Eight cards measured 250–250px desktop, 274–274px mobile, 298–298px tablet; long-content and 200% zoom checks had no clipping/overflow. Light headings/body/checklist minimum sampled contrast 9.18:1.
 - [x] Install the two exact attached account photos at the requested public paths and verify serving/decoding; SHA-256 matches both uploads, both return HTTP 200 image/webp and decode. All restored theme files preserved; no GitHub pulls.
 - [x] Guard carousel playback using the current attached plugin and live snap count. 100 existing Bun tests pass; automatic build OK. Both themes verified at desktop/mobile/tablet, zero browser runtime errors. FAQs measure 250–250px desktop, 274–274px mobile, 298–298px tablet; long CMS and 200% zoom have no clipping/overflow. Light contrast minimum 4.98:1 including CTA, icons 13.52:1. Actual TitanMemberCard rendered in a temporary browser-only fixture, both themes desktop/mobile; no app test route/auth bypass, DB writes or publishing. Screenshots supplied.

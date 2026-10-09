@@ -5,6 +5,7 @@ const ART_SETS: Record<string, string> = {
   "/images/titan-membership-card.webp": "/images/titan-membership-card-960.webp 960w, /images/titan-membership-card.webp 1672w",
   "/images/titan-membership-card-light.webp": "/images/titan-membership-card-light-960.webp 960w, /images/titan-membership-card-light.webp 1672w",
   "/images/titan-catalogue-banner.webp": "/images/titan-catalogue-banner-960.webp 960w, /images/titan-catalogue-banner.webp 2172w",
+  "/images/titan-pen-guide-banner-light.webp": "/images/titan-pen-guide-banner-light-960.webp 960w, /images/titan-pen-guide-banner-light.webp 1920w",
   "/images/titan-testing-laboratory.webp": "/images/titan-testing-laboratory-480.webp 480w, /images/titan-testing-laboratory-960.webp 960w, /images/titan-testing-laboratory.webp 1254w",
   "/images/product-light/testing-laboratory-light.webp": "/images/product-light/testing-laboratory-light-480.webp 480w, /images/product-light/testing-laboratory-light.webp 1024w",
 };
