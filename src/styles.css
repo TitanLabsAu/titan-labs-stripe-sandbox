@@ -717,6 +717,7 @@
 .light .titan-product-card .titan-buy-options button[aria-pressed="true"] { border-color: var(--primary); color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
 .light .titan-kit-offer { background: color-mix(in oklab, var(--accent) 7%, var(--card)); color: var(--foreground); }
 .light .titan-promo-badge:not(.titan-promo-ribbon) { background: var(--card); }
+.light .titan-promo-ribbon--new { color: var(--primary-foreground); }
 .light .titan-site-footer { background: oklch(0.95 0.015 235); color: var(--foreground); }
 .light .testing-transparency { background: linear-gradient(115deg, var(--card), color-mix(in oklab, var(--primary) 7%, var(--card))); color: var(--foreground); }
 .light input, .light select, .light textarea { border-color: var(--input); }
