@@ -1,5 +1,9 @@
 # Roadmap
 
+- [x] Finish Pen Guide paired banner, scoped light contrast and equal-height FAQ rows; verify both themes/zoom. Eight cards measured 250–250px desktop, 274–274px mobile, 298–298px tablet; long-content and 200% zoom checks had no clipping/overflow. Light headings/body/checklist minimum sampled contrast 9.18:1.
+- [ ] Prepare account paired artwork and light text; retrieve and verify assets from exact review/light-theme SHA bd5af33db0450595405bb072b343167be33df92e without overwriting working edits, then validate both sizes.
+- [x] Run Bun regressions and browser checks; inspect automatic build/typecheck signals; do not publish. 98 tests passed; latest automatic build OK; zero browser runtime errors. Sticky header, first-visit light and 44px icon toggle verified. Fresh separate typecheck/production-build signal unavailable; hosted diagnostics refer to older 5f60217, not current edits.
+
 - [x] Enable promotions drag/swipe with hover pause and arrow navigation.
 - [x] Keep New Product blue with gold lettering.
 - [x] Verify changes and request publishing (deployment scheduled).
