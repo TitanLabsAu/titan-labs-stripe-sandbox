@@ -29,3 +29,6 @@
 - [x] Admin Inventory tab: overview, SKU table, alerts, drawer with atomic adjustments + ledger
 - [x] Restock expense: strict variant match, atomic expense+stock+ledger (no first-size fallback)
 - [x] Separate Admin improvement recommendations (report only, no overhaul)
+
+## Multi-item stock purchase (draft, do not publish)
+- [x] One purchase header + item lines, cents totals, other costs/discount, idempotent atomic save with optional stock receipts; expandable details in Spending list. 111 tests pass, typecheck clean. Saved-purchase expansion not browser-checked (needs admin sign-in).
