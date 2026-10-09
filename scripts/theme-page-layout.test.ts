@@ -4,6 +4,20 @@ import { artDelivery } from "../src/lib/theme-art";
 import { CMS_SECTIONS } from "../src/lib/storefrontContent";
 
 describe("page-scoped themed artwork and layout", () => {
+  test("promotion playback only calls the attached initialized plugin", () => {
+    const strip = readFileSync("src/components/HotProductsStrip.tsx", "utf8");
+    expect(strip).toContain("carousel.plugins().autoScroll");
+    expect(strip).toContain("carousel.scrollSnapList().length <= 1");
+    expect(strip).not.toContain("autoScroll.play()");
+    expect(strip).not.toContain("autoScroll.stop()");
+  });
+  test("both finished light account images exist with WebP headers", () => {
+    for (const path of ["titan-membership-card-light.webp", "titan-membership-card-light-960.webp"]) {
+      const bytes = readFileSync(`public/images/${path}`);
+      expect(bytes.subarray(0, 4).toString()).toBe("RIFF");
+      expect(bytes.subarray(8, 12).toString()).toBe("WEBP");
+    }
+  });
   test("all FAQ rows share intrinsic equal heights without fixed clipping", () => {
     const css = readFileSync("src/styles.css", "utf8");
     const route = readFileSync("src/routes/pen-guide.tsx", "utf8");

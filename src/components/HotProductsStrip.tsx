@@ -16,15 +16,17 @@ export function HotProductsStrip({ products, content }: { products: Product[]; c
   const [dragging, setDragging] = useState(false);
   const autoScroll = useMemo(() => AutoScroll({ speed: 0.6, startDelay: 500, playOnInit: false, stopOnInteraction: true, stopOnMouseEnter: false, stopOnFocusIn: false }), []);
   const [carouselRef, carousel] = useEmblaCarousel({ loop: true, dragFree: true, align: "start" }, [autoScroll]);
-  // AutoScroll skips its own setup when Embla has <=1 snap (e.g. before layout or at some widths),
-  // leaving its saved scroll body undefined; calling play/stop then crashes Embla's render ("settled").
-  // Only drive the plugin while it is actually initialised, re-checking after every reInit (resize).
+  // Resolve the attached plugin, not the render's candidate: Embla can retain a different
+  // instance with equivalent options after Fast Refresh. Unattached candidates have no API.
+  // Re-check snaps synchronously because AutoScroll skips setup for <=1 snap on resize.
   const [scrollable, setScrollable] = useState(false);
   const [initCount, setInitCount] = useState(0);
   useEffect(() => {
-    if (!carousel || !scrollable) return;
-    if (paused || reduced || hovered || focused || dragging) autoScroll.stop();
-    else autoScroll.play();
+    if (!carousel || !scrollable || carousel.scrollSnapList().length <= 1) return;
+    const attached = carousel.plugins().autoScroll;
+    if (!attached) return;
+    if (paused || reduced || hovered || focused || dragging) attached.stop();
+    else attached.play();
   }, [carousel, autoScroll, scrollable, initCount, paused, reduced, hovered, focused, dragging]);
   useEffect(() => {
     if (!carousel) return;
