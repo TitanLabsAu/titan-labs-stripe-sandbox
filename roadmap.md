@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Replace only Pen Guide default light banner with supplied original-composition counterpart; verify responsive decoding, contrast and both themes without publishing.
+- [x] Replace only Pen Guide default light banner with supplied original-composition counterpart; CMS override and dark art preserved. Exact uploads installed (full upload is 1920×640, smaller is 960×320); both decode. Desktop/mobile both themes render without errors or overflow, FAQs remain 250px/274px across all eight cards. Light copy contrast minimum 16.41:1 desktop / 10.75:1 mobile; 101 regressions pass, automatic build OK. Separate typecheck signal unavailable; no manual build/typecheck per harness. Nothing published.
 
 - [x] Finish Pen Guide paired banner, scoped light contrast and equal-height FAQ rows; verify both themes/zoom. Eight cards measured 250–250px desktop, 274–274px mobile, 298–298px tablet; long-content and 200% zoom checks had no clipping/overflow. Light headings/body/checklist minimum sampled contrast 9.18:1.
 - [x] Install the two exact attached account photos at the requested public paths and verify serving/decoding; SHA-256 matches both uploads, both return HTTP 200 image/webp and decode. All restored theme files preserved; no GitHub pulls.
