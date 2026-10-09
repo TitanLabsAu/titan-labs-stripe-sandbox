@@ -68,8 +68,7 @@ import { formatPrice } from "@/lib/products";
 import { DEFAULT_CRYPTO_LINES, serialiseCryptoOptions } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
 import {
-  applySiteTheme,
-  getStoredTheme,
+  useSiteTheme,
   type SiteTheme,
 } from "@/lib/site-theme";
 
