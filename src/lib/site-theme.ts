@@ -46,7 +46,7 @@ function emit(next: SiteTheme) {
 }
 
 function attach() {
-  if (typeof window === "undefined" || detach) return;
+  if (typeof window === "undefined" || typeof window.addEventListener !== "function" || detach) return;
   const onChange = (e: Event) => emit((e as CustomEvent<SiteTheme>).detail === "light" ? "light" : "dark");
   const onStorage = (e: StorageEvent) => {
     if (e.key !== THEME_STORAGE_KEY) return;
