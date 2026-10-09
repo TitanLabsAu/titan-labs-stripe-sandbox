@@ -1,4 +1,4 @@
-import { productImageDelivery } from "@/lib/product-image-delivery";
+import { ThemedProductImage, useThemedArt } from "@/components/ThemedImage";
 import { ArrowRight, FlaskConical, PenTool, Truck, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CmsLink } from "@/components/CmsLink";
@@ -12,9 +12,10 @@ import { filterBySection, CATALOGUE_SECTIONS } from "@/lib/catalogue-sections";
 export function DiscoveryWelcome() {
   const { data: content } = useSiteContent();
   const c = cmsValues(content, "home_welcome");
+  const art = useThemedArt(c.image || "/images/titan-discovery.webp", c.image_light);
   return (
     <section aria-labelledby="discovery-welcome" className="discovery-welcome relative isolate overflow-hidden">
-      <img className="discovery-art" src={c.image || "/images/titan-discovery.webp"} alt="" width={1672} height={941} fetchPriority="high" />
+      <img className="discovery-art" src={art} alt="" width={1672} height={941} fetchPriority="high" />
       <div className="discovery-shade absolute inset-0 -z-10" />
       <div className="page-shell discovery-copy relative py-14 sm:py-20 lg:py-28">
         <div className="max-w-xl">
@@ -47,9 +48,9 @@ export function DiscoveryCatalogue() {
     <h2 id="discovery-catalogue" className="font-display text-4xl font-bold uppercase tracking-tight sm:text-5xl">{c.title}</h2>
     {c.body ? <p className="mt-3 max-w-xl whitespace-pre-line text-base leading-7 text-muted-foreground">{c.body}</p> : null}
     <div className="mt-7 grid gap-4 sm:grid-cols-3">
-      {sections.map(s => { const Icon = icons[s]; const photo = categoryTilePhoto(products, s, photos[`${s}_slug`]); return <CmsLink key={s} href={`/range?section=${s}`} className="discovery-category group relative flex min-h-52 flex-col justify-end overflow-hidden rounded-md border border-primary/40 bg-card p-6 hover:border-accent">
-        {photo ? <img src={photo} {...productImageDelivery(photo, "(min-width: 1024px) 33vw, 100vw")} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-75 transition duration-300 group-hover:scale-105" /> : <Icon aria-hidden="true" className="h-9 w-9 text-primary" strokeWidth={1.3} />}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#030f19] via-transparent to-transparent" />
+      {sections.map(s => { const Icon = icons[s]; const photo = categoryTilePhoto(products, s, photos[`${s}_slug`]); const photoSlug = filterBySection(products, s).find(p => p.image === photo)?.slug; return <CmsLink key={s} href={`/range?section=${s}`} className="discovery-category group relative flex min-h-52 flex-col justify-end overflow-hidden rounded-md border border-primary/40 bg-card p-6 hover:border-accent">
+        {photo ? <ThemedProductImage slug={photoSlug} src={photo} sizes="(min-width: 1024px) 33vw, 100vw" alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-75 transition duration-300 group-hover:scale-105" /> : <Icon aria-hidden="true" className="h-9 w-9 text-primary" strokeWidth={1.3} />}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#030f19] via-transparent discovery-category-shade to-transparent" />
         <span className="mt-6 flex items-center justify-between gap-3 font-display text-xl font-bold uppercase">{labels[`section_${s}`]}<ArrowRight aria-hidden="true" className="h-5 w-5 text-accent transition-transform group-hover:translate-x-1" /></span>
       </CmsLink>; })}
     </div>

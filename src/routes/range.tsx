@@ -1,3 +1,4 @@
+import { useThemedArt } from "@/components/ThemedImage";
 import { hotVariantIds, withHotSelections } from "@/lib/product-promotions";
 import { SITE_ORIGIN } from "@/lib/seo";
 import { cmsValues } from "@/lib/storefrontContent";
@@ -78,6 +79,7 @@ function RangePage() {
   const { data: content } = useSiteContent();
   const pp = cmsValues(content, "product_page");
   const banner = cmsValues(content, "catalogue_banner");
+  const bannerArt = useThemedArt(banner.image || "/images/titan-catalogue-banner.webp", banner.image_light);
   const [mounted, setMounted] = useState(false);
   const [category, setCategory] = useState<string>("All");
   const [search, setSearch] = useState("");
@@ -156,10 +158,10 @@ function RangePage() {
 
       <main id="range" className="page-shell pb-32 pt-8 sm:pt-12">
         <section aria-labelledby="catalogue-banner-heading" className="catalogue-banner relative isolate overflow-hidden rounded-lg border border-primary/35 p-6 sm:p-8">
-          <img src={banner.image || "/images/titan-catalogue-banner.webp"} alt="" className="absolute inset-0 -z-20 h-full w-full object-cover object-right" />
-          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#030f19]/95 via-[#030f19]/45 to-[#030f19]/10" />
-          <p className="font-display text-2xl font-bold uppercase tracking-wide text-[#ccecff]">{banner.eyebrow}</p>
-          <h1 id="catalogue-banner-heading" className="font-display text-[clamp(3rem,7vw,6rem)] font-bold uppercase leading-none text-[#ccecff]">{catalogueName(content)}</h1>
+          <img src={bannerArt} alt="" className="absolute inset-0 -z-20 h-full w-full object-cover object-right" />
+          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#030f19]/95 via-[#030f19]/45 to-[#030f19]/10 catalogue-banner-shade" />
+          <p className="font-display text-2xl font-bold uppercase tracking-wide text-[#ccecff] catalogue-banner-text">{banner.eyebrow}</p>
+          <h1 id="catalogue-banner-heading" className="font-display text-[clamp(3rem,7vw,6rem)] font-bold uppercase leading-none text-[#ccecff] catalogue-banner-text">{catalogueName(content)}</h1>
           <div className="mt-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                 {availableSections.length > 0 && (
                 <div

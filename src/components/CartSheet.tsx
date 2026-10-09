@@ -1,4 +1,4 @@
-import { productImageDelivery } from "@/lib/product-image-delivery";
+import { ThemedProductImage } from "@/components/ThemedImage";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Check, ChevronRight, Minus, Plus, ShoppingCart, Trash2, Wrench } from "lucide-react";
 import { useState } from "react";
@@ -124,9 +124,10 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
                       key={item.key}
                       className="flex gap-3 rounded-xl border border-border bg-card p-3"
                     >
-                      <img
+                      <ThemedProductImage
+                        slug={product.slug}
                         src={product.image}
-              {...productImageDelivery(product.image, "80px")}
+                        sizes="80px"
                         alt={product.alt}
                         className="brand-cut h-16 w-16 object-cover"
                       />
@@ -222,7 +223,8 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
                           key={variant.id}
                           className="grid grid-cols-[2.75rem_minmax(0,1fr)_auto] items-center gap-3 px-3 py-2.5"
                         >
-                          <img
+                          <ThemedProductImage
+                            slug={bacWater.slug}
                             src={bacWater.image}
                             alt={bacWater.alt}
                             className="h-11 w-11 rounded-md border border-border bg-card object-cover"

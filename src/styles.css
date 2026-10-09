@@ -669,3 +669,53 @@
 
 /* Keep the starter-kit disclosure compact within listing cards. */
 .titan-product-card .titan-kit-offer { margin-top:.5rem; padding:.6875rem .75rem; }
+
+/* ===== Light theme (device preference). Every rule is scoped to .light so dark stays unchanged. ===== */
+.light {
+  --background: oklch(0.975 0.008 235);
+  --foreground: oklch(0.24 0.02 250);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.24 0.02 250);
+  --secondary: oklch(0.94 0.018 235);
+  --muted: oklch(0.945 0.015 235);
+  --muted-foreground: oklch(0.45 0.025 248);
+  --primary: oklch(0.52 0.17 245);
+  --ring: oklch(0.52 0.17 245);
+  --accent: oklch(0.6 0.12 76);
+  --border: oklch(0.82 0.03 240);
+  --input: oklch(0.76 0.04 240);
+  --gradient-hero: linear-gradient(180deg, oklch(0.985 0.006 235), oklch(0.955 0.018 232) 58%, oklch(0.975 0.01 235));
+}
+.light .titan-theme-toggle { color: var(--foreground); }
+.light .discovery-welcome { --background: oklch(0.975 0.008 235); --foreground: oklch(0.24 0.02 250); --muted-foreground: oklch(0.42 0.025 248); }
+.light .discovery-shade { background: linear-gradient(0deg, var(--background), transparent 22%), linear-gradient(90deg, color-mix(in oklab, var(--background) 88%, transparent), color-mix(in oklab, var(--background) 40%, transparent) 50%, transparent 72%); }
+@media (max-width: 767px) { .light .discovery-shade { background: linear-gradient(0deg, var(--background) 32%, color-mix(in oklab, var(--background) 85%, transparent) 55%, transparent 93%); } }
+.light .titan-home .discovery-welcome h1 { color: oklch(0.24 0.04 250); text-shadow: none; }
+.light .discovery-shipping { color: var(--foreground); }
+.light .discovery-category { background-color: var(--card); }
+.light .discovery-category-shade { background-image: linear-gradient(to top, color-mix(in oklab, var(--card) 96%, transparent), color-mix(in oklab, var(--card) 30%, transparent) 55%, transparent); }
+.light .discovery-category img { opacity: 1; }
+.light .titan-membership { background: var(--background); color: var(--foreground); --foreground: oklch(0.24 0.02 250); --muted-foreground: oklch(0.42 0.025 248); }
+.light .membership-shade { background: linear-gradient(90deg, var(--background) 6%, color-mix(in oklab, var(--background) 86%, transparent) 34%, transparent 75%); }
+@media (max-width: 767px) { .light .membership-shade { background: linear-gradient(0deg, var(--background) 40%, color-mix(in oklab, var(--background) 88%, transparent) 62%, transparent 95%); } }
+.light .titan-membership h2 { color: oklch(0.24 0.04 250); }
+.light .membership-offer { border-color: color-mix(in oklab, var(--primary) 40%, transparent); background: linear-gradient(90deg, color-mix(in oklab, var(--accent) 12%, var(--card)), var(--card)); }
+.light .catalogue-banner { background: var(--card); }
+.light .catalogue-banner-shade { background-image: linear-gradient(to right, color-mix(in oklab, var(--card) 94%, transparent), color-mix(in oklab, var(--card) 55%, transparent) 50%, transparent); }
+.light .catalogue-banner-text { color: oklch(0.24 0.04 250); }
+.light .catalogue-banner-search input { background: var(--card); color: var(--foreground); }
+.light .review-band { color: var(--foreground); background: linear-gradient(180deg, var(--background), color-mix(in oklab, var(--primary) 6%, var(--background))); --review-line: var(--border); }
+.light .review-card { background: var(--card); color: var(--foreground); border-color: var(--border); box-shadow: 0 6px 20px -16px color-mix(in oklab, var(--primary) 60%, transparent); }
+.light .titan-product-card { background: var(--card); border-color: color-mix(in oklab, var(--primary) 32%, var(--border)); box-shadow: 0 8px 24px -20px color-mix(in oklab, var(--primary) 70%, transparent); }
+.light .titan-product-card > div { color: var(--foreground); }
+.light .titan-photo-frame { background: linear-gradient(160deg, oklch(1 0 0), oklch(0.95 0.02 235)); }
+.light .titan-themed-photo:not([data-light-photo]) { background: oklch(0.97 0.012 235); }
+.light .titan-product-card .titan-buy-options button { background: var(--card); color: var(--foreground); border-color: var(--border); }
+.light .titan-product-card .titan-buy-options button[aria-pressed="true"] { border-color: var(--primary); color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
+.light .titan-kit-offer { background: color-mix(in oklab, var(--accent) 7%, var(--card)); color: var(--foreground); }
+.light .titan-promo-badge:not(.titan-promo-ribbon) { background: var(--card); }
+.light .titan-site-footer { background: oklch(0.95 0.015 235); color: var(--foreground); }
+.light .testing-transparency { background: linear-gradient(115deg, var(--card), color-mix(in oklab, var(--primary) 7%, var(--card))); color: var(--foreground); }
+.light input, .light select, .light textarea { border-color: var(--input); }
+.light a:focus-visible, .light button:focus-visible, .light select:focus-visible, .light input:focus-visible, .light textarea:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+.light .titan-card-price { color: var(--primary); }

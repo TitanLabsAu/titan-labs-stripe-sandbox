@@ -1,5 +1,5 @@
 import { promotedPrice } from "@/lib/variant-promotions";
-import { productImageDelivery } from "@/lib/product-image-delivery";
+import { ThemedProductImage } from "@/components/ThemedImage";
 import { ProductCoaLink } from "./ProductCertificates";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
@@ -54,11 +54,12 @@ export function ProductCard({ product: p }: { product: Product }) {
       <Link
         to="/product/$slug"
         params={{ slug: p.slug }}
-        className="titan-product-photo relative block aspect-square overflow-hidden border-b border-primary/20 bg-[#030f19]"
+        className="titan-product-photo relative block aspect-square overflow-hidden border-b border-primary/20 bg-[#030f19] titan-photo-frame"
       >
-        <img
+        <ThemedProductImage
+          slug={p.slug}
           src={p.image}
-              {...productImageDelivery(p.image, "(min-width: 1280px) 320px, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw")}
+          sizes="(min-width: 1280px) 320px, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
           alt={p.alt}
           loading="lazy"
           className={`h-full w-full object-contain transition duration-300 hover:scale-[1.02] ${allOut ? "opacity-40 grayscale" : ""}`}
@@ -171,7 +172,7 @@ export function ProductCard({ product: p }: { product: Product }) {
               {formatPrice(wasPrice!)}
             </span>
           ) : null}
-          <span className="font-display text-2xl font-bold text-[#ccecff]">
+          <span className="font-display text-2xl font-bold text-[#ccecff] titan-card-price">
             {formatPrice(option.unitPrice)}
           </span>
         </div>

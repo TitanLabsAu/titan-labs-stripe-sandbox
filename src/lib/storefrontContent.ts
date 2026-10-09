@@ -38,6 +38,12 @@ const B = (key: string, label: string, help?: string): CmsField => ({ key, label
 
 export const CMS_SECTIONS: CmsSection[] = [
   {
+    id: "theme_artwork", group: "Homepage", title: "Theme artwork (light product photos)",
+    description: "Optional light-theme photos for individual products. Enter the product slug (from its URL) and a real light photo of that same product. Products without an entry keep their original photo in a light frame. Dark theme photos are never changed.",
+    fields: [{ key: "products", label: "Light product photos", type: "list", maxItems: 200, itemFields: [{ key: "slug", label: "Product slug (from its URL)", type: "text", max: 160 }, { key: "image", label: "Light photo URL", type: "url" }] }],
+    defaults: { products: [] },
+  },
+  {
     id: "seo", group: "SEO", title: "Search & social previews",
     description: "These settings change search metadata and shared-link previews only. They do not change visible storefront headings or product descriptions. Leave product overrides blank to use automatic defaults.",
     fields: [T("home_title", "Homepage search title", 160), P("home_description", "Homepage search description", 320), {key: "home_image", label: "Homepage social preview image", type: "image"},
@@ -107,17 +113,18 @@ export const CMS_SECTIONS: CmsSection[] = [
       checklist: [{ text: "Exact model and supplied instructions identified" }, { text: "Packaging, labels and components inspected" }, { text: "Cartridge and accessories confirmed compatible" }, { text: "Display and scale terminology understood" }, { text: "Storage instructions checked" }, { text: "Sharps container and disposal plan ready" }],
     },
   },
-  { id: "catalogue_banner", group: "Pages", title: "Catalogue banner", fields: [T("eyebrow", "Small heading", 60), { key: "image", label: "Banner artwork", type: "image" }, T("search_placeholder", "Search placeholder", 100)], defaults: { eyebrow: "The", image: "", search_placeholder: "Search products…" } },
+  { id: "catalogue_banner", group: "Pages", title: "Catalogue banner", fields: [T("eyebrow", "Small heading", 60), { key: "image", label: "Banner artwork", type: "image" }, { key: "image_light", label: "Light theme banner artwork", type: "image", help: "Shown only in the light theme. Leave empty to use the approved light helmet artwork." }, T("search_placeholder", "Search placeholder", 100)], defaults: { eyebrow: "The", image: "", image_light: "", search_placeholder: "Search products…" } },
   { id: "footer_design", group: "Navigation", title: "Footer presentation", fields: [T("support_title", "Support column heading", 60)], defaults: { support_title: "Support" } },
   {
     id: "home_membership", group: "Homepage", title: "Join Titan Labs",
     description: "The illustrated membership section. First-purchase offer follows your discount settings and Homepage offer text.",
     fields: [B("visible", "Show membership section"), T("eyebrow", "Small heading", 60), T("title", "Heading", 100), P("body", "Introduction", 800),
       { key: "image", label: "Membership artwork", type: "image", help: "Leave empty to use the approved Titan helmet artwork." },
+      { key: "image_light", label: "Light theme membership artwork", type: "image", help: "Shown only in the light theme. Leave empty to use the approved light helmet artwork." },
       T("primary_label", "Sign-up button label", 40), U("primary_url", "Sign-up button link"),
       T("login_prompt", "Login introduction", 80), T("login_label", "Login link label", 40), U("login_url", "Login link"),
       P("help", "Sign-up guidance", 300)],
-    defaults: { visible: true, eyebrow: "Become a Titan member", title: "Join Titan Labs", body: "Create your account to explore the full catalogue, manage your orders and access member rewards.", image: "", primary_label: "Create account", primary_url: "/auth/signup", login_prompt: "Already a member?", login_label: "Log in", login_url: "/auth", help: "Confirm your email, complete your profile, then start exploring." },
+    defaults: { visible: true, eyebrow: "Become a Titan member", title: "Join Titan Labs", body: "Create your account to explore the full catalogue, manage your orders and access member rewards.", image: "", image_light: "", primary_label: "Create account", primary_url: "/auth/signup", login_prompt: "Already a member?", login_label: "Log in", login_url: "/auth", help: "Confirm your email, complete your profile, then start exploring." },
   },
 
   {
@@ -125,9 +132,10 @@ export const CMS_SECTIONS: CmsSection[] = [
     description: "The integrated homepage welcome, including its background artwork and live buttons. Replaces the old welcome blocks.",
     fields: [T("eyebrow", "Small heading", 60), P("headline", "Headline", 160), P("body", "Welcome text", 800),
       { key: "image", label: "Welcome artwork", type: "image", help: "Leave empty to use the approved blue and gold helmet artwork." },
+      { key: "image_light", label: "Light theme welcome artwork", type: "image", help: "Shown only in the light theme. Leave empty to use the approved light helmet artwork." },
       T("primary_label", "Catalogue button label", 40), U("primary_url", "Catalogue button link"),
       T("secondary_label", "Certificates button label", 40), U("secondary_url", "Certificates button link"), P("notice", "Research notice", 300)],
-    defaults: { eyebrow: "Welcome to Titan", headline: "Your next discovery\nstarts here.", body: "Explore the Range, discover our Pens and Equipment, and view available product certificates — all in one place.", image: "", primary_label: "Explore Catalogue", primary_url: "/range", secondary_label: "View Certificates", secondary_url: "/certificates", notice: "For laboratory research only. Not for human or animal consumption." },
+    defaults: { eyebrow: "Welcome to Titan", headline: "Your next discovery\nstarts here.", body: "Explore the Range, discover our Pens and Equipment, and view available product certificates — all in one place.", image: "", image_light: "", primary_label: "Explore Catalogue", primary_url: "/range", secondary_label: "View Certificates", secondary_url: "/certificates", notice: "For laboratory research only. Not for human or animal consumption." },
   },
   {
     id: "home_catalogue", group: "Homepage", title: "Catalogue discovery links",
