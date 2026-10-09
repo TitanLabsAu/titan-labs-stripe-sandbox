@@ -94,7 +94,7 @@ export const adminSetReorderThreshold = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     await assertAdmin(context as any);
-    const variantKey = skuKey(data.productId, data.variantId).split("::")[1];
+    const variantKey = skuKey(data.productId, data.variantId).split("::")[1] ?? "base";
     const { error } = await context.supabase.from("inventory_reorder_settings").upsert({
       product_id: data.productId,
       variant_key: variantKey,

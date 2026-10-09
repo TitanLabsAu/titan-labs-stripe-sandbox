@@ -71,7 +71,7 @@ describe("server and database guards", () => {
   const sql = readFileSync("drizzle/migrations/0033_inventory_ledger_and_reorder.sql", "utf8");
   const restock = readFileSync("drizzle/migrations/0034_atomic_restock_expense.sql", "utf8");
   test("every inventory server function is admin-checked", () => {
-    expect(fns.match(/createServerFn/g)!.length).toBe(fns.match(/await assertAdmin/g)!.length);
+    expect(fns.match(/createServerFn\(\{/g)!.length).toBe(fns.match(/await assertAdmin/g)!.length);
   });
   test("ledger is admin-read-only and immutable; adjustments compare-and-set", () => {
     expect(sql).not.toMatch(/GRANT [^;]*INSERT[^;]*inventory_movements TO authenticated/);
