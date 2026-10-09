@@ -56,8 +56,8 @@ export function StockPurchaseForm({
           items: lines.map((l, i) => ({
             productId: l.productId,
             variantId: l.variantId,
-            quantity: result.checks[i].qty ?? 0,
-            lineCostCents: result.checks[i].lineCents ?? 0,
+            quantity: result.checks[i]!.qty ?? 0,
+            lineCostCents: result.checks[i]!.lineCents ?? 0,
           })),
         },
       }),
@@ -99,7 +99,7 @@ export function StockPurchaseForm({
         {lines.map((l, i) => {
           const p = products.find((x) => x.id === l.productId);
           const variants = p?.product_variants ?? [];
-          const c = result.checks[i];
+          const c = result.checks[i]!;
           const n = i + 1;
           return (
             <li key={l.key} className="rounded-xl border border-primary/20 bg-card/70 p-3">
