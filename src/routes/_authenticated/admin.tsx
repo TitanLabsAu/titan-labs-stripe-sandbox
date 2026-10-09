@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { SiteHeader } from "@/components/SiteHeader";
 import { AdminMembers } from "@/components/AdminMembers";
 import { AdminProducts } from "@/components/AdminProducts";
+import { AdminInventory } from "@/components/AdminInventory";
 import { AdminDiscounts } from "@/components/AdminDiscounts";
 import { adminSetOrderRefunded } from "@/lib/referrals.functions";
 import { AdminEdits } from "@/components/AdminEdits";
@@ -729,6 +730,7 @@ function AdminTabsPage() {
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="members">Members</TabsTrigger>
             <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="inventory">Inventory</TabsTrigger>
             <TabsTrigger value="finance">Sales &amp; profit</TabsTrigger>
             <TabsTrigger value="discounts">Discounts</TabsTrigger>
             <TabsTrigger value="reviews">Reviews</TabsTrigger>
@@ -744,6 +746,9 @@ function AdminTabsPage() {
           </TabsContent>
           <TabsContent value="products" className="mt-6">
             <AdminProducts />
+          </TabsContent>
+          <TabsContent value="inventory" className="mt-6">
+            <AdminInventory />
           </TabsContent>
           <TabsContent value="finance" className="mt-6">
             <AdminFinance />

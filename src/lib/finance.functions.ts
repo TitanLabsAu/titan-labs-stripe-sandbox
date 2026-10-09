@@ -112,6 +112,23 @@ export const adminSaveExpense = createServerFn({ method: "POST" })
       if (target && isUnlimitedStock(target as any)) shouldRestock = false;
     }
 
+    if (shouldRestock && slug && qty) {
+      // One database transaction: expense + exact-size stock receipt + ledger entry.
+      // Unknown/missing sizes are rejected (nothing saved) instead of falling back to the first size.
+      const { error } = await (context.supabase as any).rpc("record_restock_expense", {
+        _occurred_on: data.occurred_on,
+        _category: data.category || "stock",
+        _supplier: data.supplier ?? "",
+        _description: data.description ?? "",
+        _amount: num(data.amount),
+        _product_slug: slug,
+        _variant_label: variantLabel ?? "",
+        _quantity: qty,
+      });
+      if (error) throw new Error(error.message);
+      return { ok: true, restocked: true };
+    }
+
     const row = {
       occurred_on: data.occurred_on,
       category: data.category || "stock",
@@ -121,49 +138,21 @@ export const adminSaveExpense = createServerFn({ method: "POST" })
       product_slug: slug,
       variant_label: variantLabel,
       quantity: qty,
-      restocked: shouldRestock,
+      restocked: false,
       created_by: context.userId,
     };
 
     if (data.id) {
-      const { error } = await context.supabase.from("expenses").update(row).eq("id", data.id);
+      // Editing never re-applies stock; keep the original restocked flag.
+      const { restocked: _r, created_by: _c, ...patch } = row;
+      const { error } = await context.supabase.from("expenses").update(patch).eq("id", data.id);
       if (error) throw error;
     } else {
       const { error } = await context.supabase.from("expenses").insert(row);
       if (error) throw error;
     }
 
-    if (shouldRestock && slug && qty) {
-      const { data: product } = await context.supabase
-        .from("products")
-        .select("id, product_variants, stock_quantity, catalogue_section, unlimited_stock")
-        .eq("slug", slug)
-        .maybeSingle();
-      if (product && !isUnlimitedStock(product as any)) {
-        const variants = ((product as any).product_variants ?? []) as any[];
-        if (variants.length > 0) {
-          const target =
-            variants.find((v) => String(v.label) === variantLabel) ?? variants[0];
-          const updated = variants.map((v) =>
-            v === target
-              ? { ...v, stock: Math.max(0, Math.trunc(num(v.stock)) + qty) }
-              : v,
-          );
-          const total = updated.reduce((s, v) => s + Math.max(0, Math.trunc(num(v.stock))), 0);
-          await context.supabase
-            .from("products")
-            .update({ product_variants: updated, stock_quantity: total })
-            .eq("id", (product as any).id);
-        } else {
-          await context.supabase
-            .from("products")
-            .update({ stock_quantity: Math.max(0, num((product as any).stock_quantity) + qty) })
-            .eq("id", (product as any).id);
-        }
-      }
-    }
-
-    return { ok: true, restocked: shouldRestock };
+    return { ok: true, restocked: false };
   });
 
 export const adminDeleteExpense = createServerFn({ method: "POST" })
