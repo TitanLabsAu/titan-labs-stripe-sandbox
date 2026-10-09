@@ -323,6 +323,78 @@ export type Database = {
         }
         Relationships: []
       }
+      inventory_movements: {
+        Row: {
+          actor: string | null
+          after_qty: number
+          before_qty: number
+          created_at: string
+          delta: number
+          id: string
+          kind: string
+          product_id: string
+          product_slug: string
+          reason: string
+          reference: string | null
+          variant_id: string | null
+          variant_label: string | null
+        }
+        Insert: {
+          actor?: string | null
+          after_qty: number
+          before_qty: number
+          created_at?: string
+          delta: number
+          id?: string
+          kind: string
+          product_id: string
+          product_slug: string
+          reason: string
+          reference?: string | null
+          variant_id?: string | null
+          variant_label?: string | null
+        }
+        Update: {
+          actor?: string | null
+          after_qty?: number
+          before_qty?: number
+          created_at?: string
+          delta?: number
+          id?: string
+          kind?: string
+          product_id?: string
+          product_slug?: string
+          reason?: string
+          reference?: string | null
+          variant_id?: string | null
+          variant_label?: string | null
+        }
+        Relationships: []
+      }
+      inventory_reorder_settings: {
+        Row: {
+          product_id: string
+          threshold: number
+          updated_at: string
+          updated_by: string | null
+          variant_key: string
+        }
+        Insert: {
+          product_id: string
+          threshold: number
+          updated_at?: string
+          updated_by?: string | null
+          variant_key: string
+        }
+        Update: {
+          product_id?: string
+          threshold?: number
+          updated_at?: string
+          updated_by?: string | null
+          variant_key?: string
+        }
+        Relationships: []
+      }
       member_calendar_entries: {
         Row: {
           created_at: string
@@ -1286,6 +1358,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      adjust_inventory: {
+        Args: {
+          _expected_before: number
+          _kind: string
+          _product_id: string
+          _quantity: number
+          _reason: string
+          _reference: string
+          _variant_id: string
+        }
+        Returns: Json
+      }
       attach_first_offer_claim: {
         Args: { _claim_id: string; _payment_attempt_id: string }
         Returns: undefined
