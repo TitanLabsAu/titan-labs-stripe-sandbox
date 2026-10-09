@@ -74,7 +74,7 @@ export function ProductCard({ product: p }: { product: Product }) {
           </span>
         ) : null}
       </Link>
-      <div className="flex min-w-0 flex-1 flex-col gap-1 p-3 sm:p-4">
+      <div className="flex min-w-0 flex-1 flex-col gap-1 p-3">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
           <Link
             to="/product/$slug"
@@ -89,7 +89,7 @@ export function ProductCard({ product: p }: { product: Product }) {
             </span>
           ) : null}
         </div>
-        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1"><Link to="/product/$slug" params={{slug:p.slug}} className="inline-flex min-h-7 w-fit items-center gap-1 text-xs font-semibold text-primary hover:underline"><BookOpen className="h-3 w-3"/>Product Info</Link><ProductCoaLink product={p}/></div>
+        <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1"><Link to="/product/$slug" params={{slug:p.slug}} className="inline-flex min-h-7 w-fit items-center gap-1 text-xs font-semibold text-primary hover:underline"><BookOpen className="h-3 w-3"/>Product Info</Link><ProductCoaLink product={p}/></div>
         {soon && !bannerSoon ? (
           <span className="mt-2 inline-flex w-fit items-center border border-primary bg-primary px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-primary-foreground">
             This size coming soon
@@ -104,7 +104,7 @@ export function ProductCard({ product: p }: { product: Product }) {
           </span>
         ) : null}
         {variants.length > 0 ? (
-          <label className="mt-3 grid grid-cols-[3rem_minmax(0,1fr)] items-center gap-3 text-xs font-display uppercase tracking-wide">
+          <label className="mt-2 grid grid-cols-[3rem_minmax(0,1fr)] items-center gap-3 text-xs font-display uppercase tracking-wide">
           <span>Size</span>
           <select
             className="h-11 w-full min-w-0 rounded-md border border-input bg-background px-2 text-[11px] font-semibold text-foreground"
@@ -131,7 +131,7 @@ export function ProductCard({ product: p }: { product: Product }) {
         )}
         {kitAllowed ? (
         <div
-          className="titan-buy-options mt-3 grid grid-cols-2 gap-2"
+          className="titan-buy-options mt-2 grid grid-cols-2 gap-2"
           aria-label="Buy option"
         >
           {(
@@ -165,7 +165,7 @@ export function ProductCard({ product: p }: { product: Product }) {
           ) : null;
         })()}
         <StarterKitOffer product={p}/>
-        <div className="mt-3 flex items-baseline gap-1">
+        <div className="mt-2 flex items-baseline gap-1">
           {wasPrice && pack === "single" ? (
             <span className="text-xs text-muted-foreground line-through">
               {formatPrice(wasPrice!)}
@@ -212,7 +212,7 @@ export function ProductCard({ product: p }: { product: Product }) {
           </div>
         ) : (
           <Button
-            className="mt-3 w-full min-h-11"
+            className="mt-2 w-full min-h-11"
             disabled={soon || stock === "out"}
             onClick={() =>
               addItem(p.slug, 1, {

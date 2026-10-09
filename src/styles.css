@@ -616,7 +616,7 @@
 .titan-site-footer .testing-transparency > .relative { padding:0; }
 
 .titan-product-card { border-color:rgb(28 152 227 / 45%); border-radius:.5rem; box-shadow:0 0 18px -16px #1eafff; }
-.titan-product-card .titan-product-photo { aspect-ratio:1; max-height:18rem; }
+.titan-product-card .titan-product-photo { aspect-ratio:3 / 2; max-height:12rem; }
 .titan-product-card a:has(svg) { text-decoration:underline; font-size:.8rem; }
 .titan-product-card .titan-buy-options { border:0; }
 .titan-product-card .titan-buy-options button[aria-pressed="true"] { border-color:var(--accent); box-shadow:0 0 8px -4px var(--accent); }
@@ -666,3 +666,6 @@
     font-size: .8125rem;
   }
 }
+
+/* Keep the starter-kit disclosure compact within listing cards. */
+.titan-product-card .titan-kit-offer { margin-top:.5rem; padding:.5rem .75rem; }
