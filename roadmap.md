@@ -26,6 +26,6 @@
   - All 90 Bun tests and seven isolated image-precedence checks passed; 35/35 catalogue photos loaded, 44px toggle, no browser runtime errors/overflow at checked widths. Fresh standalone production build/type-check and remote branch-tip confirmation were not available; automatic build signal was OK. Existing Range cards measured 598–600.5px, photos 240px; geometry unchanged.
 
 ## Inventory tab (draft, do not publish)
-- [ ] Admin Inventory tab: overview, SKU table, alerts, drawer with atomic adjustments + ledger
-- [ ] Restock expense: strict variant match, atomic expense+stock+ledger (no first-size fallback)
-- [ ] Separate Admin improvement recommendations (report only, no overhaul)
+- [x] Admin Inventory tab: overview, SKU table, alerts, drawer with atomic adjustments + ledger
+- [x] Restock expense: strict variant match, atomic expense+stock+ledger (no first-size fallback)
+- [x] Separate Admin improvement recommendations (report only, no overhaul)
