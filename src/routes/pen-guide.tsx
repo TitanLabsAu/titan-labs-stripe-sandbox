@@ -21,17 +21,17 @@ function PenGuide() {
     <div className="bg-hero min-h-screen">
       <SiteHeader />
       <main className="page-shell py-8 sm:py-12">
-        <section aria-labelledby="pen-guide-heading" className="catalogue-banner relative isolate overflow-hidden rounded-lg border border-primary/35 p-6 sm:p-8">
+        <section aria-labelledby="pen-guide-heading" className="catalogue-banner pen-guide-banner relative isolate overflow-hidden rounded-lg border border-primary/35 p-6 sm:p-8">
           <img src={g.banner_image || "/images/titan-catalogue-banner.webp"} alt="" className="absolute inset-0 -z-20 h-full w-full object-cover object-right" />
-          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#030f19]/95 via-[#030f19]/65 to-[#030f19]/10" />
+          <div className="pen-guide-banner-shade absolute inset-0 -z-10 bg-gradient-to-r from-[#030f19]/95 via-[#030f19]/65 to-[#030f19]/10" />
           <p className="font-display text-sm uppercase tracking-[.2em] text-accent">{g.eyebrow}</p>
-          <h1 id="pen-guide-heading" className="mt-3 max-w-2xl font-display text-[clamp(2.5rem,5vw,4.5rem)] font-bold uppercase leading-none text-[#ccecff]">{g.title}</h1>
+          <h1 id="pen-guide-heading" className="pen-guide-banner-title mt-3 max-w-2xl font-display text-[clamp(2.5rem,5vw,4.5rem)] font-bold uppercase leading-none text-[#ccecff]">{g.title}</h1>
           {g.intro ? <p className="mt-5 max-w-xl whitespace-pre-wrap text-sm leading-6 text-muted-foreground">{g.intro}</p> : null}
           <Button asChild className="mt-6"><Link to="/range" search={{ section: "pens" }}>{g.shop_label}<ArrowRight aria-hidden="true" /></Link></Button>
         </section>
         <section className="mt-7 overflow-hidden rounded-xl border border-primary/30 bg-card" aria-labelledby="pen-comparison-heading">
           <div className="border-b border-primary/25 bg-gradient-to-r from-primary/20 to-accent/10 p-6 sm:p-8">
-            <h2 id="pen-comparison-heading" className="font-display text-2xl font-bold uppercase text-[#ccecff]">{learning.title}</h2>
+            <h2 id="pen-comparison-heading" className="font-display text-2xl font-bold uppercase text-foreground">{learning.title}</h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">{learning.intro}</p>
           </div>
           <div className="grid md:grid-cols-2">
@@ -57,10 +57,10 @@ function PenGuide() {
           {learning.comparison.map((row: { topic: string; reusable: string; disposable: string }, i: number) => <section key={i} className="rounded-lg border border-primary/25 bg-card p-5"><h3 className="font-display text-lg font-bold uppercase text-accent">{row.topic}</h3><div className="mt-3 space-y-3 text-sm leading-6"><p><span className="font-bold text-foreground">V2 reusable: </span><span className="text-muted-foreground">{row.reusable}</span></p><p><span className="font-bold text-foreground">Disposable: </span><span className="text-muted-foreground">{row.disposable}</span></p></div></section>)}
         </div>
         <section aria-labelledby="pens-101-heading" className="mt-12">
-          <div className="flex items-center gap-3"><BookOpen aria-hidden="true" className="h-7 w-7 text-accent" /><h2 id="pens-101-heading" className="font-display text-3xl font-bold uppercase text-[#ccecff]">{learning.faq_title}</h2></div>
+          <div className="flex items-center gap-3"><BookOpen aria-hidden="true" className="h-7 w-7 text-accent" /><h2 id="pens-101-heading" className="font-display text-3xl font-bold uppercase text-foreground">{learning.faq_title}</h2></div>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">{learning.faq_intro}</p>
-          <div className="mt-6 grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {learning.questions.map((q: { title: string; body: string }, i: number) => { const Icon = faqIcons[i % faqIcons.length]!; return <article key={i} className="rounded-xl border border-primary/25 bg-card p-5 transition-colors duration-200 hover:border-accent hover:shadow-[0_0_18px_rgba(212,169,70,0.12)]"><span className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10"><Icon aria-hidden="true" className="h-5 w-5 text-primary" /></span><h3 className="text-sm font-bold">{q.title}</h3><p className="mt-3 whitespace-pre-line text-sm leading-6 text-muted-foreground">{q.body}</p></article>; })}
+          <div className="mt-6 grid items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {learning.questions.map((q: { title: string; body: string }, i: number) => { const Icon = faqIcons[i % faqIcons.length]!; return <article key={i} className="flex h-full flex-col rounded-xl border border-primary/25 bg-card p-5 transition-colors duration-200 hover:border-accent hover:shadow-[0_0_18px_rgba(212,169,70,0.12)]"><span className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10"><Icon aria-hidden="true" className="h-5 w-5 text-primary" /></span><h3 className="text-sm font-bold">{q.title}</h3><p className="mt-3 whitespace-pre-line text-sm leading-6 text-muted-foreground">{q.body}</p></article>; })}
           </div>
           <div className="mt-6 rounded-xl border border-accent/30 bg-accent/5 p-6"><h3 className="flex items-center gap-3 font-display text-xl font-bold uppercase"><ShieldCheck aria-hidden="true" className="h-5 w-5 text-accent" />{learning.checklist_title}</h3><ul className="mt-4 grid gap-3 sm:grid-cols-2">{learning.checklist.map((item: { text: string }, i: number) => <li key={i} className="flex gap-3 text-sm leading-6 text-muted-foreground"><Check aria-hidden="true" className="mt-1 h-4 w-4 shrink-0 text-primary" />{item.text}</li>)}</ul></div>
         </section>
