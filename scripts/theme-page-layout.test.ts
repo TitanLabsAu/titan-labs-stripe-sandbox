@@ -32,6 +32,16 @@ describe("page-scoped themed artwork and layout", () => {
     expect(guide?.fields.some((f) => f.key === "banner_image_light" && f.type === "image")).toBe(true);
     expect(guide?.defaults.banner_image_light).toBe("");
   });
+  test("Pen Guide alone defaults to the original composition's light counterpart", () => {
+    const route = readFileSync("src/routes/pen-guide.tsx", "utf8");
+    expect(route).toContain('g.banner_image_light, "/images/titan-pen-guide-banner-light.webp"');
+    expect(artDelivery("/images/titan-pen-guide-banner-light.webp", "100vw").srcSet).toBe("/images/titan-pen-guide-banner-light-960.webp 960w, /images/titan-pen-guide-banner-light.webp 1920w");
+    for (const name of ["titan-pen-guide-banner-light.webp", "titan-pen-guide-banner-light-960.webp"]) {
+      const bytes = readFileSync(`public/images/${name}`);
+      expect(bytes.subarray(0, 4).toString()).toBe("RIFF");
+      expect(bytes.subarray(8, 12).toString()).toBe("WEBP");
+    }
+  });
   test("account counterpart has responsive delivery and unchanged dynamic name placement", () => {
     const card = readFileSync("src/components/TitanMemberCard.tsx", "utf8");
     expect(card).toContain('dark="/images/titan-membership-card.webp" light="/images/titan-membership-card-light.webp"');
