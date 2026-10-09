@@ -260,6 +260,13 @@
       "when": 1791585638338,
       "tag": "0036_stock_purchase_request_hash",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1791585702908,
+      "tag": "0037_stock_purchase_reject_null_input",
+      "breakpoints": true
     }
   ]
 }
