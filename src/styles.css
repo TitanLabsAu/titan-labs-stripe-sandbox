@@ -688,6 +688,7 @@
   --gradient-hero: linear-gradient(180deg, oklch(0.985 0.006 235), oklch(0.955 0.018 232) 58%, oklch(0.975 0.01 235));
 }
 .light .titan-theme-toggle { color: var(--foreground); }
+.light .titan-member-eyebrow { color: var(--accent); }
 .light .bg-accent.text-accent-foreground { color: var(--primary-foreground); }
 .light .discovery-welcome { --background: oklch(0.975 0.008 235); --foreground: oklch(0.24 0.02 250); --muted-foreground: oklch(0.42 0.025 248); }
 .light .discovery-shade { background: linear-gradient(0deg, var(--background), transparent 22%), linear-gradient(90deg, color-mix(in oklab, var(--background) 88%, transparent), color-mix(in oklab, var(--background) 40%, transparent) 50%, transparent 72%); }
