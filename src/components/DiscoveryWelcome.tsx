@@ -1,4 +1,4 @@
-import { ThemedProductImage, useThemedArt } from "@/components/ThemedImage";
+import { ThemedArt, ThemedProductImage, themedArtPair } from "@/components/ThemedImage";
 import { ArrowRight, FlaskConical, PenTool, Truck, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CmsLink } from "@/components/CmsLink";
@@ -12,10 +12,10 @@ import { filterBySection, CATALOGUE_SECTIONS } from "@/lib/catalogue-sections";
 export function DiscoveryWelcome() {
   const { data: content } = useSiteContent();
   const c = cmsValues(content, "home_welcome");
-  const art = useThemedArt(c.image || "/images/titan-discovery.webp", c.image_light);
+  const art = themedArtPair(c.image || "/images/titan-discovery.webp", c.image_light);
   return (
     <section aria-labelledby="discovery-welcome" className="discovery-welcome relative isolate overflow-hidden">
-      <img className="discovery-art" src={art} alt="" width={1672} height={941} fetchPriority="high" />
+      <ThemedArt className="discovery-art" dark={art.dark} light={art.light} sizes="100vw" alt="" width={1672} height={941} priority />
       <div className="discovery-shade absolute inset-0 -z-10" />
       <div className="page-shell discovery-copy relative py-14 sm:py-20 lg:py-28">
         <div className="max-w-xl">
