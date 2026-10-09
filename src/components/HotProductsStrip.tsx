@@ -16,17 +16,24 @@ export function HotProductsStrip({ products, content }: { products: Product[]; c
   const [dragging, setDragging] = useState(false);
   const autoScroll = useMemo(() => AutoScroll({ speed: 0.6, startDelay: 500, playOnInit: false, stopOnInteraction: true, stopOnMouseEnter: false, stopOnFocusIn: false }), []);
   const [carouselRef, carousel] = useEmblaCarousel({ loop: true, dragFree: true, align: "start" }, [autoScroll]);
+  // AutoScroll skips its own setup when Embla has <=1 snap (e.g. before layout or at some widths),
+  // leaving its saved scroll body undefined; calling play/stop then crashes Embla's render ("settled").
+  // Only drive the plugin while it is actually initialised, re-checking after every reInit (resize).
+  const [scrollable, setScrollable] = useState(false);
+  const [initCount, setInitCount] = useState(0);
   useEffect(() => {
-    if (!carousel) return;
+    if (!carousel || !scrollable) return;
     if (paused || reduced || hovered || focused || dragging) autoScroll.stop();
     else autoScroll.play();
-  }, [carousel, autoScroll, paused, reduced, hovered, focused, dragging]);
+  }, [carousel, autoScroll, scrollable, initCount, paused, reduced, hovered, focused, dragging]);
   useEffect(() => {
     if (!carousel) return;
     const down = () => setDragging(true);
     const up = () => setDragging(false);
-    carousel.on("pointerDown", down).on("pointerUp", up);
-    return () => { carousel.off("pointerDown", down).off("pointerUp", up); };
+    const sync = () => { setScrollable(carousel.scrollSnapList().length > 1); setInitCount((n) => n + 1); };
+    sync();
+    carousel.on("pointerDown", down).on("pointerUp", up).on("reInit", sync);
+    return () => { carousel.off("pointerDown", down).off("pointerUp", up).off("reInit", sync); };
   }, [carousel]);
   // Edge-hover scrolling: cursor near the left/right edge moves the strip, faster closer to the edge.
   const edgeSpeed = useRef(0);
