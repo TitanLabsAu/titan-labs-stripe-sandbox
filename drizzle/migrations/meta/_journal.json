@@ -246,6 +246,13 @@
       "when": 1791583388443,
       "tag": "0034_atomic_restock_expense",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1791585190474,
+      "tag": "0035_multi_item_stock_purchase",
+      "breakpoints": true
     }
   ]
 }
