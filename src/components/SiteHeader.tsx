@@ -237,7 +237,7 @@ export function SiteHeader() {
   );
 
   return (
-    <header className="titan-site-header border-b border-primary/25 bg-background">
+    <header className="titan-site-header sticky top-0 z-40 border-b border-primary/25 bg-background">
       <div className="relative overflow-hidden">
         {cmsValues(content, "branding").header_image ? <img
           src={cmsValues(content, "branding").header_image}

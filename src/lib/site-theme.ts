@@ -9,18 +9,18 @@ export const THEME_EVENT = "titan-theme-change";
  * Runs in <head> before paint so a saved light preference paints light from the first frame.
  * Themed images/labels are rendered as CSS-switched pairs, so no URL depends on hydration.
  */
-export const THEME_BOOT_SCRIPT = `(function(){try{if(localStorage.getItem("${THEME_STORAGE_KEY}")==="light"){var d=document.documentElement;d.classList.remove("dark");d.classList.add("light");d.dataset.theme="light";}}catch(e){}})();`;
+export const THEME_BOOT_SCRIPT = `(function(){var d=document.documentElement,t="light";try{if(localStorage.getItem("${THEME_STORAGE_KEY}")==="dark")t="dark";}catch(e){}d.classList.remove(t==="dark"?"light":"dark");d.classList.add(t);d.dataset.theme=t;})();`;
 
 export function readStoredTheme(storage: Pick<Storage, "getItem"> | undefined | null): SiteTheme {
   try {
-    return storage?.getItem(THEME_STORAGE_KEY) === "light" ? "light" : "dark";
+    return storage?.getItem(THEME_STORAGE_KEY) === "dark" ? "dark" : "light";
   } catch {
-    return "dark";
+    return "light";
   }
 }
 
 export function getStoredTheme(): SiteTheme {
-  if (typeof window === "undefined") return "dark";
+  if (typeof window === "undefined") return "light";
   let storage: Storage | null = null;
   try { storage = window.localStorage; } catch { /* blocked storage */ }
   return readStoredTheme(storage);
@@ -50,7 +50,7 @@ function attach() {
   const onChange = (e: Event) => emit((e as CustomEvent<SiteTheme>).detail === "light" ? "light" : "dark");
   const onStorage = (e: StorageEvent) => {
     if (e.key !== THEME_STORAGE_KEY) return;
-    const next: SiteTheme = e.newValue === "light" ? "light" : "dark";
+    const next: SiteTheme = e.newValue === "dark" ? "dark" : "light";
     paintTheme(next);
     emit(next);
   };
@@ -77,7 +77,7 @@ export function getThemeSnapshot(): SiteTheme {
   return current;
 }
 
-const getServerSnapshot = (): SiteTheme => "dark";
+const getServerSnapshot = (): SiteTheme => "light";
 
 type BeforeSwitch = (next: SiteTheme) => Promise<unknown> | void;
 let beforeSwitch: BeforeSwitch | null = null;
