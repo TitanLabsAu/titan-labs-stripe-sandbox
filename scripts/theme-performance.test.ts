@@ -4,7 +4,7 @@ import { THEME_BOOT_SCRIPT, THEME_STORAGE_KEY, readStoredTheme, subscribeTheme, 
 import { artDelivery } from "../src/lib/theme-art";
 
 describe("theme boot", () => {
-  test("boot script paints light only for the saved key and survives storage errors", () => {
+  test("boot script defaults to light, preserves saved dark, and survives storage errors", () => {
     const run = (stored: string | null, throws = false) => {
       const classes = new Set(["dark"]);
       const el = { classList: { remove: (c: string) => classes.delete(c), add: (c: string) => classes.add(c) }, dataset: {} as Record<string, string> };
@@ -14,19 +14,19 @@ describe("theme boot", () => {
     };
     expect(run("light")).toBe("light");
     expect(run("dark")).toBe("dark");
-    expect(run(null)).toBe("dark");
-    expect(run("light", true)).toBe("dark");
+    expect(run(null)).toBe("light");
+    expect(run("light", true)).toBe("light");
   });
   test("storage reader is exception safe", () => {
     expect(readStoredTheme({ getItem: () => "light" })).toBe("light");
-    expect(readStoredTheme({ getItem: () => { throw new Error("x"); } })).toBe("dark");
-    expect(readStoredTheme(null)).toBe("dark");
+    expect(readStoredTheme({ getItem: () => { throw new Error("x"); } })).toBe("light");
+    expect(readStoredTheme(null)).toBe("light");
   });
 });
 
 describe("theme store", () => {
-  test("SSR snapshot defaults to dark and subscribe is safe without window", () => {
-    expect(getThemeSnapshot()).toBe("dark");
+  test("SSR snapshot defaults to light and subscribe is safe without window", () => {
+    expect(getThemeSnapshot()).toBe("light");
     const off = subscribeTheme(() => {});
     off();
   });
