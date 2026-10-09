@@ -727,3 +727,5 @@
 /* Themed image pairs: exactly one variant renders from first paint (html class set by boot script). */
 html:not(.light) .theme-variant-light, html.light .theme-variant-dark, .theme-label-light, html.light .theme-label-dark { display: none !important; }
 html.light .theme-label-light { display: contents !important; }
+.light .pen-guide-banner-shade { background-image: linear-gradient(to right, color-mix(in oklab, var(--card) 94%, transparent), color-mix(in oklab, var(--card) 55%, transparent) 50%, transparent); }
+.light .pen-guide-banner-title { color: oklch(0.24 0.04 250); }
