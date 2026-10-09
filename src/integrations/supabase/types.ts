@@ -1439,6 +1439,19 @@ export type Database = {
         Returns: boolean
       }
       normalize_emails: { Args: { _emails: string[] }; Returns: string[] }
+      record_restock_expense: {
+        Args: {
+          _amount: number
+          _category: string
+          _description: string
+          _occurred_on: string
+          _product_slug: string
+          _quantity: number
+          _supplier: string
+          _variant_label: string
+        }
+        Returns: Json
+      }
       referral_paid_order_count: { Args: { _user_id: string }; Returns: number }
       release_first_offer: { Args: { _claim_id: string }; Returns: boolean }
       release_first_offer_for_attempt: {
