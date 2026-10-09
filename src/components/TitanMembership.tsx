@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import { useThemedArt } from "@/components/ThemedImage";
 import { Button } from "@/components/ui/button";
 import { CmsLink } from "@/components/CmsLink";
 import { FirstOfferBanner } from "@/components/FirstOfferBanner";
@@ -7,9 +8,10 @@ import { useSiteContent } from "@/lib/useCatalog";
 
 export function TitanMembership() {
   const c = cmsValues(useSiteContent().data, "home_membership");
+  const art = useThemedArt(c.image || "/images/titan-membership-card.webp", c.image_light);
   if (!c.visible) return null;
   return <section aria-labelledby="titan-membership-heading" className="titan-membership relative isolate overflow-hidden">
-    <img src={c.image || "/images/titan-membership-card.webp"} alt="" width={1672} height={941} loading="lazy" className="membership-art" />
+    <img src={art} alt="" width={1672} height={941} loading="lazy" className="membership-art" />
     <div className="membership-shade" />
     <div className="page-shell relative py-14 sm:py-20 lg:py-24">
       <div className="max-w-xl">

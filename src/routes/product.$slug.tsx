@@ -1,4 +1,5 @@
 import { promotedPrice } from "@/lib/variant-promotions";
+import { ThemedProductImage } from "@/components/ThemedImage";
 import { productImageDelivery } from "@/lib/product-image-delivery";
 import { seoHead, productUrl, productSchema, jsonLd } from "@/lib/seo";
 import { ProductCertificates } from "@/components/ProductCertificates";
@@ -132,9 +133,10 @@ function ProductPage() {
 
         <div className="mt-6 grid gap-8 border-t border-border pt-8 lg:grid-cols-[1fr_0.95fr]">
           <div>
-            <img
+            <ThemedProductImage
+              slug={product.slug}
               src={product.image}
-              {...productImageDelivery(product.image, "(min-width: 1024px) 50vw, 100vw")}
+              sizes="(min-width: 1024px) 50vw, 100vw"
               alt={product.alt}
               className="w-full rounded-xl border border-border bg-card object-cover"
             />
@@ -426,9 +428,10 @@ function ProductPage() {
                   params={{ slug: p.slug }}
                   className="group overflow-hidden rounded-xl border border-border bg-card transition-all hover:border-primary hover:shadow-glow"
                 >
-                  <img
+                  <ThemedProductImage
+                    slug={p.slug}
                     src={p.image}
-                    {...productImageDelivery(p.image, "80px")}
+                    sizes="80px"
                     alt={p.alt}
                     loading="lazy"
                     className="aspect-[4/3] w-full object-cover transition-transform group-hover:scale-[1.02]"
