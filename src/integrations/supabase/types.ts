@@ -210,6 +210,62 @@ export type Database = {
         }
         Relationships: []
       }
+      expense_items: {
+        Row: {
+          created_at: string
+          expense_id: string
+          id: string
+          line_cost_cents: number
+          line_no: number
+          product_id: string
+          product_name: string
+          product_slug: string
+          quantity: number
+          stock_applied: boolean
+          untracked: boolean
+          variant_id: string | null
+          variant_label: string | null
+        }
+        Insert: {
+          created_at?: string
+          expense_id: string
+          id?: string
+          line_cost_cents: number
+          line_no: number
+          product_id: string
+          product_name: string
+          product_slug: string
+          quantity: number
+          stock_applied?: boolean
+          untracked?: boolean
+          variant_id?: string | null
+          variant_label?: string | null
+        }
+        Update: {
+          created_at?: string
+          expense_id?: string
+          id?: string
+          line_cost_cents?: number
+          line_no?: number
+          product_id?: string
+          product_name?: string
+          product_slug?: string
+          quantity?: number
+          stock_applied?: boolean
+          untracked?: boolean
+          variant_id?: string | null
+          variant_label?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expense_items_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: false
+            referencedRelation: "expenses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       expenses: {
         Row: {
           amount: number
@@ -217,10 +273,13 @@ export type Database = {
           created_at: string
           created_by: string | null
           description: string
+          discount_cents: number
           id: string
           occurred_on: string
+          other_costs_cents: number
           product_slug: string | null
           quantity: number | null
+          request_id: string | null
           restocked: boolean
           supplier: string
           updated_at: string
@@ -232,10 +291,13 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string
+          discount_cents?: number
           id?: string
           occurred_on?: string
+          other_costs_cents?: number
           product_slug?: string | null
           quantity?: number | null
+          request_id?: string | null
           restocked?: boolean
           supplier?: string
           updated_at?: string
@@ -247,10 +309,13 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string
+          discount_cents?: number
           id?: string
           occurred_on?: string
+          other_costs_cents?: number
           product_slug?: string | null
           quantity?: number | null
+          request_id?: string | null
           restocked?: boolean
           supplier?: string
           updated_at?: string
@@ -1449,6 +1514,19 @@ export type Database = {
           _quantity: number
           _supplier: string
           _variant_label: string
+        }
+        Returns: Json
+      }
+      record_stock_purchase: {
+        Args: {
+          _apply_stock: boolean
+          _description: string
+          _discount_cents: number
+          _items: Json
+          _occurred_on: string
+          _other_costs_cents: number
+          _request_id: string
+          _supplier: string
         }
         Returns: Json
       }

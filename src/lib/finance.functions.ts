@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { isUnlimitedStock } from "@/lib/products";
+import { validatePurchasePayload } from "@/lib/purchase";
 
 export type Expense = {
   id: string;
@@ -13,6 +14,20 @@ export type Expense = {
   variant_label: string | null;
   quantity: number | null;
   restocked: boolean;
+  other_costs_cents?: number;
+  discount_cents?: number;
+  items?: ExpenseItem[];
+};
+
+export type ExpenseItem = {
+  id: string;
+  line_no: number;
+  product_name: string;
+  variant_label: string | null;
+  quantity: number;
+  line_cost_cents: number;
+  untracked: boolean;
+  stock_applied: boolean;
 };
 
 export type FinanceProductRow = {
@@ -68,12 +83,16 @@ export const adminListExpenses = createServerFn({ method: "POST" })
     const { data, error } = await context.supabase
       .from("expenses")
       .select(
-        "id, occurred_on, category, supplier, description, amount, product_slug, variant_label, quantity, restocked",
+        "id, occurred_on, category, supplier, description, amount, product_slug, variant_label, quantity, restocked, other_costs_cents, discount_cents, expense_items(id, line_no, product_name, variant_label, quantity, line_cost_cents, untracked, stock_applied)",
       )
       .order("occurred_on", { ascending: false })
       .limit(500);
     if (error) throw error;
-    return (data ?? []).map((e: any) => ({ ...e, amount: num(e.amount) })) as Expense[];
+    return (data ?? []).map(({ expense_items, ...e }: any) => ({
+      ...e,
+      amount: num(e.amount),
+      items: ((expense_items ?? []) as ExpenseItem[]).sort((a, b) => a.line_no - b.line_no),
+    })) as Expense[];
   });
 
 export const adminSaveExpense = createServerFn({ method: "POST" })
@@ -153,6 +172,42 @@ export const adminSaveExpense = createServerFn({ method: "POST" })
     }
 
     return { ok: true, restocked: false };
+  });
+
+// One supplier purchase = one expense header + child items (+ optional stock receipts) in one transaction.
+export const adminRecordStockPurchase = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (input: {
+      requestId: string;
+      occurredOn: string;
+      supplier?: string;
+      description?: string;
+      otherCostsCents: number;
+      discountCents: number;
+      applyStock: boolean;
+      items: { productId: string; variantId: string | null; quantity: number; lineCostCents: number }[];
+    }) => ({ ...validatePurchasePayload(input), supplier: String(input.supplier ?? ""), description: String(input.description ?? ""), applyStock: input.applyStock === true }),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as any);
+    const { data: result, error } = await (context.supabase as any).rpc("record_stock_purchase", {
+      _request_id: data.requestId,
+      _occurred_on: data.occurredOn,
+      _supplier: data.supplier,
+      _description: data.description,
+      _other_costs_cents: data.otherCostsCents,
+      _discount_cents: data.discountCents,
+      _apply_stock: data.applyStock,
+      _items: data.items.map((i) => ({
+        product_id: i.productId,
+        variant_id: i.variantId,
+        quantity: i.quantity,
+        line_cost_cents: i.lineCostCents,
+      })),
+    });
+    if (error) throw new Error(error.message);
+    return result as { expense_id: string; duplicate: boolean; total_cents?: number; stock_lines?: number };
   });
 
 export const adminDeleteExpense = createServerFn({ method: "POST" })

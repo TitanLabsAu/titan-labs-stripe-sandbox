@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react";
+import { StockPurchaseForm } from "@/components/StockPurchaseForm";
+import { centsToAud, type PurchaseProduct } from "@/lib/purchase";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Trash2 } from "lucide-react";
+import { ChevronDown, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -365,7 +367,7 @@ export function AdminFinance() {
               onChange={(e) => setForm({ ...form, supplier: e.target.value })}
             />
           </div>
-          <div>
+          {form.category !== "stock" ? <div>
             <Label>Amount paid (AUD)</Label>
             <Input
               type="number"
@@ -374,7 +376,7 @@ export function AdminFinance() {
               placeholder="0.00"
               onChange={(e) => setForm({ ...form, amount: e.target.value })}
             />
-          </div>
+          </div> : null}
         </div>
 
         <div>
@@ -387,77 +389,26 @@ export function AdminFinance() {
         </div>
 
         {form.category === "stock" ? (
-          <div className="grid gap-3 md:grid-cols-4">
-            <div>
-              <Label>Product</Label>
-              <select
-                className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                value={form.product_slug}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    product_slug: e.target.value,
-                    variant_label: "",
-                  })
-                }
-              >
-                <option value="">Not linked to a product</option>
-                {products.map((p) => (
-                  <option key={p.id} value={p.slug}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <Label>Vial size</Label>
-              <select
-                className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                value={form.variant_label}
-                disabled={!selectedProduct}
-                onChange={(e) =>
-                  setForm({ ...form, variant_label: e.target.value })
-                }
-              >
-                <option value="">Choose size</option>
-                {variants.map((v) => (
-                  <option key={v.id} value={v.label}>
-                    {v.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <Label>Vials bought</Label>
-              <Input
-                type="number"
-                min={0}
-                value={form.quantity}
-                placeholder="0"
-                onChange={(e) => setForm({ ...form, quantity: e.target.value })}
-              />
-            </div>
-            <div className="flex items-end">
-              <Button
-                variant={form.addToStock ? "default" : "outline"}
-                className="w-full font-bold uppercase tracking-wide"
-                onClick={() =>
-                  setForm({ ...form, addToStock: !form.addToStock })
-                }
-              >
-                {form.addToStock ? "Adds to stock" : "Stock unchanged"}
-              </Button>
-            </div>
-          </div>
-        ) : null}
-
-        <Button
-          className="font-bold uppercase tracking-wide"
-          disabled={save.isPending || !form.amount}
-          onClick={() => save.mutate()}
-        >
-          {save.isPending ? "Saving…" : "Save spend"}
-        </Button>
+          <StockPurchaseForm
+            occurredOn={form.occurred_on}
+            supplier={form.supplier}
+            description={form.description}
+            products={products as unknown as PurchaseProduct[]}
+            onSaved={() => {
+              setForm((f) => ({ ...f, supplier: "", description: "" }));
+              for (const k of ["admin-expenses", "admin-finance", "admin-products", "admin-inventory"])
+                void queryClient.invalidateQueries({ queryKey: [k] });
+            }}
+          />
+        ) : (
+          <Button
+            className="font-bold uppercase tracking-wide"
+            disabled={save.isPending || !form.amount}
+            onClick={() => save.mutate()}
+          >
+            {save.isPending ? "Saving…" : "Save spend"}
+          </Button>
+        )}
       </div>
 
       <div className="rounded-xl border border-border bg-card p-4">
@@ -488,6 +439,26 @@ export function AdminFinance() {
                       : ""}
                     {e.restocked ? " · added to stock" : ""}
                   </p>
+                  {e.items && e.items.length > 0 ? (
+                    <details className="mt-2 text-sm">
+                      <summary className="flex cursor-pointer list-none items-center gap-1 text-xs font-bold uppercase tracking-wide text-primary">
+                        <ChevronDown className="h-3 w-3" /> {e.items.length} item(s) · {e.items.reduce((n, i) => n + i.quantity, 0)} unit(s)
+                      </summary>
+                      <ul className="mt-2 space-y-1">
+                        {e.items.map((i) => (
+                          <li key={i.id} className="flex flex-wrap justify-between gap-2 text-xs">
+                            <span>
+                              {i.quantity} × {i.product_name}{i.variant_label ? ` ${i.variant_label}` : ""}
+                              <span className="text-muted-foreground">{i.untracked ? " · unlimited" : i.stock_applied ? " · stocked" : " · stock unchanged"}</span>
+                            </span>
+                            <span className="tabular-nums">{centsToAud(i.line_cost_cents)}</span>
+                          </li>
+                        ))}
+                        {e.other_costs_cents ? <li className="flex justify-between text-xs text-muted-foreground"><span>Delivery / other</span><span>{centsToAud(e.other_costs_cents)}</span></li> : null}
+                        {e.discount_cents ? <li className="flex justify-between text-xs text-muted-foreground"><span>Discount</span><span>−{centsToAud(e.discount_cents)}</span></li> : null}
+                      </ul>
+                    </details>
+                  ) : null}
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="font-black tabular-nums">
