@@ -58,7 +58,7 @@ function pairOf(img: HTMLImageElement, theme: "dark" | "light") {
 export function watchAlternates(getTheme: () => "dark" | "light"): () => void {
   if (typeof window === "undefined" || typeof IntersectionObserver === "undefined" || constrainedNetwork()) return () => {};
   const idle = (cb: () => void) =>
-    "requestIdleCallback" in window ? (window as Window & { requestIdleCallback: (c: () => void, o?: object) => number }).requestIdleCallback(cb, { timeout: 3000 }) : window.setTimeout(cb, 1200);
+    "requestIdleCallback" in window ? (window as Window & { requestIdleCallback: (c: () => void, o?: object) => number }).requestIdleCallback(cb, { timeout: 3000 }) : globalThis.setTimeout(cb, 1200);
   const io = new IntersectionObserver((entries) => {
     for (const e of entries) {
       if (!e.isIntersecting) continue;

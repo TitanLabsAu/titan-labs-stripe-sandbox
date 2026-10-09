@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { THEME_BOOT_SCRIPT, THEME_STORAGE_KEY, readStoredTheme, subscribeTheme, getThemeSnapshot } from "../src/lib/site-theme";
 import { artDelivery } from "../src/lib/theme-art";
