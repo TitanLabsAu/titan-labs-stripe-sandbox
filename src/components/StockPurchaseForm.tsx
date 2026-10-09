@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Plus, Trash2 } from "lucide-react";
@@ -17,12 +17,14 @@ export function StockPurchaseForm({
   description,
   products,
   onSaved,
+  onPendingChange,
 }: {
   occurredOn: string;
   supplier: string;
   description: string;
   products: PurchaseProduct[];
   onSaved: () => void;
+  onPendingChange?: (pending: boolean) => void;
 }) {
   const [lines, setLines] = useState<DraftLine[]>(() => [{ ...newLine(), key: "line-initial" }]);
   const [mode, setMode] = useState<CostMode>("line");
@@ -77,8 +79,15 @@ export function StockPurchaseForm({
       onSaved();
     },
     // Keep everything entered so the admin can fix and retry.
-    onError: (e: unknown) => toast.error(`Purchase not saved: ${e instanceof Error ? e.message : "unknown error"}`),
+    // Keep the same request id so a retry of an uncertain save can never create a second purchase.
+    onError: (e: unknown) =>
+      toast.error(`Purchase not saved: ${e instanceof Error ? e.message : "unknown error"}. Your entries are kept; pressing Save again safely retries.`),
   });
+
+  const locked = save.isPending;
+  // Changing the shared date/supplier/note is a different purchase, so it gets a new request id.
+  useEffect(() => { requestId.current = crypto.randomUUID(); }, [occurredOn, supplier, description]);
+  useEffect(() => { onPendingChange?.(locked); }, [locked, onPendingChange]);
 
   const stockChanges = result.checks.filter((c) => !c.error && c.after != null);
   const untrackedLines = result.checks.filter((c) => !c.error && c.untracked);
@@ -87,10 +96,10 @@ export function StockPurchaseForm({
     <div className="space-y-4" data-testid="stock-purchase-form">
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <span className="text-muted-foreground">Cost entered per line is:</span>
-        <Button size="sm" variant={mode === "line" ? "default" : "outline"} onClick={() => setMode("line")}>
+        <Button size="sm" disabled={locked} variant={mode === "line" ? "default" : "outline"} onClick={() => setMode("line")}>
           Total for the line
         </Button>
-        <Button size="sm" variant={mode === "unit" ? "default" : "outline"} onClick={() => setMode("unit")}>
+        <Button size="sm" disabled={locked} variant={mode === "unit" ? "default" : "outline"} onClick={() => setMode("unit")}>
           Cost each (× qty)
         </Button>
       </div>
@@ -106,7 +115,7 @@ export function StockPurchaseForm({
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[2fr_1.2fr_0.8fr_1fr_1fr_auto] lg:items-end">
                 <div>
                   <Label htmlFor={`pl-prod-${l.key}`}>Item {n} product</Label>
-                  <select id={`pl-prod-${l.key}`} className={selectCls} value={l.productId}
+                  <select disabled={locked} id={`pl-prod-${l.key}`} className={selectCls} value={l.productId}
                     onChange={(e) => patch(l.key, { productId: e.target.value, variantId: null })}>
                     <option value="">Choose product</option>
                     {products.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
@@ -115,7 +124,7 @@ export function StockPurchaseForm({
                 <div>
                   <Label htmlFor={`pl-size-${l.key}`}>Item {n} size</Label>
                   <select id={`pl-size-${l.key}`} className={selectCls} value={l.variantId ?? ""}
-                    disabled={!p || variants.length === 0}
+                    disabled={locked || !p || variants.length === 0}
                     onChange={(e) => patch(l.key, { variantId: e.target.value || null })}>
                     <option value="">{p && variants.length === 0 ? "Single size" : "Choose size"}</option>
                     {variants.map((v) => <option key={v.id} value={v.id}>{v.label}</option>)}
@@ -123,19 +132,19 @@ export function StockPurchaseForm({
                 </div>
                 <div>
                   <Label htmlFor={`pl-qty-${l.key}`}>Item {n} quantity</Label>
-                  <Input id={`pl-qty-${l.key}`} inputMode="numeric" placeholder="0" value={l.quantity}
+                  <Input disabled={locked} id={`pl-qty-${l.key}`} inputMode="numeric" placeholder="0" value={l.quantity}
                     onChange={(e) => patch(l.key, { quantity: e.target.value })} />
                 </div>
                 <div>
                   <Label htmlFor={`pl-cost-${l.key}`}>Item {n} {mode === "unit" ? "cost each" : "line total"} (AUD)</Label>
-                  <Input id={`pl-cost-${l.key}`} inputMode="decimal" placeholder="0.00" value={l.cost}
+                  <Input disabled={locked} id={`pl-cost-${l.key}`} inputMode="decimal" placeholder="0.00" value={l.cost}
                     onChange={(e) => patch(l.key, { cost: e.target.value })} />
                 </div>
                 <div className="text-sm">
                   <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">Line total</p>
                   <p className="mt-2 font-black tabular-nums">{c.lineCents == null ? "—" : centsToAud(c.lineCents)}</p>
                 </div>
-                <Button variant="outline" size="icon" aria-label={`Remove item ${n}`} disabled={lines.length === 1}
+                <Button variant="outline" size="icon" aria-label={`Remove item ${n}`} disabled={locked || lines.length === 1}
                   onClick={() => { requestId.current = crypto.randomUUID(); setLines((ls) => ls.filter((x) => x.key !== l.key)); }}>
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -147,7 +156,7 @@ export function StockPurchaseForm({
         })}
       </ol>
 
-      <Button variant="outline" className="font-bold uppercase tracking-wide" disabled={lines.length >= 100}
+      <Button variant="outline" className="font-bold uppercase tracking-wide" disabled={locked || lines.length >= 100}
         onClick={() => { requestId.current = crypto.randomUUID(); setLines((ls) => [...ls, newLine()]); }}>
         <Plus className="mr-1 h-4 w-4" /> Add item
       </Button>
@@ -155,11 +164,11 @@ export function StockPurchaseForm({
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <Label htmlFor="pl-other">Delivery / other costs (AUD, optional)</Label>
-          <Input id="pl-other" inputMode="decimal" placeholder="0.00" value={other} onChange={(e) => { requestId.current = crypto.randomUUID(); setOther(e.target.value); }} />
+          <Input disabled={locked} id="pl-other" inputMode="decimal" placeholder="0.00" value={other} onChange={(e) => { requestId.current = crypto.randomUUID(); setOther(e.target.value); }} />
         </div>
         <div>
           <Label htmlFor="pl-discount">Invoice discount (AUD, optional)</Label>
-          <Input id="pl-discount" inputMode="decimal" placeholder="0.00" value={discount} onChange={(e) => { requestId.current = crypto.randomUUID(); setDiscount(e.target.value); }} />
+          <Input disabled={locked} id="pl-discount" inputMode="decimal" placeholder="0.00" value={discount} onChange={(e) => { requestId.current = crypto.randomUUID(); setDiscount(e.target.value); }} />
         </div>
       </div>
 
@@ -177,7 +186,7 @@ export function StockPurchaseForm({
 
       <div className="rounded-xl border border-border p-3 text-sm">
         <label className="flex items-center gap-2 font-semibold">
-          <input type="checkbox" className="h-4 w-4" checked={applyStock} onChange={(e) => { requestId.current = crypto.randomUUID(); setApplyStock(e.target.checked); }} />
+          <input type="checkbox" disabled={locked} className="h-4 w-4" checked={applyStock} onChange={(e) => { requestId.current = crypto.randomUUID(); setApplyStock(e.target.checked); }} />
           Add these quantities to stock
         </label>
         {applyStock ? (

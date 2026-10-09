@@ -97,3 +97,36 @@ describe("database guards", () => {
     expect(fns).toMatch(/adminFinanceSummary/);
   });
 });
+
+describe("draft QA fixes", () => {
+  test("Melbourne business date: 22:31 UTC Oct 9 is Oct 10 in Melbourne", async () => {
+    const { melbourneDay, melbourneRange } = await import("../src/lib/au-date");
+    expect(melbourneDay(new Date("2026-10-09T22:31:00Z"))).toBe("2026-10-10");
+    expect(new Date("2026-10-09T22:31:00Z").toISOString().slice(0, 10)).toBe("2026-10-09"); // old bug
+    expect(melbourneRange("month", new Date("2026-09-30T14:30:00Z")).from).toBe("2026-10-01");
+    expect(melbourneRange("quarter", new Date("2026-10-09T22:31:00Z"))).toEqual({ from: "2026-07-13", to: "2026-10-10" });
+  });
+  test("blank line cost is rejected, explicit 0 allowed, blank other/discount = 0", () => {
+    const blank = checkPurchase([L(P1, "v10", "2", "")], products, opts);
+    expect(blank.ok).toBe(false);
+    expect(blank.checks[0]!.error).toMatch(/enter a cost/i);
+    const free = checkPurchase([L(P1, "v10", "2", "0")], products, opts);
+    expect(free.ok).toBe(true);
+    expect(free.totalCents).toBe(0);
+  });
+  test("SQL rejects NULL items/fields and reused request ids with different input", () => {
+    const sql = readFileSync("drizzle/migrations/0037_stock_purchase_reject_null_input.sql", "utf8");
+    expect(sql).toMatch(/_items IS NULL OR jsonb_typeof\(_items\) IS DISTINCT FROM 'array'/);
+    expect(sql).toMatch(/_apply_stock IS NULL OR _supplier IS NULL/);
+    expect(sql).toMatch(/n IS NULL OR n < 1/);
+    expect(sql).toMatch(/existing_hash IS DISTINCT FROM h/);
+  });
+  test("form locks while saving and keeps request id on error", () => {
+    const form = readFileSync("src/components/StockPurchaseForm.tsx", "utf8");
+    expect(form).toMatch(/const locked = save\.isPending/);
+    expect((form.match(/disabled=\{locked/g) ?? []).length).toBeGreaterThanOrEqual(8);
+    const onError = form.slice(form.indexOf("onError"), form.indexOf("onError") + 300);
+    expect(onError).not.toMatch(/randomUUID/);
+    expect(readFileSync("src/components/AdminFinance.tsx", "utf8")).not.toMatch(/toISOString\(\)\.slice/);
+  });
+});

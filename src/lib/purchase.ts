@@ -63,7 +63,8 @@ export function checkPurchase(
   const checks: LineCheck[] = lines.map((l) => {
     const p = byId.get(l.productId);
     const qty = parseQty(l.quantity);
-    const entered = parseCents(l.cost);
+    const costBlank = String(l.cost ?? "").trim() === "";
+    const entered = costBlank ? null : parseCents(l.cost);
     const lineCents = qty == null || entered == null ? null : opts.mode === "unit" ? entered * qty : entered;
     let error: string | null = null;
     const variants = p?.product_variants ?? [];
@@ -72,6 +73,7 @@ export function checkPurchase(
     else if (variants.length > 0 && !v) error = "Choose a size";
     else if (variants.length === 0 && l.variantId) error = "That size no longer exists";
     else if (qty == null) error = "Quantity must be a whole number from 1 to 100000";
+    else if (costBlank) error = "Enter a cost for this item (type 0 if it was free)";
     else if (entered == null) error = "Cost must be zero or more, up to 2 decimals";
     else if (lineCents != null && lineCents > MAX_CENTS) error = "Line cost is too large";
     const k = `${l.productId}::${l.variantId ?? "base"}`;

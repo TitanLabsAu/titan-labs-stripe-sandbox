@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { StockPurchaseForm } from "@/components/StockPurchaseForm";
+import { melbourneDay, melbourneRange } from "@/lib/au-date";
 import { centsToAud, type PurchaseProduct } from "@/lib/purchase";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -28,24 +29,7 @@ function categoryLabel(key: string) {
   return CATEGORIES.find((c) => c.key === key)?.label ?? key;
 }
 
-function isoDay(d: Date) {
-  return d.toISOString().slice(0, 10);
-}
-
-function rangeFor(preset: string) {
-  const now = new Date();
-  const to = isoDay(now);
-  if (preset === "month")
-    return { from: isoDay(new Date(now.getFullYear(), now.getMonth(), 1)), to };
-  if (preset === "quarter") {
-    const start = new Date(now);
-    start.setDate(start.getDate() - 89);
-    return { from: isoDay(start), to };
-  }
-  if (preset === "year")
-    return { from: isoDay(new Date(now.getFullYear(), 0, 1)), to };
-  return { from: "2020-01-01", to };
-}
+export const rangeFor = (preset: string) => melbourneRange(preset);
 
 function Stat({
   label,
@@ -84,6 +68,7 @@ function Stat({
 
 export function AdminFinance() {
   const queryClient = useQueryClient();
+  const [purchasePending, setPurchasePending] = useState(false);
   const [preset, setPreset] = useState("month");
   const [range, setRange] = useState(() => rangeFor("month"));
 
@@ -101,7 +86,7 @@ export function AdminFinance() {
   });
 
   const [form, setForm] = useState({
-    occurred_on: isoDay(new Date()),
+    occurred_on: melbourneDay(),
     category: "stock",
     supplier: "",
     description: "",
@@ -338,6 +323,7 @@ export function AdminFinance() {
           <div>
             <Label>Date</Label>
             <Input
+              disabled={purchasePending}
               type="date"
               value={form.occurred_on}
               onChange={(e) =>
@@ -348,6 +334,7 @@ export function AdminFinance() {
           <div>
             <Label>Type</Label>
             <select
+              disabled={purchasePending}
               className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
               value={form.category}
               onChange={(e) => setForm({ ...form, category: e.target.value })}
@@ -362,6 +349,7 @@ export function AdminFinance() {
           <div>
             <Label>Supplier</Label>
             <Input
+              disabled={purchasePending}
               value={form.supplier}
               placeholder="Who you paid"
               onChange={(e) => setForm({ ...form, supplier: e.target.value })}
@@ -382,6 +370,7 @@ export function AdminFinance() {
         <div>
           <Label>Note</Label>
           <Input
+              disabled={purchasePending}
             value={form.description}
             placeholder="What this was for"
             onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -394,6 +383,7 @@ export function AdminFinance() {
             supplier={form.supplier}
             description={form.description}
             products={products as unknown as PurchaseProduct[]}
+            onPendingChange={setPurchasePending}
             onSaved={() => {
               setForm((f) => ({ ...f, supplier: "", description: "" }));
               for (const k of ["admin-expenses", "admin-finance", "admin-products", "admin-inventory"])
