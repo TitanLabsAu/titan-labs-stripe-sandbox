@@ -8,7 +8,8 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
-import { THEME_BOOT_SCRIPT, applySiteTheme, getStoredTheme } from "@/lib/site-theme";
+import { THEME_BOOT_SCRIPT, getThemeSnapshot, setThemeSwitchHook } from "@/lib/site-theme";
+import { prepareSwitch, watchAlternates } from "@/lib/theme-art";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -120,7 +121,7 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 function RootComponent() {
-  useEffect(() => { if (getStoredTheme() === "light") applySiteTheme("light"); }, []);
+  useEffect(() => { setThemeSwitchHook(prepareSwitch); const stop = watchAlternates(getThemeSnapshot); return () => { setThemeSwitchHook(null); stop(); }; }, []);
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
 
