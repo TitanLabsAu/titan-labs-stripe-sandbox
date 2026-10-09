@@ -151,6 +151,7 @@ export const CMS_SECTIONS: CmsSection[] = [
     fields: [
       B("visible", "Show on homepage"),
       { key: "image", label: "Photo", type: "image", help: "Leave empty to use the built-in photo." },
+      { key: "image_light", label: "Light theme photo", type: "image", help: "Leave empty to use the built-in light laboratory artwork." },
       T("image_alt", "Photo description (alt text)", 300),
       T("caption", "Photo caption", 80),
       T("eyebrow", "Small heading", 60),
@@ -166,6 +167,7 @@ export const CMS_SECTIONS: CmsSection[] = [
     defaults: {
       visible: true,
       image: "",
+      image_light: "",
       image_alt: "Illustration of laboratory analysis equipment beside a clear sample cell, printed report and tablet displaying a document symbol.",
       caption: "Illustrative image",
       eyebrow: "TESTING TRANSPARENCY",

@@ -1,4 +1,5 @@
 import { ArrowRight, ArrowUpRight, FileText } from "lucide-react";
+import { useThemedArt } from "@/components/ThemedImage";
 import { Button } from "@/components/ui/button";
 
 import { CmsLink } from "@/components/CmsLink";
@@ -8,6 +9,7 @@ import { useSiteContent } from "@/lib/useCatalog";
 export function TestingTransparencySection() {
   const { data: content } = useSiteContent();
   const c = cmsValues(content, "home_testing");
+  const image = useThemedArt(c.image || "/images/titan-testing-laboratory.webp", c.image_light, "/images/product-light/testing-laboratory-light.webp");
   if (!c.visible) return null;
   const showPrimary = Boolean(c.primary_label?.trim() && canonicalUrl(c.primary_url ?? ""));
   const showSecondary = Boolean(c.secondary_label?.trim() && canonicalUrl(c.secondary_url ?? ""));
@@ -20,7 +22,7 @@ export function TestingTransparencySection() {
       <div className="grid min-w-0 items-center gap-8 lg:grid-cols-2 lg:gap-10">
         <figure className="relative min-w-0 overflow-hidden rounded-md">
           <img
-            src={c.image || "/images/titan-testing-laboratory.webp"}
+            src={image}
             alt={c.image_alt}
             width={768}
             height={768}
