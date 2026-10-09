@@ -20,16 +20,17 @@ export function HotProductsStrip({ products, content }: { products: Product[]; c
   // leaving its saved scroll body undefined; calling play/stop then crashes Embla's render ("settled").
   // Only drive the plugin while it is actually initialised, re-checking after every reInit (resize).
   const [scrollable, setScrollable] = useState(false);
+  const [initCount, setInitCount] = useState(0);
   useEffect(() => {
     if (!carousel || !scrollable) return;
     if (paused || reduced || hovered || focused || dragging) autoScroll.stop();
     else autoScroll.play();
-  }, [carousel, autoScroll, scrollable, paused, reduced, hovered, focused, dragging]);
+  }, [carousel, autoScroll, scrollable, initCount, paused, reduced, hovered, focused, dragging]);
   useEffect(() => {
     if (!carousel) return;
     const down = () => setDragging(true);
     const up = () => setDragging(false);
-    const sync = () => setScrollable(carousel.scrollSnapList().length > 1);
+    const sync = () => { setScrollable(carousel.scrollSnapList().length > 1); setInitCount((n) => n + 1); };
     sync();
     carousel.on("pointerDown", down).on("pointerUp", up).on("reInit", sync);
     return () => { carousel.off("pointerDown", down).off("pointerUp", up).off("reInit", sync); };
