@@ -6,6 +6,7 @@ import { useSiteContent } from "@/lib/useCatalog";
 import { useSiteTheme } from "@/lib/site-theme";
 
 export const LIGHT_DISCOVERY_ART = "/images/titan-discovery-light.webp";
+const responsiveLightPhotos = new Set(Object.values(LIGHT_PRODUCT_IMAGES));
 
 /** Picks light artwork only in the light theme; the dark image is always the untouched original. */
 export function useThemedArt(dark: string, light: string | undefined | null, fallback = LIGHT_DISCOVERY_ART) {
@@ -20,7 +21,7 @@ export function useLightProductPhoto(slug: string | undefined) {
   if (theme !== "light" || !slug) return null;
   const list = (cmsValues(data, "theme_artwork").products ?? []) as { slug?: string; image?: string }[];
   const hit = list.find((r) => r?.slug?.trim() === slug && r.image && canonicalUrl(r.image));
-  return hit ? canonicalUrl(hit.image!) : LIGHT_PRODUCT_IMAGES[slug] ?? null;
+  return hit?.image ? canonicalUrl(hit.image) : LIGHT_PRODUCT_IMAGES[slug] ?? null;
 }
 
 type Props = Omit<ImgHTMLAttributes<HTMLImageElement>, "src" | "srcSet"> & {
@@ -33,7 +34,8 @@ type Props = Omit<ImgHTMLAttributes<HTMLImageElement>, "src" | "srcSet"> & {
 export function ThemedProductImage({ slug, src, sizes, alt, className, ...rest }: Props) {
   const light = useLightProductPhoto(slug);
   const finalSrc = light ?? src;
-  const delivery = light?.startsWith("/images/product-light/") ? { srcSet: `${light.replace(/\.webp$/, "-480.webp")} 480w, ${light} 1024w`, sizes: sizes ?? "100vw" } : light ? {} : sizes ? productImageDelivery(src, sizes) : {};
+  // Only shipped photo pairs have a guaranteed 480px counterpart; arbitrary CMS uploads do not.
+  const delivery = light && responsiveLightPhotos.has(light) ? { srcSet: `${light.replace(/\.webp$/, "-480.webp")} 480w, ${light} 1024w`, sizes: sizes ?? "100vw" } : light ? {} : sizes ? productImageDelivery(src, sizes) : {};
   return (
     <img
       {...rest}
