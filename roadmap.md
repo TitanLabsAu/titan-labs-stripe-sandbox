@@ -32,4 +32,4 @@
 
 ## Multi-item stock purchase (draft, do not publish)
 - [x] One purchase header + item lines, cents totals, other costs/discount, idempotent atomic save with optional stock receipts; expandable details in Spending list. 111 tests pass, typecheck clean. Saved-purchase expansion not browser-checked (needs admin sign-in).
-- [ ] Draft QA: Melbourne default date, lock form while saving + same-id payload guard, blank line cost required, raw NULL items rejected, mocked AdminFinance fixture screenshots (dark/mobile/expanded), explicit build.
+- [x] Draft QA: Melbourne default date, lock form while saving + same-id payload guard, blank line cost required, raw NULL items rejected, mocked AdminFinance fixture screenshots (dark/mobile/expanded), explicit build.
