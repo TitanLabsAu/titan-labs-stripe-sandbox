@@ -323,6 +323,7 @@ export function AdminFinance() {
           <div>
             <Label>Date</Label>
             <Input
+              disabled={purchasePending}
               type="date"
               value={form.occurred_on}
               onChange={(e) =>
@@ -333,6 +334,7 @@ export function AdminFinance() {
           <div>
             <Label>Type</Label>
             <select
+              disabled={purchasePending}
               className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
               value={form.category}
               onChange={(e) => setForm({ ...form, category: e.target.value })}
@@ -347,6 +349,7 @@ export function AdminFinance() {
           <div>
             <Label>Supplier</Label>
             <Input
+              disabled={purchasePending}
               value={form.supplier}
               placeholder="Who you paid"
               onChange={(e) => setForm({ ...form, supplier: e.target.value })}
@@ -367,6 +370,7 @@ export function AdminFinance() {
         <div>
           <Label>Note</Label>
           <Input
+              disabled={purchasePending}
             value={form.description}
             placeholder="What this was for"
             onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -379,6 +383,7 @@ export function AdminFinance() {
             supplier={form.supplier}
             description={form.description}
             products={products as unknown as PurchaseProduct[]}
+            onPendingChange={setPurchasePending}
             onSaved={() => {
               setForm((f) => ({ ...f, supplier: "", description: "" }));
               for (const k of ["admin-expenses", "admin-finance", "admin-products", "admin-inventory"])
