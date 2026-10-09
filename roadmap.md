@@ -1,5 +1,9 @@
 # Roadmap
 
+- [ ] Finish Pen Guide paired banner, scoped light contrast and equal-height FAQ rows; verify both themes/zoom.
+- [ ] Prepare account paired artwork and light text; validate external light assets after sync (awaiting assets).
+- [ ] Run Bun regressions and browser checks; inspect automatic build/typecheck signals; do not publish.
+
 - [x] Enable promotions drag/swipe with hover pause and arrow navigation.
 - [x] Keep New Product blue with gold lettering.
 - [x] Verify changes and request publishing (deployment scheduled).
