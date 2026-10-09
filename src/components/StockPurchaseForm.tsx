@@ -85,6 +85,8 @@ export function StockPurchaseForm({
   });
 
   const locked = save.isPending;
+  // Changing the shared date/supplier/note is a different purchase, so it gets a new request id.
+  useEffect(() => { requestId.current = crypto.randomUUID(); }, [occurredOn, supplier, description]);
   useEffect(() => { onPendingChange?.(locked); }, [locked, onPendingChange]);
 
   const stockChanges = result.checks.filter((c) => !c.error && c.after != null);
