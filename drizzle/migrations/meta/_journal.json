@@ -253,6 +253,13 @@
       "when": 1791585190474,
       "tag": "0035_multi_item_stock_purchase",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1791585638338,
+      "tag": "0036_stock_purchase_request_hash",
+      "breakpoints": true
     }
   ]
 }

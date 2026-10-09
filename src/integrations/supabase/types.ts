@@ -279,6 +279,7 @@ export type Database = {
           other_costs_cents: number
           product_slug: string | null
           quantity: number | null
+          request_hash: string | null
           request_id: string | null
           restocked: boolean
           supplier: string
@@ -297,6 +298,7 @@ export type Database = {
           other_costs_cents?: number
           product_slug?: string | null
           quantity?: number | null
+          request_hash?: string | null
           request_id?: string | null
           restocked?: boolean
           supplier?: string
@@ -315,6 +317,7 @@ export type Database = {
           other_costs_cents?: number
           product_slug?: string | null
           quantity?: number | null
+          request_hash?: string | null
           request_id?: string | null
           restocked?: boolean
           supplier?: string
