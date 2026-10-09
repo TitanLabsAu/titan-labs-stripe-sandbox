@@ -1,7 +1,7 @@
 # Roadmap
 
 - [ ] Finish Pen Guide paired banner, scoped light contrast and equal-height FAQ rows; verify both themes/zoom.
-- [ ] Prepare account paired artwork and light text; verify newly committed review/light-theme account assets have synced, then validate both sizes.
+- [ ] Prepare account paired artwork and light text; retrieve and verify assets from exact review/light-theme SHA bd5af33db0450595405bb072b343167be33df92e without overwriting working edits, then validate both sizes.
 - [ ] Run Bun regressions and browser checks; inspect automatic build/typecheck signals; do not publish.
 
 - [x] Enable promotions drag/swipe with hover pause and arrow navigation.
