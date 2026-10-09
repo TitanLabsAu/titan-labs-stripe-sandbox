@@ -58,7 +58,7 @@ export function ProductCard({ product: p }: { product: Product }) {
       >
         <img
           src={p.image}
-              {...productImageDelivery(p.image, "(min-width: 1024px) 420px, (min-width: 640px) 50vw, 100vw")}
+              {...productImageDelivery(p.image, "(min-width: 1280px) 320px, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw")}
           alt={p.alt}
           loading="lazy"
           className={`h-full w-full object-contain transition duration-300 hover:scale-[1.02] ${allOut ? "opacity-40 grayscale" : ""}`}
@@ -74,12 +74,12 @@ export function ProductCard({ product: p }: { product: Product }) {
           </span>
         ) : null}
       </Link>
-      <div className="flex min-w-0 flex-1 flex-col gap-1 p-5">
+      <div className="flex min-w-0 flex-1 flex-col gap-1 p-3 sm:p-4">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
           <Link
             to="/product/$slug"
             params={{ slug: p.slug }}
-            className="min-w-0 font-display text-2xl font-bold uppercase tracking-wide text-foreground transition group-hover:text-primary"
+            className="min-w-0 font-display text-xl font-bold uppercase tracking-wide text-foreground transition group-hover:text-primary"
           >
             {p.name}
           </Link>
@@ -145,7 +145,7 @@ export function ProductCard({ product: p }: { product: Product }) {
               type="button"
               aria-pressed={pack === key}
               onClick={() => setPack(key)}
-              className={`rounded-md border border-primary/30 flex flex-col items-center justify-center gap-1 px-2 py-3 text-[11px] font-semibold uppercase tracking-[0.08em] transition-colors ${pack === key ? "border-accent bg-accent/10 text-foreground shadow-[inset_0_0_0_1px_var(--accent)]" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+              className={`rounded-md border border-primary/30 flex flex-col items-center justify-center gap-1 min-h-11 px-2 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition-colors ${pack === key ? "border-accent bg-accent/10 text-foreground shadow-[inset_0_0_0_1px_var(--accent)]" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
             >
               <span className="truncate">{label}</span>
               <span className="sr-only">
@@ -171,7 +171,7 @@ export function ProductCard({ product: p }: { product: Product }) {
               {formatPrice(wasPrice!)}
             </span>
           ) : null}
-          <span className="font-display text-3xl font-bold text-[#ccecff]">
+          <span className="font-display text-2xl font-bold text-[#ccecff]">
             {formatPrice(option.unitPrice)}
           </span>
         </div>
@@ -212,7 +212,7 @@ export function ProductCard({ product: p }: { product: Product }) {
           </div>
         ) : (
           <Button
-            className="mt-4 w-full min-h-12"
+            className="mt-3 w-full min-h-11"
             disabled={soon || stock === "out"}
             onClick={() =>
               addItem(p.slug, 1, {
