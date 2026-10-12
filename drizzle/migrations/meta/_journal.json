@@ -267,6 +267,13 @@
       "when": 1791585702908,
       "tag": "0037_stock_purchase_reject_null_input",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1791784110652,
+      "tag": "0038_member_welcome_email",
+      "breakpoints": true
     }
   ]
 }

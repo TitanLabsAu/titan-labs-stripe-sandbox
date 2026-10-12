@@ -534,6 +534,42 @@ export type Database = {
           },
         ]
       }
+      member_welcome_email_queue: {
+        Row: {
+          attempts: number
+          claimed_until: string | null
+          completed_at: string | null
+          created_at: string
+          last_error: string | null
+          next_attempt_at: string
+          outcome: string | null
+          template_version: string
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          claimed_until?: string | null
+          completed_at?: string | null
+          created_at?: string
+          last_error?: string | null
+          next_attempt_at?: string
+          outcome?: string | null
+          template_version: string
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          claimed_until?: string | null
+          completed_at?: string | null
+          created_at?: string
+          last_error?: string | null
+          next_attempt_at?: string
+          outcome?: string | null
+          template_version?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       order_acknowledgements: {
         Row: {
           accepted: boolean
@@ -1421,6 +1457,33 @@ export type Database = {
         }
         Relationships: []
       }
+      welcome_email_settings: {
+        Row: {
+          activated_at: string | null
+          enabled: boolean
+          id: number
+          template_version: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          activated_at?: string | null
+          enabled?: boolean
+          id?: number
+          template_version?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          activated_at?: string | null
+          enabled?: boolean
+          id?: number
+          template_version?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -1449,6 +1512,26 @@ export type Database = {
       claim_first_offer: {
         Args: { _emails: string[]; _ttl_minutes: number; _user_id: string }
         Returns: string
+      }
+      claim_member_welcome_emails: {
+        Args: { _limit?: number }
+        Returns: {
+          attempts: number
+          claimed_until: string | null
+          completed_at: string | null
+          created_at: string
+          last_error: string | null
+          next_attempt_at: string
+          outcome: string | null
+          template_version: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "member_welcome_email_queue"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       finalize_checkout_order: {
         Args: {
