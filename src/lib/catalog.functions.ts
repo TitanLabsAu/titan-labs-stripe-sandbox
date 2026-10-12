@@ -25,7 +25,7 @@ function publicClient() {
   });
 }
 
-function toProduct(row: any): Product {
+export function toProduct(row: any): Product {
   const unlimited = isUnlimitedStock(row);
   const links = sanitizeProductLinks(row.product_links);
   const rawVariants = Array.isArray(row.product_variants) ? row.product_variants : [];
@@ -89,7 +89,7 @@ function toProduct(row: any): Product {
   };
 }
 
-const PRODUCT_COLUMNS =
+export const PRODUCT_COLUMNS =
   "slug, name, price, sale_price, promo_label, kit_price, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, stock_quantity, coming_soon, catalogue_section, starter_kit_enabled, unlimited_stock";
 
 export const listProducts = createServerFn({ method: "GET" }).handler(
