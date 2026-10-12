@@ -37,6 +37,9 @@ import { useProducts, useSiteContent } from "@/lib/useCatalog";
 import { catalogueName } from "@/lib/homeContent";
 
 export const Route = createFileRoute("/product/$slug")({
+  // Optional exact-size deep link (welcome email); unknown ids fall back safely.
+  validateSearch: (search: Record<string, unknown>): { variant?: string } =>
+    typeof search.variant === "string" && /^[\w-]{1,80}$/.test(search.variant) ? { variant: search.variant } : {},
   loader: async ({ params }) => {
     const product = await getProductBySlug({ data: { slug: params.slug } });
     if (!product) throw notFound();
@@ -67,9 +70,12 @@ function ProductPage() {
   const pp = cmsValues(content, "product_page");
   const { addItem, items } = useCart();
   const variants = sortedProductVariants(product);
-  const [variantId, setVariantId] = useState<string | null>(
-    firstAvailableVariant(product)?.id ?? null,
-  );
+  const { variant: linkedVariant } = Route.useSearch();
+  const [variantId, setVariantId] = useState<string | null>(() => {
+    const linked = (product.variants ?? []).find((v) => v.id === linkedVariant);
+    if (linked && !linked.comingSoon && (linked.stock === null || linked.stock === undefined || linked.stock > 0)) return linked.id;
+    return firstAvailableVariant(product)?.id ?? null;
+  });
   const [pack, setPack] = useState<ProductPack>("single");
   const selected = useMemo(
     () => getProductOption(product, variantId, pack),
