@@ -3,7 +3,9 @@ import { useSiteContent } from "@/lib/useCatalog";
 import { TitanPageHeading } from "@/components/TitanPageHeading";
 import { UserPlus } from "lucide-react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { SignupSuccessNotice } from "@/components/SignupSuccessNotice";
+import { signupNoticeFor, type SignupNotice } from "@/lib/signup-result";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -62,11 +64,12 @@ function SignupPage() {
     password: "",
   });
   const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [notice, setNotice] = useState<SignupNotice | null>(null);
+  const signupStarted = useRef(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/account", replace: true });
+      if (data.session && !signupStarted.current) navigate({ to: "/account", replace: true });
     });
   }, [navigate]);
 
@@ -79,9 +82,11 @@ function SignupPage() {
       );
       return;
     }
+    signupStarted.current = true;
+    setNotice(null);
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signUp({
+      const result = await supabase.auth.signUp({
         email: parsed.data.email,
         password: parsed.data.password,
         options: {
@@ -97,8 +102,8 @@ function SignupPage() {
           },
         },
       });
-      if (error) throw error;
-      setSent(true);
+      if (result.error) throw result.error;
+      setNotice(signupNoticeFor(parsed.data.email, result));
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -112,18 +117,19 @@ function SignupPage() {
       <main className="page-shell py-8 sm:py-12">
         <div className="w-full max-w-3xl">
           <div className="rounded-xl border border-border bg-card p-5 sm:p-8">
-            {sent ? (
+            {notice ? (
               <div className="space-y-4 text-center">
                 <h1 className="font-display text-2xl font-black uppercase tracking-[0.08em] text-foreground">
-                  Check your email
+                  {notice.kind === "confirmed" ? "Signup complete" : "Check your email"}
                 </h1>
-                <p className="text-sm text-muted-foreground">
+                <SignupSuccessNotice notice={notice} />
+                {notice.kind === "confirmation" ? <p className="break-words text-sm text-muted-foreground [overflow-wrap:anywhere]">
                   We've sent a confirmation link to{" "}
-                  <span className="text-foreground">{form.email}</span>. Click
+                  <span className="text-foreground">{notice.email}</span>. Click
                   it to confirm your account, then log in here.
-                </p>
+                </p> : null}
                 <Button asChild variant="outline" className="w-full">
-                  <Link to="/auth">Back to log in</Link>
+                  {notice.kind === "confirmed" ? <Link to="/account">Continue to account</Link> : <Link to="/auth">Back to log in</Link>}
                 </Button>
               </div>
             ) : (
