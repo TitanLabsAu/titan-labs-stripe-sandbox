@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import * as React from "react";
 import { render } from "@react-email/render";
 import { processWelcomeJobs, type WelcomeDeps } from "../src/lib/welcome-email.server";
@@ -49,6 +49,16 @@ describe("member welcome worker", () => {
     await processWelcomeJobs(b.d);
     expect(b.log.finished).toEqual(["no_referral_code"]); expect(b.log.sends.length).toBe(0);
   });
+  test("repeated and concurrent runs bind one stable code and one idempotency key", async () => {
+    const issued = new Map<string, string>(); let inserts = 0;
+    const allocate = async (id: string) => { await Promise.resolve(); if (!issued.has(id)) { inserts++; issued.set(id, "TLABC234"); } return issued.get(id)!; };
+    const runs = Array.from({ length: 3 }, () => deps({ referralCode: allocate }));
+    await Promise.all(runs.map((r) => processWelcomeJobs(r.d)));
+    expect(inserts).toBe(1);
+    const sends = runs.flatMap((r) => r.log.sends);
+    expect(new Set(sends.map((x) => x.o.templateData.referralCode))).toEqual(new Set(["TLABC234"]));
+    expect(new Set(sends.map((x) => x.o.idempotencyKey)).size).toBe(1);
+  });
   test("unconfirmed users are never emailed", async () => {
     const { d, log } = deps({ confirmedUser: async () => ({ email: "x@example.test", confirmed: false }) });
     await processWelcomeJobs(d);
@@ -66,6 +76,21 @@ describe("member welcome worker", () => {
   });
 });
 
+describe("referral code allocation (SQL contract)", () => {
+  const sql = readFileSync("drizzle/migrations/0039_welcome_referral_code_allocation.sql", "utf8");
+  test("reuses existing code before issuing, under a per-member lock", () => {
+    expect(sql.indexOf("pg_advisory_xact_lock")).toBeLessThan(sql.indexOf("SELECT code INTO c"));
+    expect(sql.indexOf("IF c IS NOT NULL THEN RETURN c")).toBeLessThan(sql.indexOf("INSERT INTO public.discount_codes"));
+  });
+  test("only for queued, confirmed members; service-only; collision retries; no extra discount", () => {
+    expect(sql).toContain("member_welcome_email_queue WHERE user_id = _user_id AND completed_at IS NULL");
+    expect(sql).toContain("email_confirmed_at IS NOT NULL");
+    expect(sql).toContain("FROM PUBLIC, anon, authenticated");
+    expect(sql).toContain("WHEN unique_violation");
+    expect(sql).toMatch(/'referral', 'percent', 0, 1000000, _user_id/);
+  });
+});
+
 describe("welcome content", () => {
   test("uses homepage Hot Product selection, max 4, exact variant links, no padding", () => {
     const products = [prod("a", ["5mg", "10mg"], ["10mg"]), prod("b", ["1"]), prod("c", ["2"], ["2"])];
@@ -76,6 +101,15 @@ describe("welcome content", () => {
       "https://titanlabsaus.com/product/c?variant=2",
     ]);
     expect(cards.every((c) => c.imageUrl.startsWith("https://titanlabsaus.com/"))).toBe(true);
+  });
+  test("uses JPEG copies of shipped art and keeps other images unchanged", () => {
+    const real = { ...prod("k", ["80"], ["80"]), image: "/images/product-optimized/klow-80mg.webp" };
+    const cms = { ...prod("z", ["1"], ["1"]), image: "https://cdn.example.test/upload.png" };
+    const [a, b] = welcomeHotProducts([real, cms], {});
+    expect(a.imageUrl).toBe("https://titanlabsaus.com/images/email/product-optimized__klow-80mg.jpg");
+    expect(existsSync("public" + a.imageUrl.replace("https://titanlabsaus.com", ""))).toBe(true);
+    expect(b.imageUrl).toBe("https://cdn.example.test/upload.png");
+    expect(a.size).toBe("80");
   });
   test("terms come from settings; disabled offer is omitted", () => {
     const s = settingsFromDb(dbSettings);

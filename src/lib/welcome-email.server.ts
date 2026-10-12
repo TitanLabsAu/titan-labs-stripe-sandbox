@@ -87,11 +87,11 @@ export async function sendPendingWelcomeEmails() {
       const { data } = await db.from("profiles").select("first_name").eq("id", id).maybeSingle();
       return data?.first_name?.trim() || null;
     },
+    // Reuses the member's existing code or atomically issues one (DB-gated to queued, confirmed members).
     referralCode: async (id) => {
-      const { data } = await db.from("discount_codes").select("code, expires_at")
-        .eq("user_id", id).eq("code_kind", "referral").eq("active", true).order("created_at");
-      const now = Date.now();
-      return (data ?? []).find((c: any) => !c.expires_at || Date.parse(c.expires_at) > now)?.code ?? null;
+      const { data, error } = await db.rpc("allocate_welcome_referral_code", { _user_id: id });
+      if (error) { console.error("[member-welcome] code allocation pending", id); return null; }
+      return typeof data === "string" && data ? data : null;
     },
     catalogue: async () => {
       const [p, c, s] = await Promise.all([

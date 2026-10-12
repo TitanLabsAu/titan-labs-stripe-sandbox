@@ -1501,6 +1501,10 @@ export type Database = {
         }
         Returns: Json
       }
+      allocate_welcome_referral_code: {
+        Args: { _user_id: string }
+        Returns: string
+      }
       attach_first_offer_claim: {
         Args: { _claim_id: string; _payment_attempt_id: string }
         Returns: undefined
