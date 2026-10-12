@@ -79,7 +79,7 @@ export function MemberWelcome({ firstName = "", referralCode = "", products = []
               <Link href={`${WELCOME_ORIGIN}/referrals`} style={{ color: BLUE }}>Referral Program</Link>
             </Text>
           </Section>
-          <Hr style={{ borderColor: "#d9e2ee", margin: "0 24px" }} />
+          <Section style={{ padding: "0 24px" }}><Hr style={{ borderColor: "#d9e2ee", margin: 0 }} /></Section>
           <Text style={{ color: "#4a5868", fontSize: "12px", lineHeight: "18px", padding: "12px 24px 28px", margin: 0 }}>
             Titan Labs Aus products are for research use only. You received this email because you created and confirmed a Titan Labs Aus account.
           </Text>

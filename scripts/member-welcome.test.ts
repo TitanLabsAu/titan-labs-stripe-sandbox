@@ -80,7 +80,7 @@ describe("welcome content", () => {
   test("terms come from settings; disabled offer is omitted", () => {
     const s = settingsFromDb(dbSettings);
     const c = welcomeCopy(s);
-    expect(c.offer).toContain("10% off your first order");
+    expect(c.offer).toContain("applied automatically to your first paid order");
     expect(c.discounts[0]).toBe("Multi-buy: 2+ items: 10% off · 3+ items: 15% off.");
     expect(c.referral).toContain("every 5 paid orders");
     expect(welcomeCopy({ ...s, first_offer_enabled: false }).offer).toBeNull();
