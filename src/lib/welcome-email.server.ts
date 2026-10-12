@@ -45,6 +45,8 @@ export async function processWelcomeJobs(deps: WelcomeDeps) {
         products: welcomeHotProducts(catalogue.products, catalogue.content),
         settings: settingsFromDb(catalogue.settings),
       };
+      // Re-check right before the provider call so switching OFF stops remaining jobs.
+      if (!(await deps.enabled())) { await deps.retryLater(job, "paused: feature disabled"); continue; }
       const result = await deps.send(WELCOME_TEMPLATE, user.email, {
         templateData: data,
         idempotencyKey: `member-welcome-${job.template_version}-${job.user_id}`,
@@ -80,7 +82,12 @@ export async function sendPendingWelcomeEmails() {
     },
     confirmedUser: async (id) => {
       const { data, error } = await db.auth.admin.getUserById(id);
-      if (error || !data?.user) return null;
+      // Only a definitive not-found is final; outages/other errors throw so the job retries.
+      if (error) {
+        if ((error as any).status === 404 || /not.?found/i.test(error.message ?? "")) return null;
+        throw new Error("user lookup unavailable");
+      }
+      if (!data?.user) return null;
       return { email: data.user.email ?? "", confirmed: Boolean(data.user.email_confirmed_at) };
     },
     firstName: async (id) => {
