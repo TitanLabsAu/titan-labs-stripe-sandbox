@@ -1,6 +1,7 @@
 import type { Product } from "./products";
 import { hotProductSelections } from "./product-promotions";
 import { featuredSlugs } from "./homeContent";
+import { EMAIL_IMAGE_MAP } from "./email-image-map";
 
 /** Bumping this re-keys the queue/idempotency for a new template generation. */
 export const WELCOME_TEMPLATE_VERSION = "v1";
@@ -43,7 +44,8 @@ export function absoluteUrl(path: string) {
 export function welcomeHotProducts(products: Product[], content: Record<string, string> | undefined): WelcomeProductCard[] {
   return hotProductSelections(products, featuredSlugs(content)).slice(0, 4).flatMap((p) => {
     const v = p.variants?.[0];
-    const imageUrl = absoluteUrl(p.image);
+    // Prefer the JPEG copy of the same picture; uploaded/CMS images stay as they are.
+    const imageUrl = absoluteUrl(EMAIL_IMAGE_MAP[p.image] ?? p.image);
     if (!imageUrl) return [];
     const q = v ? `?variant=${encodeURIComponent(v.id)}` : "";
     return [{ name: p.name, size: v?.label ?? null, url: `${WELCOME_ORIGIN}/product/${encodeURIComponent(p.slug)}${q}`, imageUrl, alt: p.alt || p.name }];
