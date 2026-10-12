@@ -274,6 +274,13 @@
       "when": 1791784110652,
       "tag": "0038_member_welcome_email",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1791784642326,
+      "tag": "0039_welcome_referral_code_allocation",
+      "breakpoints": true
     }
   ]
 }
