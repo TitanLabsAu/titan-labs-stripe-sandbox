@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Add persistent signup feedback; 148 regressions pass, preview build OK. Mocked real signup page confirms persistent/new/existing/error states; actual confirmed notice rendered in browser-only fixture, no project test route. Desktop/mobile both themes have no overflow or runtime errors. No account/email/settings writes or publishing. Separate typecheck remains unavailable under harness restrictions (see existing blocker below).
+
 - [x] Replace only Pen Guide default light banner with supplied original-composition counterpart; CMS override and dark art preserved. Exact uploads installed (full upload is 1920×640, smaller is 960×320); both decode. Desktop/mobile both themes render without errors or overflow, FAQs remain 250px/274px across all eight cards. Light copy contrast minimum 16.41:1 desktop / 10.75:1 mobile; 101 regressions pass, automatic build OK. Separate typecheck signal unavailable; no manual build/typecheck per harness. Nothing published.
 
 - [x] Finish Pen Guide paired banner, scoped light contrast and equal-height FAQ rows; verify both themes/zoom. Eight cards measured 250–250px desktop, 274–274px mobile, 298–298px tablet; long-content and 200% zoom checks had no clipping/overflow. Light headings/body/checklist minimum sampled contrast 9.18:1.
