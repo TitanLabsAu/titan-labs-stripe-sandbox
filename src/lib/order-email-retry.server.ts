@@ -34,7 +34,14 @@ export async function retryOrderEmails(request: Request): Promise<Response> {
     } catch (error) {
       console.error("[calendar-reminders]", error);
     }
-    return Response.json({ ok: true, confirmations, milestoneEmails: milestones.sent, calendarReminders });
+    let welcomeEmails = 0;
+    try {
+      const { sendPendingWelcomeEmails } = await import("@/lib/welcome-email.server");
+      welcomeEmails = (await sendPendingWelcomeEmails()).sent;
+    } catch (error) {
+      console.error("[member-welcome]", error);
+    }
+    return Response.json({ ok: true, confirmations, milestoneEmails: milestones.sent, calendarReminders, welcomeEmails });
   } catch (error) {
     console.error("[order-email-retry]", error);
     return Response.json({ ok: false, error: "Email retry failed" }, { status: 500 });

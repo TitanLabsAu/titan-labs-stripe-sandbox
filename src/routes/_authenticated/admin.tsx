@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AdminReviews } from "@/components/AdminReviews";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AdminWelcomeEmail } from "@/components/AdminWelcomeEmail";
 import { formatPrice } from "@/lib/products";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { OrderAcknowledgementInfo } from "@/components/OrderAcknowledgementInfo";
@@ -762,7 +763,8 @@ function AdminTabsPage() {
           <TabsContent value="edits" className="mt-6">
             <AdminEdits />
           </TabsContent>
-          <TabsContent value="notifications" className="mt-6">
+          <TabsContent value="notifications" className="mt-6 space-y-6">
+            <AdminWelcomeEmail />
             <NotificationsPanel />
           </TabsContent>
         </Tabs>
