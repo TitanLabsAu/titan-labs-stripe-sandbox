@@ -39,7 +39,7 @@ import { catalogueName } from "@/lib/homeContent";
 export const Route = createFileRoute("/product/$slug")({
   // Optional exact-size deep link (welcome email); unknown ids fall back safely.
   validateSearch: (search: Record<string, unknown>): { variant?: string } =>
-    typeof search.variant === "string" && /^[\w-]{1,80}$/.test(search.variant) ? { variant: search.variant } : {},
+    typeof search["variant"] === "string" && /^[\w-]{1,80}$/.test(search["variant"]) ? { variant: search["variant"] } : {},
   loader: async ({ params }) => {
     const product = await getProductBySlug({ data: { slug: params.slug } });
     if (!product) throw notFound();
