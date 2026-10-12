@@ -59,6 +59,23 @@ describe("member welcome worker", () => {
     expect(new Set(sends.map((x) => x.o.templateData.referralCode))).toEqual(new Set(["TLABC234"]));
     expect(new Set(sends.map((x) => x.o.idempotencyKey)).size).toBe(1);
   });
+  test("temporary user lookup outage retries and sends nothing", async () => {
+    const { d, log } = deps({ confirmedUser: async () => { throw new Error("auth service 503"); } });
+    await processWelcomeJobs(d);
+    expect(log.sends.length).toBe(0); expect(log.retried).toBe(1); expect(log.finished).toEqual([]);
+  });
+  test("definitive missing user finishes as user_missing", async () => {
+    const { d, log } = deps({ confirmedUser: async () => null });
+    await processWelcomeJobs(d);
+    expect(log.finished).toEqual(["user_missing"]); expect(log.sends.length).toBe(0);
+  });
+  test("disabling mid-run stops the remaining sends", async () => {
+    let calls = 0;
+    const { d, log } = deps({ enabled: async () => ++calls === 1,
+      claim: async () => [{ user_id: "u1", template_version: "v1", attempts: 1 }, { user_id: "u2", template_version: "v1", attempts: 1 }] });
+    await processWelcomeJobs(d);
+    expect(log.sends.length).toBe(0); expect(log.retried).toBe(2); expect(log.finished).toEqual([]);
+  });
   test("unconfirmed users are never emailed", async () => {
     const { d, log } = deps({ confirmedUser: async () => ({ email: "x@example.test", confirmed: false }) });
     await processWelcomeJobs(d);
@@ -114,7 +131,8 @@ describe("welcome content", () => {
   test("terms come from settings; disabled offer is omitted", () => {
     const s = settingsFromDb(dbSettings);
     const c = welcomeCopy(s);
-    expect(c.offer).toContain("applied automatically to your first paid order");
+    expect(c.offer).toContain("automatically considered for your first eligible purchase");
+    expect(c.offer).not.toContain("applied automatically");
     expect(c.discounts[0]).toBe("Multi-buy: 2+ items: 10% off · 3+ items: 15% off.");
     expect(c.referral).toContain("every 5 paid orders");
     expect(welcomeCopy({ ...s, first_offer_enabled: false }).offer).toBeNull();

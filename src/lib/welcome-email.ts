@@ -83,7 +83,7 @@ export function welcomeCopy(s: WelcomeSettings) {
     s.first_offer_combine_credit && "store credit",
   ].filter(Boolean) as string[];
   const offer = s.first_offer_enabled && s.first_offer_percent > 0
-    ? `No code needed: sign in with this account at checkout and the discount is applied automatically to your first paid order.${combos.length ? ` It can be used together with ${combos.join(", ")}, subject to the ${s.combined_cap_percent}% combined discount cap.` : ""}`
+    ? `No code needed: sign in with this account at checkout and the offer is automatically considered for your first eligible purchase. Checkout keeps the best eligible saving under its combination rules.${combos.length ? ` It can combine with ${combos.join(", ")}, subject to the ${s.combined_cap_percent}% combined discount cap.` : ""}`
     : null;
   const tiers = s.multibuy_tiers.map((t) => `${t.units}+ items: ${t.percent}% off`);
   const discounts = [
