@@ -9,31 +9,19 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Homepage promotions use Embla with auto-scroll for hover/focus pausing and manual drag/swipe navigation; playback resolves the initialized plugin from the current carousel and checks current snaps, preventing stale candidate calls after Fast Refresh or resize while keeping product controls interactive.
-
-- Pen Guide and account artwork use shared CSS-paired ThemedArt delivery with page-scoped light text roles; Pens 101 uses equal implicit grid rows so all cards grow together without clipping CMS content.
-- Pen Guide supplies its own light-banner fallback to ThemedArt; CMS light overrides remain first priority without changing catalogue/home artwork defaults.
-
-- Checkout acknowledgements live in `order_acknowledgements`, recorded before payment and linked via `link_order_acknowledgement` RPC — keeps Stripe finalisation untouched.
-- Research Lab content lives in `research_entries` (admin CRUD via RLS, public reads published-only through a server fn) — independent from products.
-- Research Lab member summaries live in `research_entries.at_a_glance`; protected `/research-preview` routes show drafts to admins without weakening public published-only reads.
-- The mobile floating cart reuses `CartSheet` from the root layout so cart behavior remains centralized.
-- Storefront sections live in `products.catalogue_section` (range/pens/equipment, DB check, default range) — kept separate from scientific `categories`.
-- Customer reviews use `customer_reviews` with admin-only direct writes and published/non-archived public reads; anonymous review submissions go only through the validated, throttled submitCustomerReview server handler, always unpublished/unfeatured and with no rating; the shared featured selector limits the ordered homepage block to three, while preserving a separate full reviews page.
-- AI product photos go through the admin-checked `/api/admin-generate-image` route and are only stored in `product-images` after the admin chooses "Use image".
-- Equipment is single-item only via `allowsKit`/`effectivePack` in `src/lib/products.ts`, applied in UI, cart restore and every server price path — one rule so tampered kit requests cannot be charged.
-
-
-- Member Calendar entries live in `member_calendar_entries`, with owner-only RLS, local date recurrence and no supplied dosing protocols.
-- Starter kits are normal Equipment products (`range-starter-kit`, `pen-starter-kit`); `products.starter_kit_enabled` controls each Range/Pens offer. Never attach a client-only surcharge or duplicate pen inventory for kit options.
-- Only Range supports 10x kits. Pens and Equipment are single items across cart restore, Admin and all server pricing paths.
-
-- Guest checkout ownership comes only from the hashed guest-session cookie or a verified member bearer, resolved server side in `checkout-buyer.server.ts` — posted IDs/emails are never trusted.
-- First-purchase offer claims stay held while a Stripe intent is payable and are released only after cancellation is confirmed — prevents a late payment using a released offer.
-- Testing Transparency uses a reusable homepage photo section and separate catalogue/footer banners; keep it attached to pillars without altering saved homepage order, and never imply certificate results before files are supplied.
-- Storefront CMS content lives in `site_content` rows `cms:<section>` (JSON overrides) defined by `src/lib/storefrontContent.ts`; saves go through `adminSaveStorefrontSection`, which validates and merges only changed fields with per-field conflict checks and a compare-and-set write (no blind upsert) — one registry keeps editor, server and storefront rules in sync.
-- Homepage blocks (including the page heading) are ordered via `pageSectionOrder`; new blocks declare `insertAfter` compatibility so older saved orders keep their relative positions — avoids silently relocating content.
-- Light theme is the first-visit default, while explicit choices remain a per-device preference held in one `useSyncExternalStore` store (`src/lib/site-theme.ts`, single storage/event listeners); themed images and toggle labels render as CSS-switched lazy dark/light pairs (`ThemedArt`/`ThemedProductImage`) so first paint matches the boot-script class without hydration-dependent URLs; `src/lib/theme-art.ts` owns shipped responsive sets plus idle, deduped alternate decoding for visible pairs only. CMS exact-slug artwork wins over bundled exact-slug defaults — prevents wrong products, theme flashes and double downloads.
-- Stock changes go through `adjust_inventory` / `record_restock_expense` (row lock + compare-and-set + immutable `inventory_movements` ledger in one transaction); a products trigger logs other stock edits — one audited path, no stale JSON overwrites.
-- Multi-item stock purchases save via `record_stock_purchase` (one `expenses` header holding the full total + `expense_items` children, request_id idempotency, products locked in id order) — existing P&L sums keep working and retries never double-save.
-- Member welcome emails queue only from the `auth.users` confirmation trigger into `member_welcome_email_queue`, gated by admin-only `welcome_email_settings` (OFF by default; enabling moves the activation cutoff) and are sent by the existing hourly order-email job via `processWelcomeJobs` — no backlog, no client-supplied recipient, one send per user+template version.
+- Homepage promotions: Embla auto-scroll + drag; playback resolves the live plugin and checks current snaps (safe after Fast Refresh/resize).
+- Theme: light first-visit default, per-device choice in one `useSyncExternalStore` store (`src/lib/site-theme.ts`); themed art renders as CSS-switched dark/light pairs (`ThemedArt`/`ThemedProductImage`, sets in `src/lib/theme-art.ts`) so first paint never depends on hydration. CMS exact-slug art beats bundled defaults; Pen Guide passes its own light-banner fallback and uses equal implicit grid rows.
+- Checkout acknowledgements live in `order_acknowledgements`, linked via `link_order_acknowledgement` — Stripe finalisation untouched.
+- Guest checkout ownership comes only from the hashed guest cookie or verified bearer (`checkout-buyer.server.ts`); posted IDs/emails are never trusted.
+- First-purchase offer claims stay held while a Stripe intent is payable; released only after confirmed cancellation.
+- Research Lab: `research_entries` (admin RLS CRUD, public published-only via server fn, `at_a_glance` summaries); `/research-preview` shows drafts to admins only.
+- Mobile floating cart reuses root-layout `CartSheet`.
+- Catalogue sections use `products.catalogue_section`, separate from scientific `categories`.
+- Reviews: `customer_reviews`, admin-only writes; anonymous submissions only via throttled `submitCustomerReview` (unpublished, unrated); homepage featured block capped at three.
+- AI product photos via admin-checked `/api/admin-generate-image`, stored only after "Use image".
+- Pack rules via `allowsKit`/`effectivePack` (`src/lib/products.ts`) in UI, cart restore and every server price path: only Range has 10x kits. Starter kits are normal Equipment products toggled by `products.starter_kit_enabled`; no client-only surcharges.
+- Member Calendar: `member_calendar_entries`, owner-only RLS, no supplied dosing protocols.
+- Testing Transparency stays attached to pillars without altering saved homepage order; never imply certificate results before files exist.
+- CMS: `site_content` `cms:<section>` overrides defined in `src/lib/storefrontContent.ts`, saved via `adminSaveStorefrontSection` (per-field conflict check + compare-and-set). Homepage blocks ordered by `pageSectionOrder`; new blocks declare `insertAfter`.
+- Stock changes only via `adjust_inventory`/`record_restock_expense`/`record_stock_purchase` (row locks, compare-and-set, immutable `inventory_movements`; purchases = one `expenses` header + `expense_items`, request-id+hash idempotent).
+- Member welcome emails queue only from the `auth.users` confirmation trigger into `member_welcome_email_queue`, gated by admin-only `welcome_email_settings` (OFF by default; enabling moves the cutoff) and sent by the existing hourly order-email job — no backlog, no client-supplied recipient, one send per user+version.
