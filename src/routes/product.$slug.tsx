@@ -26,6 +26,7 @@ import {
   kitPriceFor,
   allowsKit,
   singleLabelFor,
+  packLabel,
   productBasePrice,
   sortedProductVariants,
   stockState,
