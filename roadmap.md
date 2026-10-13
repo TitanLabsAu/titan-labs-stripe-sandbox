@@ -35,3 +35,7 @@
 ## Multi-item stock purchase (draft, do not publish)
 - [x] One purchase header + item lines, cents totals, other costs/discount, idempotent atomic save with optional stock receipts; expandable details in Spending list. 111 tests pass, typecheck clean. Saved-purchase expansion not browser-checked (needs admin sign-in).
 - [x] Draft QA: Melbourne default date, lock form while saving + same-id payload guard, blank line cost required, raw NULL items rejected, mocked AdminFinance fixture screenshots (dark/mobile/expanded), explicit build.
+
+## Equipment quantity packs (draft, do not publish)
+- [x] Per-option items-per-pack (default 1), whole-pack price, stock/restock counted in packs; labels in selectors, cart, order lines/emails, Inventory, stock purchases. Invalid input rejected. Options panel moved to top of shared product editor. 154 tests, typecheck clean.
+- [ ] Mocked-fixture screenshots of editor/selector/cart and full Admin/website-editor audit screenshots — not yet produced.

@@ -127,7 +127,7 @@ export function StockPurchaseForm({
                     disabled={locked || !p || variants.length === 0}
                     onChange={(e) => patch(l.key, { variantId: e.target.value || null })}>
                     <option value="">{p && variants.length === 0 ? "Single size" : "Choose size"}</option>
-                    {variants.map((v) => <option key={v.id} value={v.id}>{v.label}</option>)}
+                    {variants.map((v) => <option key={v.id} value={v.id}>{v.label}{Number((v as any).packSize) > 1 ? ` (pack of ${(v as any).packSize})` : ""}</option>)}
                   </select>
                 </div>
                 <div>

@@ -66,7 +66,10 @@ export function buildSkus(products: RawProduct[], thresholds: Map<string, number
       variants.length > 0
         ? variants.map((v) => ({
             variantId: String(v.id),
-            size: String(v.label ?? ""),
+            size:
+              section === "equipment" && Number.isInteger(Number(v.packSize)) && Number(v.packSize) > 1
+                ? `${String(v.label ?? "")} · stock counted in packs of ${Number(v.packSize)}`
+                : String(v.label ?? ""),
             stock: whole(v.stock),
             cost: costOf(v.cost),
             comingSoon: Boolean(p.coming_soon) || Boolean(v.comingSoon),
