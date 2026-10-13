@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { confirmDiscardCmsDrafts } from "@/lib/cmsDirtyGuard";
 import type { ReactNode } from "react";
 import { MarkupTextEditor, type MarkupMode } from "@/components/MarkupTextEditor";
@@ -9,12 +9,9 @@ import {
   AlignRight,
   ArrowDown,
   ArrowUp,
-  Bold,
   GripVertical,
-  Italic,
   Plus,
   Trash2,
-  Underline,
   Moon,
   Sun,
 } from "lucide-react";
