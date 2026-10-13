@@ -22,7 +22,7 @@ describe("signup notice with mocked auth responses only", () => {
     const notice = signupNoticeFor(email, await mockSignup({ identities: [{}] }, { user: {} }));
     const html = renderToStaticMarkup(<SignupSuccessNotice notice={notice} />);
     expect(notice?.kind).toBe("confirmed");
-    expect(html).toContain("Your email address is confirmed and signup is complete.");
+    expect(html).toContain("Your account is ready and you're signed in");
     expect(html).not.toContain("Confirm your email address to complete signup.");
     expect(html).not.toContain("has been sent");
   });
