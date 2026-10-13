@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { confirmDiscardCmsDrafts } from "@/lib/cmsDirtyGuard";
-import type { ReactNode, RefObject } from "react";
+import type { ReactNode } from "react";
+import { MarkupTextEditor, type MarkupMode } from "@/components/MarkupTextEditor";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlignCenter,
@@ -8,12 +9,9 @@ import {
   AlignRight,
   ArrowDown,
   ArrowUp,
-  Bold,
   GripVertical,
-  Italic,
   Plus,
   Trash2,
-  Underline,
   Moon,
   Sun,
 } from "lucide-react";
@@ -132,48 +130,12 @@ function AlignmentButtons({
   );
 }
 
-function TextFormatButton({
-  label,
-  marker,
-  textarea,
-  value,
-  onChange,
-  children,
-}: {
-  label: string;
-  marker: "**" | "*" | "__";
-  textarea: RefObject<HTMLTextAreaElement | null>;
-  value: string;
-  onChange: (value: string) => void;
-  children: ReactNode;
-}) {
-  return (
-    <Button
-      type="button"
-      variant="outline"
-      size="icon"
-      className="h-8 w-8"
-      aria-label={label}
-      onClick={() => {
-        const el = textarea.current;
-        if (!el) return;
-        const start = el.selectionStart;
-        const end = el.selectionEnd;
-        const selected = value.slice(start, end) || "text";
-        const next = `${value.slice(0, start)}${marker}${selected}${marker}${value.slice(end)}`;
-        onChange(next);
-        window.requestAnimationFrame(() => {
-          el.focus();
-          el.setSelectionRange(
-            start + marker.length,
-            start + marker.length + selected.length,
-          );
-        });
-      }}
-    >
-      {children}
-    </Button>
-  );
+/** Fields whose storefront consumer renders RichText (audited per field). Everything else stays plain text. */
+const BLOCK_RICH_FIELDS = new Set(["home_footer_text", "footer_about", "footer_notice", "legal_terms", "legal_research_notice", "legal_shipping", "legal_privacy"]);
+const INLINE_RICH_FIELDS = new Set(["home_featured_note", "range_intro", "range_disclaimer", "home_range_note"]);
+const PREVIEW_CLASS: Record<string, string> = { footer_notice: "font-bold uppercase text-foreground", footer_about: "leading-6" };
+export function markupModeFor(key: string): MarkupMode {
+  return BLOCK_RICH_FIELDS.has(key) ? "block" : INLINE_RICH_FIELDS.has(key) ? "inline" : "plain";
 }
 
 function ContentFieldEditor({
@@ -189,7 +151,6 @@ function ContentFieldEditor({
   setValue: (value: string) => void;
   setAlign: (value: TextAlign) => void;
 }) {
-  const textarea = useRef<HTMLTextAreaElement | null>(null);
   const rows = field.key.startsWith("legal_")
     ? 12
     : field.key === "range_disclaimer"
@@ -197,56 +158,28 @@ function ContentFieldEditor({
       : field.multiline
         ? 4
         : 2;
+  const id = `content-${field.key}`;
 
   return (
     <div className={field.multiline ? "sm:col-span-2" : ""}>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <Label>{field.label}</Label>
+        <Label htmlFor={id}>{field.label}</Label>
         <AlignmentButtons value={align} onChange={setAlign} />
       </div>
       {field.multiline ? (
-        <>
-          <div className="mt-2 flex flex-wrap gap-2">
-            <TextFormatButton
-              label="Bold"
-              marker="**"
-              textarea={textarea}
-              value={value}
-              onChange={setValue}
-            >
-              <Bold className="h-4 w-4" />
-            </TextFormatButton>
-            <TextFormatButton
-              label="Italic"
-              marker="*"
-              textarea={textarea}
-              value={value}
-              onChange={setValue}
-            >
-              <Italic className="h-4 w-4" />
-            </TextFormatButton>
-            <TextFormatButton
-              label="Underline"
-              marker="__"
-              textarea={textarea}
-              value={value}
-              onChange={setValue}
-            >
-              <Underline className="h-4 w-4" />
-            </TextFormatButton>
-          </div>
-          <Textarea
-            ref={textarea}
+        <div className="mt-2">
+          <MarkupTextEditor
+            id={id}
+            label={field.label}
+            mode={markupModeFor(field.key)}
             rows={rows}
-            className={cn(
-              "mt-2 whitespace-pre-wrap",
-              TEXTAREA_ALIGN_CLASS[align],
-            )}
+            align={align}
             value={value}
             placeholder={field.fallback}
-            onChange={(e) => setValue(e.target.value)}
+            previewClassName={PREVIEW_CLASS[field.key]}
+            onChange={setValue}
           />
-        </>
+        </div>
       ) : (
         <Input
           className={cn("mt-2", TEXTAREA_ALIGN_CLASS[align])}

@@ -1,11 +1,12 @@
 import { Fragment } from "react";
+import { RICH_BULLET, RICH_TOKEN } from "@/lib/markup-edit";
 
 type RichTextProps = {
   text: string;
   inline?: boolean;
 };
 
-const TOKEN = /(\*\*[^*]+\*\*|__[^_]+__|\*[^*]+\*)/g;
+const TOKEN = RICH_TOKEN;
 
 function richSegments(line: string) {
   return line.split(TOKEN).map((part, index) => {
@@ -26,7 +27,7 @@ function richSegments(line: string) {
   });
 }
 
-const BULLET = /^\s*[-•]\s+/;
+const BULLET = RICH_BULLET;
 
 function isNumberedHeading(line: string) {
   return (

@@ -24,6 +24,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { MarkupTextEditor } from "@/components/MarkupTextEditor";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -196,13 +197,14 @@ function FieldEditor({ field, value, error, sectionId, onChange, onUploadState }
     <div className="grid gap-1.5">
       <Label htmlFor={id}>{field.label}</Label>
       {field.type === "textarea" ? (
-        <Textarea id={id} rows={4} value={value ?? ""} maxLength={max} aria-invalid={Boolean(error)} onChange={(e) => onChange(e.target.value)} />
+        // These storefront blocks render plain text, so only plain editing aids are offered (no formatting buttons).
+        <MarkupTextEditor id={id} label={field.label} mode="plain" max={max} value={value ?? ""} invalid={Boolean(error)} onChange={onChange} />
       ) : (
         <Input id={id} value={value ?? ""} maxLength={max} type={field.type === "url" ? "url" : "text"} inputMode={field.type === "url" ? "url" : undefined} aria-invalid={Boolean(error)} onChange={(e) => onChange(e.target.value)} />
       )}
       <div className="flex justify-between gap-2">
         <div>{help}{err}{field.type === "url" && !error && value && !isSafeUrl(value) ? <p className="text-xs text-destructive">Unsafe link</p> : null}</div>
-        {field.type !== "url" ? <span className="text-xs text-muted-foreground">{len}/{max}{len === 0 ? " · will show nothing" : ""}</span> : null}
+        {field.type === "text" ? <span className="text-xs text-muted-foreground">{len}/{max}{len === 0 ? " · will show nothing" : ""}</span> : null}
       </div>
     </div>
   );

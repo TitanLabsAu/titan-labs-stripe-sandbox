@@ -40,3 +40,7 @@
 - [x] Per-option items-per-pack (default 1), whole-pack price, stock/restock counted in packs; labels in selectors, cart, order lines/emails, Inventory, stock purchases. Invalid input rejected. Options panel moved to top of shared product editor. 154 tests, typecheck clean.
 - [x] packLabel normalises stale "N x" prefix to saved pack size.
 - [x] Mocked-fixture screenshots (editor 4 views, shop+cart 2, website-editor tabs 2) and Admin review delivered; fixture removed.
+
+## Markup-assisted text editor (draft, do not publish)
+- [x] Shared editor: B/I/U on/off, bullets (block fields only), clear, bounded undo/redo, shortcuts, counts/limits, live website preview, expand dialog, safe paste. Rich only on fields whose website display renders it; others plain.
+- [ ] Later (not started): rich captions for picture boxes, links/headings, Research Lab editor, stock CAS, Header/Footer split, tab consolidation.
