@@ -58,10 +58,8 @@ export function toggleInline(v: string, s0: number, e0: number, m: Marker): Edit
   const toks = tokens(v);
   if (s === e) {
     const t = toks.find((t) => s > t.start && s < t.end);
-    if (!t) {
-      const word = "text";
-      return { value: `${v.slice(0, s)}${m}${word}${m}${v.slice(s)}`, start: s + m.length, end: s + m.length + word.length };
-    }
+    if (!t)
+      return { value: v, start: s0, end: e0, error: "Select the text you want to format first." };
     s = t.start + t.marker.length;
     e = t.end - t.marker.length;
   }

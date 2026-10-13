@@ -31,8 +31,9 @@ describe("inline formatting toggles", () => {
   test("partial overlap merges into one span; caret with no selection inserts placeholder", () => {
     expect(toggleInline("one **two** three", 0, 7, "**").value).toBe("**one two** three");
     const ins = toggleInline("ab", 1, 1, "**");
-    expect(ins.value).toBe("a**text**b");
-    expect(ins.value.slice(ins.start, ins.end)).toBe("text");
+    expect(ins.value).toBe("ab");
+    expect([ins.start, ins.end]).toEqual([1, 1]);
+    expect(ins.error).toBe("Select the text you want to format first.");
   });
   test("multi-line selection formats each line and skips bullet prefixes", () => {
     const v = "- first\n\n- second";
