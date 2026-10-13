@@ -24,6 +24,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { MarkupTextEditor } from "@/components/MarkupTextEditor";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -203,7 +204,7 @@ function FieldEditor({ field, value, error, sectionId, onChange, onUploadState }
       )}
       <div className="flex justify-between gap-2">
         <div>{help}{err}{field.type === "url" && !error && value && !isSafeUrl(value) ? <p className="text-xs text-destructive">Unsafe link</p> : null}</div>
-        {field.type !== "url" ? <span className="text-xs text-muted-foreground">{len}/{max}{len === 0 ? " · will show nothing" : ""}</span> : null}
+        {field.type === "text" ? <span className="text-xs text-muted-foreground">{len}/{max}{len === 0 ? " · will show nothing" : ""}</span> : null}
       </div>
     </div>
   );
