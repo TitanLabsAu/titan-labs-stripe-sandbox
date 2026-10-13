@@ -16,7 +16,7 @@ export function SignupSuccessNotice({ notice }: { notice: SignupNotice | null })
         {notice.kind === "confirmation" ? (
           <p>Welcome to Titan Labs Aus! Confirm your email address to complete signup. Your welcome email will then be sent to <span>{notice.email}</span> on our next hourly send, with your referral code and member discounts. Check your inbox and junk folder.</p>
         ) : notice.kind === "confirmed" ? (
-          <p>Welcome to Titan Labs Aus! Your email address is confirmed and signup is complete. Your welcome email will be sent to <span>{notice.email}</span> on our next hourly send, with your referral code and member discounts. Check your inbox and junk folder.</p>
+          <p>Welcome to Titan Labs Aus! Your account is ready and you're signed in — you can start ordering now. Your welcome email will be sent to <span>{notice.email}</span> on our next hourly send, with your referral code and member discounts. Check your inbox and junk folder.</p>
         ) : (
           <p>Please check your inbox and junk folder at <span>{notice.email}</span> for any verification instructions. If you already have an account, log in or reset your password. This response does not confirm that a new account was created or that a welcome email will be sent.</p>
         )}

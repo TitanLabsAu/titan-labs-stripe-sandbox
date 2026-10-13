@@ -23,13 +23,13 @@ export const Route = createFileRoute("/auth/signup")({
       {
         name: "description",
         content:
-          "Create your Titan Labs Aus account with your name, postal address and email, then confirm your email to start ordering.",
+          "Create your Titan Labs Aus account with your name, postal address and email and start ordering straight away.",
       },
       { property: "og:title", content: "Create Account | Titan Labs Aus" },
       {
         property: "og:description",
         content:
-          "Sign up to Titan Labs Aus with your details and confirm your email to unlock ordering.",
+          "Sign up to Titan Labs Aus with your details for instant member access.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -120,7 +120,7 @@ function SignupPage() {
             {notice ? (
               <div className="space-y-4 text-center">
                 <h1 className="font-display text-2xl font-black uppercase tracking-[0.08em] text-foreground">
-                  {notice.kind === "confirmed" ? "Signup complete" : "Check your email"}
+                  {notice.kind === "confirmed" ? "You're in" : "Check your email"}
                 </h1>
                 <SignupSuccessNotice notice={notice} />
                 {notice.kind === "confirmation" ? <p className="break-words text-sm text-muted-foreground [overflow-wrap:anywhere]">

@@ -124,7 +124,7 @@ export const CMS_SECTIONS: CmsSection[] = [
       T("primary_label", "Sign-up button label", 40), U("primary_url", "Sign-up button link"),
       T("login_prompt", "Login introduction", 80), T("login_label", "Login link label", 40), U("login_url", "Login link"),
       P("help", "Sign-up guidance", 300)],
-    defaults: { visible: true, eyebrow: "Become a Titan member", title: "Join Titan Labs", body: "Create your account to explore the full catalogue, manage your orders and access member rewards.", image: "", image_light: "", primary_label: "Create account", primary_url: "/auth/signup", login_prompt: "Already a member?", login_label: "Log in", login_url: "/auth", help: "Confirm your email, complete your profile, then start exploring." },
+    defaults: { visible: true, eyebrow: "Become a Titan member", title: "Join Titan Labs", body: "Create your account to explore the full catalogue, manage your orders and access member rewards.", image: "", image_light: "", primary_label: "Create account", primary_url: "/auth/signup", login_prompt: "Already a member?", login_label: "Log in", login_url: "/auth", help: "Enter your details and get instant member access." },
   },
 
   {
@@ -275,7 +275,7 @@ export const CMS_SECTIONS: CmsSection[] = [
       calendar_eyebrow: "Member research tool", calendar_title: "My Calendar", calendar_intro: "Record your own research measurements and reminders. Titan does not prescribe schedules or doses.",
       research_eyebrow: "Explore · Understand · Go deeper", research_title: "Understand the research. Faster.", research_intro: "Start with a simple explanation, explore what researchers are studying, then open the science and references only when you want more detail.",
       login_eyebrow: "Titan member access", login_title: "Member log in", login_intro: "Welcome back to Titan Labs Aus.",
-      signup_eyebrow: "Titan member access", signup_title: "Create account", signup_intro: "Enter your details, then confirm your email to unlock ordering.",
+      signup_eyebrow: "Titan member access", signup_title: "Create account", signup_intro: "Enter your details to create your account — you can start ordering straight away.",
     },
   },
   {

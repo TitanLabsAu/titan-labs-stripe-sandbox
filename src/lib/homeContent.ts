@@ -62,7 +62,7 @@ export const HOME_FIELDS: HomeField[] = [
     label: "Sign-up box text",
     multiline: true,
     fallback:
-      "Sign up with your email, confirm it with the link we send, then complete your profile to start ordering.",
+      "Sign up with your details and email and you're in straight away — start ordering as soon as your account is created.",
   },
   { key: "home_cta_button", label: "Sign-up button text", fallback: "Get started" },
   {
