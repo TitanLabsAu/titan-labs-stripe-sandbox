@@ -38,4 +38,5 @@
 
 ## Equipment quantity packs (draft, do not publish)
 - [x] Per-option items-per-pack (default 1), whole-pack price, stock/restock counted in packs; labels in selectors, cart, order lines/emails, Inventory, stock purchases. Invalid input rejected. Options panel moved to top of shared product editor. 154 tests, typecheck clean.
+- [x] packLabel normalises stale "N x" prefix to saved pack size.
 - [ ] Mocked-fixture screenshots of editor/selector/cart and full Admin/website-editor audit screenshots — not yet produced.

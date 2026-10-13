@@ -73,9 +73,9 @@ export function parsePackSizeInput(raw: unknown, label = "this option"): number 
 export function packLabel(label: string, packSize?: number | null) {
   const n = sanitizePackSize(packSize);
   if (n <= 1) return label;
-  const lead = label.match(/^\s*(\d+)\s*[x×]\s*/i);
-  if (lead) return label;
-  return `${n} x ${label}`;
+  // Normalise any existing leading "N x" to the saved pack size (exactly one prefix).
+  const rest = label.replace(/^\s*\d+\s*[x×]\s*/i, "");
+  return `${n} x ${rest}`;
 }
 
 export type Product = {
