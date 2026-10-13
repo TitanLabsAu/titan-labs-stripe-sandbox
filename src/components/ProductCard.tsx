@@ -10,6 +10,7 @@ import { useCart } from "@/lib/cart";
 import {
   allComingSoon,
   bundleSummary,
+  packLabel,
   allowsKit,
   singleLabelFor,
   firstAvailableVariant,
@@ -118,7 +119,7 @@ export function ProductCard({ product: p }: { product: Product }) {
               const vSoon = Boolean(variant.comingSoon) && !p.comingSoon;
               return (
                 <option key={variant.id} value={variant.id}>
-                  {variant.label}
+                  {packLabel(variant.label, variant.packSize)}
                   {vSoon ? " · Soon" : soldOut ? " · Sold out" : ""}
                 </option>
               );

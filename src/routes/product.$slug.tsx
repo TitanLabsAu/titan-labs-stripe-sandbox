@@ -201,7 +201,7 @@ function ProductPage() {
                         const vSoon = Boolean(variant.comingSoon) && !product.comingSoon;
                         return (
                           <option key={variant.id} value={variant.id}>
-                            {variant.label} — {formatPrice(promotedPrice(variant.price, variant.salePrice))}
+                            {packLabel(variant.label, variant.packSize)} — {formatPrice(promotedPrice(variant.price, variant.salePrice))}
                             {vSoon ? " · Coming soon" : soldOut ? " · Sold out" : ""}
                           </option>
                         );
@@ -225,7 +225,7 @@ function ProductPage() {
                           onClick={() => setVariantId(variant.id)}
                         >
                           <span>
-                            {variant.label}
+                            {packLabel(variant.label, variant.packSize)}
                             {vSoon
                               ? " · Coming soon"
                               : soldOut
