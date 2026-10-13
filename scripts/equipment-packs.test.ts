@@ -39,7 +39,10 @@ describe("equipment quantity packs", () => {
   });
   test("does not duplicate a quantity already in the name", () => {
     expect(packLabel("10 x 8mm 31g Pen Needles", 10)).toBe("10 x 8mm 31g Pen Needles");
-    expect(packLabel("10× pins", 10)).toBe("10× pins");
+    expect(packLabel("10× pins", 10)).toBe("10 x pins");
+    expect(packLabel("10 x 5mm Pen Pins", 20)).toBe("20 x 5mm Pen Pins");
+    expect(packLabel("10 x 5mm Pen Pins", 10)).toBe("10 x 5mm Pen Pins");
+    expect(packLabel("10 x 5mm Pen Pins", 1)).toBe("10 x 5mm Pen Pins");
   });
   test("untrusted stored values fall back to 1", () => {
     for (const bad of [0, -3, 2.5, "abc", 5000, null]) expect(sanitizePackSize(bad)).toBe(1);
