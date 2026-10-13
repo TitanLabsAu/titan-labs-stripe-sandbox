@@ -24,6 +24,8 @@ export type ProductVariant = {
   reconNotes?: string;
   /** Equipment bundles: display-only contents snapshot chosen by Admin. */
   contents?: BundleItem[];
+  /** Equipment only: items in one sellable pack (default 1). Price/stock are per pack. */
+  packSize?: number;
 };
 export type ProductPack = "single" | "kit";
 export type BundleItem = { slug: string; name: string; quantity: number };
@@ -43,6 +45,37 @@ export function sanitizeBundle(raw: unknown): BundleItem[] {
 
 export function bundleSummary(items?: BundleItem[] | null) {
   return (items ?? []).map((i) => `${i.quantity} x ${i.name}`).join(", ");
+}
+
+export const MAX_PACK_SIZE = 1000;
+
+/** Trusted-data read: invalid or missing values fall back to the legacy single item. */
+export function sanitizePackSize(raw: unknown): number {
+  const n = Number(raw);
+  return Number.isInteger(n) && n >= 1 && n <= MAX_PACK_SIZE ? n : 1;
+}
+
+export function isValidPackSizeInput(raw: unknown): boolean {
+  const t = String(raw ?? "").trim();
+  if (t === "") return true; // blank = 1
+  return /^\d+$/.test(t) && Number(t) >= 1 && Number(t) <= MAX_PACK_SIZE;
+}
+
+/** Admin save: reject (never silently fix) invalid pack sizes. */
+export function parsePackSizeInput(raw: unknown, label = "this option"): number {
+  if (!isValidPackSizeInput(raw))
+    throw new Error(`Items per pack for ${label || "this option"} must be a whole number from 1 to ${MAX_PACK_SIZE}.`);
+  const t = String(raw ?? "").trim();
+  return t === "" ? 1 : Number(t);
+}
+
+/** Option label with its pack quantity, without duplicating a leading "10 x" already in the name. */
+export function packLabel(label: string, packSize?: number | null) {
+  const n = sanitizePackSize(packSize);
+  if (n <= 1) return label;
+  const lead = label.match(/^\s*(\d+)\s*[x×]\s*/i);
+  if (lead) return label;
+  return `${n} x ${label}`;
 }
 
 export type Product = {
@@ -222,7 +255,7 @@ export function getProductOption(
   const variant = (product.variants ?? []).find((v) => v.id === variantId) ?? null;
   const singlePrice = variant ? promotedPrice(variant.price, variant.salePrice) : product.price;
   const unitPrice = pack === "kit" ? kitPriceFor(singlePrice, variant?.kitPrice ?? product.kitPrice) : singlePrice;
-  const variantLabel = variant?.label ?? singleLabelFor(product);
+  const variantLabel = variant ? packLabel(variant.label, variant.packSize) : singleLabelFor(product);
   return {
     key: cartLineKey(product.slug, variant?.id ?? null, pack),
     variantId: variant?.id ?? null,

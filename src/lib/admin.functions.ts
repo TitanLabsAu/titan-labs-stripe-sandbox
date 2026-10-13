@@ -1,6 +1,6 @@
 import { sanitizeProductLinks } from "@/lib/product-certificates";
 import { assertResetBase, cmsKey, mergeSectionChanges, validateSection } from "@/lib/storefrontContent";
-import { allowsKit, sanitizeBundle } from "@/lib/products";
+import { allowsKit, sanitizeBundle, parsePackSizeInput } from "@/lib/products";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { parseCatalogueSection, type CatalogueSection } from "@/lib/catalogue-sections";
@@ -354,6 +354,7 @@ export type AdminProductVariant = {
   reconDoseMg?: number | null;
   reconNotes?: string;
   contents?: { slug: string; name: string; quantity: number }[];
+  packSize?: number;
 };
 
 export type AdminProduct = {
@@ -411,6 +412,7 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
         ? null
         : Number(value);
     const isEquipment = !allowsKit({ catalogue_section: data.catalogue_section });
+    const isEquipmentSection = normalizeCatalogueSection(data.catalogue_section) === "equipment";
     const variants = (data.product_variants ?? [])
       .map((v) => ({
         id: String(v.id || crypto.randomUUID()),
@@ -428,8 +430,14 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
         reconDoseMg: optNum(v.reconDoseMg),
         reconNotes: String(v.reconNotes ?? ""),
         contents: sanitizeBundle(v.contents),
+        packSize: isEquipmentSection ? parsePackSizeInput(v.packSize ?? 1, String(v.label ?? "")) : 1,
       }))
-      .filter((v) => v.label && v.price > 0)
+      .filter((v) => {
+        if (!v.label && !(v.price > 0)) return false;
+        if (!v.label || !Number.isFinite(v.price) || v.price <= 0)
+          throw new Error(`Each option needs a name and a price above $0${v.label ? ` (${v.label})` : ""}.`);
+        return true;
+      })
       .map((v) => (isEquipment ? { ...v, kitPrice: null } : { ...v, contents: [] }));
     for (const v of variants) {
       if (v.salePrice !== null && (!Number.isFinite(v.salePrice) || v.salePrice <= 0 || v.salePrice >= v.price))

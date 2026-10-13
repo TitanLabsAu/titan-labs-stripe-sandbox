@@ -267,7 +267,12 @@ export function draftToPayload(d: Draft) {
       contents: d.catalogue_section === "equipment" ? sanitizeBundle(v.contents) : [],
       packSize: d.catalogue_section === "equipment" ? parsePackSizeInput(v.packSize ?? "1", v.label) : 1,
     }))
-    .filter((v) => v.label && v.price > 0);
+    .filter((v) => {
+      if (!v.label && !(v.price > 0)) return false; // untouched blank row
+      if (!v.label) throw new Error("Every option needs a name.");
+      if (!(v.price > 0)) throw new Error(`Add a price above $0 for ${v.label}.`);
+      return true;
+    });
   const variantPrices = variants.map((v) => v.price).filter((p) => p > 0);
   return {
     ...(d.id ? { id: d.id } : {}),
