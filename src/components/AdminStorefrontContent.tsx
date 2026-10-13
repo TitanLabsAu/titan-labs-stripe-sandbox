@@ -196,7 +196,8 @@ function FieldEditor({ field, value, error, sectionId, onChange, onUploadState }
     <div className="grid gap-1.5">
       <Label htmlFor={id}>{field.label}</Label>
       {field.type === "textarea" ? (
-        <Textarea id={id} rows={4} value={value ?? ""} maxLength={max} aria-invalid={Boolean(error)} onChange={(e) => onChange(e.target.value)} />
+        // These storefront blocks render plain text, so only plain editing aids are offered (no formatting buttons).
+        <MarkupTextEditor id={id} label={field.label} mode="plain" max={max} value={value ?? ""} invalid={Boolean(error)} onChange={onChange} />
       ) : (
         <Input id={id} value={value ?? ""} maxLength={max} type={field.type === "url" ? "url" : "text"} inputMode={field.type === "url" ? "url" : undefined} aria-invalid={Boolean(error)} onChange={(e) => onChange(e.target.value)} />
       )}
