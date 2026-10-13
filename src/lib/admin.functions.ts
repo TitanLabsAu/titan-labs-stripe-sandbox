@@ -1,3 +1,4 @@
+import { normalizeCatalogueSection } from "@/lib/catalogue-sections";
 import { sanitizeProductLinks } from "@/lib/product-certificates";
 import { assertResetBase, cmsKey, mergeSectionChanges, validateSection } from "@/lib/storefrontContent";
 import { allowsKit, sanitizeBundle, parsePackSizeInput } from "@/lib/products";
