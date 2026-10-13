@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { CATEGORIES } from "@/lib/categories";
 import { useProducts } from "@/lib/useCatalog";
-import { sanitizeBundle, type BundleItem } from "@/lib/products";
+import { sanitizeBundle, parsePackSizeInput, isValidPackSizeInput, type BundleItem } from "@/lib/products";
 import {
   CATALOGUE_SECTIONS,
   CATALOGUE_SECTION_LABELS,
@@ -50,6 +50,7 @@ export type DraftVariant = {
   reconDoseMg: string;
   reconNotes: string;
   contents: BundleItem[];
+  packSize?: string;
 };
 
 function BundleEditor({ items, onChange }: { items: BundleItem[]; onChange: (items: BundleItem[]) => void }) {
@@ -220,6 +221,7 @@ export function toDraft(p: AdminProduct): Draft {
       reconDoseMg: v.reconDoseMg == null ? "" : String(v.reconDoseMg),
       reconNotes: v.reconNotes ?? "",
       contents: sanitizeBundle(v.contents),
+      packSize: String(v.packSize ?? 1),
     })),
     image_url: p.image_url,
     alt: p.alt,
@@ -263,6 +265,7 @@ export function draftToPayload(d: Draft) {
       reconDoseMg: num(v.reconDoseMg),
       reconNotes: v.reconNotes,
       contents: d.catalogue_section === "equipment" ? sanitizeBundle(v.contents) : [],
+      packSize: d.catalogue_section === "equipment" ? parsePackSizeInput(v.packSize ?? "1", v.label) : 1,
     }))
     .filter((v) => v.label && v.price > 0);
   const variantPrices = variants.map((v) => v.price).filter((p) => p > 0);
@@ -438,46 +441,6 @@ export function ProductEditor({
             onChange={(e) => set({ slug: e.target.value })}
           />
         </div>
-        {draft.catalogue_section !== "range" && draft.variants.length === 0 ? (
-          <>
-            <div>
-              <Label htmlFor="single-product-price">Price (AUD)</Label>
-              <Input id="single-product-price" type="number" min={0} step="0.01"
-                value={draft.price} placeholder="Add price when ready"
-                onChange={(e) => set({ price: e.target.value })} />
-            </div>
-            <div>
-              <Label htmlFor="single-product-stock">Stock quantity</Label>
-              <Input id="single-product-stock" type="number" min={0} step="1"
-                disabled={draft.unlimited_stock}
-                title={draft.unlimited_stock ? "Unlimited stock — quantity is not tracked" : undefined}
-                value={draft.stock_quantity}
-                onChange={(e) => set({ stock_quantity: e.target.value })} />
-            </div>
-          </>
-        ) : null}
-        {showPromo && draft.variants.length === 0 ? (
-          <>
-            <div>
-              <Label>Sale price (AUD) — leave empty for no sale</Label>
-              <Input
-                type="number"
-                min={0}
-                value={draft.sale_price}
-                placeholder="e.g. 99"
-                onChange={(e) => set({ sale_price: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label>Promotion badge (e.g. Hot product, 20% off)</Label>
-              <Input
-                value={draft.promo_label}
-                placeholder="Hot product"
-                onChange={(e) => set({ promo_label: e.target.value })}
-              />
-            </div>
-          </>
-        ) : null}
         <div>
           <Label>Display order (products list A–Z on the site)</Label>
           <Input
@@ -523,6 +486,288 @@ export function ProductEditor({
             </label>
           ) : null}
         </div>
+      </div>
+
+      <div className="space-y-3 rounded-xl border border-primary/20 bg-background/45 p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <Label>{draft.catalogue_section === "range" ? "Vial sizes, prices and stock" : "Options, pack sizes, prices and stock"}</Label>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {draft.catalogue_section !== "range"
+                ? draft.catalogue_section === "equipment" ? "Each option is one sellable pack: set items per pack (1 for a single item) and the price for the whole pack. Cart quantity, stock and restocks count packs. " : "Pens are sold as single items. Starter kits are separate products. "
+                : "Add every vial size you sell, even if there is only one. Leave kit price blank to use the automatic 20% off. "}
+              Stock is counted per
+              size — under {LOW_STOCK_THRESHOLD} shows a low stock warning, 0
+              shows out of stock for that size.
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            className="font-bold uppercase"
+            onClick={() =>
+              set({
+                variants: [
+                  ...draft.variants,
+                  {
+                    id: crypto.randomUUID(),
+                    label: "",
+                    price: "",
+                    kitPrice: "",
+                    stock: "0",
+                    cost: "",
+                    comingSoon: false,
+                    reconVialMg: "",
+                    reconWaterMl: "",
+                    reconDoseMg: "",
+                    reconNotes: "", contents: [], packSize: "1",
+                  },
+                ],
+              })
+            }
+          >
+            {draft.catalogue_section === "range" ? "Add size" : "Add option"}
+          </Button>
+        </div>
+        {draft.variants.length === 0 ? (
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              {draft.catalogue_section === "range"
+                ? "No vial sizes yet — add at least one size with its price so this product can be ordered."
+                : "No options yet — this item sells as one single item at the price below, or use Add option for packs (e.g. 10 x 5mm 31g Pen Needles) and multiple choices."}
+            </p>
+            <div className="grid gap-4 sm:grid-cols-2">
+        {draft.catalogue_section !== "range" && draft.variants.length === 0 ? (
+          <>
+            <div>
+              <Label htmlFor="single-product-price">Price (AUD)</Label>
+              <Input id="single-product-price" type="number" min={0} step="0.01"
+                value={draft.price} placeholder="Add price when ready"
+                onChange={(e) => set({ price: e.target.value })} />
+            </div>
+            <div>
+              <Label htmlFor="single-product-stock">Stock quantity</Label>
+              <Input id="single-product-stock" type="number" min={0} step="1"
+                disabled={draft.unlimited_stock}
+                title={draft.unlimited_stock ? "Unlimited stock — quantity is not tracked" : undefined}
+                value={draft.stock_quantity}
+                onChange={(e) => set({ stock_quantity: e.target.value })} />
+            </div>
+          </>
+        ) : null}
+        {showPromo && draft.variants.length === 0 ? (
+          <>
+            <div>
+              <Label>Sale price (AUD) — leave empty for no sale</Label>
+              <Input
+                type="number"
+                min={0}
+                value={draft.sale_price}
+                placeholder="e.g. 99"
+                onChange={(e) => set({ sale_price: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label>Promotion badge (e.g. Hot product, 20% off)</Label>
+              <Input
+                value={draft.promo_label}
+                placeholder="Hot product"
+                onChange={(e) => set({ promo_label: e.target.value })}
+              />
+            </div>
+          </>
+        ) : null}
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {draft.variants.map((variant, i) => {
+              const state = stockState(Number(variant.stock) || 0);
+              return (
+                <div
+                  key={variant.id}
+                  className="space-y-2 rounded-xl border border-primary/20 bg-background/45 p-3"
+                >
+                  <div className="grid gap-2 md:grid-cols-[1.3fr_1fr_1fr_1fr_0.8fr_auto_auto]">
+                    <div>
+                      <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                        {draft.catalogue_section === "range" ? "Vial size" : "Option name"}
+                      </span>
+                      <Input
+                        value={variant.label}
+                        placeholder={draft.catalogue_section === "range" ? "5mg, 10mg, 20mg…" : "5mm 31g Pen Needles"}
+                        aria-label="Vial size"
+                        onChange={(e) =>
+                          setVariant(i, {
+                            label: e.target.value,
+                            id: variant.id || safeVariantId(e.target.value),
+                          })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                        {draft.catalogue_section === "range" ? "Single price" : "Price per pack"}
+                      </span>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={variant.price}
+                        placeholder="Single price"
+                        aria-label="Single vial price"
+                        onChange={(e) =>
+                          setVariant(i, { price: e.target.value })
+                        }
+                      />
+                    </div>
+                    {draft.catalogue_section === "range" ? (
+                    <div>
+                      <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                        10x kit price
+                      </span>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={variant.kitPrice}
+                        placeholder={
+                          variant.price
+                            ? formatPrice(
+                                kitPriceFor(Number(variant.price) || 0),
+                              )
+                            : "Kit price"
+                        }
+                        aria-label="10x Kit price"
+                        onChange={(e) =>
+                          setVariant(i, { kitPrice: e.target.value })
+                        }
+                      />
+                    </div>
+                    ) : draft.catalogue_section === "equipment" ? (
+                    <div>
+                      <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                        Items per pack
+                      </span>
+                      <Input
+                        type="number"
+                        min={1}
+                        max={1000}
+                        step={1}
+                        value={variant.packSize ?? "1"}
+                        aria-label="Items per pack"
+                        aria-invalid={!isValidPackSizeInput(variant.packSize ?? "1")}
+                        onChange={(e) => setVariant(i, { packSize: e.target.value })}
+                      />
+                    </div>
+                    ) : null}
+                    <div>
+                      <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                        {draft.catalogue_section === "equipment" ? "Cost per pack" : "Cost each"}
+                      </span>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={variant.cost}
+                        placeholder="What you pay"
+                        aria-label="Cost price for this size"
+                        onChange={(e) =>
+                          setVariant(i, { cost: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                        {draft.catalogue_section === "equipment" ? "Stock (packs)" : "Stock"}
+                      </span>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={variant.stock}
+                        disabled={draft.unlimited_stock}
+                        title={draft.unlimited_stock ? "Unlimited stock — quantity is not tracked" : undefined}
+                        placeholder="0"
+                        aria-label="Stock on hand for this size"
+                        onChange={(e) =>
+                          setVariant(i, { stock: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="flex items-end">
+                      <label className="flex h-10 cursor-pointer items-center gap-2 whitespace-nowrap border border-input px-2 text-[10px] font-bold uppercase tracking-[0.14em] text-foreground">
+                        <input
+                          type="checkbox"
+                          checked={variant.comingSoon}
+                          onChange={(e) =>
+                            setVariant(i, { comingSoon: e.target.checked })
+                          }
+                          aria-label="This size is coming soon"
+                        />
+                        Coming soon
+                      </label>
+                    </div>
+                    <div className="flex items-end">
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        aria-label="Remove size"
+                        onClick={() =>
+                          set({
+                            variants: draft.variants.filter(
+                              (_, idx) => idx !== i,
+                            ),
+                          })
+                        }
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <p
+                    className={
+                      state === "out"
+                        ? "text-xs font-bold uppercase tracking-[0.14em] text-destructive"
+                        : state === "low"
+                          ? "text-xs font-bold uppercase tracking-[0.14em] text-accent-foreground"
+                          : "text-xs uppercase tracking-[0.14em] text-muted-foreground"
+                    }
+                  >
+                    {draft.unlimited_stock
+                      ? "Unlimited stock — quantity not tracked"
+                      : state === "out"
+                      ? "Out of stock — customers cannot order this size"
+                      : state === "low"
+                        ? `Low stock — only ${Number(variant.stock) || 0} left`
+                        : `${Number(variant.stock) || 0}${draft.catalogue_section === "equipment" ? " packs" : ""} in stock`}
+                    {draft.catalogue_section === "equipment" && Number(variant.packSize) > 1 ? ` · each pack = ${Number(variant.packSize)} items, sold and stocked as one pack` : ""}
+                  </p>
+                  <div className="grid gap-3 rounded-lg border border-accent/30 bg-background/40 p-3 sm:grid-cols-3">
+                    <label className="flex items-center gap-2 text-sm font-semibold">
+                      <input type="checkbox" checked={Boolean(variant.hotProduct)} aria-label={`Hot product: ${variant.label || "this size"}`}
+                        onChange={(e) => set({ variants: draft.variants.map((v, idx) => ({ ...v, hotProduct: idx === i ? e.target.checked : Boolean(v.hotProduct) })) })} />
+                      Hot product — this size only
+                    </label>
+                    <div><Label>Sale price for this size (AUD)</Label><Input type="number" min="0.01" step="0.01" value={variant.salePrice ?? ""} placeholder="No sale" onChange={(e) => setVariant(i, { salePrice: e.target.value })} /></div>
+                    <div><Label>Promotion label for this size</Label><Input value={variant.promoLabel ?? ""} placeholder="e.g. Special offer" onChange={(e) => setVariant(i, { promoLabel: e.target.value })} /></div>
+                    <p className="text-xs text-muted-foreground sm:col-span-3">Applies only to {variant.label || "this size"}. Regular prices and promotions for other sizes stay separate. Kit pricing is edited above.</p>
+                  </div>
+                  {draft.catalogue_section === "equipment" ? (
+                    <BundleEditor
+                      items={variant.contents}
+                      onChange={(contents) => {
+                        setDraft({
+                          ...draft,
+                          unlimited_stock: contents.length > 0 ? true : draft.unlimited_stock,
+                          variants: draft.variants.map((v, idx) => (idx === i ? { ...v, contents } : v)),
+                        });
+                      }}
+                    />
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-3 sm:col-span-2 rounded-lg border border-border p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <Label>Product photo (required)</Label>
@@ -592,223 +837,6 @@ export function ProductEditor({
             onChange={(e) => set({ protocol: e.target.value })}
           />
         </div>
-      </div>
-
-      <div className="space-y-3 rounded-xl border border-primary/20 bg-background/45 p-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <Label>{draft.catalogue_section === "range" ? "Vial sizes, prices and stock" : "Options, prices and stock"}</Label>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {draft.catalogue_section !== "range"
-                ? "Pens and Equipment are sold as single items. Starter kits are separate products. "
-                : "Add every vial size you sell, even if there is only one. Leave kit price blank to use the automatic 20% off. "}
-              Stock is counted per
-              size — under {LOW_STOCK_THRESHOLD} shows a low stock warning, 0
-              shows out of stock for that size.
-            </p>
-          </div>
-          <Button
-            variant="outline"
-            className="font-bold uppercase"
-            onClick={() =>
-              set({
-                variants: [
-                  ...draft.variants,
-                  {
-                    id: crypto.randomUUID(),
-                    label: "",
-                    price: "",
-                    kitPrice: "",
-                    stock: "0",
-                    cost: "",
-                    comingSoon: false,
-                    reconVialMg: "",
-                    reconWaterMl: "",
-                    reconDoseMg: "",
-                    reconNotes: "", contents: [],
-                  },
-                ],
-              })
-            }
-          >
-            Add size
-          </Button>
-        </div>
-        {draft.variants.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            No vial sizes yet — add at least one size with its price so this
-            product can be ordered.
-          </p>
-        ) : (
-          <div className="space-y-2">
-            {draft.variants.map((variant, i) => {
-              const state = stockState(Number(variant.stock) || 0);
-              return (
-                <div
-                  key={variant.id}
-                  className="space-y-2 rounded-xl border border-primary/20 bg-background/45 p-3"
-                >
-                  <div className="grid gap-2 md:grid-cols-[1.3fr_1fr_1fr_1fr_0.8fr_auto_auto]">
-                    <div>
-                      <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                        Vial size
-                      </span>
-                      <Input
-                        value={variant.label}
-                        placeholder="5mg, 10mg, 20mg…"
-                        aria-label="Vial size"
-                        onChange={(e) =>
-                          setVariant(i, {
-                            label: e.target.value,
-                            id: variant.id || safeVariantId(e.target.value),
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                        Single price
-                      </span>
-                      <Input
-                        type="number"
-                        min={0}
-                        value={variant.price}
-                        placeholder="Single price"
-                        aria-label="Single vial price"
-                        onChange={(e) =>
-                          setVariant(i, { price: e.target.value })
-                        }
-                      />
-                    </div>
-                    {draft.catalogue_section === "range" ? (
-                    <div>
-                      <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                        10x kit price
-                      </span>
-                      <Input
-                        type="number"
-                        min={0}
-                        value={variant.kitPrice}
-                        placeholder={
-                          variant.price
-                            ? formatPrice(
-                                kitPriceFor(Number(variant.price) || 0),
-                              )
-                            : "Kit price"
-                        }
-                        aria-label="10x Kit price"
-                        onChange={(e) =>
-                          setVariant(i, { kitPrice: e.target.value })
-                        }
-                      />
-                    </div>
-                    ) : null}
-                    <div>
-                      <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                        Cost each
-                      </span>
-                      <Input
-                        type="number"
-                        min={0}
-                        value={variant.cost}
-                        placeholder="What you pay"
-                        aria-label="Cost price for this size"
-                        onChange={(e) =>
-                          setVariant(i, { cost: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                        Stock
-                      </span>
-                      <Input
-                        type="number"
-                        min={0}
-                        value={variant.stock}
-                        disabled={draft.unlimited_stock}
-                        title={draft.unlimited_stock ? "Unlimited stock — quantity is not tracked" : undefined}
-                        placeholder="0"
-                        aria-label="Stock on hand for this size"
-                        onChange={(e) =>
-                          setVariant(i, { stock: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div className="flex items-end">
-                      <label className="flex h-10 cursor-pointer items-center gap-2 whitespace-nowrap border border-input px-2 text-[10px] font-bold uppercase tracking-[0.14em] text-foreground">
-                        <input
-                          type="checkbox"
-                          checked={variant.comingSoon}
-                          onChange={(e) =>
-                            setVariant(i, { comingSoon: e.target.checked })
-                          }
-                          aria-label="This size is coming soon"
-                        />
-                        Coming soon
-                      </label>
-                    </div>
-                    <div className="flex items-end">
-                      <Button
-                        variant="destructive"
-                        size="icon"
-                        aria-label="Remove size"
-                        onClick={() =>
-                          set({
-                            variants: draft.variants.filter(
-                              (_, idx) => idx !== i,
-                            ),
-                          })
-                        }
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                  <p
-                    className={
-                      state === "out"
-                        ? "text-xs font-bold uppercase tracking-[0.14em] text-destructive"
-                        : state === "low"
-                          ? "text-xs font-bold uppercase tracking-[0.14em] text-accent-foreground"
-                          : "text-xs uppercase tracking-[0.14em] text-muted-foreground"
-                    }
-                  >
-                    {draft.unlimited_stock
-                      ? "Unlimited stock — quantity not tracked"
-                      : state === "out"
-                      ? "Out of stock — customers cannot order this size"
-                      : state === "low"
-                        ? `Low stock — only ${Number(variant.stock) || 0} left`
-                        : `${Number(variant.stock) || 0} in stock`}
-                  </p>
-                  <div className="grid gap-3 rounded-lg border border-accent/30 bg-background/40 p-3 sm:grid-cols-3">
-                    <label className="flex items-center gap-2 text-sm font-semibold">
-                      <input type="checkbox" checked={Boolean(variant.hotProduct)} aria-label={`Hot product: ${variant.label || "this size"}`}
-                        onChange={(e) => set({ variants: draft.variants.map((v, idx) => ({ ...v, hotProduct: idx === i ? e.target.checked : Boolean(v.hotProduct) })) })} />
-                      Hot product — this size only
-                    </label>
-                    <div><Label>Sale price for this size (AUD)</Label><Input type="number" min="0.01" step="0.01" value={variant.salePrice ?? ""} placeholder="No sale" onChange={(e) => setVariant(i, { salePrice: e.target.value })} /></div>
-                    <div><Label>Promotion label for this size</Label><Input value={variant.promoLabel ?? ""} placeholder="e.g. Special offer" onChange={(e) => setVariant(i, { promoLabel: e.target.value })} /></div>
-                    <p className="text-xs text-muted-foreground sm:col-span-3">Applies only to {variant.label || "this size"}. Regular prices and promotions for other sizes stay separate. Kit pricing is edited above.</p>
-                  </div>
-                  {draft.catalogue_section === "equipment" ? (
-                    <BundleEditor
-                      items={variant.contents}
-                      onChange={(contents) => {
-                        setDraft({
-                          ...draft,
-                          unlimited_stock: contents.length > 0 ? true : draft.unlimited_stock,
-                          variants: draft.variants.map((v, idx) => (idx === i ? { ...v, contents } : v)),
-                        });
-                      }}
-                    />
-                  ) : null}
-                </div>
-              );
-            })}
-          </div>
-        )}
       </div>
 
       <div>
