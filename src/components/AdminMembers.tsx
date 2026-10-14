@@ -186,7 +186,7 @@ function MemberDetail({
                 {memberSpend(orders).count}
               </p>
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                Purchases
+                Paid purchases
               </p>
             </div>
             <div>
@@ -204,7 +204,7 @@ function MemberDetail({
                 {live.length}
               </p>
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                Live
+                Active orders (incl. unpaid)
               </p>
             </div>
             <div>
@@ -344,7 +344,7 @@ export function AdminMembers() {
               </p>
               <p className="text-xs uppercase tracking-[0.2em]">orders</p>
               <p className="mt-1 text-xs">
-                {m.live_count} live · {m.delivered_count} delivered
+                {m.live_count} active · {m.delivered_count} delivered (paid)
               </p>
               <p className="text-xs">{formatPrice(m.total_spent)} spent</p>
             </div>

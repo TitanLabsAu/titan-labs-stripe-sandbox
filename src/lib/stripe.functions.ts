@@ -278,6 +278,7 @@ export const createStripeSandboxPayment = createServerFn({
           .update({
             status: "ready",
             transaction_id: paymentIntent.id,
+            stripe_livemode: paymentIntent.livemode === true,
           })
           .eq("id", attempt.id);
 
