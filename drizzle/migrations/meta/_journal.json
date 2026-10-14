@@ -295,6 +295,13 @@
       "when": 1791938930002,
       "tag": "0041_foundation_admin_grant",
       "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1791962468312,
+      "tag": "0042_order_archive_and_paid_first_offer",
+      "breakpoints": true
     }
   ]
 }

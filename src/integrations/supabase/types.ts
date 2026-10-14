@@ -796,6 +796,9 @@ export type Database = {
       }
       orders: {
         Row: {
+          archive_reason: string | null
+          archived_at: string | null
+          archived_by: string | null
           code_discount_cents: number
           contact_email: string | null
           contact_email_normalized: string | null
@@ -837,6 +840,9 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          archive_reason?: string | null
+          archived_at?: string | null
+          archived_by?: string | null
           code_discount_cents?: number
           contact_email?: string | null
           contact_email_normalized?: string | null
@@ -878,6 +884,9 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          archive_reason?: string | null
+          archived_at?: string | null
+          archived_by?: string | null
           code_discount_cents?: number
           contact_email?: string | null
           contact_email_normalized?: string | null
