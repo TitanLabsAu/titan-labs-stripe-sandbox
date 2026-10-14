@@ -73,7 +73,7 @@ export const adminGetFoundation = createServerFn({ method: "POST" })
         return {
           memberNumber: Number(r.member_number),
           name: [p?.first_name, p?.last_name].filter(Boolean).join(" ") || p?.email || "Member",
-          order: om.get(r.order_id) != null ? `TL-${om.get(r.order_id)}` : String(r.order_id),
+          order: !r.order_id ? "Admin grant" : om.get(r.order_id) != null ? `TL-${om.get(r.order_id)}` : String(r.order_id),
           awardedAt: String(r.awarded_at),
         };
       }),
