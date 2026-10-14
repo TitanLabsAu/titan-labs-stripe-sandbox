@@ -15,6 +15,7 @@ import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as CertificatesRouteImport } from './routes/certificates'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as DemoMarkPaidRouteImport } from './routes/demo-mark-paid'
 import { Route as PenGuideRouteImport } from './routes/pen-guide'
 import { Route as PensRouteImport } from './routes/pens'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -70,6 +71,11 @@ const CheckoutRoute = CheckoutRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoMarkPaidRoute = DemoMarkPaidRouteImport.update({
+  id: '/demo-mark-paid',
+  path: '/demo-mark-paid',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PenGuideRoute = PenGuideRouteImport.update({
@@ -219,6 +225,7 @@ export interface FileRoutesByFullPath {
   '/certificates': typeof CertificatesRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/demo-mark-paid': typeof DemoMarkPaidRoute
   '/pen-guide': typeof PenGuideRoute
   '/pens': typeof PensRoute
   '/privacy': typeof PrivacyRoute
@@ -253,6 +260,7 @@ export interface FileRoutesByTo {
   '/certificates': typeof CertificatesRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/demo-mark-paid': typeof DemoMarkPaidRoute
   '/pen-guide': typeof PenGuideRoute
   '/pens': typeof PensRoute
   '/privacy': typeof PrivacyRoute
@@ -289,6 +297,7 @@ export interface FileRoutesById {
   '/certificates': typeof CertificatesRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/demo-mark-paid': typeof DemoMarkPaidRoute
   '/pen-guide': typeof PenGuideRoute
   '/pens': typeof PensRoute
   '/privacy': typeof PrivacyRoute
@@ -325,6 +334,7 @@ export interface FileRouteTypes {
     | '/certificates'
     | '/checkout'
     | '/contact'
+    | '/demo-mark-paid'
     | '/pen-guide'
     | '/pens'
     | '/privacy'
@@ -359,6 +369,7 @@ export interface FileRouteTypes {
     | '/certificates'
     | '/checkout'
     | '/contact'
+    | '/demo-mark-paid'
     | '/pen-guide'
     | '/pens'
     | '/privacy'
@@ -394,6 +405,7 @@ export interface FileRouteTypes {
     | '/certificates'
     | '/checkout'
     | '/contact'
+    | '/demo-mark-paid'
     | '/pen-guide'
     | '/pens'
     | '/privacy'
@@ -430,6 +442,7 @@ export interface RootRouteChildren {
   CertificatesRoute: typeof CertificatesRoute
   CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
+  DemoMarkPaidRoute: typeof DemoMarkPaidRoute
   PenGuideRoute: typeof PenGuideRoute
   PensRoute: typeof PensRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -494,6 +507,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo-mark-paid': {
+      id: '/demo-mark-paid'
+      path: '/demo-mark-paid'
+      fullPath: '/demo-mark-paid'
+      preLoaderRoute: typeof DemoMarkPaidRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pen-guide': {
@@ -719,6 +739,7 @@ const rootRouteChildren: RootRouteChildren = {
   CertificatesRoute: CertificatesRoute,
   CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
+  DemoMarkPaidRoute: DemoMarkPaidRoute,
   PenGuideRoute: PenGuideRoute,
   PensRoute: PensRoute,
   PrivacyRoute: PrivacyRoute,
