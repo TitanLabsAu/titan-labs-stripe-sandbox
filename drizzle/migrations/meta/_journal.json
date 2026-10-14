@@ -302,6 +302,20 @@
       "when": 1791962468312,
       "tag": "0042_order_archive_and_paid_first_offer",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1791962756770,
+      "tag": "0043_first_offer_consume_on_payment",
+      "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1791962783115,
+      "tag": "0044_first_offer_trigger_on_payment_confirmed",
+      "breakpoints": true
     }
   ]
 }

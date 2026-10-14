@@ -55,4 +55,8 @@
 - [x] Row Mark as Paid action + guarded server + demo preview
 - [x] Spend/order stats count only paid, non-cancelled, unrefunded orders (Admin members + member detail)
 - [x] Reversible Admin archive/restore for unpaid/cancelled orders
-- [ ] Patrick repair: verify safety; repair only if no paid order / payable intent
+- [x] Patrick repair (blocked: real paid PayID order; proposal only): verify safety; repair only if no paid order / payable intent
+- [x] Verify Patrick TL-1079 test vs live mode (read-only); proposal only
+- [x] Throwaway DB regressions incl. archive/restore; apply settlement migration after pass
+- [x] Real-component demo screenshots (Admin orders/members)
+- [x] Retryable Stripe intent: reuse held claim / never release while payable (mock test)
