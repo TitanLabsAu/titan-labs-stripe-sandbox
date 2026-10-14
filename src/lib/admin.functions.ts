@@ -6,6 +6,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { parseCatalogueSection, type CatalogueSection } from "@/lib/catalogue-sections";
 import { orderReference } from "@/lib/order-reference";
+import { canMarkManualPaid } from "@/lib/manual-payment";
 
 export type AdminOrderItem = {
   id: string;
@@ -123,11 +124,37 @@ export const adminSetPaymentConfirmed = createServerFn({ method: "POST" })
   .inputValidator((input: { orderId: string; confirmed: boolean }) => input)
   .handler(async ({ data, context }) => {
     await assertAdmin(context as any);
-    const { error } = await context.supabase
-      .from("orders")
-      .update({ payment_confirmed: data.confirmed })
-      .eq("id", data.orderId);
-    if (error) throw error;
+    if (data.confirmed) {
+      const { data: current, error: readError } = await context.supabase
+        .from("orders")
+        .select("status, payment_method, payment_confirmed, refunded_at")
+        .eq("id", data.orderId)
+        .maybeSingle();
+      if (readError) throw readError;
+      if (!current) throw new Error("Order not found");
+      if (current.payment_confirmed) return { ok: true, alreadyPaid: true };
+      if (!canMarkManualPaid(current)) throw new Error("This order cannot be marked as paid");
+      // Conditional update: only flips an unpaid, unrefunded, non-cancelled manual order; status untouched.
+      let update = context.supabase
+        .from("orders")
+        .update({ payment_confirmed: true })
+        .eq("id", data.orderId)
+        .eq("payment_confirmed", false)
+        .neq("status", "cancelled")
+        .is("refunded_at", null);
+      update = current.payment_method === null
+        ? update.is("payment_method", null)
+        : update.in("payment_method", ["payid", "crypto"]);
+      const { data: changed, error } = await update.select("id");
+      if (error) throw error;
+      if (!changed?.length) return { ok: true, alreadyPaid: true };
+    } else {
+      const { error } = await context.supabase
+        .from("orders")
+        .update({ payment_confirmed: false })
+        .eq("id", data.orderId);
+      if (error) throw error;
+    }
     const { tryOrderCheckpointEmails } = await import("@/lib/order-checkpoint-email.server");
     await tryOrderCheckpointEmails(data.orderId);
     return { ok: true };
