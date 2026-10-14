@@ -812,6 +812,39 @@ export type Database = {
           },
         ]
       }
+      order_milestones: {
+        Row: {
+          active: boolean
+          created_at: string
+          discount_percent: number
+          id: string
+          note: string
+          order_count: number
+          reward_type: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          discount_percent?: number
+          id?: string
+          note?: string
+          order_count: number
+          reward_type?: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          discount_percent?: number
+          id?: string
+          note?: string
+          order_count?: number
+          reward_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           archive_reason: string | null
