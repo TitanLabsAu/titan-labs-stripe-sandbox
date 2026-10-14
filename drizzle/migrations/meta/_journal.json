@@ -316,6 +316,13 @@
       "when": 1791962783115,
       "tag": "0044_first_offer_trigger_on_payment_confirmed",
       "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1791963182063,
+      "tag": "0045_stripe_livemode_first_offer",
+      "breakpoints": true
     }
   ]
 }

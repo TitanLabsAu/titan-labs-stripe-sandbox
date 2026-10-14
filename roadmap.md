@@ -60,3 +60,5 @@
 - [x] Throwaway DB regressions incl. archive/restore; apply settlement migration after pass
 - [x] Real-component demo screenshots (Admin orders/members)
 - [x] Retryable Stripe intent: reuse held claim / never release while payable (mock test)
+- [ ] Rollover: null intent ID stays held; surface DB/RPC errors; regression
+- [ ] Open-dropdown + Removed/Restore screenshots
