@@ -309,6 +309,13 @@
       "when": 1791962756770,
       "tag": "0043_first_offer_consume_on_payment",
       "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1791962783115,
+      "tag": "0044_first_offer_trigger_on_payment_confirmed",
+      "breakpoints": true
     }
   ]
 }

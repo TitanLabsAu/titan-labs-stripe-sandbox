@@ -1,0 +1,2 @@
+DROP TRIGGER IF EXISTS orders_first_offer_settlement ON public.orders;
+CREATE TRIGGER orders_first_offer_settlement AFTER INSERT OR UPDATE OF status, payment_confirmed ON public.orders FOR EACH ROW EXECUTE FUNCTION public.orders_first_offer_settlement();
