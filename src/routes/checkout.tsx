@@ -232,7 +232,6 @@ function CheckoutPage() {
     staleTime: 60_000,
   });
   const stripePromise = stripeConfig?.ok ? stripePromiseFor(stripeConfig.publishableKey) : null;
-  const intentStripePromise = intentPublishableKey ? stripePromiseFor(intentPublishableKey) : stripePromise;
   const [stripeIntentId, setStripeIntentId] = useState<string | null>(null);
   const [guestMode, setGuestModeState] = useState(false);
   const [authLost, setAuthLost] = useState(false);
@@ -259,6 +258,7 @@ function CheckoutPage() {
   );
   // Key returned with the PaymentIntent, so the form never uses a stale cached key.
   const [intentPublishableKey, setIntentPublishableKey] = useState<string | null>(null);
+  const intentStripePromise = intentPublishableKey ? stripePromiseFor(intentPublishableKey) : stripePromise;
 
   const { data: session, refetch: refetchSession } = useQuery({
     queryKey: ["checkout-session"],
