@@ -11,6 +11,7 @@ import {
   useStripe,
 } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
+import { getStripePublicConfig } from "@/lib/stripe-config.functions";
 import { CheckCircle2, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -224,6 +225,13 @@ function CheckoutPage() {
   const recordAck = useServerFn(recordCheckoutAcknowledgement);
   const startGuest = useServerFn(startGuestCheckout);
   const guestStatus = useServerFn(getGuestCheckoutStatus);
+  const fetchStripeConfig = useServerFn(getStripePublicConfig);
+  const { data: stripeConfig } = useQuery({
+    queryKey: ["stripe-public-config"],
+    queryFn: () => fetchStripeConfig(),
+    staleTime: 60_000,
+  });
+  const stripePromise = stripeConfig?.ok ? stripePromiseFor(stripeConfig.publishableKey) : null;
   const [stripeIntentId, setStripeIntentId] = useState<string | null>(null);
   const [guestMode, setGuestModeState] = useState(false);
   const [authLost, setAuthLost] = useState(false);
