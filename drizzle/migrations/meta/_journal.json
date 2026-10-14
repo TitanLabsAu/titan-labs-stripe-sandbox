@@ -323,6 +323,13 @@
       "when": 1791963182063,
       "tag": "0045_stripe_livemode_first_offer",
       "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1791963239938,
+      "tag": "0046_first_offer_reject_stale_manual_confirm",
+      "breakpoints": true
     }
   ]
 }
