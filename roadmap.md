@@ -59,3 +59,4 @@
 - [ ] Verify Patrick TL-1079 test vs live mode (read-only); proposal only
 - [ ] Throwaway DB regressions incl. archive/restore; apply settlement migration after pass
 - [ ] Real-component demo screenshots (Admin orders/members)
+- [ ] Retryable Stripe intent: reuse held claim / never release while payable (mock test)
