@@ -23,6 +23,7 @@ type StripeCheckoutInput = {
   items: SubmitOrderItem[];
   code?: string | null;
   creditUnits?: number;
+  expectedStripeMode?: "test" | "live";
 };
 
 type PreparedStripePayload = {
@@ -152,6 +153,9 @@ export const createStripeSandboxPayment = createServerFn({
     if (!keyCheck.ok) {
       throw new Error("Secure card payments are temporarily unavailable. Please choose another payment method.");
     }
+    if (data.expectedStripeMode && data.expectedStripeMode !== keyCheck.mode) {
+      throw new Error("Card payment settings were just updated. Please refresh the page and try again.");
+    }
 
     const Stripe = (await import("stripe")).default;
     const stripe = new Stripe(secretKey);
@@ -280,6 +284,8 @@ export const createStripeSandboxPayment = createServerFn({
         paymentIntentId: paymentIntent.id,
         attemptId: String(attempt.id),
         amountCents,
+        publishableKey: keyCheck.publishableKey,
+        stripeMode: keyCheck.mode,
       };
        } catch (error) {
       // An intent may exist even if saving its id failed. Cancel it before releasing rewards.

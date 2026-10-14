@@ -232,6 +232,7 @@ function CheckoutPage() {
     staleTime: 60_000,
   });
   const stripePromise = stripeConfig?.ok ? stripePromiseFor(stripeConfig.publishableKey) : null;
+  const intentStripePromise = intentPublishableKey ? stripePromiseFor(intentPublishableKey) : stripePromise;
   const [stripeIntentId, setStripeIntentId] = useState<string | null>(null);
   const [guestMode, setGuestModeState] = useState(false);
   const [authLost, setAuthLost] = useState(false);
@@ -256,6 +257,8 @@ function CheckoutPage() {
   const [stripeClientSecret, setStripeClientSecret] = useState<string | null>(
     null,
   );
+  // Key returned with the PaymentIntent, so the form never uses a stale cached key.
+  const [intentPublishableKey, setIntentPublishableKey] = useState<string | null>(null);
 
   const { data: session, refetch: refetchSession } = useQuery({
     queryKey: ["checkout-session"],
@@ -505,11 +508,12 @@ function CheckoutPage() {
       // Acknowledgement is recorded server side before any payment is initiated.
       const { ackId } = await recordAck({ data: { version: ackVersion, mode } });
       return createStripePayment({
-        data: cardCheckoutData(ackId),
+        data: { ...cardCheckoutData(ackId), ...(stripeConfig?.ok ? { expectedStripeMode: stripeConfig.mode } : {}) },
       });
     },
 
-    onSuccess: ({ clientSecret, paymentIntentId }) => {
+    onSuccess: ({ clientSecret, paymentIntentId, publishableKey }) => {
+      setIntentPublishableKey(publishableKey);
       setStripeClientSecret(clientSecret);
       setStripeIntentId(paymentIntentId);
     },
@@ -867,7 +871,7 @@ function CheckoutPage() {
                     </div>
                   ) : stripePromise ? (
                     <Elements
-                      stripe={stripePromise}
+                      stripe={intentStripePromise}
                       options={{
                         clientSecret: stripeClientSecret,
                         appearance: {
