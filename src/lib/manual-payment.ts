@@ -18,3 +18,21 @@ export function canMarkManualPaid(order: ManualPaymentOrder) {
     isManualPaymentMethod(order.payment_method)
   );
 }
+
+export type SpendOrder = { status: string; payment_confirmed: boolean | null; refunded_at?: string | null; total?: number | string | null };
+
+/** Only successfully paid, non-cancelled, unrefunded orders count toward member spend and purchase counts. */
+export function countsTowardSpend(o: SpendOrder) {
+  return !!o.payment_confirmed && o.status !== "cancelled" && o.status !== "pending_payment" && !o.refunded_at;
+}
+
+export function memberSpend(orders: SpendOrder[]) {
+  const paid = orders.filter(countsTowardSpend);
+  return { count: paid.length, cents: paid.reduce((s, o) => s + Math.round(Number(o.total ?? 0) * 100), 0) };
+}
+
+/** Archive ("delete payment") is a reversible hide for terminal unpaid or cancelled records only — never live paid history. */
+export function canArchiveOrder(o: ManualPaymentOrder & { archived_at?: string | null }) {
+  if (o.archived_at) return false;
+  return o.status === "cancelled" || !o.payment_confirmed;
+}

@@ -32,12 +32,13 @@ import {
   adminListOrders,
   adminMarkNotificationsRead,
   adminSetPaymentConfirmed,
+  adminArchiveOrder,
   adminSetTracking,
   adminUpdateStatus,
   type AdminOrder,
 } from "@/lib/admin.functions";
 import { orderReference } from "@/lib/order-reference";
-import { canMarkManualPaid } from "@/lib/manual-payment";
+import { canMarkManualPaid, canArchiveOrder } from "@/lib/manual-payment";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -105,7 +106,7 @@ function customerAddress(order: AdminOrder) {
 /* ---------------------------------------------------------------- ORDERS */
 
 type Period = "all" | "day" | "month" | "year";
-type View = "active" | "closed";
+type View = "active" | "closed" | "archived";
 
 function OrdersTab() {
   const queryClient = useQueryClient();
@@ -125,13 +126,18 @@ function OrdersTab() {
     queryKey: ["admin-orders", "closed"],
     queryFn: () => adminListOrders({ data: { scope: "closed" } }),
   });
+  const archivedQuery = useQuery({
+    queryKey: ["admin-orders", "archived"],
+    queryFn: () => adminListOrders({ data: { scope: "archived" } }),
+  });
 
 
   const active = liveQuery.data ?? [];
   const closed = closedQuery.data ?? [];
-  const source = view === "active" ? active : closed;
+  const archived = archivedQuery.data ?? [];
+  const source = view === "active" ? active : view === "closed" ? closed : archived;
   const statusOptions: AdminOrder["status"][] =
-    view === "active" ? ["processing", "shipped"] : ["delivered", "cancelled"];
+    view === "active" ? ["processing", "shipped"] : view === "closed" ? ["delivered", "cancelled"] : [];
 
   const rows = useMemo(() => {
     const now = new Date();
@@ -159,7 +165,7 @@ function OrdersTab() {
     });
   }, [source, statusFilter, period, search]);
 
-  const isLoading = liveQuery.isLoading || closedQuery.isLoading;
+  const isLoading = liveQuery.isLoading || closedQuery.isLoading || archivedQuery.isLoading;
 
   return (
     <div className="rounded-2xl border border-primary/25 bg-card/90 p-5 shadow-glow">
@@ -168,6 +174,7 @@ function OrdersTab() {
           [
             ["active", `Active (${active.length})`],
             ["closed", `Closed (${closed.length})`],
+            ["archived", `Removed (${archived.length})`],
           ] as const
         ).map(([value, label]) => (
           <button
@@ -325,6 +332,8 @@ function OrdersTab() {
 }
 
 const MARK_PAID = "__mark_paid__";
+const ARCHIVE = "__archive__";
+const RESTORE = "__restore__";
 
 function StatusSelect({ order }: { order: AdminOrder }) {
   const queryClient = useQueryClient();
@@ -347,15 +356,33 @@ function StatusSelect({ order }: { order: AdminOrder }) {
     },
     onError: () => toast.error("Could not mark this order as paid"),
   });
-  const canPay = canMarkManualPaid(order);
+  const archive = useMutation({
+    mutationFn: (on: boolean) => adminArchiveOrder({ data: { orderId: order.id, archive: on } }),
+    onSuccess: (_r, on) => {
+      toast.success(on ? "Removed from the order list. Restore it any time from Removed." : "Order restored.");
+      void queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not update this order"),
+  });
+  const canPay = canMarkManualPaid(order) && !order.archived_at;
+  const canArchive = canArchiveOrder(order);
 
   return (
     <select
       aria-label={`Order ${orderReference(order)} status`}
       value={order.status}
-      disabled={update.isPending || markPaid.isPending}
+      disabled={update.isPending || markPaid.isPending || archive.isPending}
       onChange={(e) => {
         const value = e.target.value;
+        if (value === ARCHIVE) {
+          if (window.confirm(`Remove order ${orderReference(order)} from the order list? Nothing is refunded or deleted, totals are unchanged, and you can restore it from Removed.`))
+            archive.mutate(true);
+          return;
+        }
+        if (value === RESTORE) {
+          if (window.confirm(`Restore order ${orderReference(order)} to the order list?`)) archive.mutate(false);
+          return;
+        }
         if (value === MARK_PAID) {
           // Payment action only: the controlled value snaps back to the current status.
           if (window.confirm(`Mark order ${orderReference(order)} as paid? The member will be emailed a payment confirmation.`))
@@ -376,6 +403,8 @@ function StatusSelect({ order }: { order: AdminOrder }) {
           {markPaid.isPending ? "Marking paid…" : "Mark as paid"}
         </option>
       ) : null}
+      {canArchive ? <option value={ARCHIVE}>Delete payment (remove)</option> : null}
+      {order.archived_at ? <option value={RESTORE}>Restore order</option> : null}
     </select>
   );
 }
