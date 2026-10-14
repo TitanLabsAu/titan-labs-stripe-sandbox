@@ -4,17 +4,16 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { adminSaveContent } from "@/lib/admin.functions";
-import { getSiteContent } from "@/lib/catalog.functions";
+import { adminGetPrivateSetting, adminSavePrivateSetting } from "@/lib/admin.functions";
 
 const KEY = "order_admin_email";
 
 export function AdminNotificationEmail() {
   const qc = useQueryClient();
-  const content = useQuery({ queryKey: ["site-content"], queryFn: () => getSiteContent() });
+  const content = useQuery({ queryKey: ["admin-private", KEY], queryFn: () => adminGetPrivateSetting({ data: { key: KEY } }) });
   const [value, setValue] = useState("");
   const [busy, setBusy] = useState(false);
-  const saved = content.data?.[KEY] ?? "";
+  const saved = content.data?.body ?? "";
 
   useEffect(() => { setValue(saved); }, [saved]);
 
@@ -26,8 +25,8 @@ export function AdminNotificationEmail() {
     }
     setBusy(true);
     try {
-      await adminSaveContent({ data: { key: KEY, body: email } });
-      await qc.invalidateQueries({ queryKey: ["site-content"] });
+      await adminSavePrivateSetting({ data: { key: KEY, body: email } });
+      await qc.invalidateQueries({ queryKey: ["admin-private", KEY] });
       toast.success("Notification email updated");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not save");
