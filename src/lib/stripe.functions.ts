@@ -163,6 +163,12 @@ export const createStripeSandboxPayment = createServerFn({
     const { resolveBuyer, requireAcknowledgement, ownerColumns } = await import("@/lib/checkout-buyer.server");
     const buyer = await resolveBuyer(data.mode === "guest" ? "guest" : "member");
     const acknowledgementId = await requireAcknowledgement(buyer, data.acknowledgementId);
+    if (buyer.userId) {
+      // Superseded payable intents are cancelled before their held first-offer claim is released.
+      const { supabaseAdmin: rolloverDb } = await import("@/integrations/supabase/client.server");
+      const { rolloverFirstOfferClaims, stripeRolloverDeps } = await import("@/lib/first-offer-rollover.server");
+      await rolloverFirstOfferClaims(buyer.userId, stripeRolloverDeps(rolloverDb, stripe));
+    }
     const { payload, creditUnits, firstOffer, emails } = await prepareStripeOrder(data, buyer);
 
     const amountCents = Math.round(
