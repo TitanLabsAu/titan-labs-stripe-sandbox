@@ -142,6 +142,17 @@ export const createStripeSandboxPayment = createServerFn({
       );
     }
 
+    // Refuse to create a payment when the browser key and secret key are in different modes.
+    const { resolveStripePublicConfig } = await import("@/lib/stripe-config");
+    const keyCheck = resolveStripePublicConfig({
+      runtimeKey: process.env["STRIPE_PUBLISHABLE_KEY"],
+      buildKey: import.meta.env["VITE_STRIPE_PUBLISHABLE_KEY"] as string | undefined,
+      secretKey,
+    });
+    if (!keyCheck.ok) {
+      throw new Error("Secure card payments are temporarily unavailable. Please choose another payment method.");
+    }
+
     const Stripe = (await import("stripe")).default;
     const stripe = new Stripe(secretKey);
 

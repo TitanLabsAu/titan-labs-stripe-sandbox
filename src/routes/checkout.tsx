@@ -67,11 +67,16 @@ import { quoteOrder } from "@/lib/order-pricing";
 const MODE_KEY = "titan_checkout_mode";
 import { cartPriceLines, useReferralSettings } from "@/lib/useReferralSettings";
 
-const stripePublishableKey = import.meta.env["VITE_STRIPE_PUBLISHABLE_KEY"];
-
-const stripePromise = stripePublishableKey
-  ? loadStripe(stripePublishableKey)
-  : null;
+// Publishable key is looked up at runtime (mode-checked against the secret key on the server).
+const stripePromiseCache = new Map<string, ReturnType<typeof loadStripe>>();
+function stripePromiseFor(key: string) {
+  let p = stripePromiseCache.get(key);
+  if (!p) {
+    p = loadStripe(key);
+    stripePromiseCache.set(key, p);
+  }
+  return p;
+}
 
 function StripePaymentForm({
   onPaid,
