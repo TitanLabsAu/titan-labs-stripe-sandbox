@@ -2,7 +2,7 @@
 # Foundation Member allocation tests against a throwaway LOCAL Postgres (never the project database).
 # Usage: bash scripts/foundation-db.test.sh <path-to-migration.sql>
 set -euo pipefail
-if [ "$(id -u)" = 0 ]; then cp "$1" /tmp/fm-mig.sql; chmod 644 /tmp/fm-mig.sql; exec runuser -u pgtest -- bash "$0" /tmp/fm-mig.sql; fi
+if [ "$(id -u)" = 0 ]; then cp "$1" /tmp/fm-mig.sql; chmod 644 /tmp/fm-mig.sql; exec setpriv --reuid=7777 --regid=7777 --clear-groups env HOME=/tmp bash "$0" /tmp/fm-mig.sql; fi
 MIG="${1:?migration sql path}"
 DIR=$(mktemp -d); PORT=55432
 unset PGHOST PGPORT PGUSER PGPASSWORD PGDATABASE PGSSLMODE
