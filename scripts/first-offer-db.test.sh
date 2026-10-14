@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # First-purchase offer lifecycle tests on a throwaway LOCAL Postgres (never the project database).
 set -euo pipefail
-if [ "$(id -u)" = 0 ]; then cp scripts/first-offer-settlement.sql /tmp/fo-mig.sql; chmod 644 /tmp/fo-mig.sql; exec setpriv --reuid=7777 --regid=7777 --clear-groups env HOME=/tmp bash "$0" /tmp/fo-mig.sql; fi
-MIG="${1:-scripts/first-offer-settlement.sql}"
+if [ "$(id -u)" = 0 ]; then cp scripts/first-offer-livemode.sql /tmp/fo-mig.sql; chmod 644 /tmp/fo-mig.sql; exec setpriv --reuid=7777 --regid=7777 --clear-groups env HOME=/tmp bash "$0" /tmp/fo-mig.sql; fi
+MIG="${1:-scripts/first-offer-livemode.sql}"
 DIR=$(mktemp -d); PORT=55433
 unset PGHOST PGPORT PGUSER PGPASSWORD PGDATABASE PGSSLMODE
 initdb -D "$DIR" -U postgres >/dev/null
@@ -13,6 +13,7 @@ $P <<'S'
 CREATE TYPE order_status AS ENUM ('processing','shipped','delivered','cancelled','pending_payment');
 CREATE FUNCTION normalize_emails(_e text[]) RETURNS text[] LANGUAGE sql AS $$ SELECT coalesce(array_agg(DISTINCT lower(trim(x))),'{}') FROM unnest(_e) x $$;
 CREATE TABLE first_purchase_claims(id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid, emails text[], status text, payment_attempt_id uuid, order_id uuid, expires_at timestamptz, created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now());
+CREATE TABLE payment_attempts(id uuid PRIMARY KEY DEFAULT gen_random_uuid(), provider text, transaction_id text);
 CREATE TABLE orders(id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid, status order_status NOT NULL DEFAULT 'pending_payment', payment_confirmed boolean NOT NULL DEFAULT false, contact_email_normalized text, first_offer_claim_id uuid, payment_transaction_id text UNIQUE);
 CREATE FUNCTION first_offer_eligible(_user_id uuid, _emails text[]) RETURNS boolean LANGUAGE plpgsql AS $f$
 DECLARE _e text[] := normalize_emails(_emails); BEGIN
@@ -70,5 +71,17 @@ q "insert into orders(user_id,payment_confirmed,status,first_offer_claim_id,paym
 $P -c "insert into orders(user_id,payment_confirmed,status,first_offer_claim_id,payment_transaction_id) values ('$U2',true,'processing','$C2','pi_1')" >/dev/null 2>&1 || true
 check "duplicate finalisation charged once" "$(q "select count(*) from orders where payment_transaction_id='pi_1'")" 1
 check "stripe success consumes" "$(q "select status from first_purchase_claims where id='$C2'")" consumed
+# Test-mode success never consumes the production offer or blocks eligibility
+U3=33333333-3333-3333-3333-333333333333
+C3=$(q "select claim_first_offer('$U3',ARRAY['c@x.com'],60)")
+q "insert into payment_attempts(provider,transaction_id,stripe_livemode) values ('stripe','pi_test',false)"
+q "insert into orders(user_id,payment_confirmed,status,first_offer_claim_id,payment_transaction_id) values ('$U3',true,'processing','$C3','pi_test')"
+check "test-mode order flagged" "$(q "select stripe_livemode from orders where payment_transaction_id='pi_test'")" f
+check "test-mode success releases claim" "$(q "select status from first_purchase_claims where id='$C3'")" released
+check "test-mode paid order doesn't block" "$(q "select first_offer_eligible('$U3',ARRAY['c@x.com'])")" t
+q "insert into payment_attempts(provider,transaction_id,stripe_livemode) values ('stripe','pi_live',true)"
+C4=$(q "select claim_first_offer('$U3',ARRAY['c@x.com'],60)")
+q "insert into orders(user_id,payment_confirmed,status,first_offer_claim_id,payment_transaction_id) values ('$U3',true,'processing','$C4','pi_live')"
+check "live success consumes" "$(q "select status from first_purchase_claims where id='$C4'")" consumed
 check "late release can't free paid claim" "$(q "update first_purchase_claims set payment_attempt_id='aaaaaaaa-0000-0000-0000-000000000009' where id='$C2'; select release_first_offer_for_attempt('aaaaaaaa-0000-0000-0000-000000000009')" | tail -1)" 0
 exit $fail

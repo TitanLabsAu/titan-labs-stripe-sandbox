@@ -45,6 +45,7 @@ export type AdminOrder = {
   payment_confirmed: boolean | null;
   refunded_at?: string | null;
   archived_at?: string | null;
+  stripe_livemode?: boolean | null;
   archive_reason?: string | null;
   contact_name: string | null;
   contact_email: string | null;
