@@ -140,6 +140,12 @@ export type Quote = {
   firstOfferApplied: boolean;
   firstOfferPercent: number;
   firstOfferCents: number;
+  /** Foundation Member permanent benefit (server-verified awards only). */
+  foundationApplied: boolean;
+  foundationPercent: number;
+  foundationCents: number;
+  /** True when the combined cap reduced (or zeroed) the Foundation saving. */
+  foundationCapReached: boolean;
   creditUnits: number;
   creditCents: number;
   merchandiseCents: number;
@@ -267,6 +273,10 @@ function evaluate(
     firstOfferApplied: offerCents > 0,
     firstOfferPercent: offerCents > 0 && offer ? offer.percent : 0,
     firstOfferCents: offerCents,
+    foundationApplied: false,
+    foundationPercent: 0,
+    foundationCents: 0,
+    foundationCapReached: false,
     creditUnits,
     creditCents,
     merchandiseCents,
@@ -288,6 +298,8 @@ export type QuoteInput = {
   availableCreditUnits?: number;
   /** Server-verified only: the buyer is a member eligible for the first-purchase offer. */
   firstOfferEligible?: boolean;
+  /** Server-verified only: Foundation Member benefit percent (0 when not awarded). */
+  foundationPercent?: number;
 };
 
 /**
@@ -295,6 +307,55 @@ export type QuoteInput = {
  * cheaper outcome for the customer wins and a notice explains why.
  */
 export function quoteOrder(input: QuoteInput, settings: PricingSettings = DEFAULT_PRICING_SETTINGS): Quote {
+  return applyFoundation(quoteCore(input, settings), input.foundationPercent ?? 0);
+}
+
+/**
+ * Foundation Member: adds percentage points of the original reference price on top of
+ * whatever other discounts won, sharing the same combined cap. For Foundation Members the
+ * TOTAL discount (kit savings included) never exceeds the cap; non-members are untouched.
+ */
+export function applyFoundation(q: Quote, percent: number): Quote {
+  const pct = Math.min(100, Math.max(0, Number(percent) || 0));
+  if (!(pct > 0) || q.itemsCents <= 0) return q;
+  const capCents = Math.floor((q.baseCents * q.capPercent) / 100);
+  let codeCents = q.codeCents;
+  let creditCents = q.creditCents;
+  let existing = q.baseCents - q.merchandiseCents;
+  if (existing > capCents) {
+    const over = existing - capCents;
+    const trimCode = Math.min(over, codeCents);
+    codeCents -= trimCode;
+    creditCents -= Math.min(over - trimCode, creditCents);
+    existing = q.baseCents - (q.merchandiseCents + (q.codeCents - codeCents) + (q.creditCents - creditCents));
+  }
+  const merchandiseBefore = q.baseCents - existing - q.kitSavingsCents * 0 - (q.baseCents - q.itemsCents);
+  const want = Math.round((q.baseCents * pct) / 100);
+  const foundationCents = Math.max(0, Math.min(want, capCents - existing, merchandiseBefore));
+  const merchandiseCents = merchandiseBefore - foundationCents;
+  const capReached = foundationCents < want;
+  const notices = [...q.notices];
+  if (capReached)
+    notices.push(
+      foundationCents === 0
+        ? `Your other discounts already reach the ${q.capPercent}% maximum, so your Foundation Member 5% couldn't add more this time.`
+        : `Your Foundation Member saving was reduced so total savings stay within the ${q.capPercent}% maximum.`,
+    );
+  return {
+    ...q,
+    codeCents,
+    creditCents,
+    foundationApplied: foundationCents > 0,
+    foundationPercent: foundationCents > 0 ? pct : 0,
+    foundationCents,
+    foundationCapReached: capReached,
+    merchandiseCents,
+    totalCents: merchandiseCents + q.shippingCents,
+    notices,
+  };
+}
+
+function quoteCore(input: QuoteInput, settings: PricingSettings): Quote {
   const base = quoteWithoutOffer(input, settings);
   const offer = settings.firstOffer;
   if (!input.firstOfferEligible || !offer?.enabled || !(offer.percent > 0)) return base;
