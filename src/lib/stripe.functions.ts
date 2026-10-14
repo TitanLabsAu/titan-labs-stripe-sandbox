@@ -23,6 +23,7 @@ type StripeCheckoutInput = {
   items: SubmitOrderItem[];
   code?: string | null;
   creditUnits?: number;
+  expectedStripeMode?: "test" | "live";
 };
 
 type PreparedStripePayload = {
@@ -140,6 +141,20 @@ export const createStripeSandboxPayment = createServerFn({
       throw new Error(
         "Stripe sandbox credentials are not configured.",
       );
+    }
+
+    // Refuse to create a payment when the browser key and secret key are in different modes.
+    const { resolveStripePublicConfig } = await import("@/lib/stripe-config");
+    const keyCheck = resolveStripePublicConfig({
+      runtimeKey: process.env["STRIPE_PUBLISHABLE_KEY"],
+      buildKey: import.meta.env["VITE_STRIPE_PUBLISHABLE_KEY"] as string | undefined,
+      secretKey,
+    });
+    if (!keyCheck.ok) {
+      throw new Error("Secure card payments are temporarily unavailable. Please choose another payment method.");
+    }
+    if (data.expectedStripeMode && data.expectedStripeMode !== keyCheck.mode) {
+      throw new Error("Card payment settings were just updated. Please refresh the page and try again.");
     }
 
     const Stripe = (await import("stripe")).default;
@@ -269,6 +284,8 @@ export const createStripeSandboxPayment = createServerFn({
         paymentIntentId: paymentIntent.id,
         attemptId: String(attempt.id),
         amountCents,
+        publishableKey: keyCheck.publishableKey,
+        stripeMode: keyCheck.mode,
       };
        } catch (error) {
       // An intent may exist even if saving its id failed. Cancel it before releasing rewards.

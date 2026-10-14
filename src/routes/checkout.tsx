@@ -11,6 +11,7 @@ import {
   useStripe,
 } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
+import { getStripePublicConfig } from "@/lib/stripe-config.functions";
 import { CheckCircle2, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -67,11 +68,16 @@ import { quoteOrder } from "@/lib/order-pricing";
 const MODE_KEY = "titan_checkout_mode";
 import { cartPriceLines, useReferralSettings } from "@/lib/useReferralSettings";
 
-const stripePublishableKey = import.meta.env["VITE_STRIPE_PUBLISHABLE_KEY"];
-
-const stripePromise = stripePublishableKey
-  ? loadStripe(stripePublishableKey)
-  : null;
+// Publishable key is looked up at runtime (mode-checked against the secret key on the server).
+const stripePromiseCache = new Map<string, ReturnType<typeof loadStripe>>();
+function stripePromiseFor(key: string) {
+  let p = stripePromiseCache.get(key);
+  if (!p) {
+    p = loadStripe(key);
+    stripePromiseCache.set(key, p);
+  }
+  return p;
+}
 
 function StripePaymentForm({
   onPaid,
@@ -219,6 +225,13 @@ function CheckoutPage() {
   const recordAck = useServerFn(recordCheckoutAcknowledgement);
   const startGuest = useServerFn(startGuestCheckout);
   const guestStatus = useServerFn(getGuestCheckoutStatus);
+  const fetchStripeConfig = useServerFn(getStripePublicConfig);
+  const { data: stripeConfig } = useQuery({
+    queryKey: ["stripe-public-config"],
+    queryFn: () => fetchStripeConfig(),
+    staleTime: 60_000,
+  });
+  const stripePromise = stripeConfig?.ok ? stripePromiseFor(stripeConfig.publishableKey) : null;
   const [stripeIntentId, setStripeIntentId] = useState<string | null>(null);
   const [guestMode, setGuestModeState] = useState(false);
   const [authLost, setAuthLost] = useState(false);
@@ -243,6 +256,9 @@ function CheckoutPage() {
   const [stripeClientSecret, setStripeClientSecret] = useState<string | null>(
     null,
   );
+  // Key returned with the PaymentIntent, so the form never uses a stale cached key.
+  const [intentPublishableKey, setIntentPublishableKey] = useState<string | null>(null);
+  const intentStripePromise = intentPublishableKey ? stripePromiseFor(intentPublishableKey) : stripePromise;
 
   const { data: session, refetch: refetchSession } = useQuery({
     queryKey: ["checkout-session"],
@@ -492,11 +508,12 @@ function CheckoutPage() {
       // Acknowledgement is recorded server side before any payment is initiated.
       const { ackId } = await recordAck({ data: { version: ackVersion, mode } });
       return createStripePayment({
-        data: cardCheckoutData(ackId),
+        data: { ...cardCheckoutData(ackId), ...(stripeConfig?.ok ? { expectedStripeMode: stripeConfig.mode } : {}) },
       });
     },
 
-    onSuccess: ({ clientSecret, paymentIntentId }) => {
+    onSuccess: ({ clientSecret, paymentIntentId, publishableKey }) => {
+      setIntentPublishableKey(publishableKey);
       setStripeClientSecret(clientSecret);
       setStripeIntentId(paymentIntentId);
     },
@@ -854,7 +871,7 @@ function CheckoutPage() {
                     </div>
                   ) : stripePromise ? (
                     <Elements
-                      stripe={stripePromise}
+                      stripe={intentStripePromise}
                       options={{
                         clientSecret: stripeClientSecret,
                         appearance: {
