@@ -10,6 +10,7 @@ import {
 } from "@/lib/admin.functions";
 import { orderReference } from "@/lib/order-reference";
 import { AdminMemberRewards } from "@/components/AdminMemberRewards";
+import { AdminMemberFoundation } from "@/components/AdminMemberFoundation";
 
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString("en-AU", {
@@ -239,6 +240,7 @@ function MemberDetail({
             )}
           </section>
 
+          <AdminMemberFoundation userId={member.id} />
           <AdminMemberRewards userId={member.id} />
 
           <section className="space-y-4">

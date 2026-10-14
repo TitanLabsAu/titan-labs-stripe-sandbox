@@ -403,23 +403,26 @@ export type Database = {
       foundation_members: {
         Row: {
           awarded_at: string
+          granted_by: string | null
           id: string
           member_number: number
-          order_id: string
+          order_id: string | null
           user_id: string
         }
         Insert: {
           awarded_at?: string
+          granted_by?: string | null
           id?: string
           member_number: number
-          order_id: string
+          order_id?: string | null
           user_id: string
         }
         Update: {
           awarded_at?: string
+          granted_by?: string | null
           id?: string
           member_number?: number
-          order_id?: string
+          order_id?: string | null
           user_id?: string
         }
         Relationships: [
@@ -1563,6 +1566,10 @@ export type Database = {
         }
         Returns: Json
       }
+      admin_set_foundation_member: {
+        Args: { _enable: boolean; _user_id: string }
+        Returns: Json
+      }
       allocate_welcome_referral_code: {
         Args: { _user_id: string }
         Returns: string
@@ -1644,6 +1651,7 @@ export type Database = {
         Args: { _emails: string[]; _user_id: string }
         Returns: boolean
       }
+      foundation_next_number: { Args: { _cap: number }; Returns: number }
       foundation_programme_status: { Args: never; Returns: Json }
       has_role: {
         Args: {

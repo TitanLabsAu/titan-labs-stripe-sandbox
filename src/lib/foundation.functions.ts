@@ -73,7 +73,7 @@ export const adminGetFoundation = createServerFn({ method: "POST" })
         return {
           memberNumber: Number(r.member_number),
           name: [p?.first_name, p?.last_name].filter(Boolean).join(" ") || p?.email || "Member",
-          order: om.get(r.order_id) != null ? `TL-${om.get(r.order_id)}` : String(r.order_id),
+          order: !r.order_id ? "Admin grant" : om.get(r.order_id) != null ? `TL-${om.get(r.order_id)}` : String(r.order_id),
           awardedAt: String(r.awarded_at),
         };
       }),
@@ -92,4 +92,27 @@ export const adminSetFoundationEnrolment = createServerFn({ method: "POST" })
       .eq("id", 1);
     if (error) throw new Error("Couldn't update the Foundation programme.");
     return { ok: true };
+  });
+
+/** Admin: a member's Foundation status. */
+export const adminGetMemberFoundation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { userId: string }) => ({ userId: String(input?.userId ?? "") }))
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context);
+    const { data: row, error } = await (context.supabase as any)
+      .from("foundation_members").select("member_number").eq("user_id", data.userId).maybeSingle();
+    if (error) throw new Error("Couldn't load Foundation status.");
+    return { memberNumber: row ? Number(row.member_number) : null };
+  });
+
+/** Admin: grant or remove Foundation Member status (database checks admin role and the 50-place cap). */
+export const adminSetMemberFoundation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { userId: string; enabled: boolean }) => ({ userId: String(input?.userId ?? ""), enabled: input?.enabled === true }))
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context);
+    const { data: res, error } = await (context.supabase as any).rpc("admin_set_foundation_member", { _user_id: data.userId, _enable: data.enabled });
+    if (error) throw new Error(/places are taken/.test(error.message) ? "All Foundation places are taken." : "Couldn't update Foundation status.");
+    return { memberNumber: (res?.member_number ?? null) as number | null };
   });
