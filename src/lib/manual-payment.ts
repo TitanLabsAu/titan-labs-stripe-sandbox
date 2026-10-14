@@ -19,11 +19,11 @@ export function canMarkManualPaid(order: ManualPaymentOrder) {
   );
 }
 
-export type SpendOrder = { status: string; payment_confirmed: boolean | null; refunded_at?: string | null; total?: number | string | null };
+export type SpendOrder = { status: string; stripe_livemode?: boolean | null; payment_confirmed: boolean | null; refunded_at?: string | null; total?: number | string | null };
 
-/** Only successfully paid, non-cancelled, unrefunded orders count toward member spend and purchase counts. */
+/** Only successfully paid (never Stripe test-mode), non-cancelled, unrefunded orders count toward member spend and purchase counts. */
 export function countsTowardSpend(o: SpendOrder) {
-  return !!o.payment_confirmed && o.status !== "cancelled" && o.status !== "pending_payment" && !o.refunded_at;
+  return !!o.payment_confirmed && o.stripe_livemode !== false && o.status !== "cancelled" && o.status !== "pending_payment" && !o.refunded_at;
 }
 
 export function memberSpend(orders: SpendOrder[]) {

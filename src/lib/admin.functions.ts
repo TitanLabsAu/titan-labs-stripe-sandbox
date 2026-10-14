@@ -45,6 +45,7 @@ export type AdminOrder = {
   payment_confirmed: boolean | null;
   refunded_at?: string | null;
   archived_at?: string | null;
+  stripe_livemode?: boolean | null;
   archive_reason?: string | null;
   contact_name: string | null;
   contact_email: string | null;
@@ -152,6 +153,8 @@ export const adminSetPaymentConfirmed = createServerFn({ method: "POST" })
         ? update.is("payment_method", null)
         : update.in("payment_method", ["payid", "crypto"]);
       const { data: changed, error } = await update.select("id");
+      if (error && String(error.message ?? "").includes("FIRST_OFFER_STALE"))
+        throw new Error("This order's 10% new-member offer has since been released or used on another order. Review and re-price it before marking paid.");
       if (error) throw error;
       if (!changed?.length) {
         // Zero rows: the row changed between the read and the write. Only an
@@ -341,7 +344,7 @@ export const adminListMembers = createServerFn({ method: "POST" })
 
     const { data: orders } = await context.supabase
       .from("orders")
-      .select("user_id, status, total, payment_confirmed, refunded_at, created_at, order_items(product_name, quantity)");
+      .select("user_id, status, total, payment_confirmed, refunded_at, stripe_livemode, created_at, order_items(product_name, quantity)");
 
     type Stat = {
       order_count: number;
@@ -364,9 +367,11 @@ export const adminListMembers = createServerFn({ method: "POST" })
           tally: new Map<string, number>(),
         };
       // Only successful purchases count; failed/cancelled/refunded/unpaid attempts are excluded.
+      // Active = fulfilment queue (paid or awaiting payment); everything else counts paid purchases only.
+      if ((o.status === "processing" || o.status === "shipped") && o.stripe_livemode !== false) s.live_count += 1;
+      stats.set(o.user_id, s);
       if (!countsTowardSpend(o)) continue;
       s.order_count += 1;
-      if (o.status === "processing" || o.status === "shipped") s.live_count += 1;
       if (o.status === "delivered") s.delivered_count += 1;
       s.total_spent = Math.round(s.total_spent * 100 + Number(o.total ?? 0) * 100) / 100;
       if (!s.last_order_at || o.created_at > s.last_order_at) s.last_order_at = o.created_at;
@@ -404,7 +409,7 @@ export const adminGetMemberOrders = createServerFn({ method: "POST" })
     const { data: orders, error } = await context.supabase
       .from("orders")
       .select(
-        "id, user_id, status, tracking_number, tracking_status, subtotal, shipping, total, created_at, delivered_at, payment_method, payment_confirmed, refunded_at, archived_at, order_number, order_items(id, product_name, product_slug, unit_price, quantity)",
+        "id, user_id, status, tracking_number, tracking_status, subtotal, shipping, total, created_at, delivered_at, payment_method, payment_confirmed, refunded_at, archived_at, stripe_livemode, order_number, order_items(id, product_name, product_slug, unit_price, quantity)",
       )
       .eq("user_id", data.userId)
       .order("created_at", { ascending: false });

@@ -83,6 +83,15 @@ export const submitOrder = createServerFn({ method: "POST" })
     const { priceCheckout, pricingNote, pricingSnapshot, discountDollars, claimFirstOffer } = await import(
       "@/lib/checkout-pricing.server"
     );
+    if (buyer.userId) {
+      // Free a first-offer claim held by a superseded card payment only after that intent is terminally cancelled.
+      const secret = process.env["STRIPE_SECRET_KEY"];
+      if (secret) {
+        const Stripe = (await import("stripe")).default;
+        const { rolloverFirstOfferClaims, stripeRolloverDeps } = await import("@/lib/first-offer-rollover.server");
+        await rolloverFirstOfferClaims(buyer.userId, stripeRolloverDeps(db, new Stripe(secret)));
+      }
+    }
     const emails = buyerEmails(buyer, email);
     const priced = await priceCheckout(
       db,

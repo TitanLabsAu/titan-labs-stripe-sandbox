@@ -15,8 +15,13 @@ export type RolloverDeps = {
 export async function rolloverFirstOfferClaims(userId: string, deps: RolloverDeps) {
   const out: { attemptId: string; action: "released" | "kept" }[] = [];
   for (const h of await deps.listHeld(userId)) {
-    let status = "canceled";
-    if (h.intentId) {
+    // No saved intent ID is UNKNOWN (creation may be in flight or orphaned): keep held.
+    if (!h.intentId) {
+      out.push({ attemptId: h.attemptId, action: "kept" });
+      continue;
+    }
+    let status = "unknown";
+    {
       try {
         status = (await deps.retrieve(h.intentId)).status;
         if (CANCELLABLE.has(status)) status = (await deps.cancel(h.intentId)).status;
@@ -36,26 +41,29 @@ export async function rolloverFirstOfferClaims(userId: string, deps: RolloverDep
 export function stripeRolloverDeps(db: any, stripe: any): RolloverDeps {
   return {
     async listHeld(userId) {
-      const { data: claims } = await db
+      const { data: claims, error: claimsError } = await db
         .from("first_purchase_claims")
         .select("payment_attempt_id")
         .eq("user_id", userId)
         .eq("status", "reserved")
         .is("order_id", null)
         .not("payment_attempt_id", "is", null);
+      if (claimsError) throw new Error("Could not check held first-purchase offers");
       const ids = ((claims ?? []) as any[]).map((c) => c.payment_attempt_id);
       if (!ids.length) return [];
-      const { data: attempts } = await db
+      const { data: attempts, error: attemptsError } = await db
         .from("payment_attempts")
         .select("id, transaction_id, provider")
         .in("id", ids)
         .eq("provider", "stripe");
+      if (attemptsError) throw new Error("Could not check held first-purchase offers");
       return ((attempts ?? []) as any[]).map((a) => ({ attemptId: a.id, intentId: a.transaction_id ?? null }));
     },
     retrieve: (id) => stripe.paymentIntents.retrieve(id),
     cancel: (id) => stripe.paymentIntents.cancel(id),
     async release(attemptId) {
-      await db.rpc("release_first_offer_for_attempt", { _payment_attempt_id: attemptId });
+      const { error } = await db.rpc("release_first_offer_for_attempt", { _payment_attempt_id: attemptId });
+      if (error) throw new Error("Could not release a cancelled first-purchase offer");
     },
   };
 }

@@ -831,6 +831,7 @@ export type Database = {
           shipping: number
           shipping_address: string | null
           status: Database["public"]["Enums"]["order_status"]
+          stripe_livemode: boolean | null
           subtotal: number
           total: number
           tracking_checked_at: string | null
@@ -875,6 +876,7 @@ export type Database = {
           shipping?: number
           shipping_address?: string | null
           status?: Database["public"]["Enums"]["order_status"]
+          stripe_livemode?: boolean | null
           subtotal?: number
           total?: number
           tracking_checked_at?: string | null
@@ -919,6 +921,7 @@ export type Database = {
           shipping?: number
           shipping_address?: string | null
           status?: Database["public"]["Enums"]["order_status"]
+          stripe_livemode?: boolean | null
           subtotal?: number
           total?: number
           tracking_checked_at?: string | null
@@ -960,6 +963,7 @@ export type Database = {
           order_payload: Json
           provider: string
           status: string
+          stripe_livemode: boolean | null
           transaction_id: string | null
           updated_at: string
           user_id: string | null
@@ -979,6 +983,7 @@ export type Database = {
           order_payload: Json
           provider?: string
           status?: string
+          stripe_livemode?: boolean | null
           transaction_id?: string | null
           updated_at?: string
           user_id?: string | null
@@ -998,6 +1003,7 @@ export type Database = {
           order_payload?: Json
           provider?: string
           status?: string
+          stripe_livemode?: boolean | null
           transaction_id?: string | null
           updated_at?: string
           user_id?: string | null

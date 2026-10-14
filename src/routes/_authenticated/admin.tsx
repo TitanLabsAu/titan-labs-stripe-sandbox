@@ -354,7 +354,7 @@ function StatusSelect({ order }: { order: AdminOrder }) {
       toast.success(result?.alreadyPaid ? "Already marked paid." : "Payment confirmed.");
       void queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
     },
-    onError: () => toast.error("Could not mark this order as paid"),
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not mark this order as paid"),
   });
   const archive = useMutation({
     mutationFn: (on: boolean) => adminArchiveOrder({ data: { orderId: order.id, archive: on } }),
