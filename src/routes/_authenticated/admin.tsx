@@ -37,6 +37,7 @@ import {
   type AdminOrder,
 } from "@/lib/admin.functions";
 import { orderReference } from "@/lib/order-reference";
+import { canMarkManualPaid } from "@/lib/manual-payment";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -323,6 +324,8 @@ function OrdersTab() {
   );
 }
 
+const MARK_PAID = "__mark_paid__";
+
 function StatusSelect({ order }: { order: AdminOrder }) {
   const queryClient = useQueryClient();
   const update = useMutation({
@@ -334,12 +337,32 @@ function StatusSelect({ order }: { order: AdminOrder }) {
     },
     onError: () => toast.error("Could not update the order"),
   });
+  const markPaid = useMutation({
+    mutationFn: () =>
+      adminSetPaymentConfirmed({ data: { orderId: order.id, confirmed: true } }),
+    onSuccess: () => {
+      toast.success("Payment confirmed. The member has been notified.");
+      void queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+    },
+    onError: () => toast.error("Could not mark this order as paid"),
+  });
+  const canPay = canMarkManualPaid(order);
 
   return (
     <select
+      aria-label={`Order ${orderReference(order)} status`}
       value={order.status}
-      disabled={update.isPending}
-      onChange={(e) => update.mutate(e.target.value as AdminOrder["status"])}
+      disabled={update.isPending || markPaid.isPending}
+      onChange={(e) => {
+        const value = e.target.value;
+        if (value === MARK_PAID) {
+          // Payment action only: the controlled value snaps back to the current status.
+          if (window.confirm(`Mark order ${orderReference(order)} as paid? The member will be emailed a payment confirmation.`))
+            markPaid.mutate();
+          return;
+        }
+        update.mutate(value as AdminOrder["status"]);
+      }}
       className="border border-border bg-secondary px-2 py-1 text-xs uppercase tracking-[0.12em]"
     >
       {STATUSES.map((s) => (
@@ -347,6 +370,11 @@ function StatusSelect({ order }: { order: AdminOrder }) {
           {s}
         </option>
       ))}
+      {canPay ? (
+        <option value={MARK_PAID}>
+          {markPaid.isPending ? "Marking paid…" : "Mark as paid"}
+        </option>
+      ) : null}
     </select>
   );
 }
@@ -500,7 +528,7 @@ function OrderDetail({ order, live }: { order: AdminOrder; live: boolean }) {
             size="sm"
             variant="outline"
             className="text-[11px] uppercase tracking-[0.12em]"
-            disabled={setPaid.isPending}
+            disabled={setPaid.isPending || (!order.payment_confirmed && !canMarkManualPaid(order))}
             onClick={() => setPaid.mutate(!order.payment_confirmed)}
           >
             {order.payment_confirmed ? "Mark unpaid" : "Mark as paid"}

@@ -52,3 +52,4 @@
 - [x] Pricing tests, mock previews desktop/mobile light/dark, typecheck/build
 - [x] Stripe runtime key: return public key with intent, expected-mode guard, rk_ support
 - [x] Provide existing Foundation demo screenshots
+- [x] Row Mark as Paid action + guarded server + demo preview
