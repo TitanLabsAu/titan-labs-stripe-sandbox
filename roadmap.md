@@ -50,3 +50,5 @@
 - [x] Pricing: Foundation 5% applied before referral reward units (no reward used to fill cap the free benefit fills); regression for credit units = 0 at 20%
 - [x] Account badge, checkout display, Admin status/launch panel
 - [x] Pricing tests, mock previews desktop/mobile light/dark, typecheck/build
+- [ ] Stripe runtime key: return public key with intent, expected-mode guard, rk_ support
+- [ ] Provide existing Foundation demo screenshots
