@@ -47,6 +47,6 @@
 
 ## Foundation Member programme (unpublished, OFF)
 - [x] Disabled schema, award trigger, local DB allocation tests
-- [ ] Pricing: Foundation 5% applied before referral reward units (no reward used to fill cap the free benefit fills); regression for credit units = 0 at 20%
-- [ ] Account badge, checkout display, Admin status/launch panel
-- [ ] Pricing tests, mock previews desktop/mobile light/dark, typecheck/build
+- [x] Pricing: Foundation 5% applied before referral reward units (no reward used to fill cap the free benefit fills); regression for credit units = 0 at 20%
+- [x] Account badge, checkout display, Admin status/launch panel
+- [x] Pricing tests, mock previews desktop/mobile light/dark, typecheck/build

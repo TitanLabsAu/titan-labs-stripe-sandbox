@@ -1024,13 +1024,6 @@ function CheckoutPage() {
                     <span>−{formatPrice(quote.foundationCents / 100)}</span>
                   </div>
                 ) : null}
-                {quote.foundationCapReached ? (
-                  <p className="text-xs text-muted-foreground">
-                    {quote.foundationCents > 0
-                      ? `Foundation Member saving reduced to keep total savings within ${quote.capPercent}%.`
-                      : `Foundation Member: your other savings already reach the ${quote.capPercent}% maximum.`}
-                  </p>
-                ) : null}
                 {quote.creditCents > 0 ? (
                   <div className="flex justify-between font-bold text-accent">
                     <span>Referral reward ({quote.creditUnits}×)</span>
