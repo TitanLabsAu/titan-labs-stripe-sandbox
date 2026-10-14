@@ -1,3 +1,4 @@
+import { memberSpend } from "@/lib/manual-payment";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -182,7 +183,7 @@ function MemberDetail({
           <section className="grid gap-4 rounded-xl border border-border bg-card p-6 sm:grid-cols-4">
             <div>
               <p className="text-2xl font-extrabold text-accent">
-                {orders.length}
+                {memberSpend(orders).count}
               </p>
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
                 Purchases
@@ -191,7 +192,7 @@ function MemberDetail({
             <div>
               <p className="text-2xl font-extrabold text-accent">
                 {formatPrice(
-                  orders.reduce((s, o) => s + Number(o.total ?? 0), 0),
+                  memberSpend(orders).cents / 100,
                 )}
               </p>
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">

@@ -6,7 +6,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { parseCatalogueSection, type CatalogueSection } from "@/lib/catalogue-sections";
 import { orderReference } from "@/lib/order-reference";
-import { canMarkManualPaid } from "@/lib/manual-payment";
+import { canMarkManualPaid, canArchiveOrder, countsTowardSpend } from "@/lib/manual-payment";
 
 export type AdminOrderItem = {
   id: string;
@@ -44,6 +44,8 @@ export type AdminOrder = {
   payment_reference: string | null;
   payment_confirmed: boolean | null;
   refunded_at?: string | null;
+  archived_at?: string | null;
+  archive_reason?: string | null;
   contact_name: string | null;
   contact_email: string | null;
   contact_phone: string | null;
@@ -66,18 +68,21 @@ const CLOSED: AdminOrder["status"][] = ["delivered", "cancelled"];
 
 export const adminListOrders = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { scope: "live" | "closed" }) => input)
+  .inputValidator((input: { scope: "live" | "closed" | "archived" }) => input)
   .handler(async ({ data, context }): Promise<AdminOrder[]> => {
     await assertAdmin(context as any);
     const statuses = data.scope === "live" ? LIVE : CLOSED;
 
-    const { data: orders, error } = await context.supabase
+    let query = context.supabase
       .from("orders")
       .select(
-        "id, user_id, status, tracking_number, tracking_status, subtotal, shipping, total, created_at, delivered_at, order_number, payment_method, payment_reference, payment_confirmed, refunded_at, contact_name, contact_email, contact_phone, shipping_address, notes, order_items(id, product_name, product_slug, unit_price, quantity)",
-      )
-      .in("status", statuses)
-      .order("created_at", { ascending: false });
+        "id, user_id, status, tracking_number, tracking_status, subtotal, shipping, total, created_at, delivered_at, order_number, payment_method, payment_reference, payment_confirmed, refunded_at, archived_at, archive_reason, contact_name, contact_email, contact_phone, shipping_address, notes, order_items(id, product_name, product_slug, unit_price, quantity)",
+      );
+    query =
+      data.scope === "archived"
+        ? query.not("archived_at", "is", null)
+        : query.in("status", statuses).is("archived_at", null);
+    const { data: orders, error } = await query.order("created_at", { ascending: false });
     if (error) throw error;
 
     const rows = (orders ?? []) as unknown as AdminOrder[];
@@ -171,6 +176,47 @@ export const adminSetPaymentConfirmed = createServerFn({ method: "POST" })
     }
     const { tryOrderCheckpointEmails } = await import("@/lib/order-checkpoint-email.server");
     await tryOrderCheckpointEmails(data.orderId);
+    return { ok: true };
+  });
+
+/** Reversible soft archive ("delete payment"): hides terminal unpaid/cancelled records; never touches amounts, Stripe or ledgers. */
+export const adminArchiveOrder = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { orderId: string; archive: boolean; reason?: string }) => input)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as any);
+    if (data.archive) {
+      const { data: cur, error: readError } = await context.supabase
+        .from("orders")
+        .select("status, payment_method, payment_confirmed, refunded_at, archived_at")
+        .eq("id", data.orderId)
+        .maybeSingle();
+      if (readError) throw readError;
+      if (!cur) throw new Error("Order not found");
+      if (cur.archived_at) return { ok: true, unchanged: true };
+      if (!canArchiveOrder(cur)) throw new Error("Only unpaid or cancelled orders can be removed");
+      // Write-time guard: still unarchived and still unpaid-or-cancelled.
+      const { data: changed, error } = await context.supabase
+        .from("orders")
+        .update({
+          archived_at: new Date().toISOString(),
+          archived_by: context.userId,
+          archive_reason: (data.reason ?? "").trim().slice(0, 200) || null,
+        })
+        .eq("id", data.orderId)
+        .is("archived_at", null)
+        .or("status.eq.cancelled,payment_confirmed.eq.false")
+        .select("id");
+      if (error) throw error;
+      if (!changed?.length) throw new Error("This order changed while saving and was not removed");
+      return { ok: true };
+    }
+    const { error } = await context.supabase
+      .from("orders")
+      .update({ archived_at: null, archived_by: null, archive_reason: null })
+      .eq("id", data.orderId)
+      .not("archived_at", "is", null);
+    if (error) throw error;
     return { ok: true };
   });
 
@@ -295,7 +341,7 @@ export const adminListMembers = createServerFn({ method: "POST" })
 
     const { data: orders } = await context.supabase
       .from("orders")
-      .select("user_id, status, total, created_at, order_items(product_name, quantity)");
+      .select("user_id, status, total, payment_confirmed, refunded_at, created_at, order_items(product_name, quantity)");
 
     type Stat = {
       order_count: number;
@@ -317,10 +363,12 @@ export const adminListMembers = createServerFn({ method: "POST" })
           last_order_at: null,
           tally: new Map<string, number>(),
         };
+      // Only successful purchases count; failed/cancelled/refunded/unpaid attempts are excluded.
+      if (!countsTowardSpend(o)) continue;
       s.order_count += 1;
       if (o.status === "processing" || o.status === "shipped") s.live_count += 1;
       if (o.status === "delivered") s.delivered_count += 1;
-      s.total_spent += Number(o.total ?? 0);
+      s.total_spent = Math.round(s.total_spent * 100 + Number(o.total ?? 0) * 100) / 100;
       if (!s.last_order_at || o.created_at > s.last_order_at) s.last_order_at = o.created_at;
       for (const item of (o.order_items ?? []) as any[]) {
         s.tally.set(item.product_name, (s.tally.get(item.product_name) ?? 0) + item.quantity);
@@ -356,7 +404,7 @@ export const adminGetMemberOrders = createServerFn({ method: "POST" })
     const { data: orders, error } = await context.supabase
       .from("orders")
       .select(
-        "id, user_id, status, tracking_number, tracking_status, subtotal, shipping, total, created_at, delivered_at, order_items(id, product_name, product_slug, unit_price, quantity)",
+        "id, user_id, status, tracking_number, tracking_status, subtotal, shipping, total, created_at, delivered_at, payment_method, payment_confirmed, refunded_at, archived_at, order_number, order_items(id, product_name, product_slug, unit_price, quantity)",
       )
       .eq("user_id", data.userId)
       .order("created_at", { ascending: false });
