@@ -288,6 +288,13 @@
       "when": 1791937163142,
       "tag": "0040_foundation_member_programme",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1791938930002,
+      "tag": "0041_foundation_admin_grant",
+      "breakpoints": true
     }
   ]
 }
