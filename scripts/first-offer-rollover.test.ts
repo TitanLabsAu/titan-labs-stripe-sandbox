@@ -36,4 +36,19 @@ describe("first-offer rollover (mocked Stripe)", () => {
     await rolloverFirstOfferClaims("u", m.deps);
     expect(m.released).toEqual([]);
   });
+  it("keeps a claim whose intent ID is not saved yet (concurrent create / orphan)", async () => {
+    const released: string[] = []; let retrieved = 0;
+    await rolloverFirstOfferClaims("u", {
+      listHeld: async () => [{ attemptId: "a_null", intentId: null }],
+      retrieve: async () => { retrieved++; return { status: "requires_payment_method" }; },
+      cancel: async () => ({ status: "canceled" }),
+      release: async (a) => { released.push(a); },
+    });
+    expect(released).toEqual([]);
+    expect(retrieved).toBe(0);
+  });
+  it("surfaces lookup and release errors instead of ignoring them", async () => {
+    await expect(rolloverFirstOfferClaims("u", { listHeld: async () => { throw new Error("db"); }, retrieve: async () => ({ status: "x" }), cancel: async () => ({ status: "x" }), release: async () => {} })).rejects.toThrow("db");
+    await expect(rolloverFirstOfferClaims("u", { listHeld: async () => [{ attemptId: "a", intentId: "pi" }], retrieve: async () => ({ status: "canceled" }), cancel: async () => ({ status: "canceled" }), release: async () => { throw new Error("rpc"); } })).rejects.toThrow("rpc");
+  });
 });

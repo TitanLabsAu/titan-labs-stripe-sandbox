@@ -153,6 +153,8 @@ export const adminSetPaymentConfirmed = createServerFn({ method: "POST" })
         ? update.is("payment_method", null)
         : update.in("payment_method", ["payid", "crypto"]);
       const { data: changed, error } = await update.select("id");
+      if (error && String(error.message ?? "").includes("FIRST_OFFER_STALE"))
+        throw new Error("This order's 10% new-member offer has since been released or used on another order. Review and re-price it before marking paid.");
       if (error) throw error;
       if (!changed?.length) {
         // Zero rows: the row changed between the read and the write. Only an
