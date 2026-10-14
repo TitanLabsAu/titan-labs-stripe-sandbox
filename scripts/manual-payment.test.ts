@@ -28,4 +28,18 @@ describe("manual Mark as paid eligibility", () => {
     expect(noop).toBeGreaterThan(-1);
     expect(noop).toBeLessThan(fn.indexOf("tryOrderCheckpointEmails"));
   });
+  test("zero-row write re-reads: only an already-paid eligible row is a no-op; concurrent cancel/refund throws", () => {
+    const src = readFileSync("src/lib/admin.functions.ts", "utf8");
+    const fn = src.slice(src.indexOf("export const adminSetPaymentConfirmed"), src.indexOf("export const adminUpdateStatus"));
+    const zeroRow = fn.indexOf("if (!changed?.length)");
+    expect(zeroRow).toBeGreaterThan(-1);
+    const branch = fn.slice(zeroRow);
+    // Re-reads the row after the conditional update matched nothing.
+    expect(branch).toContain("maybeSingle()");
+    // Idempotent success requires both already-paid and still eligible (not cancelled/refunded).
+    expect(branch).toContain("recheck?.payment_confirmed && canMarkManualPaid(recheck)");
+    // Anything else (concurrent cancellation/refund/method change) throws instead of a false success.
+    expect(branch).toContain("throw new Error(");
+    expect(branch.indexOf("throw new Error(")).toBeGreaterThan(branch.indexOf("alreadyPaid: true"));
+  });
 });
