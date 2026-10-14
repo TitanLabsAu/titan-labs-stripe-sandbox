@@ -56,3 +56,6 @@
 - [x] Spend/order stats count only paid, non-cancelled, unrefunded orders (Admin members + member detail)
 - [x] Reversible Admin archive/restore for unpaid/cancelled orders
 - [ ] Patrick repair: verify safety; repair only if no paid order / payable intent
+- [ ] Verify Patrick TL-1079 test vs live mode (read-only); proposal only
+- [ ] Throwaway DB regressions incl. archive/restore; apply settlement migration after pass
+- [ ] Real-component demo screenshots (Admin orders/members)
