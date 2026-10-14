@@ -62,3 +62,4 @@
 - [x] Retryable Stripe intent: reuse held claim / never release while payable (mock test)
 - [ ] Rollover: null intent ID stays held; surface DB/RPC errors; regression
 - [ ] Open-dropdown + Removed/Restore screenshots
+- [ ] Block manual paid confirmation of reopened order whose 10% claim was released/reused; test

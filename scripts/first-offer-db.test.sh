@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # First-purchase offer lifecycle tests on a throwaway LOCAL Postgres (never the project database).
 set -euo pipefail
-if [ "$(id -u)" = 0 ]; then cp scripts/first-offer-livemode.sql /tmp/fo-mig.sql; chmod 644 /tmp/fo-mig.sql; exec setpriv --reuid=7777 --regid=7777 --clear-groups env HOME=/tmp bash "$0" /tmp/fo-mig.sql; fi
-MIG="${1:-scripts/first-offer-livemode.sql}"
+if [ "$(id -u)" = 0 ]; then cp scripts/first-offer-stale.sql /tmp/fo-mig.sql; chmod 644 /tmp/fo-mig.sql; exec setpriv --reuid=7777 --regid=7777 --clear-groups env HOME=/tmp bash "$0" /tmp/fo-mig.sql; fi
+MIG="${1:-scripts/first-offer-stale.sql}"
 DIR=$(mktemp -d); PORT=55433
 unset PGHOST PGPORT PGUSER PGPASSWORD PGDATABASE PGSSLMODE
 initdb -D "$DIR" -U postgres >/dev/null
@@ -83,5 +83,21 @@ q "insert into payment_attempts(provider,transaction_id,stripe_livemode) values 
 C4=$(q "select claim_first_offer('$U3',ARRAY['c@x.com'],60)")
 q "insert into orders(user_id,payment_confirmed,status,first_offer_claim_id,payment_transaction_id) values ('$U3',true,'processing','$C4','pi_live')"
 check "live success consumes" "$(q "select status from first_purchase_claims where id='$C4'")" consumed
+# Stale reopen: cancelled discounted manual order -> replacement takes 10% -> reopen old + mark paid is rejected
+U4=44444444-4444-4444-4444-444444444444
+C5=$(q "select claim_first_offer('$U4',ARRAY['d@x.com'],30)")
+O5=$(q "insert into orders(user_id,first_offer_claim_id) values ('$U4','$C5') returning id" | head -1)
+q "update orders set status='cancelled' where id='$O5'"
+C6=$(q "select claim_first_offer('$U4',ARRAY['d@x.com'],30)")
+O6=$(q "insert into orders(user_id,first_offer_claim_id) values ('$U4','$C6') returning id" | head -1)
+q "update orders set payment_confirmed=true,status='processing' where id='$O6'"
+q "update orders set status='processing' where id='$O5'"
+check "stale reopened confirm rejected" "$($P -tA -c "update orders set payment_confirmed=true where id='$O5'" 2>&1 | grep -c FIRST_OFFER_STALE)" 1
+check "stale order stays unpaid" "$(q "select payment_confirmed from orders where id='$O5'")" f
+check "replacement keeps single consumed offer" "$(q "select count(*) from first_purchase_claims where user_id='$U4' and status='consumed'")" 1
+# Card success with released claim still reconciles (authoritative)
+q "update orders set status='cancelled' where id='$O5'"
+q "update orders set payment_transaction_id='pi_late', status='processing' where id='$O5'"
+check "succeeded card reconciliation not blocked" "$(q "update orders set payment_confirmed=true where id='$O5' returning payment_confirmed" | head -1)" t
 check "late release can't free paid claim" "$(q "update first_purchase_claims set payment_attempt_id='aaaaaaaa-0000-0000-0000-000000000009' where id='$C2'; select release_first_offer_for_attempt('aaaaaaaa-0000-0000-0000-000000000009')" | tail -1)" 0
 exit $fail
