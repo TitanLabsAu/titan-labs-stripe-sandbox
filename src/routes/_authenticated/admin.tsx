@@ -335,7 +335,7 @@ const MARK_PAID = "__mark_paid__";
 const ARCHIVE = "__archive__";
 const RESTORE = "__restore__";
 
-export function StatusSelect({ order }: { order: AdminOrder }) {
+function StatusSelect({ order }: { order: AdminOrder }) {
   const queryClient = useQueryClient();
   const update = useMutation({
     mutationFn: (status: AdminOrder["status"]) =>
