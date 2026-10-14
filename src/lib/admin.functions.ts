@@ -43,6 +43,7 @@ export type AdminOrder = {
   payment_method: string | null;
   payment_reference: string | null;
   payment_confirmed: boolean | null;
+  refunded_at?: string | null;
   contact_name: string | null;
   contact_email: string | null;
   contact_phone: string | null;
