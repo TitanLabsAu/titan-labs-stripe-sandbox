@@ -370,6 +370,68 @@ export type Database = {
           },
         ]
       }
+      foundation_member_settings: {
+        Row: {
+          benefit_percent: number
+          capacity: number
+          enrolment_enabled: boolean
+          id: number
+          launched_at: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          benefit_percent?: number
+          capacity?: number
+          enrolment_enabled?: boolean
+          id?: number
+          launched_at?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          benefit_percent?: number
+          capacity?: number
+          enrolment_enabled?: boolean
+          id?: number
+          launched_at?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      foundation_members: {
+        Row: {
+          awarded_at: string
+          id: string
+          member_number: number
+          order_id: string
+          user_id: string
+        }
+        Insert: {
+          awarded_at?: string
+          id?: string
+          member_number: number
+          order_id: string
+          user_id: string
+        }
+        Update: {
+          awarded_at?: string
+          id?: string
+          member_number?: number
+          order_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "foundation_members_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: true
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guest_checkout_sessions: {
         Row: {
           created_at: string
@@ -1582,6 +1644,7 @@ export type Database = {
         Args: { _emails: string[]; _user_id: string }
         Returns: boolean
       }
+      foundation_programme_status: { Args: never; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

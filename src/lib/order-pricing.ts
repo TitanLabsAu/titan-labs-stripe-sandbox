@@ -140,6 +140,12 @@ export type Quote = {
   firstOfferApplied: boolean;
   firstOfferPercent: number;
   firstOfferCents: number;
+  /** Foundation Member permanent benefit (server-verified awards only). */
+  foundationApplied: boolean;
+  foundationPercent: number;
+  foundationCents: number;
+  /** True when the combined cap reduced (or zeroed) the Foundation saving. */
+  foundationCapReached: boolean;
   creditUnits: number;
   creditCents: number;
   merchandiseCents: number;
@@ -217,7 +223,27 @@ function evaluate(
     }
   }
   if (offer) codeCents = Math.min(codeCents, Math.max(0, room - pctCents - offerCents));
-  const afterCode = afterOffer - codeCents;
+  // Foundation Member: permanent automatic benefit, applied BEFORE consumable referral rewards.
+  // For members the TOTAL discount (kit savings included) never exceeds the combined cap.
+  const fPct = Math.min(100, Math.max(0, Number(input.foundationPercent) || 0));
+  let foundationCents = 0;
+  let foundationCapReached = false;
+  if (fPct > 0 && itemsCents > 0) {
+    const capCents = Math.floor((baseCents * s.combinedCapPercent) / 100);
+    const over = baseCents - (afterOffer - codeCents) - capCents;
+    if (over > 0) codeCents -= Math.min(over, codeCents);
+    const want = Math.round((baseCents * fPct) / 100);
+    const roomLeft = Math.max(0, capCents - (baseCents - (afterOffer - codeCents)));
+    foundationCents = Math.max(0, Math.min(want, roomLeft, afterOffer - codeCents));
+    foundationCapReached = foundationCents < want;
+    if (foundationCapReached)
+      notices.push(
+        foundationCents === 0
+          ? `Your other discounts already reach the ${s.combinedCapPercent}% maximum, so your Foundation Member 5% couldn't add more this time.`
+          : `Your Foundation Member saving was reduced so total savings stay within the ${s.combinedCapPercent}% maximum.`,
+      );
+  }
+  const afterCode = afterOffer - codeCents - foundationCents;
 
   let creditUnits = 0;
   let creditCents = 0;
@@ -267,6 +293,10 @@ function evaluate(
     firstOfferApplied: offerCents > 0,
     firstOfferPercent: offerCents > 0 && offer ? offer.percent : 0,
     firstOfferCents: offerCents,
+    foundationApplied: foundationCents > 0,
+    foundationPercent: foundationCents > 0 ? fPct : 0,
+    foundationCents,
+    foundationCapReached,
     creditUnits,
     creditCents,
     merchandiseCents,
@@ -288,6 +318,8 @@ export type QuoteInput = {
   availableCreditUnits?: number;
   /** Server-verified only: the buyer is a member eligible for the first-purchase offer. */
   firstOfferEligible?: boolean;
+  /** Server-verified only: Foundation Member benefit percent (0 when not awarded). */
+  foundationPercent?: number;
 };
 
 /**
@@ -295,6 +327,10 @@ export type QuoteInput = {
  * cheaper outcome for the customer wins and a notice explains why.
  */
 export function quoteOrder(input: QuoteInput, settings: PricingSettings = DEFAULT_PRICING_SETTINGS): Quote {
+  return quoteCore(input, settings);
+}
+
+function quoteCore(input: QuoteInput, settings: PricingSettings): Quote {
   const base = quoteWithoutOffer(input, settings);
   const offer = settings.firstOffer;
   if (!input.firstOfferEligible || !offer?.enabled || !(offer.percent > 0)) return base;

@@ -44,3 +44,9 @@
 ## Markup-assisted text editor (draft, do not publish)
 - [x] Shared editor: B/I/U on/off, bullets (block fields only), clear, bounded undo/redo, shortcuts, counts/limits, live website preview, expand dialog, safe paste. Rich only on fields whose website display renders it; others plain.
 - [ ] Later (not started): rich captions for picture boxes, links/headings, Research Lab editor, stock CAS, Header/Footer split, tab consolidation.
+
+## Foundation Member programme (unpublished, OFF)
+- [x] Disabled schema, award trigger, local DB allocation tests
+- [x] Pricing: Foundation 5% applied before referral reward units (no reward used to fill cap the free benefit fills); regression for credit units = 0 at 20%
+- [x] Account badge, checkout display, Admin status/launch panel
+- [x] Pricing tests, mock previews desktop/mobile light/dark, typecheck/build

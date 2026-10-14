@@ -10,6 +10,7 @@ import { AdminMembers } from "@/components/AdminMembers";
 import { AdminProducts } from "@/components/AdminProducts";
 import { AdminInventory } from "@/components/AdminInventory";
 import { AdminDiscounts } from "@/components/AdminDiscounts";
+import { AdminFoundation } from "@/components/AdminFoundation";
 import { adminSetOrderRefunded } from "@/lib/referrals.functions";
 import { AdminEdits } from "@/components/AdminEdits";
 import { AdminFinance } from "@/components/AdminFinance";
@@ -756,6 +757,7 @@ function AdminTabsPage() {
           </TabsContent>
           <TabsContent value="discounts" className="mt-6">
             <AdminDiscounts />
+            <AdminFoundation />
           </TabsContent>
           <TabsContent value="reviews" className="mt-6">
             <AdminReviews />
