@@ -148,7 +148,20 @@ export const adminSetPaymentConfirmed = createServerFn({ method: "POST" })
         : update.in("payment_method", ["payid", "crypto"]);
       const { data: changed, error } = await update.select("id");
       if (error) throw error;
-      if (!changed?.length) return { ok: true, alreadyPaid: true };
+      if (!changed?.length) {
+        // Zero rows: the row changed between the read and the write. Only an
+        // already-paid eligible row is an idempotent success; a concurrent
+        // cancellation/refund must surface as an error, not a silent no-op.
+        const { data: recheck, error: recheckError } = await context.supabase
+          .from("orders")
+          .select("status, payment_method, payment_confirmed, refunded_at")
+          .eq("id", data.orderId)
+          .maybeSingle();
+        if (recheckError) throw recheckError;
+        if (recheck?.payment_confirmed && canMarkManualPaid(recheck))
+          return { ok: true, alreadyPaid: true };
+        throw new Error("This order changed while saving and can no longer be marked as paid");
+      }
     } else {
       const { error } = await context.supabase
         .from("orders")
