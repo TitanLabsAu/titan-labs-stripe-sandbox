@@ -14,6 +14,7 @@ import { ProfileMenu } from "@/components/ProfileMenu";
 import { ChangePasswordCard } from "@/components/ChangePasswordCard";
 import { TitanMemberCard } from "@/components/TitanMemberCard";
 import { MyRewardsCard } from "@/components/MyRewardsCard";
+import { FoundationMemberBadge } from "@/components/FoundationMemberBadge";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({
@@ -167,6 +168,7 @@ function AccountPage() {
       <main className="page-shell py-8 sm:py-12">
         <TitanMemberCard name={[profile?.first_name, profile?.last_name].filter(Boolean).join(" ")} loading={isLoading} />
         <ProfileMenu email={profile?.email} />
+        <FoundationMemberBadge />
         <div className="rounded-xl border border-border bg-card p-6 sm:p-8">
           <div className="border-b border-primary/20 pb-5">
             <h2 className="technical-label text-foreground">My details</h2>
