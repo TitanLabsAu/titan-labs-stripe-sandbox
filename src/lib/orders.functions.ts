@@ -85,7 +85,7 @@ export const submitOrder = createServerFn({ method: "POST" })
     );
     if (buyer.userId) {
       // Free a first-offer claim held by a superseded card payment only after that intent is terminally cancelled.
-      const secret = process.env.STRIPE_SECRET_KEY;
+      const secret = process.env["STRIPE_SECRET_KEY"];
       if (secret) {
         const Stripe = (await import("stripe")).default;
         const { rolloverFirstOfferClaims, stripeRolloverDeps } = await import("@/lib/first-offer-rollover.server");
