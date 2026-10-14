@@ -39,6 +39,7 @@ export type PricedCheckout = {
   codeError: string | null;
   availableCreditUnits: number;
   firstOfferEligible: boolean;
+  foundation: { memberNumber: number; percent: number } | null;
 };
 
 export type PricingBuyer = {
@@ -217,6 +218,8 @@ export async function priceCheckout(
     firstOfferEligible = eligible === true;
   }
 
+  const foundation = await foundationBenefitFor(admin, buyer.userId);
+
   const quote = quoteOrder(
     {
       lines: priceLines,
@@ -226,6 +229,7 @@ export async function priceCheckout(
       creditUnits: buyer.userId ? (input.creditUnits ?? 0) : 0,
       availableCreditUnits,
       firstOfferEligible,
+      foundationPercent: foundation?.percent ?? 0,
     },
     settings,
   );
@@ -233,7 +237,26 @@ export async function priceCheckout(
     // Code didn't win or failed min spend: no attribution.
     code = null;
   }
-  return { lines, quote, settings, code, codeError, availableCreditUnits, firstOfferEligible };
+  return { lines, quote, settings, code, codeError, availableCreditUnits, firstOfferEligible, foundation };
+}
+
+/**
+ * Foundation Member benefit from the database award (trusted server user id only).
+ * Read errors throw a retriable message rather than silently dropping the benefit.
+ * Awards are permanent: pausing enrolment never removes the benefit.
+ */
+export async function foundationBenefitFor(admin: any, userId: string | null) {
+  if (!userId) return null;
+  const [{ data: award, error }, { data: cfg, error: cfgError }] = await Promise.all([
+    admin.from("foundation_members").select("member_number").eq("user_id", userId).maybeSingle(),
+    admin.from("foundation_member_settings").select("benefit_percent").eq("id", 1).maybeSingle(),
+  ]);
+  if (error || cfgError) {
+    console.error("foundation lookup failed", (error ?? cfgError)?.message);
+    throw new Error("We couldn't confirm your member benefits just now. Please try again in a moment.");
+  }
+  if (!award) return null;
+  return { memberNumber: Number(award.member_number), percent: Number(cfg?.benefit_percent ?? 5) || 5 };
 }
 
 /** Human readable discount note stored on the order. */
@@ -246,6 +269,8 @@ export function pricingNote(q: Quote) {
   if (q.capApplied) parts.push(`capped at ${q.capPercent}%`);
   if (q.firstOfferCents)
     parts.push(`first purchase ${q.firstOfferPercent}% (−$${fromCents(q.firstOfferCents).toFixed(2)})`);
+  if (q.foundationCents)
+    parts.push(`Foundation Member ${q.foundationPercent}% (−$${fromCents(q.foundationCents).toFixed(2)})`);
   if (q.codeCents && q.code) parts.push(`code ${q.code} (−$${fromCents(q.codeCents).toFixed(2)})`);
   if (q.creditCents)
     parts.push(`referral reward ${q.creditUnits}x (−$${fromCents(q.creditCents).toFixed(2)})`);
@@ -265,6 +290,9 @@ export function pricingSnapshot(p: PricedCheckout, reservationId: string | null)
     credit_cents: q.creditCents,
     credit_reservation_id: reservationId,
     first_purchase_offer: firstOfferSnapshot(q),
+    foundation_member: p.foundation
+      ? { member_number: p.foundation.memberNumber, percent: q.foundationPercent, cents: q.foundationCents, cap_reached: q.foundationCapReached }
+      : null,
     quote: q,
     settings: p.settings,
   };
