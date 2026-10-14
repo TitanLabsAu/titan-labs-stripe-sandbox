@@ -60,7 +60,7 @@ for i in $(seq 1 6); do $P -c "INSERT INTO orders(user_id,payment_confirmed,stat
 check "concurrent: exactly 50" "$(q 'select count(*)||chr(58)||count(distinct member_number)||chr(58)||max(member_number) from foundation_members')" "50:50:50"
 # Pause keeps awards; awards immutable
 q "UPDATE foundation_member_settings SET enrolment_enabled=false"
-check "51st+ concurrent got nothing (6 tried)" "$(q "select count(*) from orders o where payment_confirmed and status<>'cancelled' and refunded_at is null and user_id is not null and not exists(select 1 from foundation_members f where f.order_id=o.id) and created_at>=(select launched_at from foundation_member_settings)")" 5
+check "51st+ unawarded (5 extra + repeat-user order)" "$(q "select count(*) from orders o where payment_confirmed and status<>'cancelled' and refunded_at is null and user_id is not null and not exists(select 1 from foundation_members f where f.order_id=o.id) and created_at>=(select launched_at from foundation_member_settings)")" 6
 check "pause keeps awards" "$(q 'select count(*) from foundation_members')" 50
 if q "DELETE FROM foundation_members" 2>/dev/null; then check "awards immutable" yes no; else check "awards immutable" yes yes; fi
 # Ordinary user cannot self-grant or change settings
