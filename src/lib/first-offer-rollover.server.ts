@@ -36,16 +36,21 @@ export async function rolloverFirstOfferClaims(userId: string, deps: RolloverDep
 export function stripeRolloverDeps(db: any, stripe: any): RolloverDeps {
   return {
     async listHeld(userId) {
-      const { data } = await db
+      const { data: claims } = await db
         .from("first_purchase_claims")
-        .select("payment_attempt_id, payment_attempts!inner(transaction_id, provider)")
+        .select("payment_attempt_id")
         .eq("user_id", userId)
         .eq("status", "reserved")
         .is("order_id", null)
         .not("payment_attempt_id", "is", null);
-      return ((data ?? []) as any[])
-        .filter((r) => r.payment_attempts?.provider === "stripe")
-        .map((r) => ({ attemptId: r.payment_attempt_id, intentId: r.payment_attempts?.transaction_id ?? null }));
+      const ids = ((claims ?? []) as any[]).map((c) => c.payment_attempt_id);
+      if (!ids.length) return [];
+      const { data: attempts } = await db
+        .from("payment_attempts")
+        .select("id, transaction_id, provider")
+        .in("id", ids)
+        .eq("provider", "stripe");
+      return ((attempts ?? []) as any[]).map((a) => ({ attemptId: a.id, intentId: a.transaction_id ?? null }));
     },
     retrieve: (id) => stripe.paymentIntents.retrieve(id),
     cancel: (id) => stripe.paymentIntents.cancel(id),
