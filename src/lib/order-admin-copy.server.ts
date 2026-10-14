@@ -1,10 +1,24 @@
 import { sendTemplateEmail } from "@/lib/email-templates/send-email";
 
-const FALLBACK_ADMIN_EMAIL = "sjrendall@live.com.au";
+const FALLBACK_ADMIN_EMAIL = "digistream2@proton.me";
+
+/** Website-wide admin notification address, editable in Admin → Notifications. */
+export async function getAdminNotificationEmail(): Promise<string> {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin
+      .from("site_content")
+      .select("body")
+      .eq("key", "order_admin_email")
+      .maybeSingle();
+    return ((data as any)?.body ?? "").trim() || FALLBACK_ADMIN_EMAIL;
+  } catch {
+    return FALLBACK_ADMIN_EMAIL;
+  }
+}
 
 /**
- * Sends the store owner a copy of a customer order email. The address is
- * editable in Admin → Website editor → Payments ("order_admin_email").
+ * Sends the store owner a copy of a customer order email.
  * Failures are logged and never block the customer email or checkout.
  */
 export async function sendAdminOrderCopy(
@@ -13,14 +27,7 @@ export async function sendAdminOrderCopy(
   idempotencyKey: string,
 ) {
   try {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data } = await supabaseAdmin
-      .from("site_content")
-      .select("body")
-      .eq("key", "order_admin_email")
-      .maybeSingle();
-    const email = ((data as any)?.body ?? "").trim() || FALLBACK_ADMIN_EMAIL;
-    if (!email) return;
+    const email = await getAdminNotificationEmail();
     await sendTemplateEmail(template, email, {
       templateData,
       idempotencyKey: `${idempotencyKey}-admin`,

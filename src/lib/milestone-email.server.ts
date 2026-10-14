@@ -1,10 +1,10 @@
 import { sendTemplateEmail } from "@/lib/email-templates/send-email";
-
-const ADMIN_EMAIL = "sjrendall@live.com.au";
+import { getAdminNotificationEmail } from "@/lib/order-admin-copy.server";
 
 /** Emails the store owner about any major customer milestones not yet sent. */
 export async function sendPendingMilestoneEmails() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const ADMIN_EMAIL = await getAdminNotificationEmail();
 
   const { data, error } = await supabaseAdmin
     .from("admin_notifications")
