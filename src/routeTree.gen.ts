@@ -18,7 +18,6 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as PenGuideRouteImport } from './routes/pen-guide'
 import { Route as PensRouteImport } from './routes/pens'
 import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as QaFoundationRouteImport } from './routes/qa-foundation'
 import { Route as RangeRouteImport } from './routes/range'
 import { Route as ReferralsRouteImport } from './routes/referrals'
 import { Route as ResearchLabRouteImport } from './routes/research-lab'
@@ -86,11 +85,6 @@ const PensRoute = PensRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const QaFoundationRoute = QaFoundationRouteImport.update({
-  id: '/qa-foundation',
-  path: '/qa-foundation',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RangeRoute = RangeRouteImport.update({
@@ -228,7 +222,6 @@ export interface FileRoutesByFullPath {
   '/pen-guide': typeof PenGuideRoute
   '/pens': typeof PensRoute
   '/privacy': typeof PrivacyRoute
-  '/qa-foundation': typeof QaFoundationRoute
   '/range': typeof RangeRoute
   '/referrals': typeof ReferralsRoute
   '/research-lab': typeof ResearchLabRoute
@@ -263,7 +256,6 @@ export interface FileRoutesByTo {
   '/pen-guide': typeof PenGuideRoute
   '/pens': typeof PensRoute
   '/privacy': typeof PrivacyRoute
-  '/qa-foundation': typeof QaFoundationRoute
   '/range': typeof RangeRoute
   '/referrals': typeof ReferralsRoute
   '/research-lab': typeof ResearchLabRoute
@@ -300,7 +292,6 @@ export interface FileRoutesById {
   '/pen-guide': typeof PenGuideRoute
   '/pens': typeof PensRoute
   '/privacy': typeof PrivacyRoute
-  '/qa-foundation': typeof QaFoundationRoute
   '/range': typeof RangeRoute
   '/referrals': typeof ReferralsRoute
   '/research-lab': typeof ResearchLabRoute
@@ -337,7 +328,6 @@ export interface FileRouteTypes {
     | '/pen-guide'
     | '/pens'
     | '/privacy'
-    | '/qa-foundation'
     | '/range'
     | '/referrals'
     | '/research-lab'
@@ -372,7 +362,6 @@ export interface FileRouteTypes {
     | '/pen-guide'
     | '/pens'
     | '/privacy'
-    | '/qa-foundation'
     | '/range'
     | '/referrals'
     | '/research-lab'
@@ -408,7 +397,6 @@ export interface FileRouteTypes {
     | '/pen-guide'
     | '/pens'
     | '/privacy'
-    | '/qa-foundation'
     | '/range'
     | '/referrals'
     | '/research-lab'
@@ -445,7 +433,6 @@ export interface RootRouteChildren {
   PenGuideRoute: typeof PenGuideRoute
   PensRoute: typeof PensRoute
   PrivacyRoute: typeof PrivacyRoute
-  QaFoundationRoute: typeof QaFoundationRoute
   RangeRoute: typeof RangeRoute
   ReferralsRoute: typeof ReferralsRoute
   ResearchLabRoute: typeof ResearchLabRoute
@@ -528,13 +515,6 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/qa-foundation': {
-      id: '/qa-foundation'
-      path: '/qa-foundation'
-      fullPath: '/qa-foundation'
-      preLoaderRoute: typeof QaFoundationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/range': {
@@ -742,7 +722,6 @@ const rootRouteChildren: RootRouteChildren = {
   PenGuideRoute: PenGuideRoute,
   PensRoute: PensRoute,
   PrivacyRoute: PrivacyRoute,
-  QaFoundationRoute: QaFoundationRoute,
   RangeRoute: RangeRoute,
   ReferralsRoute: ReferralsRoute,
   ResearchLabRoute: ResearchLabRoute,
