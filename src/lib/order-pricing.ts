@@ -223,7 +223,27 @@ function evaluate(
     }
   }
   if (offer) codeCents = Math.min(codeCents, Math.max(0, room - pctCents - offerCents));
-  const afterCode = afterOffer - codeCents;
+  // Foundation Member: permanent automatic benefit, applied BEFORE consumable referral rewards.
+  // For members the TOTAL discount (kit savings included) never exceeds the combined cap.
+  const fPct = Math.min(100, Math.max(0, Number(input.foundationPercent) || 0));
+  let foundationCents = 0;
+  let foundationCapReached = false;
+  if (fPct > 0 && itemsCents > 0) {
+    const capCents = Math.floor((baseCents * s.combinedCapPercent) / 100);
+    const over = baseCents - (afterOffer - codeCents) - capCents;
+    if (over > 0) codeCents -= Math.min(over, codeCents);
+    const want = Math.round((baseCents * fPct) / 100);
+    const roomLeft = Math.max(0, capCents - (baseCents - (afterOffer - codeCents)));
+    foundationCents = Math.max(0, Math.min(want, roomLeft, afterOffer - codeCents));
+    foundationCapReached = foundationCents < want;
+    if (foundationCapReached)
+      notices.push(
+        foundationCents === 0
+          ? `Your other discounts already reach the ${s.combinedCapPercent}% maximum, so your Foundation Member 5% couldn't add more this time.`
+          : `Your Foundation Member saving was reduced so total savings stay within the ${s.combinedCapPercent}% maximum.`,
+      );
+  }
+  const afterCode = afterOffer - codeCents - foundationCents;
 
   let creditUnits = 0;
   let creditCents = 0;
@@ -273,10 +293,10 @@ function evaluate(
     firstOfferApplied: offerCents > 0,
     firstOfferPercent: offerCents > 0 && offer ? offer.percent : 0,
     firstOfferCents: offerCents,
-    foundationApplied: false,
-    foundationPercent: 0,
-    foundationCents: 0,
-    foundationCapReached: false,
+    foundationApplied: foundationCents > 0,
+    foundationPercent: foundationCents > 0 ? fPct : 0,
+    foundationCents,
+    foundationCapReached,
     creditUnits,
     creditCents,
     merchandiseCents,
@@ -307,52 +327,7 @@ export type QuoteInput = {
  * cheaper outcome for the customer wins and a notice explains why.
  */
 export function quoteOrder(input: QuoteInput, settings: PricingSettings = DEFAULT_PRICING_SETTINGS): Quote {
-  return applyFoundation(quoteCore(input, settings), input.foundationPercent ?? 0);
-}
-
-/**
- * Foundation Member: adds percentage points of the original reference price on top of
- * whatever other discounts won, sharing the same combined cap. For Foundation Members the
- * TOTAL discount (kit savings included) never exceeds the cap; non-members are untouched.
- */
-export function applyFoundation(q: Quote, percent: number): Quote {
-  const pct = Math.min(100, Math.max(0, Number(percent) || 0));
-  if (!(pct > 0) || q.itemsCents <= 0) return q;
-  const capCents = Math.floor((q.baseCents * q.capPercent) / 100);
-  let codeCents = q.codeCents;
-  let creditCents = q.creditCents;
-  let existing = q.baseCents - q.merchandiseCents;
-  if (existing > capCents) {
-    const over = existing - capCents;
-    const trimCode = Math.min(over, codeCents);
-    codeCents -= trimCode;
-    creditCents -= Math.min(over - trimCode, creditCents);
-    existing = q.baseCents - (q.merchandiseCents + (q.codeCents - codeCents) + (q.creditCents - creditCents));
-  }
-  const merchandiseBefore = q.baseCents - existing;
-  const want = Math.round((q.baseCents * pct) / 100);
-  const foundationCents = Math.max(0, Math.min(want, capCents - existing, merchandiseBefore));
-  const merchandiseCents = merchandiseBefore - foundationCents;
-  const capReached = foundationCents < want;
-  const notices = [...q.notices];
-  if (capReached)
-    notices.push(
-      foundationCents === 0
-        ? `Your other discounts already reach the ${q.capPercent}% maximum, so your Foundation Member 5% couldn't add more this time.`
-        : `Your Foundation Member saving was reduced so total savings stay within the ${q.capPercent}% maximum.`,
-    );
-  return {
-    ...q,
-    codeCents,
-    creditCents,
-    foundationApplied: foundationCents > 0,
-    foundationPercent: foundationCents > 0 ? pct : 0,
-    foundationCents,
-    foundationCapReached: capReached,
-    merchandiseCents,
-    totalCents: merchandiseCents + q.shippingCents,
-    notices,
-  };
+  return quoteCore(input, settings);
 }
 
 function quoteCore(input: QuoteInput, settings: PricingSettings): Quote {
