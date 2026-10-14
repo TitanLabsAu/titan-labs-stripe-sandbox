@@ -53,3 +53,6 @@
 - [x] Stripe runtime key: return public key with intent, expected-mode guard, rk_ support
 - [x] Provide existing Foundation demo screenshots
 - [x] Row Mark as Paid action + guarded server + demo preview
+- [ ] Spend/order stats count only paid, non-cancelled, unrefunded orders (Admin members + member detail)
+- [ ] Reversible Admin archive/restore for unpaid/cancelled orders
+- [ ] Patrick repair: verify safety; repair only if no paid order / payable intent
