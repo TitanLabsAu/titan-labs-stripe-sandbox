@@ -37,6 +37,7 @@ import {
   type AdminOrder,
 } from "@/lib/admin.functions";
 import { orderReference } from "@/lib/order-reference";
+import { canMarkManualPaid } from "@/lib/manual-payment";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
