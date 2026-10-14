@@ -329,7 +329,7 @@ export function applyFoundation(q: Quote, percent: number): Quote {
     creditCents -= Math.min(over - trimCode, creditCents);
     existing = q.baseCents - (q.merchandiseCents + (q.codeCents - codeCents) + (q.creditCents - creditCents));
   }
-  const merchandiseBefore = q.baseCents - existing - q.kitSavingsCents * 0 - (q.baseCents - q.itemsCents);
+  const merchandiseBefore = q.baseCents - existing;
   const want = Math.round((q.baseCents * pct) / 100);
   const foundationCents = Math.max(0, Math.min(want, capCents - existing, merchandiseBefore));
   const merchandiseCents = merchandiseBefore - foundationCents;
