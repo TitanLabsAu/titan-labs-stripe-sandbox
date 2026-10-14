@@ -58,6 +58,24 @@ export type Database = {
           },
         ]
       }
+      admin_private_settings: {
+        Row: {
+          body: string
+          key: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string
+          key: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       customer_reviews: {
         Row: {
           archived: boolean

@@ -7,7 +7,7 @@ export async function getAdminNotificationEmail(): Promise<string> {
   try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data } = await supabaseAdmin
-      .from("site_content")
+      .from("admin_private_settings")
       .select("body")
       .eq("key", "order_admin_email")
       .maybeSingle();

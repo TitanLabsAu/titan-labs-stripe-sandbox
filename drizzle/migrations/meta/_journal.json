@@ -330,6 +330,13 @@
       "when": 1791963239938,
       "tag": "0046_first_offer_reject_stale_manual_confirm",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1792020548285,
+      "tag": "0047_admin_private_settings",
+      "breakpoints": true
     }
   ]
 }

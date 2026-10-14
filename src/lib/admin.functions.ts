@@ -667,9 +667,40 @@ export const adminSaveContent = createServerFn({ method: "POST" })
   .inputValidator((input: { key: string; body: string }) => input)
   .handler(async ({ data, context }) => {
     await assertAdmin(context as any);
+    if (data.key === "order_admin_email" || data.key === "order_admin_email_align") throw new Error("This setting is private and cannot be saved as public content");
     const { error } = await context.supabase
       .from("site_content")
       .upsert({ key: data.key, body: data.body }, { onConflict: "key" });
+    if (error) throw error;
+    return { ok: true };
+  });
+
+const PRIVATE_KEYS = ["order_admin_email"] as const;
+
+export const adminGetPrivateSetting = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { key: string }) => {
+    if (!(PRIVATE_KEYS as readonly string[]).includes(input.key)) throw new Error("Unknown setting");
+    return input;
+  })
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as any);
+    const { data: row, error } = await context.supabase.from("admin_private_settings").select("body").eq("key", data.key).maybeSingle();
+    if (error) throw error;
+    return { body: (row as any)?.body ?? "" };
+  });
+
+export const adminSavePrivateSetting = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { key: string; body: string }) => {
+    if (!(PRIVATE_KEYS as readonly string[]).includes(input.key)) throw new Error("Unknown setting");
+    const body = String(input.body ?? "").trim();
+    if (input.key === "order_admin_email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body)) throw new Error("Enter a valid email address");
+    return { key: input.key, body };
+  })
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as any);
+    const { error } = await context.supabase.from("admin_private_settings").upsert({ key: data.key, body: data.body }, { onConflict: "key" });
     if (error) throw error;
     return { ok: true };
   });
