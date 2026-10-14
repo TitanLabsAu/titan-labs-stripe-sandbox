@@ -340,8 +340,9 @@ function StatusSelect({ order }: { order: AdminOrder }) {
   const markPaid = useMutation({
     mutationFn: () =>
       adminSetPaymentConfirmed({ data: { orderId: order.id, confirmed: true } }),
-    onSuccess: () => {
-      toast.success("Payment confirmed. The member has been notified.");
+    onSuccess: (result) => {
+      // Emails are queued/retried asynchronously, so never claim the member was notified.
+      toast.success(result?.alreadyPaid ? "Already marked paid." : "Payment confirmed.");
       void queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
     },
     onError: () => toast.error("Could not mark this order as paid"),
