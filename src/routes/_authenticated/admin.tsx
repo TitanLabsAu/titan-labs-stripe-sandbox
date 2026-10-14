@@ -13,6 +13,7 @@ import { AdminDiscounts } from "@/components/AdminDiscounts";
 import { AdminFoundation } from "@/components/AdminFoundation";
 import { adminSetOrderRefunded } from "@/lib/referrals.functions";
 import { AdminEdits } from "@/components/AdminEdits";
+import { AdminNotificationEmail } from "@/components/AdminNotificationEmail";
 import { AdminFinance } from "@/components/AdminFinance";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -824,6 +825,7 @@ function AdminTabsPage() {
             <AdminEdits />
           </TabsContent>
           <TabsContent value="notifications" className="mt-6 space-y-6">
+            <AdminNotificationEmail />
             <AdminWelcomeEmail />
             <NotificationsPanel />
           </TabsContent>

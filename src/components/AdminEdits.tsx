@@ -1026,7 +1026,7 @@ export function AdminEdits() {
             </label>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               {PAYMENT_FIELDS.filter(
-                (f) => f.key !== "payment_crypto_options" && f.key !== "payment_bank_enabled",
+                (f) => f.key !== "payment_crypto_options" && f.key !== "payment_bank_enabled" && f.key !== "order_admin_email",
               ).map((f) => (
                 <ContentFieldEditor
                   key={f.key}
