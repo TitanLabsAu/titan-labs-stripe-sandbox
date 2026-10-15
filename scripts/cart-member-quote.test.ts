@@ -29,7 +29,7 @@ describe("cart member quote auth scoping (regression)", () => {
 
 describe("free shipping meter matches checkout eligibility", () => {
   test("cart passes the quote's remaining-to-free-shipping, not a client-computed total", () => {
-    expect(sheet).toContain("<FreeShippingMeter remaining={quote.remainingForFreeShippingCents / 100} />");
+    expect(sheet).toContain("<FreeShippingMeter remaining={quote.remainingForFreeShippingCents / 100} club={quote.clubFreeShipping === true} />");
     expect(sheet).not.toContain("<FreeShippingMeter amount=");
   });
   test("progress maths: remaining clamps at zero and caps at 100%", () => {
