@@ -170,7 +170,7 @@ export function AdminTitanClubView({ data, search, onSave, onToggle, pending, in
           })}
         </ul>
       ) : null}
-      {draft ? <ClubEditor draft={draft} siteCap={data.siteCapPercent} onChange={setDraft} onSave={save} onCancel={() => setDraft(null)} pending={pending} /> : null}
+      {draft ? <ClubEditor draft={draft} siteCap={data.siteCapPercent} onChange={setDraft} onSave={save} onCancel={() => setDraft(null)} pending={pending ?? false} /> : null}
 
       <div className="mt-6 overflow-x-auto">
         {data.members.length ? (

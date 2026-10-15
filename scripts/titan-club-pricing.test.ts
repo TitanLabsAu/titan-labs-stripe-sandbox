@@ -91,3 +91,23 @@ describe("Titan Club pricing", () => {
     expect(() => assertExpectedTotal(undefined, 1)).not.toThrow();
   });
 });
+
+import { clubBenefitFor } from "../src/lib/checkout-pricing.server";
+const fakeDb = (cfg: any, row: any, err: any = null) => ({
+  from: (t: string) => ({ select: () => ({ eq: () => ({ maybeSingle: async () =>
+    t === "titan_club_settings" ? { data: cfg, error: err } : { data: row, error: null } }) }) }),
+});
+describe("trusted Club lookup", () => {
+  const row = { benefit_type: "percent", percent: 25, fixed_cents: null, max_cap_percent: 30, active: true };
+  test("guest gets nothing", async () => expect(await clubBenefitFor(fakeDb({ enabled: true }, row), null)).toBeNull());
+  test("feature off by default gives nothing", async () => expect(await clubBenefitFor(fakeDb({ enabled: false }, row), "u")).toBeNull());
+  test("revoked gives nothing (global cap)", async () => expect(await clubBenefitFor(fakeDb({ enabled: true }, { ...row, active: false }), "u")).toBeNull());
+  test("active member gets DB benefit + personal cap", async () =>
+    expect(await clubBenefitFor(fakeDb({ enabled: true }, row), "u")).toEqual({ type: "percent", percent: 25, fixedCents: 0, maxCapPercent: 30 }));
+  test("not-installed tables = no club", async () => expect(await clubBenefitFor(fakeDb(null, null, { code: "PGRST205" }), "u")).toBeNull());
+  test("other errors fail closed", async () => expect(clubBenefitFor(fakeDb(null, null, { code: "500", message: "x" }), "u")).rejects.toThrow(/member benefits/));
+  test("checkout quote input has no client benefit fields", async () => {
+    const src = await Bun.file("src/lib/checkout.functions.ts").text();
+    expect(src).not.toMatch(/club|maxCap/i);
+  });
+});
