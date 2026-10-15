@@ -75,7 +75,7 @@ export function AdminMemberTitanClubView({ member, data, onSave, pending, initia
         <div className="mt-4 border-t border-border pt-4">
           {draft.active ? (
             <ClubEditor compact draft={draft} siteCap={data.siteCapPercent} onChange={setDraft} onSave={save} onCancel={() => setDraft(null)}
-              pending={pending} saveDisabled={!dirty} saveLabel="Save Titan Club details" />
+              pending={Boolean(pending)} saveDisabled={!dirty} saveLabel="Save Titan Club details" />
           ) : (
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground">Saving will revoke this member's Titan Club benefit for future checkouts. Existing orders are unchanged; the note and history are kept.</p>
