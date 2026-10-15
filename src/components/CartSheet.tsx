@@ -154,7 +154,7 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
             <>
               {/* Uses the same remaining-to-free-shipping the quote/checkout computes
                   (after multibuy + crypto percent, matching checkout eligibility). */}
-              <FreeShippingMeter remaining={quote.remainingForFreeShippingCents / 100} club={Boolean((quote as any).clubFreeShipping)} />
+              <FreeShippingMeter remaining={quote.remainingForFreeShippingCents / 100} club={quote.clubFreeShipping === true} />
 
               <ul className="space-y-4">
                 {items.map((item) => {
