@@ -85,7 +85,7 @@ export function ClubEditor({ draft, siteCap, onChange, onSave, onCancel, pending
 export function AdminTitanClubView({ data, search, onSave, onToggle, pending, initialDraft = null }: {
   data: AdminTitanClub;
   search: (q: string) => Promise<Candidate[]>;
-  onSave: (i: ClubAssignInput) => void;
+  onSave: (i: ClubAssignInput) => Promise<unknown> | void;
   onToggle: (enabled: boolean) => void;
   pending?: boolean;
   initialDraft?: Draft | null;
@@ -106,8 +106,8 @@ export function AdminTitanClubView({ data, search, onSave, onToggle, pending, in
     const err = draft.amount.trim() === "" || draft.maxCap.trim() === "" ? "Enter the benefit and maximum discount." : validateClubInput(input);
     if (err) return void toast.error(err);
     if (window.confirm(confirmText(draft, data.siteCapPercent))) {
-      onSave(input);
-      setDraft(null);
+      // Keep the draft (benefit, note) until the save is confirmed; a failed save leaves it editable.
+      void Promise.resolve(onSave(input)).then(() => setDraft(null), () => undefined);
     }
   };
   const setStatus = (m: AdminClubMember, on: boolean) => {
@@ -216,7 +216,7 @@ export function AdminTitanClub() {
   const searchFn = useServerFn(adminSearchClubCandidates);
   const saveFn = useServerFn(adminSetTitanClub);
   const toggleFn = useServerFn(adminSetTitanClubEnabled);
-  const { data } = useQuery({ queryKey: ["admin-titan-club"], queryFn: () => getIt() });
+  const { data, isLoading, error, refetch, isFetching } = useQuery({ queryKey: ["admin-titan-club"], queryFn: () => getIt() });
   const refresh = () => void qc.invalidateQueries({ queryKey: ["admin-titan-club"] });
   const save = useMutation({
     mutationFn: (i: ClubAssignInput) => saveFn({ data: i }),
@@ -228,12 +228,20 @@ export function AdminTitanClub() {
     onSuccess: refresh,
     onError: (e: any) => toast.error(e?.message ?? "Update failed"),
   });
-  if (!data) return null;
+  if (isLoading) return <section className="mt-8 rounded-xl border border-border bg-card p-6 text-sm text-muted-foreground" aria-busy="true">Loading The Titan Club…</section>;
+  if (error || !data)
+    return (
+      <section role="alert" className="mt-8 rounded-xl border border-destructive/40 bg-card p-6 text-sm">
+        <p className="font-bold text-destructive">The Titan Club couldn't be loaded.</p>
+        <p className="mt-1 text-muted-foreground">{(error as any)?.message ?? "Please try again."}</p>
+        <button type="button" className="mt-3 rounded-md border border-border px-3 py-1.5 font-bold" onClick={() => void refetch()} disabled={isFetching}>{isFetching ? "Retrying…" : "Retry"}</button>
+      </section>
+    );
   return (
     <AdminTitanClubView
       data={data}
       search={(q) => searchFn({ data: { query: q } })}
-      onSave={(i) => save.mutate(i)}
+      onSave={(i) => save.mutateAsync(i)}
       onToggle={(v) => toggle.mutate(v)}
       pending={save.isPending || toggle.isPending}
     />
