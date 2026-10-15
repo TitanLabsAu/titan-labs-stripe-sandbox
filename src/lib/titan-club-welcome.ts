@@ -45,8 +45,8 @@ const fmtAud = (c: number) => `$${(c / 100).toFixed(2).replace(/\.00$/, "")} AUD
 export function clubWelcomeCopy(c: ClubSnapshot) {
   const benefitHeadline = c.benefit_type === "percent" ? `${fmtPct(c.percent!)} off every purchase` : `${fmtAud(c.fixed_cents!)} off every purchase`;
   const benefit = c.benefit_type === "percent"
-    ? `You receive ${fmtPct(c.percent!)} off the products in every eligible order, applied automatically when you check out signed in.`
-    : `You receive ${fmtAud(c.fixed_cents!)} off the products in every eligible order, applied automatically when you check out signed in. It comes off products only and never takes them below $0.`;
+    ? `Enjoy ${fmtPct(c.percent ?? 0)} off products on every eligible order, applied seamlessly at checkout whenever you're signed in.`
+    : `Enjoy ${fmtAud(c.fixed_cents ?? 0)} off products on every eligible order, deducted automatically at checkout whenever you're signed in. Your saving applies to products only, up to their value.`;
   const allowed = [
     c.stack_multibuy && "multi-buy savings",
     c.stack_crypto && "the crypto payment discount",
@@ -54,20 +54,20 @@ export function clubWelcomeCopy(c: ClubSnapshot) {
     c.stack_credit && "your referral rewards",
   ].filter(Boolean) as string[];
   const combos: string[] = [];
-  if (allowed.length) combos.push(`Your Club benefit can combine with ${allowed.join(", ")}.`);
+  if (allowed.length) combos.push(`Stackable Perks: Combine your Club discount with ${allowed.join(", ")}.`);
   if (c.stack_first_offer) combos.push("It can also combine with the new-member first-purchase offer, but only if you are still eligible for that offer.");
   if (c.stack_foundation) combos.push("If you hold Foundation Member status, your Club benefit can combine with it.");
-  if (!allowed.length && !c.stack_first_offer && !c.stack_foundation) combos.push("Your Club benefit applies on its own; where another saving is available, checkout keeps whichever single option gives you the lower price.");
-  else combos.push("Where a saving isn't allowed to combine, checkout compares the options and keeps the one that gives you the lower price.");
-  const cap = `When your Club benefit is combined with other savings, those combined checkout savings are capped at your personal maximum of ${fmtPct(c.max_cap_percent)} per order. If checkout uses standard pricing instead, the website's usual cap applies. Shipping is not part of either cap.`;
-  const kits = "Sale prices and kit prices already include their savings and are kept as they are.";
+  if (!allowed.length && !c.stack_first_offer && !c.stack_foundation) combos.push("Guaranteed Best Price: Your Club benefit applies on its own. If another saving is available, checkout automatically applies whichever single option saves you more.");
+  else combos.push("Guaranteed Best Price: If a specific promotion cannot combine, checkout automatically calculates and applies whichever option saves you more.");
+  const cap = `Maximum Savings: Combined Club checkout discounts can reach up to your exclusive ${fmtPct(c.max_cap_percent)} order cap. If checkout uses standard pricing instead, the website's usual cap applies. Shipping is not part of either cap.`;
+  const kits = "Pre-discounted Items: Sale items, Range kits and starter kits already include built-in savings and retain their special pricing.";
   const shipping = c.free_shipping ? "Free shipping on every order, with no minimum spend." : null;
   const terms = "Your benefits apply while your Club membership and The Titan Club programme are active.";
   return { benefitHeadline, benefit, combos, cap, kits, shipping, terms };
 }
 
 export function clubWelcomeSubject(d: { firstName?: string }) {
-  return d.firstName ? `Congratulations ${d.firstName} — welcome to The Titan Club` : "Congratulations — welcome to The Titan Club";
+  return d.firstName ? `You're in: Welcome to The Titan Club, ${d.firstName}` : "You're in: Welcome to The Titan Club";
 }
 
 /** Honest Admin toast after saving a membership; never claims inbox delivery. */

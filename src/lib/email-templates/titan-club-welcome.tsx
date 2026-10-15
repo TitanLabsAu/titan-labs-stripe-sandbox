@@ -28,7 +28,7 @@ export function TitanClubWelcome({ firstName = "", club, demo }: Partial<ClubWel
           <Section style={{ padding: "30px 24px 8px", textAlign: "center" }}>
             <Text style={{ display: "inline-block", backgroundColor: INK, color: "#ffffff", fontSize: "12px", fontWeight: 800, letterSpacing: "2.5px", padding: "9px 18px", borderRadius: "999px", border: `2px solid ${BLUE}`, margin: "0 0 16px" }}>♛ THE TITAN CLUB · MEMBER</Text>
             <Heading style={{ fontSize: "28px", lineHeight: "34px", color: INK, margin: "0 0 10px" }}>Congratulations{firstName ? `, ${firstName}` : ""}!</Heading>
-            <Text style={{ fontSize: "15px", lineHeight: "23px", color: CHARCOAL, margin: 0 }}>You've been welcomed into The Titan Club. Your member benefit is now active on your account.</Text>
+            <Text style={{ fontSize: "15px", lineHeight: "23px", color: CHARCOAL, margin: 0 }}>As one of our valued members, you've been granted membership to The Titan Club. Your exclusive perks are now live on your account.</Text>
           </Section>
           {copy ? (
             <>
