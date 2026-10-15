@@ -46,7 +46,7 @@ export function clubWelcomeCopy(c: ClubSnapshot) {
   const benefitHeadline = c.benefit_type === "percent" ? `${fmtPct(c.percent!)} off every purchase` : `${fmtAud(c.fixed_cents!)} off every purchase`;
   const benefit = c.benefit_type === "percent"
     ? `You receive ${fmtPct(c.percent!)} off the products in every eligible order, applied automatically when you check out signed in.`
-    : `You receive ${fmtAud(c.fixed_cents!)} off every eligible order, applied automatically when you check out signed in. It never takes an order below $0.`;
+    : `You receive ${fmtAud(c.fixed_cents!)} off the products in every eligible order, applied automatically when you check out signed in. It comes off products only and never takes them below $0.`;
   const allowed = [
     c.stack_multibuy && "multi-buy savings",
     c.stack_crypto && "the crypto payment discount",
@@ -57,9 +57,9 @@ export function clubWelcomeCopy(c: ClubSnapshot) {
   if (allowed.length) combos.push(`Your Club benefit can combine with ${allowed.join(", ")}.`);
   if (c.stack_first_offer) combos.push("It can also combine with the new-member first-purchase offer, but only if you are still eligible for that offer.");
   if (c.stack_foundation) combos.push("If you hold Foundation Member status, your Club benefit can combine with it.");
-  if (!allowed.length && !c.stack_first_offer) combos.push("Your Club benefit applies on its own; where another saving is available, checkout keeps whichever single option gives you the lower price.");
+  if (!allowed.length && !c.stack_first_offer && !c.stack_foundation) combos.push("Your Club benefit applies on its own; where another saving is available, checkout keeps whichever single option gives you the lower price.");
   else combos.push("Where a saving isn't allowed to combine, checkout compares the options and keeps the one that gives you the lower price.");
-  const cap = `Your personal maximum is ${fmtPct(c.max_cap_percent)}: extra savings added at checkout are capped at this amount per order.`;
+  const cap = `When your Club benefit is combined with other savings, those combined checkout savings are capped at your personal maximum of ${fmtPct(c.max_cap_percent)} per order. If checkout uses standard pricing instead, the website's usual cap applies. Shipping is not part of either cap.`;
   const kits = "Sale prices and kit prices already include their savings and are kept as they are.";
   const shipping = c.free_shipping ? "Free shipping on every order, with no minimum spend." : null;
   const terms = "Your benefits apply while your Club membership and The Titan Club programme are active.";
@@ -68,4 +68,12 @@ export function clubWelcomeCopy(c: ClubSnapshot) {
 
 export function clubWelcomeSubject(d: { firstName?: string }) {
   return d.firstName ? `Congratulations ${d.firstName} — welcome to The Titan Club` : "Congratulations — welcome to The Titan Club";
+}
+
+/** Honest Admin toast after saving a membership; never claims inbox delivery. */
+export function clubSaveMessage(r: { changed: boolean; welcome?: "sent" | "queued" | "none" }): string {
+  if (!r.changed) return "No changes to save";
+  if (r.welcome === "sent") return "Titan Club updated. Welcome email handed to the email service.";
+  if (r.welcome === "queued") return "Titan Club updated. Welcome email is queued and will go out on the next hourly send.";
+  return "Titan Club updated";
 }

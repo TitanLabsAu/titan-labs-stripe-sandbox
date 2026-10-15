@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { ClubEditor } from "@/components/AdminTitanClub";
 import { clubBenefitText } from "@/components/TitanClubBadge";
+import { clubSaveMessage } from "@/lib/titan-club-welcome";
 import { adminGetTitanClub, adminSetTitanClub, type AdminTitanClub, type ClubAssignInput } from "@/lib/titan-club.functions";
 import {
   clubConfirmText, draftFromMember, draftToInput, isClubDraftDirty, newClubDraft, validateClubDraft, type ClubDraft,
@@ -100,7 +101,7 @@ export function AdminMemberTitanClub({ member }: { member: MemberRef }) {
   const save = useMutation({
     mutationFn: (i: ClubAssignInput) => saveFn({ data: i }),
     onSuccess: (r) => {
-      toast.success(r.changed ? "Titan Club updated" : "No changes to save");
+      toast.success(clubSaveMessage(r));
       void qc.invalidateQueries({ queryKey: ["admin-titan-club"] });
       void qc.invalidateQueries({ queryKey: ["admin-members"] });
     },

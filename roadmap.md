@@ -10,3 +10,5 @@
 
 - [x] Titan Club stacking: Foundation is an editable per-member switch (default OFF for new), staged SQL/RPC/audit, tests, screenshots
 - [x] Audit fixes: policy CHECK, Foundation notice needs !st.foundation, snapshot keeps assigned max
+
+- [x] Titan Club congrats: best-effort prompt send after a successful first Admin assignment (hourly retry stays as backup)

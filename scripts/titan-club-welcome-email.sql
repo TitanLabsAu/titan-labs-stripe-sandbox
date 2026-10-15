@@ -54,3 +54,19 @@ RETURNS SETOF public.titan_club_welcome_email_queue LANGUAGE sql SECURITY DEFINE
 $$;
 REVOKE EXECUTE ON FUNCTION public.claim_titan_club_welcome_emails(integer) FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.claim_titan_club_welcome_emails(integer) TO service_role;
+
+-- Service-only claim of ONE member's pending welcome, used for the prompt send right after
+-- a first assignment commits. Same rules as the hourly claim (programme on, due, unclaimed).
+CREATE OR REPLACE FUNCTION public.claim_titan_club_welcome_email_for(_user_id uuid)
+RETURNS SETOF public.titan_club_welcome_email_queue LANGUAGE sql SECURITY DEFINER SET search_path = public AS $$
+  UPDATE public.titan_club_welcome_email_queue q SET attempts = q.attempts + 1, claimed_until = now() + interval '10 minutes'
+  WHERE q.user_id IN (
+    SELECT user_id FROM public.titan_club_welcome_email_queue
+    WHERE user_id = _user_id AND completed_at IS NULL AND next_attempt_at <= now()
+      AND (claimed_until IS NULL OR claimed_until < now())
+      AND EXISTS (SELECT 1 FROM public.titan_club_settings WHERE id = 1 AND enabled)
+    FOR UPDATE SKIP LOCKED)
+  RETURNING q.*;
+$$;
+REVOKE EXECUTE ON FUNCTION public.claim_titan_club_welcome_email_for(uuid) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.claim_titan_club_welcome_email_for(uuid) TO service_role;

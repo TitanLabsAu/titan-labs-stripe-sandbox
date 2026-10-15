@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { TitanClubPill, clubBenefitText } from "@/components/TitanClubBadge";
 import { STACK_LABELS, clubConfirmText, draftFromMember, draftToInput, newClubDraft, validateClubDraft, type ClubDraft } from "@/lib/titan-club-draft";
+import { clubSaveMessage } from "@/lib/titan-club-welcome";
 import {
   adminGetTitanClub,
   adminSearchClubCandidates,
@@ -243,7 +244,7 @@ export function AdminTitanClub() {
   const refresh = () => void qc.invalidateQueries({ queryKey: ["admin-titan-club"] });
   const save = useMutation({
     mutationFn: (i: ClubAssignInput) => saveFn({ data: i }),
-    onSuccess: (r) => { toast.success(r.changed ? "Titan Club updated" : "No changes to save"); refresh(); },
+    onSuccess: (r) => { toast.success(clubSaveMessage(r)); refresh(); },
     onError: (e: any) => toast.error(e?.message ?? "Update failed"),
   });
   const toggle = useMutation({
