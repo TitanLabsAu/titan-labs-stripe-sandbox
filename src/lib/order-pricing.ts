@@ -419,7 +419,7 @@ export function sanitizeClub(c: ClubBenefit | null | undefined): CleanClub | nul
  * cheaper outcome for the customer wins and a notice explains why.
  */
 export function quoteOrder(input: QuoteInput, settings: PricingSettings = DEFAULT_PRICING_SETTINGS): Quote {
-  return applyClubFreeShipping(quoteProducts(input, settings), sanitizeClub(input.club), input.shippingMethod);
+  return quoteProducts(input, settings);
 }
 
 /**
@@ -443,7 +443,10 @@ function applyClubFreeShipping(q: Quote, club: CleanClub | null, method: Shippin
 
 function quoteProducts(input: QuoteInput, settings: PricingSettings): Quote {
   const club = sanitizeClub(input.club);
-  const normal = quoteCore({ ...input, club: null }, settings);
+  // Free shipping is waived on BOTH branches before comparing, so the cheaper total after the
+  // waiver wins (never a higher merchandise price whose shipping is then waived).
+  const ship = (q: Quote) => applyClubFreeShipping(q, club, input.shippingMethod);
+  const normal = ship(quoteCore({ ...input, club: null }, settings));
   if (!club) return normal;
   // Club branch: only the member's allowed extra discounts (incl. Foundation when switched on) apply.
   // Global/first-offer/code rules still restrict further — Club permission can't bypass them.
@@ -457,7 +460,7 @@ function quoteProducts(input: QuoteInput, settings: PricingSettings): Quote {
     code: st.code ? (input.code ?? null) : null,
     _block: { multibuy: !st.multibuy, crypto: !st.crypto },
   };
-  let cq = quoteCore(clubInput, settings);
+  let cq = ship(quoteCore(clubInput, settings));
   if (!st.code && input.code) {
     const c = input.code;
     const itemsOk = cq.itemsCents >= c.minSpendCents;
