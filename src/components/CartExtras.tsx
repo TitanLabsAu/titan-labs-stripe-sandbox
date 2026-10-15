@@ -23,8 +23,17 @@ export function freeShippingProgress(remaining: number, threshold: number) {
 
 /** Progress bar toward free express shipping. `remaining` comes from the same
     quote the checkout uses, so the meter matches checkout eligibility exactly. */
-export function FreeShippingMeter({ remaining, threshold = FREE_SHIPPING_THRESHOLD }: { remaining: number; threshold?: number }) {
-  const { left, progress } = freeShippingProgress(remaining, threshold);
+export function FreeShippingMeter({ remaining, threshold = FREE_SHIPPING_THRESHOLD, club = false }: { remaining: number; threshold?: number; club?: boolean }) {
+  const { left, progress } = freeShippingProgress(club ? 0 : remaining, threshold);
+  if (club)
+    return (
+      <div className="rounded-xl border border-primary bg-muted/30 p-3">
+        <div className="flex items-center gap-2 text-xs text-foreground">
+          <Truck className="h-4 w-4 text-primary" />
+          <span className="font-bold uppercase tracking-wide text-primary">Titan Club free shipping — no minimum spend</span>
+        </div>
+      </div>
+    );
   return (
     <div className="rounded-xl border border-border bg-muted/30 p-3">
       <div className="flex items-center gap-2 text-xs text-foreground">
@@ -138,10 +147,13 @@ export function ShippingPicker({
   value,
   onChange,
   freeShipping,
+  club = false,
 }: {
   value: ShippingMethodKey;
   onChange: (next: ShippingMethodKey) => void;
   freeShipping: boolean;
+  /** Titan Club free-shipping entitlement (every method free, no minimum). */
+  club?: boolean;
 }) {
   return (
     <div className="space-y-3">
@@ -169,7 +181,7 @@ export function ShippingPicker({
             <span className="block text-xs text-muted-foreground">{option.eta}</span>
           </span>
           <span className="shrink-0 font-extrabold text-foreground">
-            {freeShipping ? (
+            {freeShipping || club ? (
               <span className="text-accent">Free</span>
             ) : (
               formatPrice(option.price)
@@ -178,7 +190,9 @@ export function ShippingPicker({
         </label>
       ))}
       <p className="text-xs text-muted-foreground">
-        Free express shipping on orders over {formatPrice(FREE_SHIPPING_THRESHOLD)}.
+        {club
+          ? "Titan Club free shipping: every shipping method is free on your orders, no minimum spend."
+          : <>Free express shipping on orders over {formatPrice(FREE_SHIPPING_THRESHOLD)}.</>}
       </p>
     </div>
   );

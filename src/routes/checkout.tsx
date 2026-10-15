@@ -414,6 +414,7 @@ function CheckoutPage() {
   void subtotal;
   void count;
   const freeShipping = items.length > 0 && quote.shippingCents === 0;
+  const clubFreeShipping = items.length > 0 && Boolean(quote.clubFreeShipping);
   const remaining = quote.remainingForFreeShippingCents / 100;
   const pricingExtras = () => ({
     code: appliedCode && !codeError ? appliedCode : null,
@@ -823,6 +824,7 @@ function CheckoutPage() {
                   value={shippingMethod}
                   onChange={setShippingMethod}
                   freeShipping={freeShipping}
+                  club={clubFreeShipping}
                 />
               </div>
 
@@ -1077,7 +1079,12 @@ function CheckoutPage() {
                     <span>{formatPrice(totals.shipping)}</span>
                   )}
                 </div>
-                {freeShipping ? (
+                {clubFreeShipping ? (
+                  <p className="text-xs font-bold uppercase tracking-wide text-primary">
+                    Titan Club free shipping — no minimum spend
+                    {quote.clubFreeShippingCents > 0 ? ` (you save ${formatPrice(quote.clubFreeShippingCents / 100)})` : ""}
+                  </p>
+                ) : freeShipping ? (
                   <p className="text-xs font-bold uppercase tracking-wide text-accent">
                     Free express shipping applied — order over{" "}
                     {formatPrice(FREE_SHIPPING_THRESHOLD)}
