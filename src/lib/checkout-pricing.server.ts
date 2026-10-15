@@ -5,6 +5,7 @@ import {
   fromCents,
   quoteOrder,
   sanitizeClub,
+  clubLabel,
   settingsFromRow,
   type ClubBenefit,
   type CodeRule,
@@ -274,9 +275,7 @@ export async function clubBenefitFor(admin: any, userId: string | null): Promise
   return sanitizeClub(benefit) ? benefit : null;
 }
 
-/** Customer-facing label for a Club benefit, e.g. "7.5% off" or "$10.00 off". */
-export function clubLabel(q: Pick<Quote, "clubType" | "clubPercent" | "clubFixedCents">) {
-  return q.clubType === "fixed" ? `$${fromCents(q.clubFixedCents).toFixed(2)} off` : `${q.clubPercent}% off`;
+ off` : `${q.clubPercent}% off`;
 }
 
 /**

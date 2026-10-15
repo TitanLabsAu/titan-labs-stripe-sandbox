@@ -440,3 +440,7 @@ function quoteWithoutOffer(input: QuoteInput, settings: PricingSettings): Quote 
   const { codeError: _e, ...q } = withCode;
   return q;
 }
+
+/** Customer-facing label for a Club benefit, e.g. "7.5% off" or "$10.00 off". */
+export function clubLabel(q: Pick<Quote, "clubType" | "clubPercent" | "clubFixedCents">) {
+  return q.clubType === "fixed" ? `$${fromCents(q.clubFixedCents).toFixed(2)}
