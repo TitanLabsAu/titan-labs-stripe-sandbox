@@ -272,16 +272,19 @@ export async function clubBenefitFor(admin: any, userId: string | null): Promise
     row.benefit_type === "fixed"
       ? { type: "fixed", fixedCents: Number(row.fixed_cents), maxCapPercent: Number(row.max_cap_percent) }
       : { type: "percent", percent: Number(row.percent), maxCapPercent: Number(row.max_cap_percent) };
-  return sanitizeClub({ ...benefit, stacking: stackingFromRow(row) });
+  return sanitizeClub({ ...benefit, stacking: stackingFromRow(row), freeShipping: row.free_shipping === true });
 }
 
 const STACK_COLS = "stack_multibuy, stack_crypto, stack_first_offer, stack_code, stack_credit, stack_foundation";
 /** Reads the persisted stacking policy; before the stacking columns are installed, legacy all-allowed applies. */
 async function selectClubRow(admin: any, userId: string) {
   const base = "benefit_type, percent, fixed_cents, max_cap_percent, active";
-  const r = await admin.from("titan_club_members").select(`${base}, ${STACK_COLS}`).eq("user_id", userId).maybeSingle();
-  if (r.error && String(r.error.code) === "42703") return admin.from("titan_club_members").select(base).eq("user_id", userId).maybeSingle();
-  return r;
+  // Missing newer columns (not yet installed) fall back step by step: free shipping off, then legacy stacking.
+  const r = await admin.from("titan_club_members").select(`${base}, ${STACK_COLS}, free_shipping`).eq("user_id", userId).maybeSingle();
+  if (!(r.error && String(r.error.code) === "42703")) return r;
+  const r2 = await admin.from("titan_club_members").select(`${base}, ${STACK_COLS}`).eq("user_id", userId).maybeSingle();
+  if (r2.error && String(r2.error.code) === "42703") return admin.from("titan_club_members").select(base).eq("user_id", userId).maybeSingle();
+  return r2;
 }
 
 export function stackingFromRow(row: any) {
@@ -344,7 +347,7 @@ export function pricingSnapshot(p: PricedCheckout, reservationId: string | null)
       ? { member_number: p.foundation.memberNumber, percent: q.foundationPercent, cents: q.foundationCents, cap_reached: q.foundationCapReached }
       : null,
     titan_club: p.club
-      ? { type: q.clubType, percent: q.clubPercent, fixed_cents: q.clubFixedCents, cents: q.clubCents, cap_reached: q.clubCapReached, max_cap_percent: sanitizeClub(p.club)?.maxCapPercent ?? null, effective_cap_percent: q.capPercent, applied: q.clubCents > 0, stacking: sanitizeClub(p.club)?.stacking ?? null, site_cap_percent: p.settings.combinedCapPercent }
+      ? { type: q.clubType, percent: q.clubPercent, fixed_cents: q.clubFixedCents, cents: q.clubCents, cap_reached: q.clubCapReached, max_cap_percent: sanitizeClub(p.club)?.maxCapPercent ?? null, effective_cap_percent: q.capPercent, applied: q.clubCents > 0, stacking: sanitizeClub(p.club)?.stacking ?? null, free_shipping: q.clubFreeShipping, free_shipping_waived_cents: q.clubFreeShippingCents, site_cap_percent: p.settings.combinedCapPercent }
       : null,
     quote: q,
     settings: p.settings,
