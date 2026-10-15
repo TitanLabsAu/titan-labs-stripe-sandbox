@@ -63,3 +63,5 @@
 - [x] Rollover: null intent ID stays held; surface DB/RPC errors; regression
 - [x] Open-dropdown + Removed/Restore screenshots
 - [x] Block manual paid confirmation of reopened order whose 10% claim was released/reused; test
+- [ ] Titan Club (unpublished draft, migration pending approval): manager, badges, pricing, tests, previews
+- [ ] Titan Club per-member max combined discount (default site cap, up to 100%, replaces global cap for active members)

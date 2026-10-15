@@ -15,6 +15,7 @@ CREATE TABLE public.titan_club_members (
   benefit_type text NOT NULL CHECK (benefit_type IN ('percent', 'fixed')),
   percent numeric(5,2),
   fixed_cents integer,
+  max_cap_percent numeric(5,2) NOT NULL DEFAULT 20 CHECK (max_cap_percent > 0 AND max_cap_percent <= 100),
   active boolean NOT NULL DEFAULT true,
   assigned_at timestamptz NOT NULL DEFAULT now(),
   assigned_by uuid,
@@ -22,7 +23,7 @@ CREATE TABLE public.titan_club_members (
   updated_by uuid,
   revoked_at timestamptz,
   CONSTRAINT titan_club_benefit_shape CHECK (
-    (benefit_type = 'percent' AND percent > 0 AND percent <= 20 AND fixed_cents IS NULL)
+    (benefit_type = 'percent' AND percent > 0 AND percent <= 100 AND fixed_cents IS NULL)
     OR (benefit_type = 'fixed' AND fixed_cents > 0 AND fixed_cents <= 100000 AND percent IS NULL)
   )
 );
@@ -70,7 +71,7 @@ CREATE POLICY "Admins read club audit" ON public.titan_club_events FOR SELECT TO
 CREATE OR REPLACE FUNCTION public.titan_club_my_benefit()
 RETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
   SELECT CASE WHEN s.enabled AND m.active THEN
-    jsonb_build_object('benefit_type', m.benefit_type, 'percent', m.percent, 'fixed_cents', m.fixed_cents, 'assigned_at', m.assigned_at)
+    jsonb_build_object('benefit_type', m.benefit_type, 'percent', m.percent, 'fixed_cents', m.fixed_cents, 'max_cap_percent', m.max_cap_percent, 'assigned_at', m.assigned_at)
   END
   FROM public.titan_club_settings s
   LEFT JOIN public.titan_club_members m ON m.user_id = auth.uid()
@@ -79,7 +80,7 @@ $$;
 
 -- Admin: assign / edit / revoke / reactivate with atomic audit. Same values = no-op (idempotent).
 CREATE OR REPLACE FUNCTION public.admin_set_titan_club(
-  _user_id uuid, _benefit_type text, _percent numeric, _fixed_cents integer, _active boolean, _note text
+  _user_id uuid, _benefit_type text, _percent numeric, _fixed_cents integer, _max_cap numeric, _active boolean, _note text
 ) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
 DECLARE
   old public.titan_club_members%ROWTYPE;
@@ -95,11 +96,14 @@ BEGIN
     RAISE EXCEPTION 'unknown member' USING ERRCODE = '22023';
   END IF;
   IF _benefit_type NOT IN ('percent', 'fixed') THEN RAISE EXCEPTION 'invalid benefit type' USING ERRCODE = '22023'; END IF;
-  IF _benefit_type = 'percent' AND (pct IS NULL OR pct <= 0 OR pct > 20 OR pct <> round(pct, 2)) THEN
-    RAISE EXCEPTION 'percent must be 0.01 to 20' USING ERRCODE = '22023';
+  IF _benefit_type = 'percent' AND (pct IS NULL OR pct <= 0 OR pct > 100 OR pct <> round(pct, 2)) THEN
+    RAISE EXCEPTION 'percent must be 0.01 to 100' USING ERRCODE = '22023';
   END IF;
   IF _benefit_type = 'fixed' AND (fx IS NULL OR fx <= 0 OR fx > 100000) THEN
     RAISE EXCEPTION 'fixed amount must be 1 cent to $1000' USING ERRCODE = '22023';
+  END IF;
+  IF _max_cap IS NULL OR _max_cap <= 0 OR _max_cap > 100 OR _max_cap <> round(_max_cap, 2) THEN
+    RAISE EXCEPTION 'maximum discount must be 0.01 to 100' USING ERRCODE = '22023';
   END IF;
   IF _active IS NULL THEN RAISE EXCEPTION 'active required' USING ERRCODE = '22023'; END IF;
   IF char_length(nt) > 500 THEN RAISE EXCEPTION 'note too long' USING ERRCODE = '22023'; END IF;
@@ -110,21 +114,21 @@ BEGIN
 
   IF old.user_id IS NULL THEN
     IF NOT _active THEN RAISE EXCEPTION 'member is not in the club' USING ERRCODE = '22023'; END IF;
-    INSERT INTO public.titan_club_members (user_id, benefit_type, percent, fixed_cents, active, assigned_by, updated_by)
-      VALUES (_user_id, _benefit_type, pct, fx, true, auth.uid(), auth.uid()) RETURNING * INTO new_row;
+    INSERT INTO public.titan_club_members (user_id, benefit_type, percent, fixed_cents, max_cap_percent, active, assigned_by, updated_by)
+      VALUES (_user_id, _benefit_type, pct, fx, _max_cap, true, auth.uid(), auth.uid()) RETURNING * INTO new_row;
     INSERT INTO public.titan_club_notes (user_id, note) VALUES (_user_id, nt);
     act := 'assign';
   ELSE
-    IF old.benefit_type = _benefit_type AND old.percent IS NOT DISTINCT FROM pct AND old.fixed_cents IS NOT DISTINCT FROM fx
+    IF old.benefit_type = _benefit_type AND old.percent IS NOT DISTINCT FROM pct AND old.fixed_cents IS NOT DISTINCT FROM fx AND old.max_cap_percent = _max_cap
        AND old.active = _active AND coalesce(old_note, '') = nt THEN
       RETURN jsonb_build_object('changed', false, 'action', null, 'active', old.active);
     END IF;
     act := CASE
       WHEN old.active AND NOT _active THEN 'revoke'
       WHEN NOT old.active AND _active THEN 'reactivate'
-      WHEN old.benefit_type = _benefit_type AND old.percent IS NOT DISTINCT FROM pct AND old.fixed_cents IS NOT DISTINCT FROM fx THEN 'note'
+      WHEN old.benefit_type = _benefit_type AND old.percent IS NOT DISTINCT FROM pct AND old.fixed_cents IS NOT DISTINCT FROM fx AND old.max_cap_percent = _max_cap THEN 'note'
       ELSE 'edit' END;
-    UPDATE public.titan_club_members SET benefit_type = _benefit_type, percent = pct, fixed_cents = fx, active = _active,
+    UPDATE public.titan_club_members SET benefit_type = _benefit_type, percent = pct, fixed_cents = fx, max_cap_percent = _max_cap, active = _active,
       updated_at = now(), updated_by = auth.uid(),
       revoked_at = CASE WHEN _active THEN NULL WHEN old.active THEN now() ELSE old.revoked_at END
       WHERE user_id = _user_id RETURNING * INTO new_row;
@@ -134,8 +138,8 @@ BEGIN
 
   INSERT INTO public.titan_club_events (user_id, action, before, after, actor) VALUES (
     _user_id, act,
-    CASE WHEN old.user_id IS NULL THEN NULL ELSE jsonb_build_object('benefit_type', old.benefit_type, 'percent', old.percent, 'fixed_cents', old.fixed_cents, 'active', old.active, 'note_changed', false) END,
-    jsonb_build_object('benefit_type', new_row.benefit_type, 'percent', new_row.percent, 'fixed_cents', new_row.fixed_cents, 'active', new_row.active, 'note_changed', coalesce(old_note, '') <> nt),
+    CASE WHEN old.user_id IS NULL THEN NULL ELSE jsonb_build_object('benefit_type', old.benefit_type, 'percent', old.percent, 'fixed_cents', old.fixed_cents, 'max_cap_percent', old.max_cap_percent, 'active', old.active, 'note_changed', false) END,
+    jsonb_build_object('benefit_type', new_row.benefit_type, 'percent', new_row.percent, 'fixed_cents', new_row.fixed_cents, 'max_cap_percent', new_row.max_cap_percent, 'active', new_row.active, 'note_changed', coalesce(old_note, '') <> nt),
     auth.uid());
   RETURN jsonb_build_object('changed', true, 'action', act, 'active', new_row.active);
 END $$;
@@ -154,9 +158,9 @@ BEGIN
   RETURN jsonb_build_object('changed', true);
 END $$;
 
-REVOKE ALL ON FUNCTION public.admin_set_titan_club(uuid, text, numeric, integer, boolean, text) FROM PUBLIC, anon;
+REVOKE ALL ON FUNCTION public.admin_set_titan_club(uuid, text, numeric, integer, numeric, boolean, text) FROM PUBLIC, anon;
 REVOKE ALL ON FUNCTION public.admin_set_titan_club_enabled(boolean) FROM PUBLIC, anon;
 REVOKE ALL ON FUNCTION public.titan_club_my_benefit() FROM PUBLIC, anon;
-GRANT EXECUTE ON FUNCTION public.admin_set_titan_club(uuid, text, numeric, integer, boolean, text) TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.admin_set_titan_club(uuid, text, numeric, integer, numeric, boolean, text) TO authenticated, service_role;
 GRANT EXECUTE ON FUNCTION public.admin_set_titan_club_enabled(boolean) TO authenticated, service_role;
 GRANT EXECUTE ON FUNCTION public.titan_club_my_benefit() TO authenticated, service_role;

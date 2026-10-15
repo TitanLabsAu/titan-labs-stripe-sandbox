@@ -33,20 +33,26 @@ fail=0; check() { if [ "$2" = "$3" ]; then echo "PASS $1"; else echo "FAIL $1: g
 
 check "off by default" "$(q 'select enabled from titan_club_settings')" f
 check "no members by default" "$(q 'select count(*) from titan_club_members')" 0
-check "non-admin cannot assign" "$(try $M "select admin_set_titan_club('$M','percent',5,null,true,'')")" err
-check "anon cannot call" "$(if $P -tA -c "SET ROLE anon; select admin_set_titan_club('$M','percent',5,null,true,'')" >/dev/null 2>&1; then echo ok; else echo err; fi)" err
+check "non-admin cannot assign" "$(try $M "select admin_set_titan_club('$M','percent',5,null,20,true,'')")" err
+check "anon cannot call" "$(if $P -tA -c "SET ROLE anon; select admin_set_titan_club('$M','percent',5,null,20,true,'')" >/dev/null 2>&1; then echo ok; else echo err; fi)" err
 check "direct insert blocked" "$(try $A "insert into titan_club_members(user_id,benefit_type,percent) values ('$M','percent',5)")" err
-check "percent >20 rejected" "$(try $A "select admin_set_titan_club('$M','percent',20.5,null,true,'')")" err
-check "percent 3dp rejected" "$(try $A "select admin_set_titan_club('$M','percent',5.555,null,true,'')")" err
-check "zero fixed rejected" "$(try $A "select admin_set_titan_club('$M','fixed',null,0,true,'')")" err
-check "unknown member rejected" "$(try $A "select admin_set_titan_club(gen_random_uuid(),'percent',5,null,true,'')")" err
-check "revoke non-member rejected" "$(try $A "select admin_set_titan_club('$N','percent',5,null,false,'')")" err
+check "percent >100 rejected" "$(try $A "select admin_set_titan_club('$M','percent',100.5,null,20,true,'')")" err
+check "max cap >100 rejected" "$(try $A "select admin_set_titan_club('$M','percent',5,null,100.01,true,'')")" err
+check "max cap 0 rejected" "$(try $A "select admin_set_titan_club('$M','percent',5,null,0,true,'')")" err
+check "max cap 3dp rejected" "$(try $A "select admin_set_titan_club('$M','percent',5,null,25.555,true,'')")" err
+check "percent 3dp rejected" "$(try $A "select admin_set_titan_club('$M','percent',5.555,null,20,true,'')")" err
+check "zero fixed rejected" "$(try $A "select admin_set_titan_club('$M','fixed',null,0,20,true,'')")" err
+check "unknown member rejected" "$(try $A "select admin_set_titan_club(gen_random_uuid(),'percent',5,null,20,true,'')")" err
+check "revoke non-member rejected" "$(try $A "select admin_set_titan_club('$N','percent',5,null,20,false,'')")" err
 
-check "assign" "$(as authenticated $A "select admin_set_titan_club('$M','percent',7.5,999,true,'VIP')->>'action'")" assign
+check "assign" "$(as authenticated $A "select admin_set_titan_club('$M','percent',7.5,999,20,true,'VIP')->>'action'")" assign
 check "fixed field ignored for percent" "$(q "select coalesce(fixed_cents::text,'null') from titan_club_members")" null
-check "idempotent re-assign" "$(as authenticated $A "select admin_set_titan_club('$M','percent',7.5,null,true,'VIP')->>'changed'")" false
-check "edit to fixed" "$(as authenticated $A "select admin_set_titan_club('$M','fixed',null,1000,true,'VIP')->>'action'")" edit
-check "note only" "$(as authenticated $A "select admin_set_titan_club('$M','fixed',null,1000,true,'VIP2')->>'action'")" note
+check "idempotent re-assign" "$(as authenticated $A "select admin_set_titan_club('$M','percent',7.5,null,20,true,'VIP')->>'changed'")" false
+check "edit to fixed" "$(as authenticated $A "select admin_set_titan_club('$M','fixed',null,1000,20,true,'VIP')->>'action'")" edit
+check "cap override edit" "$(as authenticated $A "select admin_set_titan_club('$M','fixed',null,1000,30,true,'VIP')->>'action'")" edit
+check "cap persisted" "$(q "select max_cap_percent from titan_club_members where user_id='$M'")" 30.00
+check "100 percent benefit + 100 cap ok" "$(try $A "select admin_set_titan_club('$N','percent',100,null,100,true,'')")" ok
+check "note only" "$(as authenticated $A "select admin_set_titan_club('$M','fixed',null,1000,30,true,'VIP2')->>'action'")" note
 
 check "member reads own row" "$(as authenticated $M "select count(*) from titan_club_members")" 1
 check "other member sees none" "$(as authenticated $N "select count(*) from titan_club_members")" 0
@@ -59,18 +65,19 @@ check "my benefit null while off" "$(as authenticated $M "select coalesce(titan_
 check "non-admin cannot enable" "$(try $M "select admin_set_titan_club_enabled(true)")" err
 as authenticated $A "select admin_set_titan_club_enabled(true)" >/dev/null
 check "my benefit when on" "$(as authenticated $M "select titan_club_my_benefit()->>'fixed_cents'")" 1000
+check "my benefit shows cap" "$(as authenticated $M "select titan_club_my_benefit()->>'max_cap_percent'")" 30.00
 check "my benefit excludes note" "$(as authenticated $M "select titan_club_my_benefit() ? 'note'")" f
-check "revoke" "$(as authenticated $A "select admin_set_titan_club('$M','fixed',null,1000,false,'VIP2')->>'action'")" revoke
+check "revoke" "$(as authenticated $A "select admin_set_titan_club('$M','fixed',null,1000,30,false,'VIP2')->>'action'")" revoke
 check "revoked_at set" "$(q "select revoked_at is not null from titan_club_members")" t
 check "my benefit null after revoke" "$(as authenticated $M "select coalesce(titan_club_my_benefit()::text,'null')")" null
-check "reactivate" "$(as authenticated $A "select admin_set_titan_club('$M','fixed',null,1000,true,'VIP2')->>'action'")" reactivate
+check "reactivate" "$(as authenticated $A "select admin_set_titan_club('$M','fixed',null,1000,30,true,'VIP2')->>'action'")" reactivate
 check "revoked_at cleared" "$(q "select revoked_at is null from titan_club_members")" t
-check "audit trail" "$(q "select string_agg(action, ',' order by created_at, id) from (select action, created_at, id from titan_club_events where user_id='$M') e")" "assign,edit,note,revoke,reactivate"
-check "audit actor" "$(q "select count(*) from titan_club_events where actor='$A'")" 6
+check "audit trail" "$(q "select string_agg(action, ',' order by created_at, id) from (select action, created_at, id from titan_club_events where user_id='$M') e")" "assign,edit,edit,note,revoke,reactivate"
+check "audit actor" "$(q "select count(*) from titan_club_events where actor='$A'")" 8
 
 # Concurrent identical assigns: exactly one row and one assign event.
 q "insert into profiles values ('dddddddd-0000-0000-0000-000000000004')"
-for i in 1 2 3 4 5 6; do as authenticated $A "select admin_set_titan_club('dddddddd-0000-0000-0000-000000000004','percent',5,null,true,'')" >/dev/null & done; wait
+for i in 1 2 3 4 5 6; do as authenticated $A "select admin_set_titan_club('dddddddd-0000-0000-0000-000000000004','percent',5,null,20,true,'')" >/dev/null & done; wait
 check "concurrent assign: one row" "$(q "select count(*) from titan_club_members where user_id='dddddddd-0000-0000-0000-000000000004'")" 1
 check "concurrent assign: one event" "$(q "select count(*) from titan_club_events where user_id='dddddddd-0000-0000-0000-000000000004'")" 1
 exit $fail
