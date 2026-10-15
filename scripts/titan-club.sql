@@ -108,7 +108,7 @@ BEGIN
   SELECT * INTO old FROM public.titan_club_members WHERE user_id = _user_id FOR UPDATE;
   SELECT note INTO old_note FROM public.titan_club_notes WHERE user_id = _user_id;
 
-  IF NOT FOUND AND old.user_id IS NULL THEN
+  IF old.user_id IS NULL THEN
     IF NOT _active THEN RAISE EXCEPTION 'member is not in the club' USING ERRCODE = '22023'; END IF;
     INSERT INTO public.titan_club_members (user_id, benefit_type, percent, fixed_cents, active, assigned_by, updated_by)
       VALUES (_user_id, _benefit_type, pct, fx, true, auth.uid(), auth.uid()) RETURNING * INTO new_row;
