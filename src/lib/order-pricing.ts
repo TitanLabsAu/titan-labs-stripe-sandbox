@@ -441,7 +441,7 @@ export function quoteOrder(input: QuoteInput, settings: PricingSettings = DEFAUL
     cq.totalCents < normal.totalCents ||
     (cq.clubCents > 0 && cq.totalCents === normal.totalCents && consumed(cq) <= consumed(normal));
   if (useClub) {
-    return normal.foundationCents > 0 && cq.foundationCents === 0
+    return !st.foundation && normal.foundationCents > 0
       ? { ...cq, notices: [...cq.notices, "Foundation Member 5% isn't set to combine with your Titan Club benefit — your Titan Club benefit was applied as it saves more."] }
       : cq;
   }

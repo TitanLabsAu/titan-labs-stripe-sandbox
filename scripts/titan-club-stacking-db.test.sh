@@ -52,9 +52,9 @@ check "new policy saved" "$(POL $N)" "t,f,t,f,t,f"
 check "new via v1 defaults Foundation off" "$(q "insert into profiles values ('dddddddd-0000-0000-0000-000000000004')"; as authenticated $A "select admin_set_titan_club('dddddddd-0000-0000-0000-000000000004','percent',5,null,20,true,'')" >/dev/null; POL dddddddd-0000-0000-0000-000000000004)" "t,t,t,t,t,f"
 check "identical v2 = no-op" "$(as authenticated $A "$(V2 $N 'n1' 'true,false,true,false,true,false')->>'changed'")" false
 check "toggle-only change" "$(as authenticated $A "$(V2 $N 'n1' 'true,false,true,false,true,true')->>'action'")" policy
-check "toggle-only audit before/after" "$(q "select (before->>'foundation')||'>'||(after->>'foundation') from titan_club_events where user_id='$N' and action='policy'")" "false>true"
+check "toggle-only audit before/after" "$(q "select (before->>'foundation')||'>'||(after->>'foundation') from titan_club_events where user_id='$N' and action='policy' order by created_at desc limit 1")" "false>true"
 check "benefit + policy change: both audited" "$(as authenticated $A "select admin_set_titan_club_v2('$N','percent',12,null,30,true,'n1',true,true,true,false,true,true)->>'action'")" edit
-check "audit trail" "$(q "select string_agg(action, ',' order by created_at, id) from titan_club_events where user_id='$N'")" "assign,policy,edit,policy"
+check "audit trail" "$(q "select string_agg(action, ',' order by created_at, id) from titan_club_events where user_id='$N'")" "assign,policy,policy,edit,policy"
 check "legacy RPC edit does NOT reset policy" "$(as authenticated $A "select admin_set_titan_club('$N','percent',15,null,30,true,'n2')" >/dev/null; POL $N)" "t,t,t,f,t,t"
 check "legacy RPC revoke keeps policy" "$(as authenticated $A "select admin_set_titan_club('$N','percent',15,null,30,false,'n2')" >/dev/null; POL $N)" "t,t,t,f,t,t"
 check "reactivate via v2 keeps/sets policy" "$(as authenticated $A "select admin_set_titan_club_v2('$N','percent',15,null,30,true,'n2',true,true,true,false,true,true)->>'action'")" reactivate

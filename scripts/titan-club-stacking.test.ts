@@ -97,3 +97,14 @@ describe("Foundation stacking ON", () => {
     expect(newClubDraft({ userId: "u", name: "x", email: null }, 20).stacking.foundation).toBe(false);
   });
 });
+
+describe("audit fixes", () => {
+  test("no 'not set to combine' notice when Foundation stacking is ON but cap exhausted", () => {
+    const r = q({ club: pct(30, 30, { foundation: true }), foundationPercent: 5 });
+    expect(r.foundationCents).toBe(0);
+    expect(r.notices.join(" ")).not.toContain("isn't set to combine");
+  });
+  test("notice shown when Foundation stacking is OFF", () => {
+    expect(q({ club: pct(10), foundationPercent: 5 }).notices.join(" ")).toContain("isn't set to combine");
+  });
+});

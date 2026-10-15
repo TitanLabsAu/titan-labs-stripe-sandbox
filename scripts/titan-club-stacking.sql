@@ -56,10 +56,10 @@ BEGIN
   UPDATE public.titan_club_members SET stack_multibuy = _stack_multibuy, stack_crypto = _stack_crypto, stack_first_offer = _stack_first_offer,
     stack_code = _stack_code, stack_credit = _stack_credit, stack_foundation = _stack_foundation, updated_at = now(), updated_by = auth.uid()
     WHERE user_id = _user_id;
-  INSERT INTO public.titan_club_events (user_id, action, before, after, actor) VALUES (_user_id, 'policy',
+  INSERT INTO public.titan_club_events (user_id, action, before, after, actor, created_at) VALUES (_user_id, 'policy',
     jsonb_build_object('multibuy', old.stack_multibuy, 'crypto', old.stack_crypto, 'first_offer', old.stack_first_offer, 'code', old.stack_code, 'credit', old.stack_credit, 'foundation', old.stack_foundation),
     jsonb_build_object('multibuy', _stack_multibuy, 'crypto', _stack_crypto, 'first_offer', _stack_first_offer, 'code', _stack_code, 'credit', _stack_credit, 'foundation', _stack_foundation),
-    auth.uid());
+    auth.uid(), clock_timestamp());
   RETURN jsonb_build_object('changed', true, 'action', coalesce(res->>'action', 'policy'), 'active', old.active);
 END $$;
 
