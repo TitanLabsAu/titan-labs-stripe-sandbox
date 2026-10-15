@@ -20,7 +20,7 @@ CREATE TYPE public.app_role AS ENUM ('admin','user');
 CREATE TABLE public.user_roles (user_id uuid, role app_role);
 CREATE FUNCTION public.has_role(_user_id uuid, _role app_role) RETURNS boolean LANGUAGE sql SECURITY DEFINER AS \$\$ SELECT exists(SELECT 1 FROM public.user_roles WHERE user_id=_user_id AND role=_role) \$\$;
 CREATE TABLE public.profiles (id uuid PRIMARY KEY);
-INSERT INTO public.profiles VALUES ('$A'),('$M'),('$N');
+INSERT INTO public.profiles VALUES ('$A'),('$M'),('$N'),('eeeeeeee-0000-0000-0000-000000000005');
 INSERT INTO public.user_roles VALUES ('$A','admin');
 GRANT USAGE ON SCHEMA public, auth TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION auth.uid() TO anon, authenticated;
@@ -51,7 +51,7 @@ check "idempotent re-assign" "$(as authenticated $A "select admin_set_titan_club
 check "edit to fixed" "$(as authenticated $A "select admin_set_titan_club('$M','fixed',null,1000,20,true,'VIP')->>'action'")" edit
 check "cap override edit" "$(as authenticated $A "select admin_set_titan_club('$M','fixed',null,1000,30,true,'VIP')->>'action'")" edit
 check "cap persisted" "$(q "select max_cap_percent from titan_club_members where user_id='$M'")" 30.00
-check "100 percent benefit + 100 cap ok" "$(try $A "select admin_set_titan_club('$N','percent',100,null,100,true,'')")" ok
+check "100 percent benefit + 100 cap ok" "$(try $A "select admin_set_titan_club('eeeeeeee-0000-0000-0000-000000000005','percent',100,null,100,true,'')")" ok
 check "note only" "$(as authenticated $A "select admin_set_titan_club('$M','fixed',null,1000,30,true,'VIP2')->>'action'")" note
 
 check "member reads own row" "$(as authenticated $M "select count(*) from titan_club_members")" 1
@@ -68,10 +68,10 @@ check "my benefit when on" "$(as authenticated $M "select titan_club_my_benefit(
 check "my benefit shows cap" "$(as authenticated $M "select titan_club_my_benefit()->>'max_cap_percent'")" 30.00
 check "my benefit excludes note" "$(as authenticated $M "select titan_club_my_benefit() ? 'note'")" f
 check "revoke" "$(as authenticated $A "select admin_set_titan_club('$M','fixed',null,1000,30,false,'VIP2')->>'action'")" revoke
-check "revoked_at set" "$(q "select revoked_at is not null from titan_club_members")" t
+check "revoked_at set" "$(q "select revoked_at is not null from titan_club_members where user_id='$M'")" t
 check "my benefit null after revoke" "$(as authenticated $M "select coalesce(titan_club_my_benefit()::text,'null')")" null
 check "reactivate" "$(as authenticated $A "select admin_set_titan_club('$M','fixed',null,1000,30,true,'VIP2')->>'action'")" reactivate
-check "revoked_at cleared" "$(q "select revoked_at is null from titan_club_members")" t
+check "revoked_at cleared" "$(q "select revoked_at is null from titan_club_members where user_id='$M'")" t
 check "audit trail" "$(q "select string_agg(action, ',' order by created_at, id) from (select action, created_at, id from titan_club_events where user_id='$M') e")" "assign,edit,edit,note,revoke,reactivate"
 check "audit actor" "$(q "select count(*) from titan_club_events where actor='$A'")" 8
 
