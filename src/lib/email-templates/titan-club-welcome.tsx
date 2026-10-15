@@ -1,11 +1,10 @@
 import * as React from "react";
-import { Body, Button, Container, Head, Heading, Hr, Html, Img, Preview, Section, Text } from "@react-email/components";
+import { Body, Button, Container, Head, Heading, Html, Img, Preview, Section, Text } from "@react-email/components";
 import type { TemplateEntry } from "./registry";
 import { CLUB_WELCOME_ORIGIN, clubWelcomeCopy, clubWelcomeSubject, parseClubSnapshot, type ClubWelcomeData } from "../titan-club-welcome";
 
 const BLUE = "#1257b8";
 const BLUE_DEEP = "#0b3f8a";
-const BLUE_SOFT = "#eaf2fd";
 const INK = "#0b0f14";
 const CHARCOAL = "#1a2029";
 /** Resized copy of the site logo asset, served from the public site (stable, unsigned). */
