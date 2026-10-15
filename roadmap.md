@@ -1,7 +1,7 @@
 # Titan Club final validation
 
-- [ ] Stage rejoining welcome trigger and activation-specific retry protection; preserve email design and current-perk reads.
-- [ ] Test revoke/re-add, updated perks, no duplicate edit sends, rollback and access controls locally.
+- [x] Stage rejoining welcome trigger and activation-specific retry protection; preserve email design and current-perk reads.
+- [x] Test revoke/re-add, updated perks, no duplicate edit sends, rollback and access controls locally (23 email tests and 46 disposable database checks).
 - [ ] Apply rejoining email update only after explicit live-change approval (blocked: approval not supplied).
 
 - [x] CartSheet auth-scoped member quote (userId + items key, no stale placeholder, cleared on auth change, estimate/checking labels)

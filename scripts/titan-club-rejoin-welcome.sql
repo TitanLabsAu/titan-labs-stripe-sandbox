@@ -1,4 +1,5 @@
 -- Staged only: requires explicit approval before applying to the shared/live database.
+-- Publish the event-aware sender before applying this SQL; older senders deduplicate by user only.
 -- Reuse the existing protected queue, with a fresh identity for each reactivation.
 -- 'initial' preserves provider idempotency for all existing first-assignment jobs.
 ALTER TABLE public.titan_club_welcome_email_queue
