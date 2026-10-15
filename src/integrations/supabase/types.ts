@@ -1707,6 +1707,42 @@ export type Database = {
         }
         Relationships: []
       }
+      titan_club_welcome_email_queue: {
+        Row: {
+          attempts: number
+          claimed_until: string | null
+          completed_at: string | null
+          created_at: string
+          last_error: string | null
+          next_attempt_at: string
+          outcome: string | null
+          snapshot: Json
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          claimed_until?: string | null
+          completed_at?: string | null
+          created_at?: string
+          last_error?: string | null
+          next_attempt_at?: string
+          outcome?: string | null
+          snapshot: Json
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          claimed_until?: string | null
+          completed_at?: string | null
+          created_at?: string
+          last_error?: string | null
+          next_attempt_at?: string
+          outcome?: string | null
+          snapshot?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1861,6 +1897,46 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "member_welcome_email_queue"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      claim_titan_club_welcome_email_for: {
+        Args: { _user_id: string }
+        Returns: {
+          attempts: number
+          claimed_until: string | null
+          completed_at: string | null
+          created_at: string
+          last_error: string | null
+          next_attempt_at: string
+          outcome: string | null
+          snapshot: Json
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "titan_club_welcome_email_queue"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      claim_titan_club_welcome_emails: {
+        Args: { _limit?: number }
+        Returns: {
+          attempts: number
+          claimed_until: string | null
+          completed_at: string | null
+          created_at: string
+          last_error: string | null
+          next_attempt_at: string
+          outcome: string | null
+          snapshot: Json
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "titan_club_welcome_email_queue"
           isOneToOne: false
           isSetofReturn: true
         }

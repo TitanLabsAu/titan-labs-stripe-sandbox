@@ -1,4 +1,4 @@
--- Titan Club congratulations email queue. STAGED FOR OWNER REVIEW: not applied to the project database.
+-- Titan Club congratulations email queue. Installed as migration 0052_titan_club_welcome_email.
 -- Additive only. Queues exactly one congratulations per member, on their FIRST ever Club row insert.
 -- Existing members already have rows, so nothing is queued retroactively (no backfill).
 
