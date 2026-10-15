@@ -15,7 +15,6 @@ import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as CertificatesRouteImport } from './routes/certificates'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContactRouteImport } from './routes/contact'
-import { Route as FsPreviewRouteImport } from './routes/fs-preview'
 import { Route as PenGuideRouteImport } from './routes/pen-guide'
 import { Route as PensRouteImport } from './routes/pens'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -71,11 +70,6 @@ const CheckoutRoute = CheckoutRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FsPreviewRoute = FsPreviewRouteImport.update({
-  id: '/fs-preview',
-  path: '/fs-preview',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PenGuideRoute = PenGuideRouteImport.update({
@@ -225,7 +219,6 @@ export interface FileRoutesByFullPath {
   '/certificates': typeof CertificatesRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
-  '/fs-preview': typeof FsPreviewRoute
   '/pen-guide': typeof PenGuideRoute
   '/pens': typeof PensRoute
   '/privacy': typeof PrivacyRoute
@@ -260,7 +253,6 @@ export interface FileRoutesByTo {
   '/certificates': typeof CertificatesRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
-  '/fs-preview': typeof FsPreviewRoute
   '/pen-guide': typeof PenGuideRoute
   '/pens': typeof PensRoute
   '/privacy': typeof PrivacyRoute
@@ -297,7 +289,6 @@ export interface FileRoutesById {
   '/certificates': typeof CertificatesRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
-  '/fs-preview': typeof FsPreviewRoute
   '/pen-guide': typeof PenGuideRoute
   '/pens': typeof PensRoute
   '/privacy': typeof PrivacyRoute
@@ -334,7 +325,6 @@ export interface FileRouteTypes {
     | '/certificates'
     | '/checkout'
     | '/contact'
-    | '/fs-preview'
     | '/pen-guide'
     | '/pens'
     | '/privacy'
@@ -369,7 +359,6 @@ export interface FileRouteTypes {
     | '/certificates'
     | '/checkout'
     | '/contact'
-    | '/fs-preview'
     | '/pen-guide'
     | '/pens'
     | '/privacy'
@@ -405,7 +394,6 @@ export interface FileRouteTypes {
     | '/certificates'
     | '/checkout'
     | '/contact'
-    | '/fs-preview'
     | '/pen-guide'
     | '/pens'
     | '/privacy'
@@ -442,7 +430,6 @@ export interface RootRouteChildren {
   CertificatesRoute: typeof CertificatesRoute
   CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
-  FsPreviewRoute: typeof FsPreviewRoute
   PenGuideRoute: typeof PenGuideRoute
   PensRoute: typeof PensRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -507,13 +494,6 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/fs-preview': {
-      id: '/fs-preview'
-      path: '/fs-preview'
-      fullPath: '/fs-preview'
-      preLoaderRoute: typeof FsPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pen-guide': {
@@ -739,7 +719,6 @@ const rootRouteChildren: RootRouteChildren = {
   CertificatesRoute: CertificatesRoute,
   CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
-  FsPreviewRoute: FsPreviewRoute,
   PenGuideRoute: PenGuideRoute,
   PensRoute: PensRoute,
   PrivacyRoute: PrivacyRoute,
