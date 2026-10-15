@@ -358,6 +358,13 @@
       "when": 1792056664955,
       "tag": "0050_titan_club_stacking",
       "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "7",
+      "when": 1792059267744,
+      "tag": "0051_titan_club_free_shipping",
+      "breakpoints": true
     }
   ]
 }

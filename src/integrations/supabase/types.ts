@@ -1604,6 +1604,7 @@ export type Database = {
           assigned_by: string | null
           benefit_type: string
           fixed_cents: number | null
+          free_shipping: boolean
           max_cap_percent: number
           percent: number | null
           revoked_at: string | null
@@ -1623,6 +1624,7 @@ export type Database = {
           assigned_by?: string | null
           benefit_type: string
           fixed_cents?: number | null
+          free_shipping?: boolean
           max_cap_percent?: number
           percent?: number | null
           revoked_at?: string | null
@@ -1642,6 +1644,7 @@ export type Database = {
           assigned_by?: string | null
           benefit_type?: string
           fixed_cents?: number | null
+          free_shipping?: boolean
           max_cap_percent?: number
           percent?: number | null
           revoked_at?: string | null
@@ -1794,6 +1797,25 @@ export type Database = {
           _active: boolean
           _benefit_type: string
           _fixed_cents: number
+          _max_cap: number
+          _note: string
+          _percent: number
+          _stack_code: boolean
+          _stack_credit: boolean
+          _stack_crypto: boolean
+          _stack_first_offer: boolean
+          _stack_foundation: boolean
+          _stack_multibuy: boolean
+          _user_id: string
+        }
+        Returns: Json
+      }
+      admin_set_titan_club_v3: {
+        Args: {
+          _active: boolean
+          _benefit_type: string
+          _fixed_cents: number
+          _free_shipping: boolean
           _max_cap: number
           _note: string
           _percent: number
