@@ -344,7 +344,7 @@ export function pricingSnapshot(p: PricedCheckout, reservationId: string | null)
       ? { member_number: p.foundation.memberNumber, percent: q.foundationPercent, cents: q.foundationCents, cap_reached: q.foundationCapReached }
       : null,
     titan_club: p.club
-      ? { type: q.clubType, percent: q.clubPercent, fixed_cents: q.clubFixedCents, cents: q.clubCents, cap_reached: q.clubCapReached, max_cap_percent: q.capPercent, applied: q.clubCents > 0, stacking: sanitizeClub(p.club)?.stacking ?? null, site_cap_percent: p.settings.combinedCapPercent }
+      ? { type: q.clubType, percent: q.clubPercent, fixed_cents: q.clubFixedCents, cents: q.clubCents, cap_reached: q.clubCapReached, max_cap_percent: sanitizeClub(p.club)?.maxCapPercent ?? null, effective_cap_percent: q.capPercent, applied: q.clubCents > 0, stacking: sanitizeClub(p.club)?.stacking ?? null, site_cap_percent: p.settings.combinedCapPercent }
       : null,
     quote: q,
     settings: p.settings,
