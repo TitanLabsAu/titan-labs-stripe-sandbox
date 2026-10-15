@@ -52,6 +52,8 @@ export async function sendPendingClubWelcomeEmails() {
   return processClubWelcomeJobs({
     claim: async () => {
       const { data, error } = await db.rpc("claim_titan_club_welcome_emails", { _limit: 20 });
+      // Queue not installed yet (staged migration): nothing to send.
+      if (error && /PGRST202|42883|PGRST205|42P01/.test(`${(error as any).code} ${error.message}`)) return [];
       if (error) throw error;
       return (data ?? []) as Job[];
     },

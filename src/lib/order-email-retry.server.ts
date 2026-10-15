@@ -41,7 +41,14 @@ export async function retryOrderEmails(request: Request): Promise<Response> {
     } catch (error) {
       console.error("[member-welcome]", error);
     }
-    return Response.json({ ok: true, confirmations, milestoneEmails: milestones.sent, calendarReminders, welcomeEmails });
+    let clubWelcomeEmails = 0;
+    try {
+      const { sendPendingClubWelcomeEmails } = await import("@/lib/titan-club-welcome.server");
+      clubWelcomeEmails = (await sendPendingClubWelcomeEmails()).sent;
+    } catch (error) {
+      console.error("[titan-club-welcome]", error);
+    }
+    return Response.json({ ok: true, confirmations, milestoneEmails: milestones.sent, calendarReminders, welcomeEmails, clubWelcomeEmails });
   } catch (error) {
     console.error("[order-email-retry]", error);
     return Response.json({ ok: false, error: "Email retry failed" }, { status: 500 });
