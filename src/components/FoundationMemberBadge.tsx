@@ -21,7 +21,7 @@ export function FoundationMemberView({ data, capPercent = 20, personalCap = fals
             Foundation Member <span className="text-primary">#{String(award.memberNumber).padStart(2, "0")} of {status.capacity}</span>
           </p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Permanent {status.benefitPercent}% member benefit · {personalCap ? `Your personal combined savings maximum is ${capPercent}%` : `Combined savings capped at ${capPercent}%`}. Range kit prices already include their built-in saving.
+            Permanent {status.benefitPercent}% member benefit · {personalCap ? `Doesn't combine with your Titan Club benefit — checkout applies whichever saves you more` : `Combined savings capped at ${capPercent}%`}. Range kit prices already include their built-in saving.
           </p>
         </div>
       </section>
