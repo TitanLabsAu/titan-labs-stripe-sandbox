@@ -125,7 +125,7 @@ describe("audit follow-up", () => {
     const t = await text({ firstName: "Alex", club: demoClub });
     expect(h).toMatch(/^<!DOCTYPE html/i);
     expect(t).not.toMatch(/<[a-z]/i);
-    expect(t).toContain("Alex");
+    expect(t).toContain("ALEX");
     const fs = await import("node:fs");
     expect(fs.existsSync("src/routes/_authenticated/account.tsx")).toBe(true);
     expect(fs.existsSync("src/routes/range.tsx")).toBe(true);
