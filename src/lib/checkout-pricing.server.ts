@@ -4,7 +4,10 @@ import type { ShippingMethodKey } from "@/lib/pricing";
 import {
   fromCents,
   quoteOrder,
+  sanitizeClub,
+  clubLabel,
   settingsFromRow,
+  type ClubBenefit,
   type CodeRule,
   type PricingSettings,
   type Quote,
@@ -40,6 +43,7 @@ export type PricedCheckout = {
   availableCreditUnits: number;
   firstOfferEligible: boolean;
   foundation: { memberNumber: number; percent: number } | null;
+  club: ClubBenefit | null;
 };
 
 export type PricingBuyer = {
@@ -218,7 +222,10 @@ export async function priceCheckout(
     firstOfferEligible = eligible === true;
   }
 
-  const foundation = await foundationBenefitFor(admin, buyer.userId);
+  const [foundation, club] = await Promise.all([
+    foundationBenefitFor(admin, buyer.userId),
+    clubBenefitFor(admin, buyer.userId),
+  ]);
 
   const quote = quoteOrder(
     {
@@ -230,6 +237,7 @@ export async function priceCheckout(
       availableCreditUnits,
       firstOfferEligible,
       foundationPercent: foundation?.percent ?? 0,
+      club,
     },
     settings,
   );
@@ -237,7 +245,34 @@ export async function priceCheckout(
     // Code didn't win or failed min spend: no attribution.
     code = null;
   }
-  return { lines, quote, settings, code, codeError, availableCreditUnits, firstOfferEligible, foundation };
+  return { lines, quote, settings, code, codeError, availableCreditUnits, firstOfferEligible, foundation, club };
+}
+
+const MISSING_RELATION = new Set(["42P01", "PGRST205", "PGRST202"]);
+
+/**
+ * Titan Club benefit for the trusted server user id only (never client fields).
+ * Applies only while the programme is switched on and the member is active.
+ * Not-yet-installed tables mean "no club"; any other read error fails closed with a retry message.
+ */
+export async function clubBenefitFor(admin: any, userId: string | null): Promise<ClubBenefit | null> {
+  if (!userId) return null;
+  const [{ data: cfg, error: cfgError }, { data: row, error }] = await Promise.all([
+    admin.from("titan_club_settings").select("enabled").eq("id", 1).maybeSingle(),
+    admin.from("titan_club_members").select("benefit_type, percent, fixed_cents, max_cap_percent, active").eq("user_id", userId).maybeSingle(),
+  ]);
+  const err = cfgError ?? error;
+  if (err) {
+    if (MISSING_RELATION.has(String(err.code))) return null;
+    console.error("titan club lookup failed", err.message);
+    throw new Error("We couldn't confirm your member benefits just now. Please try again in a moment.");
+  }
+  if (!cfg?.enabled || !row?.active) return null;
+  const benefit: ClubBenefit =
+    row.benefit_type === "fixed"
+      ? { type: "fixed", fixedCents: Number(row.fixed_cents), maxCapPercent: Number(row.max_cap_percent) }
+      : { type: "percent", percent: Number(row.percent), maxCapPercent: Number(row.max_cap_percent) };
+  return sanitizeClub(benefit);
 }
 
 /**
@@ -271,6 +306,7 @@ export function pricingNote(q: Quote) {
     parts.push(`first purchase ${q.firstOfferPercent}% (−$${fromCents(q.firstOfferCents).toFixed(2)})`);
   if (q.foundationCents)
     parts.push(`Foundation Member ${q.foundationPercent}% (−$${fromCents(q.foundationCents).toFixed(2)})`);
+  if (q.clubCents) parts.push(`Titan Club ${clubLabel(q)} (−$${fromCents(q.clubCents).toFixed(2)})`);
   if (q.codeCents && q.code) parts.push(`code ${q.code} (−$${fromCents(q.codeCents).toFixed(2)})`);
   if (q.creditCents)
     parts.push(`referral reward ${q.creditUnits}x (−$${fromCents(q.creditCents).toFixed(2)})`);
@@ -292,6 +328,9 @@ export function pricingSnapshot(p: PricedCheckout, reservationId: string | null)
     first_purchase_offer: firstOfferSnapshot(q),
     foundation_member: p.foundation
       ? { member_number: p.foundation.memberNumber, percent: q.foundationPercent, cents: q.foundationCents, cap_reached: q.foundationCapReached }
+      : null,
+    titan_club: p.club
+      ? { type: q.clubType, percent: q.clubPercent, fixed_cents: q.clubFixedCents, cents: q.clubCents, cap_reached: q.clubCapReached, max_cap_percent: q.capPercent, site_cap_percent: p.settings.combinedCapPercent }
       : null,
     quote: q,
     settings: p.settings,

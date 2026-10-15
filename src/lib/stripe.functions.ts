@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { assertExpectedTotal } from "@/lib/order-pricing";
 import type { CheckoutMode } from "@/lib/guest-capability";
 import type { ResolvedBuyer } from "@/lib/checkout-buyer.server";
 import type { ShippingMethodKey } from "@/lib/pricing";
@@ -23,6 +24,8 @@ type StripeCheckoutInput = {
   items: SubmitOrderItem[];
   code?: string | null;
   creditUnits?: number;
+  /** Total the customer was shown; a mismatch blocks order/payment creation. */
+  expectedTotalCents?: number;
   expectedStripeMode?: "test" | "live";
 };
 
@@ -99,6 +102,7 @@ async function prepareStripeOrder(
   });
   if (data.code && priced.codeError) throw new Error(priced.codeError);
   const q = priced.quote;
+  assertExpectedTotal(data.expectedTotalCents, q.totalCents);
 
   const shippingAddress = [addressLine, city, `${state} ${postcode}`.trim()]
     .filter(Boolean)

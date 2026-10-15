@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { assertExpectedTotal } from "@/lib/order-pricing";
 import type { ShippingMethodKey } from "@/lib/pricing";
 import type { CheckoutMode } from "@/lib/guest-capability";
 
@@ -26,6 +27,8 @@ export type SubmitOrderInput = {
   items: SubmitOrderItem[];
   code?: string | null;
   creditUnits?: number;
+  /** Total the customer was shown; a mismatch blocks order/payment creation. */
+  expectedTotalCents?: number;
 };
 
 export type SubmittedOrder = {
@@ -108,6 +111,7 @@ export const submitOrder = createServerFn({ method: "POST" })
     );
     if (data.code && priced.codeError) throw new Error(priced.codeError);
     const q = priced.quote;
+    assertExpectedTotal(data.expectedTotalCents, q.totalCents);
 
     const shippingAddress = [addressLine, city, `${state} ${postcode}`.trim()]
       .filter(Boolean)

@@ -146,6 +146,13 @@ export type Quote = {
   foundationCents: number;
   /** True when the combined cap reduced (or zeroed) the Foundation saving. */
   foundationCapReached: boolean;
+  /** Titan Club admin-assigned benefit (server-verified only). */
+  clubApplied: boolean;
+  clubType: "percent" | "fixed" | null;
+  clubPercent: number;
+  clubFixedCents: number;
+  clubCents: number;
+  clubCapReached: boolean;
   creditUnits: number;
   creditCents: number;
   merchandiseCents: number;
@@ -172,6 +179,9 @@ function evaluate(
   offer: FirstOfferSettings | null = null,
 ): Quote & { codeError?: string | undefined } {
   const notices: string[] = [];
+  // An active Titan Club member's personal maximum replaces the site-wide combined cap (products only).
+  const club = sanitizeClub(input.club);
+  if (club) s = { ...s, combinedCapPercent: club.maxCapPercent };
   const itemsCents = input.lines.reduce((a, l) => a + Math.round(l.unitCents) * l.quantity, 0);
   const baseCents = Math.max(
     itemsCents,
@@ -226,12 +236,14 @@ function evaluate(
   // Foundation Member: permanent automatic benefit, applied BEFORE consumable referral rewards.
   // For members the TOTAL discount (kit savings included) never exceeds the combined cap.
   const fPct = Math.min(100, Math.max(0, Number(input.foundationPercent) || 0));
+  const capCents = Math.floor((baseCents * s.combinedCapPercent) / 100);
+  if ((fPct > 0 || club) && itemsCents > 0) {
+    const over = baseCents - (afterOffer - codeCents) - capCents;
+    if (over > 0) codeCents -= Math.min(over, codeCents);
+  }
   let foundationCents = 0;
   let foundationCapReached = false;
   if (fPct > 0 && itemsCents > 0) {
-    const capCents = Math.floor((baseCents * s.combinedCapPercent) / 100);
-    const over = baseCents - (afterOffer - codeCents) - capCents;
-    if (over > 0) codeCents -= Math.min(over, codeCents);
     const want = Math.round((baseCents * fPct) / 100);
     const roomLeft = Math.max(0, capCents - (baseCents - (afterOffer - codeCents)));
     foundationCents = Math.max(0, Math.min(want, roomLeft, afterOffer - codeCents));
@@ -243,7 +255,23 @@ function evaluate(
           : `Your Foundation Member saving was reduced so total savings stay within the ${s.combinedCapPercent}% maximum.`,
       );
   }
-  const afterCode = afterOffer - codeCents - foundationCents;
+  // Titan Club: after Foundation, before consumable referral rewards; products only, shares the cap.
+  let clubCents = 0;
+  let clubCapReached = false;
+  if (club && itemsCents > 0) {
+    const want = club.type === "percent" ? Math.round((itemsCents * club.percent) / 100) : club.fixedCents;
+    const left = afterOffer - codeCents - foundationCents;
+    const roomLeft = Math.max(0, capCents - (baseCents - left));
+    clubCents = Math.max(0, Math.min(want, roomLeft, left));
+    clubCapReached = clubCents < want;
+    if (clubCapReached)
+      notices.push(
+        clubCents === 0
+          ? `Your other discounts already reach the ${s.combinedCapPercent}% maximum, so your Titan Club benefit couldn't add more this time.`
+          : `Your Titan Club saving was reduced so total savings stay within the ${s.combinedCapPercent}% maximum.`,
+      );
+  }
+  const afterCode = afterOffer - codeCents - foundationCents - clubCents;
 
   let creditUnits = 0;
   let creditCents = 0;
@@ -297,6 +325,12 @@ function evaluate(
     foundationPercent: foundationCents > 0 ? fPct : 0,
     foundationCents,
     foundationCapReached,
+    clubApplied: clubCents > 0,
+    clubType: club ? club.type : null,
+    clubPercent: club?.type === "percent" ? club.percent : 0,
+    clubFixedCents: club?.type === "fixed" ? club.fixedCents : 0,
+    clubCents,
+    clubCapReached,
     creditUnits,
     creditCents,
     merchandiseCents,
@@ -320,7 +354,38 @@ export type QuoteInput = {
   firstOfferEligible?: boolean;
   /** Server-verified only: Foundation Member benefit percent (0 when not awarded). */
   foundationPercent?: number;
+  /** Server-verified only: active Titan Club benefit (null for non-members). */
+  club?: ClubBenefit | null;
 };
+
+export type ClubBenefit = ({ type: "percent"; percent: number; fixedCents?: 0 } | { type: "fixed"; fixedCents: number; percent?: 0 }) & {
+  /** Personal maximum combined product discount, 0.01–100 (2dp). */
+  maxCapPercent: number;
+};
+
+/** True for a finite value in (0, max] with at most 2 decimals (integer basis points). */
+export function isTwoDpPercent(v: unknown, max = 100) {
+  const n = Number(v);
+  return typeof v !== "boolean" && Number.isFinite(n) && n > 0 && n <= max && Math.abs(Math.round(n * 100) - n * 100) < 1e-9;
+}
+
+type CleanClub = ({ type: "percent"; percent: number; fixedCents: 0 } | { type: "fixed"; percent: 0; fixedCents: number }) & { maxCapPercent: number };
+
+/** Strict: percent 0.01–100, fixed 1c–$1000 integer cents, max cap 0.01–100; anything else = no benefit. */
+export function sanitizeClub(c: ClubBenefit | null | undefined): CleanClub | null {
+  if (!c || !isTwoDpPercent(c.maxCapPercent)) return null;
+  const maxCapPercent = Math.round(Number(c.maxCapPercent) * 100) / 100;
+  if (c.type === "percent") {
+    if (!isTwoDpPercent(c.percent)) return null;
+    return { type: "percent", percent: Math.round(Number(c.percent) * 100) / 100, fixedCents: 0, maxCapPercent };
+  }
+  if (c.type === "fixed") {
+    const f = Number(c.fixedCents);
+    if (!Number.isInteger(f) || f <= 0 || f > 100000) return null;
+    return { type: "fixed", percent: 0, fixedCents: f, maxCapPercent };
+  }
+  return null;
+}
 
 /**
  * Price an order. When a code can't stack with active discounts, the
@@ -387,4 +452,16 @@ function quoteWithoutOffer(input: QuoteInput, settings: PricingSettings): Quote 
   }
   const { codeError: _e, ...q } = withCode;
   return q;
+}
+
+/** Customer-facing label for a Club benefit, e.g. "7.5% off" or "$10.00 off". */
+export function clubLabel(q: Pick<Quote, "clubType" | "clubPercent" | "clubFixedCents">) {
+  return q.clubType === "fixed" ? `$${fromCents(q.clubFixedCents).toFixed(2)} off` : `${q.clubPercent}% off`;
+}
+
+/** Refuse to create an order/payment when the server price differs from what the customer was shown. */
+export function assertExpectedTotal(expected: unknown, actualCents: number) {
+  if (expected === undefined || expected === null) return;
+  if (typeof expected !== "number" || !Number.isInteger(expected) || expected !== actualCents)
+    throw new Error("Your order summary has been updated (for example, a member benefit changed). Please review the new total and try again.");
 }

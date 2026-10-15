@@ -63,7 +63,7 @@ import {
   FREE_SHIPPING_THRESHOLD,
   type ShippingMethodKey,
 } from "@/lib/pricing";
-import { quoteOrder } from "@/lib/order-pricing";
+import { clubLabel, quoteOrder } from "@/lib/order-pricing";
 
 const MODE_KEY = "titan_checkout_mode";
 import { cartPriceLines, useReferralSettings } from "@/lib/useReferralSettings";
@@ -305,7 +305,10 @@ function CheckoutPage() {
       setGuestMode(false);
       setGuestError(checkoutErrorText(error, "Your guest checkout session has expired. Please choose Continue as guest again."));
     }
-    toast.error(checkoutErrorText(error, fallback));
+    const text = checkoutErrorText(error, fallback);
+    // Server repriced (e.g. member benefit changed): refresh the summary before any payment is created.
+    if (/order summary has been updated/i.test(text)) void serverQuote.refetch();
+    toast.error(text);
   };
 
   const [firstName, setFirstName] = useState("");
@@ -415,6 +418,9 @@ function CheckoutPage() {
   const pricingExtras = () => ({
     code: appliedCode && !codeError ? appliedCode : null,
     creditUnits: quote.creditUnits,
+    ...(serverQuote.data && !serverQuote.isPlaceholderData && !serverQuote.isFetching
+      ? { expectedTotalCents: serverQuote.data.quote.totalCents }
+      : {}),
   });
 
   const cardCheckoutData = (acknowledgementId: string) => ({
@@ -1040,6 +1046,15 @@ function CheckoutPage() {
                     <span>Foundation Member {quote.foundationPercent}%</span>
                     <span>−{formatPrice(quote.foundationCents / 100)}</span>
                   </div>
+                ) : null}
+                {quote.clubCents > 0 ? (
+                  <div className="flex justify-between font-bold text-accent">
+                    <span>Titan Club {clubLabel(quote)}</span>
+                    <span>−{formatPrice(quote.clubCents / 100)}</span>
+                  </div>
+                ) : null}
+                {quote.clubType && quote.capPercent !== settings.combinedCapPercent ? (
+                  <p className="text-xs text-muted-foreground">Your personal maximum combined saving is {quote.capPercent}% of products.</p>
                 ) : null}
                 {quote.creditCents > 0 ? (
                   <div className="flex justify-between font-bold text-accent">
