@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { CartSheet } from "@/components/CartSheet";
 import { AdminTitanClubView } from "@/components/AdminTitanClub";
+import { FoundationMemberView } from "@/components/FoundationMemberBadge";
 import { useCart } from "@/lib/cart";
 import { quoteOrder } from "@/lib/order-pricing";
 import { cartPriceLines, useReferralSettings } from "@/lib/useReferralSettings";
@@ -20,7 +21,8 @@ function Preview() {
   const { products, getProduct } = useProducts();
   const { settings } = useReferralSettings();
   const [ready, setReady] = useState(false);
-  const member = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("member") === "1";
+  const [member, setMember] = useState(false);
+  useEffect(() => setMember(new URLSearchParams(window.location.search).get("member") === "1"), []);
   useEffect(() => {
     if (items.length === 0 && products[0]) addItem(products.find((p) => p.catalogueSection === "range")?.slug ?? products[0].slug, 3);
   }, [items.length, products, addItem]);
@@ -40,6 +42,7 @@ function Preview() {
     <main className="mx-auto max-w-4xl p-6">
       <p className="mb-4 rounded border border-destructive p-2 text-sm font-bold text-destructive">QA FIXTURE — DUMMY DATA ONLY ({member ? "member server-quote state seeded" : "signed-out estimate"})</p>
       {ready ? <CartSheet /> : null}
+      <FoundationMemberView capPercent={35} personalCap data={{ award: { memberNumber: 7, awardedAt: "2026-10-14" }, status: { capacity: 50, benefitPercent: 5, launched: true, enrolmentEnabled: true, awarded: 2 } } as any} />
       <AdminTitanClubView
         data={{ installed: true, enabled: true, siteCapPercent: 20, members: [], events: [] }}
         search={async () => []}
