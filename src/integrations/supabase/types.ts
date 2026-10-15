@@ -1718,6 +1718,7 @@ export type Database = {
           outcome: string | null
           snapshot: Json
           user_id: string
+          welcome_event_id: string
         }
         Insert: {
           attempts?: number
@@ -1729,6 +1730,7 @@ export type Database = {
           outcome?: string | null
           snapshot: Json
           user_id: string
+          welcome_event_id?: string
         }
         Update: {
           attempts?: number
@@ -1740,6 +1742,7 @@ export type Database = {
           outcome?: string | null
           snapshot?: Json
           user_id?: string
+          welcome_event_id?: string
         }
         Relationships: []
       }
@@ -1913,6 +1916,7 @@ export type Database = {
           outcome: string | null
           snapshot: Json
           user_id: string
+          welcome_event_id: string
         }[]
         SetofOptions: {
           from: "*"
@@ -1933,6 +1937,7 @@ export type Database = {
           outcome: string | null
           snapshot: Json
           user_id: string
+          welcome_event_id: string
         }[]
         SetofOptions: {
           from: "*"
