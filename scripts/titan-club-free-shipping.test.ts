@@ -41,11 +41,13 @@ describe("Titan Club free shipping", () => {
       }
   });
   test("guest / OFF / legacy-missing / tampered values use normal shipping", () => {
-    for (const club of [null, pct(10, false), pct(10, undefined), pct(10, "true"), pct(10, 1)]) {
+    for (const club of [null, pct(10, false), pct(10, "true"), pct(10, 1)]) {
       const r = q({ club });
       expect(r.shippingCents).toBe(2000); expect(r.clubFreeShipping).toBe(false);
     }
     expect(sanitizeClub(pct(10, "yes"))?.freeShipping).toBe(false);
+    const { freeShipping: _x, ...legacy } = pct(10) as any;
+    expect(q({ club: legacy }).shippingCents).toBe(2000);
   });
   test("empty cart shows no shipping saving", () => {
     const r = q({ club: pct(10) }, []);
