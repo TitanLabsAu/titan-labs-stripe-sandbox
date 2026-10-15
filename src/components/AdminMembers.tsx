@@ -12,6 +12,7 @@ import {
 import { orderReference } from "@/lib/order-reference";
 import { AdminMemberRewards } from "@/components/AdminMemberRewards";
 import { AdminMemberFoundation } from "@/components/AdminMemberFoundation";
+import { AdminMemberTitanClub } from "@/components/AdminMemberTitanClub";
 import { useAdminClubMembers } from "@/components/AdminTitanClub";
 import { TitanClubPill, clubBenefitText } from "@/components/TitanClubBadge";
 
@@ -249,7 +250,10 @@ function MemberDetail({
             )}
           </section>
 
-          <AdminMemberFoundation userId={member.id} />
+          <section aria-label="Membership" className="grid items-start gap-4 md:grid-cols-2">
+            <AdminMemberFoundation key={`f-${member.id}`} userId={member.id} />
+            <AdminMemberTitanClub key={`c-${member.id}`} member={{ userId: member.id, name: memberName(member), email: member.email }} />
+          </section>
           <AdminMemberRewards userId={member.id} />
 
           <section className="space-y-4">

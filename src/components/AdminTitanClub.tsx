@@ -7,42 +7,31 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { TitanClubPill, clubBenefitText } from "@/components/TitanClubBadge";
+import { clubConfirmText, draftFromMember, draftToInput, newClubDraft, validateClubDraft, type ClubDraft } from "@/lib/titan-club-draft";
 import {
   adminGetTitanClub,
   adminSearchClubCandidates,
   adminSetTitanClub,
   adminSetTitanClubEnabled,
-  validateClubInput,
   type AdminClubMember,
   type AdminTitanClub,
   type ClubAssignInput,
-  clubCapFloorError,
 } from "@/lib/titan-club.functions";
 
 type Candidate = { userId: string; name: string; email: string | null };
 const fmt = (d: string) => new Date(d).toLocaleString("en-AU", { timeZone: "Australia/Melbourne", dateStyle: "medium", timeStyle: "short" });
 const shortId = (id: string) => id.slice(0, 8);
 
-type Draft = { userId: string; name: string; email: string | null; type: "percent" | "fixed"; amount: string; maxCap: string; note: string; active: boolean; isNew: boolean };
+type Draft = ClubDraft;
 
-function confirmText(d: Draft, siteCap: number) {
-  const benefit = d.type === "percent" ? `${d.amount}% off` : `$${Number(d.amount).toFixed(2)} off`;
-  const lines = [
-    `${d.isNew ? "Add" : "Update"} ${d.name} (${d.email ?? "no email"}, id ${shortId(d.userId)}) in The Titan Club?`,
-    `Benefit: ${benefit} every purchase. Personal maximum combined discount: ${d.maxCap}%.`,
-  ];
-  if (Number(d.maxCap) > siteCap)
-    lines.push(`WARNING: ${d.maxCap}% is ABOVE the website cap of ${siteCap}%. This member's total product discounts can reach ${d.maxCap}%.`);
-  return lines.join("\n\n");
-}
-
-export function ClubEditor({ draft, siteCap, onChange, onSave, onCancel, pending }: {
+export function ClubEditor({ draft, siteCap, onChange, onSave, onCancel, pending, saveLabel, saveDisabled, compact }: {
   draft: Draft; siteCap: number; onChange: (d: Draft) => void; onSave: () => void; onCancel: () => void; pending?: boolean;
+  saveLabel?: string; saveDisabled?: boolean; compact?: boolean;
 }) {
   const above = Number(draft.maxCap) > siteCap;
   return (
-    <div className="mt-4 space-y-3 rounded-lg border border-primary/60 p-4">
-      <p className="text-sm font-bold text-foreground">
+    <div className={compact ? "space-y-3" : "mt-4 space-y-3 rounded-lg border border-primary/60 p-4"}>
+      <p className={compact ? "sr-only" : "text-sm font-bold text-foreground"}>
         {draft.isNew ? "Add" : "Edit"}: {draft.name} <span className="font-normal text-muted-foreground">· {draft.email ?? "no email"} · id {shortId(draft.userId)}</span>
       </p>
       <div className="flex flex-wrap gap-2">
@@ -76,8 +65,8 @@ export function ClubEditor({ draft, siteCap, onChange, onSave, onCancel, pending
         shares the member's personal maximum with all other savings.
       </p>
       <div className="flex gap-2">
-        <Button type="button" disabled={pending} onClick={onSave}>{pending ? "Saving…" : draft.isNew ? "Add to Titan Club" : "Save changes"}</Button>
-        <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
+        <Button type="button" disabled={pending || saveDisabled} onClick={onSave}>{pending ? "Saving…" : saveLabel ?? (draft.isNew ? "Add to Titan Club" : "Save changes")}</Button>
+        <Button type="button" variant="outline" disabled={pending} onClick={onCancel}>Cancel</Button>
       </div>
     </div>
   );
@@ -95,20 +84,15 @@ export function AdminTitanClubView({ data, search, onSave, onToggle, pending, in
   const [results, setResults] = useState<Candidate[]>([]);
   const [draft, setDraft] = useState<Draft | null>(initialDraft);
   const active = data.members.filter((m) => m.active);
-  const startEdit = (m: AdminClubMember) =>
-    setDraft({ userId: m.userId, name: m.name, email: m.email, type: m.type, amount: m.type === "percent" ? String(m.percent) : (m.fixedCents / 100).toFixed(2), maxCap: String(m.maxCapPercent), note: m.note, active: m.active, isNew: false });
-  const toInput = (d: Draft, activeOverride?: boolean): ClubAssignInput => ({
-    userId: d.userId, type: d.type, maxCapPercent: Number(d.maxCap), active: activeOverride ?? d.active, note: d.note,
-    ...(d.type === "percent" ? { percent: Number(d.amount) } : { fixedDollars: Number(d.amount) }),
-  });
+  const startEdit = (m: AdminClubMember) => setDraft(draftFromMember(m));
   const save = () => {
     if (!draft) return;
-    const input = toInput(draft);
-    const err = draft.amount.trim() === "" || draft.maxCap.trim() === "" ? "Enter the benefit and maximum discount." : (validateClubInput(input) ?? clubCapFloorError(input.maxCapPercent, data.siteCapPercent, draft.isNew ? null : (data.members.find((m) => m.userId === draft.userId)?.maxCapPercent ?? null)));
+    const existing = draft.isNew ? null : (data.members.find((m) => m.userId === draft.userId) ?? null);
+    const err = validateClubDraft(draft, data.siteCapPercent, existing);
     if (err) return void toast.error(err);
-    if (window.confirm(confirmText(draft, data.siteCapPercent))) {
+    if (window.confirm(clubConfirmText(draft, data.siteCapPercent, existing))) {
       // Keep the draft (benefit, note) until the save is confirmed; a failed save leaves it editable.
-      void Promise.resolve(onSave(input)).then(() => setDraft(null), () => undefined);
+      void Promise.resolve(onSave(draftToInput(draft))).then(() => setDraft(null), () => undefined);
     }
   };
   const setStatus = (m: AdminClubMember, on: boolean) => {
@@ -164,7 +148,7 @@ export function AdminTitanClubView({ data, search, onSave, onToggle, pending, in
                 <Button type="button" size="sm" variant="outline" onClick={() => {
                   setResults([]);
                   if (existing) startEdit(existing);
-                  else setDraft({ ...c, type: "percent", amount: "", maxCap: String(data.siteCapPercent), note: "", active: true, isNew: true });
+                  else setDraft(newClubDraft(c, data.siteCapPercent));
                 }}>{existing ? "Edit" : "Select"}</Button>
               </li>
             );
