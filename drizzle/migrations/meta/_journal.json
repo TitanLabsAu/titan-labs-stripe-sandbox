@@ -372,6 +372,13 @@
       "when": 1792061175517,
       "tag": "0052_titan_club_welcome_email",
       "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "7",
+      "when": 1792105048758,
+      "tag": "0053_titan_club_rejoin_welcome",
+      "breakpoints": true
     }
   ]
 }
