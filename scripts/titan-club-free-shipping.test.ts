@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { DEFAULT_PRICING_SETTINGS as S, assertExpectedTotal, quoteOrder, sanitizeClub, type ClubBenefit } from "../src/lib/order-pricing";
+import { DEFAULT_PRICING_SETTINGS as S, __probeClubBranches, assertExpectedTotal, quoteOrder, sanitizeClub, type ClubBenefit } from "../src/lib/order-pricing";
 import { pricingSnapshot } from "../src/lib/checkout-pricing.server";
 import { draftFromMember, draftToInput, isClubDraftDirty, newClubDraft, clubConfirmText } from "../src/lib/titan-club-draft";
 import { validateClubInput, type AdminClubMember } from "../src/lib/titan-club.functions";
@@ -85,5 +85,49 @@ describe("editor + validation", () => {
     expect(validateClubInput(i)).toBeNull();
     expect(validateClubInput({ ...i, freeShipping: "true" as any })).toMatch(/free shipping/);
     expect(validateClubInput({ ...i, freeShipping: undefined as any })).toMatch(/free shipping/);
+  });
+});
+
+describe("branch choice compares totals after the free-shipping waiver", () => {
+  // Normal branch: Foundation 5% on $205 keeps afterPct $205 (threshold met, free shipping either way).
+  // Club fixed $4 vs Foundation $10.25 near $200: club branch merchandise higher — must not win.
+  test("$200 threshold: chosen merchandise is the minimum branch merchandise", () => {
+    const lines = [line(205)];
+    const clubOn = fixed(400, true), clubOff = fixed(400, false);
+    const r = q({ club: clubOn, foundationPercent: 5 }, lines);
+    const normalOnly = q({ foundationPercent: 5 }, lines);
+    expect(r.merchandiseCents).toBe(Math.min(normalOnly.merchandiseCents, 20500 - 400));
+    expect(r.shippingCents).toBe(0);
+    void clubOff;
+  });
+  test("branch shipping differs: below-threshold normal vs club", () => {
+    // Multibuy pushes normal below $200 (shipping charged), Club w/o multibuy stays above (free).
+    const lines = [line(52, 4)];
+    const st = { ...all, multibuy: false };
+    const club = (fs: boolean): ClubBenefit => ({ type: "fixed", fixedCents: 100, maxCapPercent: 30, stacking: st, freeShipping: fs });
+    const r = q({ club: club(true) }, lines);
+    const normal = q({}, lines);
+    const clubOnly = 20800 - 100;
+    expect(r.merchandiseCents).toBe(Math.min(normal.merchandiseCents, clubOnly));
+    expect(r.shippingCents).toBe(0);
+    expect(r.totalCents).toBe(r.merchandiseCents);
+  });
+  test("property: free-shipping member always gets min valid branch merchandise", () => {
+    let n = 0;
+    for (const price of [40, 95, 150, 190, 199, 200, 201, 210, 260])
+      for (const qty of [1, 2, 4])
+        for (const fc of [100, 500, 2000, 6000])
+          for (const fp of [0, 5])
+            for (const mb of [true, false])
+              for (const ship of ["express", "standard"] as const) {
+                const c: ClubBenefit = { type: "fixed", fixedCents: fc, maxCapPercent: 30, stacking: { ...all, multibuy: mb }, freeShipping: true };
+                let b: any = null;
+                const r = __probeClubBranches(() => q({ club: c, foundationPercent: fp }, [line(price, qty)], ship), (x) => (b = x));
+                expect(b.normal.shippingCents).toBe(0); expect(b.club.shippingCents).toBe(0);
+                expect(r.merchandiseCents).toBe(Math.min(b.normal.merchandiseCents, b.club.merchandiseCents));
+                expect(r.totalCents).toBe(r.merchandiseCents);
+                n++;
+              }
+    expect(n).toBeGreaterThan(800);
   });
 });
