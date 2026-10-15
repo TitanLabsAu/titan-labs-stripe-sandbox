@@ -445,3 +445,10 @@ function quoteWithoutOffer(input: QuoteInput, settings: PricingSettings): Quote 
 export function clubLabel(q: Pick<Quote, "clubType" | "clubPercent" | "clubFixedCents">) {
   return q.clubType === "fixed" ? `$${fromCents(q.clubFixedCents).toFixed(2)} off` : `${q.clubPercent}% off`;
 }
+
+/** Refuse to create an order/payment when the server price differs from what the customer was shown. */
+export function assertExpectedTotal(expected: unknown, actualCents: number) {
+  if (expected === undefined || expected === null) return;
+  if (typeof expected !== "number" || !Number.isInteger(expected) || expected !== actualCents)
+    throw new Error("Your order summary has been updated (for example, a member benefit changed). Please review the new total and try again.");
+}

@@ -305,7 +305,10 @@ function CheckoutPage() {
       setGuestMode(false);
       setGuestError(checkoutErrorText(error, "Your guest checkout session has expired. Please choose Continue as guest again."));
     }
-    toast.error(checkoutErrorText(error, fallback));
+    const text = checkoutErrorText(error, fallback);
+    // Server repriced (e.g. member benefit changed): refresh the summary before any payment is created.
+    if (/order summary has been updated/i.test(text)) void serverQuote.refetch();
+    toast.error(text);
   };
 
   const [firstName, setFirstName] = useState("");
@@ -415,6 +418,9 @@ function CheckoutPage() {
   const pricingExtras = () => ({
     code: appliedCode && !codeError ? appliedCode : null,
     creditUnits: quote.creditUnits,
+    ...(serverQuote.data && !serverQuote.isPlaceholderData && !serverQuote.isFetching
+      ? { expectedTotalCents: serverQuote.data.quote.totalCents }
+      : {}),
   });
 
   const cardCheckoutData = (acknowledgementId: string) => ({
