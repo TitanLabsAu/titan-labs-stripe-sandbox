@@ -442,7 +442,7 @@ export function quoteOrder(input: QuoteInput, settings: PricingSettings = DEFAUL
     (cq.clubCents > 0 && cq.totalCents === normal.totalCents && consumed(cq) <= consumed(normal));
   if (useClub) {
     return normal.foundationCents > 0 && cq.foundationCents === 0
-      ? { ...cq, notices: [...cq.notices, "Foundation Member 5% doesn't combine with Titan Club — your Titan Club benefit was applied as it saves more."] }
+      ? { ...cq, notices: [...cq.notices, "Foundation Member 5% isn't set to combine with your Titan Club benefit — your Titan Club benefit was applied as it saves more."] }
       : cq;
   }
   // Normal branch wins: standard cap only, personal Club cap does not leak.

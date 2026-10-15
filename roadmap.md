@@ -8,4 +8,4 @@
 - [x] Fixture removed; 237 tests + typecheck + production build pass
 - [x] SQL unapplied, no real grants, no publish
 
-- [ ] Titan Club stacking: Foundation is an editable per-member switch (default OFF for new), staged SQL/RPC/audit, tests, screenshots
+- [x] Titan Club stacking: Foundation is an editable per-member switch (default OFF for new), staged SQL/RPC/audit, tests, screenshots
