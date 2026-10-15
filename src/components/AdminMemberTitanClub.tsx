@@ -48,7 +48,7 @@ export function AdminMemberTitanClubView({ member, data, onSave, pending, initia
   const status = !data.installed
     ? "Club setup not installed"
     : existing?.active
-      ? `${clubBenefitText(existing)} · max ${existing.maxCapPercent}%${data.enabled ? "" : " · programme paused"}`
+      ? `${clubBenefitText(existing)} · max ${existing.maxCapPercent}%${existing.freeShipping ? " · free shipping" : ""}${data.enabled ? "" : " · programme paused"}`
       : existing
         ? `Revoked${existing.revokedAt ? ` ${new Date(existing.revokedAt).toLocaleDateString("en-AU")}` : ""} · ${clubBenefitText(existing)} kept on file`
         : "Not a Titan Club member";
@@ -74,7 +74,7 @@ export function AdminMemberTitanClubView({ member, data, onSave, pending, initia
       {draft ? (
         <div className="mt-4 border-t border-border pt-4">
           {draft.active ? (
-            <ClubEditor compact stackingInstalled={data.stackingInstalled} draft={draft} siteCap={data.siteCapPercent} onChange={setDraft} onSave={save} onCancel={() => setDraft(null)}
+            <ClubEditor compact stackingInstalled={data.stackingInstalled} freeShippingInstalled={data.freeShippingInstalled} draft={draft} siteCap={data.siteCapPercent} onChange={setDraft} onSave={save} onCancel={() => setDraft(null)}
               pending={Boolean(pending)} saveDisabled={!dirty} saveLabel="Save Titan Club details" />
           ) : (
             <div className="space-y-3">

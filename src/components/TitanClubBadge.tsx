@@ -19,6 +19,9 @@ export function TitanClubView({ club }: { club: NonNullable<MyTitanClub> }) {
           The Titan Club <span className="text-primary">· {clubBenefitText(club)} every purchase</span>
         </p>
         <p className="mt-1 text-sm text-muted-foreground">
+          {club.freeShipping ? (
+            <span className="mb-1 block font-bold text-foreground">Titan Club free shipping — every order ships free, no minimum spend.</span>
+          ) : null}
           Your Club benefit is permanent while your membership is active and is applied automatically at checkout to
           products (not shipping). Extra checkout savings that combine with your Club benefit are capped at your personal maximum of {club.maxCapPercent}% of products. Range kit prices
           already include their built-in saving — you keep that lower kit price in full, so your Club saving may be
