@@ -12,3 +12,5 @@
 - [x] Audit fixes: policy CHECK, Foundation notice needs !st.foundation, snapshot keeps assigned max
 
 - [x] Titan Club congrats: best-effort prompt send after a successful first Admin assignment (hourly retry stays as backup)
+
+- [x] Titan Club congrats email: branded design reviewed, queue installed as migration 0052 (0 rows, no backfill), 298 tests + throwaway DB checks + typecheck + build pass, published to titanlabsaus.com
