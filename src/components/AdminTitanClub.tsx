@@ -16,6 +16,7 @@ import {
   type AdminClubMember,
   type AdminTitanClub,
   type ClubAssignInput,
+  clubCapFloorError,
 } from "@/lib/titan-club.functions";
 
 type Candidate = { userId: string; name: string; email: string | null };

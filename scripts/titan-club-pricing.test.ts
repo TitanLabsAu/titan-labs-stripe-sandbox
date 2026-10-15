@@ -111,3 +111,16 @@ describe("trusted Club lookup", () => {
     expect(src).not.toMatch(/club|maxCap/i);
   });
 });
+
+import { clubCapFloorError } from "../src/lib/titan-club.functions";
+describe("Titan Club cap floor", () => {
+  test("rejects a new maximum below the website cap", () => {
+    expect(clubCapFloorError(10, 20, null)).toMatch(/at least the website cap of 20%/);
+    expect(clubCapFloorError(19.99, 20, 30)).not.toBeNull();
+  });
+  test("accepts at/above cap and preserves an unchanged existing maximum", () => {
+    expect(clubCapFloorError(20, 20, null)).toBeNull();
+    expect(clubCapFloorError(100, 20, null)).toBeNull();
+    expect(clubCapFloorError(25, 30, 25)).toBeNull();
+  });
+});

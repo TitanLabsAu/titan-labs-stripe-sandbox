@@ -47,7 +47,7 @@ export function FoundationMemberBadge() {
   const clubFn = useServerFn(getMyTitanClub);
   const club = useQuery({ queryKey: ["my-titan-club"], queryFn: () => clubFn() });
   const { settings } = useReferralSettings();
-  const activeClub = club.data?.active ? club.data : null;
+  const activeClub = club.data ?? null;
   const cap = activeClub ? activeClub.maxCapPercent : settings.combinedCapPercent;
   return data ? <FoundationMemberView data={data} capPercent={cap} personalCap={Boolean(activeClub)} /> : null;
 }
