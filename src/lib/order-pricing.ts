@@ -179,6 +179,9 @@ function evaluate(
   offer: FirstOfferSettings | null = null,
 ): Quote & { codeError?: string | undefined } {
   const notices: string[] = [];
+  // An active Titan Club member's personal maximum replaces the site-wide combined cap (products only).
+  const club = sanitizeClub(input.club);
+  if (club) s = { ...s, combinedCapPercent: club.maxCapPercent };
   const itemsCents = input.lines.reduce((a, l) => a + Math.round(l.unitCents) * l.quantity, 0);
   const baseCents = Math.max(
     itemsCents,
@@ -233,7 +236,6 @@ function evaluate(
   // Foundation Member: permanent automatic benefit, applied BEFORE consumable referral rewards.
   // For members the TOTAL discount (kit savings included) never exceeds the combined cap.
   const fPct = Math.min(100, Math.max(0, Number(input.foundationPercent) || 0));
-  const club = sanitizeClub(input.club);
   const capCents = Math.floor((baseCents * s.combinedCapPercent) / 100);
   if ((fPct > 0 || club) && itemsCents > 0) {
     const over = baseCents - (afterOffer - codeCents) - capCents;
@@ -356,20 +358,31 @@ export type QuoteInput = {
   club?: ClubBenefit | null;
 };
 
-export type ClubBenefit = { type: "percent"; percent: number; fixedCents?: 0 } | { type: "fixed"; fixedCents: number; percent?: 0 };
+export type ClubBenefit = ({ type: "percent"; percent: number; fixedCents?: 0 } | { type: "fixed"; fixedCents: number; percent?: 0 }) & {
+  /** Personal maximum combined product discount, 0.01–100 (2dp). */
+  maxCapPercent: number;
+};
 
-/** Strict: percent 0.01–20 (2dp), fixed 1c–$1000 integer cents; anything else = no benefit. */
-export function sanitizeClub(c: ClubBenefit | null | undefined): { type: "percent"; percent: number; fixedCents: 0 } | { type: "fixed"; percent: 0; fixedCents: number } | null {
-  if (!c) return null;
+/** True for a finite value in (0, max] with at most 2 decimals (integer basis points). */
+export function isTwoDpPercent(v: unknown, max = 100) {
+  const n = Number(v);
+  return typeof v !== "boolean" && Number.isFinite(n) && n > 0 && n <= max && Math.abs(Math.round(n * 100) - n * 100) < 1e-9;
+}
+
+type CleanClub = ({ type: "percent"; percent: number; fixedCents: 0 } | { type: "fixed"; percent: 0; fixedCents: number }) & { maxCapPercent: number };
+
+/** Strict: percent 0.01–100, fixed 1c–$1000 integer cents, max cap 0.01–100; anything else = no benefit. */
+export function sanitizeClub(c: ClubBenefit | null | undefined): CleanClub | null {
+  if (!c || !isTwoDpPercent(c.maxCapPercent)) return null;
+  const maxCapPercent = Math.round(Number(c.maxCapPercent) * 100) / 100;
   if (c.type === "percent") {
-    const p = Number(c.percent);
-    if (!Number.isFinite(p) || p <= 0 || p > 20 || Math.round(p * 100) !== p * 100) return null;
-    return { type: "percent", percent: p, fixedCents: 0 };
+    if (!isTwoDpPercent(c.percent)) return null;
+    return { type: "percent", percent: Math.round(Number(c.percent) * 100) / 100, fixedCents: 0, maxCapPercent };
   }
   if (c.type === "fixed") {
     const f = Number(c.fixedCents);
     if (!Number.isInteger(f) || f <= 0 || f > 100000) return null;
-    return { type: "fixed", percent: 0, fixedCents: f };
+    return { type: "fixed", percent: 0, fixedCents: f, maxCapPercent };
   }
   return null;
 }

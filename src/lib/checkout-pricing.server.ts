@@ -259,7 +259,7 @@ export async function clubBenefitFor(admin: any, userId: string | null): Promise
   if (!userId) return null;
   const [{ data: cfg, error: cfgError }, { data: row, error }] = await Promise.all([
     admin.from("titan_club_settings").select("enabled").eq("id", 1).maybeSingle(),
-    admin.from("titan_club_members").select("benefit_type, percent, fixed_cents, active").eq("user_id", userId).maybeSingle(),
+    admin.from("titan_club_members").select("benefit_type, percent, fixed_cents, max_cap_percent, active").eq("user_id", userId).maybeSingle(),
   ]);
   const err = cfgError ?? error;
   if (err) {
@@ -270,9 +270,9 @@ export async function clubBenefitFor(admin: any, userId: string | null): Promise
   if (!cfg?.enabled || !row?.active) return null;
   const benefit: ClubBenefit =
     row.benefit_type === "fixed"
-      ? { type: "fixed", fixedCents: Number(row.fixed_cents) }
-      : { type: "percent", percent: Number(row.percent) };
-  return sanitizeClub(benefit) ? benefit : null;
+      ? { type: "fixed", fixedCents: Number(row.fixed_cents), maxCapPercent: Number(row.max_cap_percent) }
+      : { type: "percent", percent: Number(row.percent), maxCapPercent: Number(row.max_cap_percent) };
+  return sanitizeClub(benefit);
 }
 
 /**
@@ -330,7 +330,7 @@ export function pricingSnapshot(p: PricedCheckout, reservationId: string | null)
       ? { member_number: p.foundation.memberNumber, percent: q.foundationPercent, cents: q.foundationCents, cap_reached: q.foundationCapReached }
       : null,
     titan_club: p.club
-      ? { type: q.clubType, percent: q.clubPercent, fixed_cents: q.clubFixedCents, cents: q.clubCents, cap_reached: q.clubCapReached }
+      ? { type: q.clubType, percent: q.clubPercent, fixed_cents: q.clubFixedCents, cents: q.clubCents, cap_reached: q.clubCapReached, max_cap_percent: q.capPercent, site_cap_percent: p.settings.combinedCapPercent }
       : null,
     quote: q,
     settings: p.settings,
