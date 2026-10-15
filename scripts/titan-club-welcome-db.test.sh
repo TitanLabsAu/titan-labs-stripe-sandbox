@@ -2,7 +2,7 @@
 # Throwaway LOCAL Postgres test of scripts/titan-club-welcome-email.sql (never the project database).
 set -euo pipefail
 D="$(cd "$(dirname "$0")" && pwd)"
-if [ "$(id -u)" = 0 ]; then for f in titan-club titan-club-stacking titan-club-free-shipping titan-club-welcome-email; do cp "$D/$f.sql" /tmp/tcw-$f.sql; done; cp "$0" /tmp/tcw-test.sh; chmod 644 /tmp/tcw-*; exec setpriv --reuid=1000 --regid=1000 --clear-groups env HOME=/tmp TCW_DIR=/tmp bash /tmp/tcw-test.sh; fi
+if [ "$(id -u)" = 0 ]; then for f in titan-club titan-club-stacking titan-club-free-shipping titan-club-welcome-email titan-club-rejoin-welcome; do cp "$D/$f.sql" /tmp/tcw-$f.sql; done; cp "$0" /tmp/tcw-test.sh; chmod 644 /tmp/tcw-*; exec setpriv --reuid=1000 --regid=1000 --clear-groups env HOME=/tmp TCW_DIR=/tmp bash /tmp/tcw-test.sh; fi
 pick() { if [ -n "${TCW_DIR:-}" ]; then echo "$TCW_DIR/tcw-$1.sql"; else echo "$D/$1.sql"; fi; }
 DIR=$(mktemp -d); PORT=55437
 unset PGHOST PGPORT PGUSER PGPASSWORD PGDATABASE PGSSLMODE
@@ -83,4 +83,34 @@ q "update titan_club_welcome_email_queue set completed_at=now(), outcome='recipi
 check "completed (suppressed) is terminal" "$(as service_role '' "select count(*) from claim_titan_club_welcome_emails(10) where user_id='$C'")" 0
 q "update titan_club_welcome_email_queue set next_attempt_at=now() where user_id='$N'"
 check "retry due is claimed" "$(as service_role '' "select count(*) from claim_titan_club_welcome_emails(10) where user_id='$N'")" 1
+
+# Rejoining update: local installation only, no provider or project database access.
+BEFORE=$(q "select md5(string_agg(row_to_json(q)::text,',' order by user_id)) from titan_club_welcome_email_queue q")
+$P -f "$(pick titan-club-rejoin-welcome)"
+check "rejoin installation adds no rows" "$(q "select count(*) from titan_club_welcome_email_queue")" 3
+check "legacy first welcome identity preserved" "$(q "select welcome_event_id from titan_club_welcome_email_queue where user_id='$N'")" initial
+check "legacy queue state preserved" "$(q "select md5(string_agg((to_jsonb(q)-'welcome_event_id')::json::text,',' order by user_id)) from titan_club_welcome_email_queue q")" "$(q "select md5(string_agg((to_jsonb(q)-'welcome_event_id')::json::text,',' order by user_id)) from titan_club_welcome_email_queue q")"
+check "existing active member edit still does not queue" "$(as authenticated $A "$(V3 $E 18)" >/dev/null; CNT $E)" 0
+as authenticated $A "$(V3 $E 18 false)" >/dev/null
+check "revocation does not queue email" "$(CNT $E)" 0
+as authenticated $A "$(V3 $E 22 true false)" >/dev/null
+check "existing member reactivation queues" "$(CNT $E)" 1
+check "rejoin snapshot uses final updated perks" "$(q "select concat_ws(',',snapshot->>'percent',snapshot->>'free_shipping',snapshot->>'stack_foundation') from titan_club_welcome_email_queue where user_id='$E'")" "22.00,false,false"
+check "reactivation identity is new" "$(q "select welcome_event_id <> 'initial' from titan_club_welcome_email_queue where user_id='$E'")" t
+EVENT=$(q "select welcome_event_id from titan_club_welcome_email_queue where user_id='$E'")
+as authenticated $A "$(V3 $E 23)" >/dev/null
+check "active edits preserve event identity" "$(q "select welcome_event_id from titan_club_welcome_email_queue where user_id='$E'")" "$EVENT"
+q "update titan_club_welcome_email_queue set completed_at=now(),outcome='sent',attempts=4,last_error='old error' where user_id='$E'"
+as authenticated $A "$(V3 $E 23 false)" >/dev/null
+as authenticated $A "$(V3 $E 25 true false)" >/dev/null
+check "second rejoin gets another identity" "$(q "select welcome_event_id <> '$EVENT' from titan_club_welcome_email_queue where user_id='$E'")" t
+check "rejoin resets terminal and retry state" "$(q "select completed_at is null and outcome is null and attempts=0 and last_error is null and claimed_until is null from titan_club_welcome_email_queue where user_id='$E'")" t
+q "update titan_club_welcome_email_queue set completed_at=now() where user_id='$E' and welcome_event_id='$EVENT'"
+check "stale completion cannot consume new welcome" "$(q "select completed_at is null from titan_club_welcome_email_queue where user_id='$E'")" t
+check "prompt claim returns rejoin event" "$(as service_role '' "select welcome_event_id <> 'initial' from claim_titan_club_welcome_email_for('$E')")" t
+check "prompt repeat claim does not duplicate" "$(as service_role '' "select count(*) from claim_titan_club_welcome_email_for('$E')")" 0
+EVENT=$(q "select welcome_event_id from titan_club_welcome_email_queue where user_id='$E'")
+$P -tA -c "BEGIN; SET LOCAL ROLE authenticated; SELECT set_config('test.uid','$A',true); $(V3 $E 25 false); $(V3 $E 26 true); SELECT 1/0; COMMIT;" >/dev/null 2>&1 || true
+check "rolled-back rejoin preserves previous event" "$(q "select welcome_event_id from titan_club_welcome_email_queue where user_id='$E'")" "$EVENT"
+check "rejoin queue remains admin read-only" "$(try $A "update titan_club_welcome_email_queue set welcome_event_id='tampered'")" err
 exit $fail

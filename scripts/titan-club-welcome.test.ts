@@ -82,6 +82,35 @@ function deps(over: Partial<ClubWelcomeDeps> = {}) {
 }
 
 describe("Titan Club congratulations worker", () => {
+  test("rejoining uses same template with updated perks and a distinct stable event key", async () => {
+    const updated = { ...demoClub, percent: 25, max_cap_percent: 35, free_shipping: false, stack_foundation: true };
+    const { d, log } = deps({
+      claim: async () => [{ user_id: "u1", snapshot: demoClub, attempts: 1, welcome_event_id: "rejoin-2" }],
+      current: async () => ({ programmeOn: true, active: true, club: updated, welcome_event_id: "rejoin-2" }),
+    });
+    await processClubWelcomeJobs(d);
+    await processClubWelcomeJobs(d);
+    expect(log.sends.map((s) => s.o.idempotencyKey)).toEqual(["titan-club-welcome-u1-rejoin-2", "titan-club-welcome-u1-rejoin-2"]);
+    expect(log.sends[0].t).toBe("titan-club-welcome");
+    const rendered = await text(log.sends[0].o.templateData);
+    expect(rendered).toContain("As one of our valued members");
+    expect(rendered).toContain("25% off every purchase");
+    expect(rendered).toContain("exclusive 35% order cap");
+    expect(rendered).toContain("If you hold Foundation Member status");
+    expect(rendered).not.toMatch(/free shipping/i);
+  });
+  test("superseded job never sends a new activation's perks under its old key", async () => {
+    for (const supersedeAt of [0, 1]) {
+      let reads = 0;
+      const { d, log } = deps({
+        claim: async () => [{ user_id: "u1", snapshot: demoClub, attempts: 1, welcome_event_id: "old-event" }],
+        current: async () => ({ programmeOn: true, active: true, club: demoClub, welcome_event_id: reads++ >= supersedeAt ? "new-event" : "old-event" }),
+      });
+      await processClubWelcomeJobs(d);
+      expect(log.sends).toEqual([]);
+      expect(log.finished).toEqual(["superseded"]);
+    }
+  });
   test("success uses server recipient and stable idempotency key", async () => {
     const { d, log } = deps();
     expect((await processClubWelcomeJobs(d)).sent).toBe(1);
