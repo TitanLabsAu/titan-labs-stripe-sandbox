@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { isTwoDpPercent } from "@/lib/order-pricing";
+import { isTwoDpPercent, sanitizeStacking, DEFAULT_CLUB_STACKING, type ClubStacking } from "@/lib/order-pricing";
 
 export type ClubBenefitView = {
   type: "percent" | "fixed";
@@ -12,6 +12,7 @@ export type ClubBenefitView = {
 export type MyTitanClub = (ClubBenefitView & { assignedAt: string }) | null;
 
 export type AdminClubMember = ClubBenefitView & {
+  stacking: ClubStacking;
   userId: string;
   name: string;
   email: string | null;
@@ -34,6 +35,8 @@ export type AdminClubEvent = {
 
 export type AdminTitanClub = {
   installed: boolean;
+  /** False until the staged stacking-policy database update is installed. */
+  stackingInstalled: boolean;
   enabled: boolean;
   siteCapPercent: number;
   members: AdminClubMember[];
@@ -67,6 +70,14 @@ async function requireAdmin(context: any) {
   if (error || data !== true) throw new Error("Forbidden");
 }
 
+async function hasStackingColumns(sb: any) {
+  const { error } = await sb.from("titan_club_members").select("stack_multibuy").limit(1);
+  return !error;
+}
+
+export const isDefaultStacking = (st: ClubStacking) =>
+  (Object.keys(DEFAULT_CLUB_STACKING) as (keyof ClubStacking)[]).every((k) => st[k] === DEFAULT_CLUB_STACKING[k]);
+
 const nameOf = (p: any) => [p?.first_name, p?.last_name].filter(Boolean).join(" ") || p?.email || "Member";
 
 export const adminGetTitanClub = createServerFn({ method: "POST" })
@@ -83,7 +94,7 @@ export const adminGetTitanClub = createServerFn({ method: "POST" })
     ]);
     const siteCapPercent = Number(site.data?.combined_cap_percent ?? 20);
     if (missing(settings.error) || missing(members.error))
-      return { installed: false, enabled: false, siteCapPercent, members: [], events: [] };
+      return { installed: false, stackingInstalled: false, enabled: false, siteCapPercent, members: [], events: [] };
     if (settings.error || members.error || notes.error || events.error) throw new Error("Couldn't load The Titan Club.");
     const rows = (members.data ?? []) as any[];
     const ids = [...new Set([...rows.map((r) => r.user_id), ...((events.data ?? []) as any[]).map((e) => e.user_id)])];
@@ -92,12 +103,15 @@ export const adminGetTitanClub = createServerFn({ method: "POST" })
       : { data: [] };
     const pm = new Map(((profiles ?? []) as any[]).map((p) => [p.id, p]));
     const nm = new Map(((notes.data ?? []) as any[]).map((n) => [n.user_id, n.note]));
+    const stackingInstalled = rows.length ? "stack_multibuy" in rows[0] : await hasStackingColumns(sb);
     return {
       installed: true,
+      stackingInstalled,
       enabled: Boolean(settings.data?.enabled),
       siteCapPercent,
       members: rows.map((r) => ({
         ...view(r),
+        stacking: sanitizeStacking({ multibuy: r.stack_multibuy, crypto: r.stack_crypto, firstOffer: r.stack_first_offer, code: r.stack_code, credit: r.stack_credit }),
         userId: r.user_id,
         name: nameOf(pm.get(r.user_id)),
         email: pm.get(r.user_id)?.email ?? null,
@@ -145,6 +159,7 @@ export type ClubAssignInput = {
   maxCapPercent: number;
   active: boolean;
   note: string;
+  stacking: ClubStacking;
 };
 
 /** Strict validation shared with the UI. Returns an error message or null. */
@@ -156,6 +171,9 @@ export function validateClubInput(i: ClubAssignInput): string | null {
   if (!isTwoDpPercent(i.maxCapPercent)) return "Maximum discount must be between 0.01% and 100% (up to 2 decimals).";
   if (typeof i.active !== "boolean") return "Invalid status.";
   if (String(i.note ?? "").length > 500) return "Note must be 500 characters or fewer.";
+  const st = i.stacking as any;
+  if (!st || (Object.keys(DEFAULT_CLUB_STACKING) as string[]).some((k) => typeof st[k] !== "boolean")) return "Invalid stacking settings.";
+  if ("foundation" in st) return "Foundation Member savings never combine with Titan Club.";
   return null;
 }
 
@@ -186,7 +204,17 @@ export const adminSetTitanClub = createServerFn({ method: "POST" })
     ]);
     const floorErr = clubCapFloorError(Number(data.maxCapPercent), Number(rs?.combined_cap_percent ?? 20), cur ? Number(cur.max_cap_percent) : null);
     if (floorErr) throw new Error(floorErr);
-    const { data: res, error } = await sbc.rpc("admin_set_titan_club", {
+    const stacking = sanitizeStacking(data.stacking);
+    const stackArgs = {
+      _stack_multibuy: stacking.multibuy, _stack_crypto: stacking.crypto, _stack_first_offer: stacking.firstOffer,
+      _stack_code: stacking.code, _stack_credit: stacking.credit,
+    };
+    const v2 = await hasStackingColumns(sbc);
+    // Never silently drop a policy: before the update is installed only the legacy all-allowed policy can be saved.
+    if (!v2 && !isDefaultStacking(stacking))
+      throw new Error("Stacking controls need a pending database update before they can be saved. Leave every switch on, or ask for the update to be installed.");
+    const { data: res, error } = await sbc.rpc(v2 ? "admin_set_titan_club_v2" : "admin_set_titan_club", {
+      ...(v2 ? stackArgs : {}),
       _user_id: data.userId,
       _benefit_type: data.type,
       _percent: data.type === "percent" ? Math.round(Number(data.percent) * 100) / 100 : null,
