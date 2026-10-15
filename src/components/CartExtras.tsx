@@ -15,10 +15,16 @@ import { cn } from "@/lib/utils";
 import { useReferralSettings } from "@/lib/useReferralSettings";
 import { multibuyPercentFor } from "@/lib/order-pricing";
 
-/** Progress bar toward free express shipping. */
-export function FreeShippingMeter({ amount }: { amount: number }) {
-  const progress = Math.min(100, (amount / FREE_SHIPPING_THRESHOLD) * 100);
-  const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - amount);
+/** Shared free-shipping progress maths (dollars). */
+export function freeShippingProgress(remaining: number, threshold: number) {
+  const left = Math.max(0, remaining);
+  return { left, progress: Math.min(100, Math.max(0, ((threshold - left) / threshold) * 100)) };
+}
+
+/** Progress bar toward free express shipping. `remaining` comes from the same
+    quote the checkout uses, so the meter matches checkout eligibility exactly. */
+export function FreeShippingMeter({ remaining, threshold = FREE_SHIPPING_THRESHOLD }: { remaining: number; threshold?: number }) {
+  const { left, progress } = freeShippingProgress(remaining, threshold);
   return (
     <div className="rounded-xl border border-border bg-muted/30 p-3">
       <div className="flex items-center gap-2 text-xs text-foreground">
