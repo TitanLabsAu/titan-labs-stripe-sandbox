@@ -174,3 +174,14 @@ describe("audit follow-up", () => {
     expect(clubSaveMessage({ changed: true, welcome: "sent" })).not.toMatch(/delivered|inbox/i);
   });
 });
+describe("branded header", () => {
+  test("uses the real site logo at a stable public HTTPS URL with alt and size", async () => {
+    const h = await html({ firstName: "Alex", club: demoClub });
+    expect(h).toContain('src="https://titanlabsaus.com/images/email/titan-labs-logo-320.png"');
+    expect(h).toMatch(/alt="Titan Labs Australia logo"/);
+    expect(h).toMatch(/width="140"/);
+    expect(h).not.toMatch(/<svg|token=|__l5e/);
+    const fs = await import("node:fs");
+    expect(fs.existsSync("public/images/email/titan-labs-logo-320.png")).toBe(true);
+  });
+});
