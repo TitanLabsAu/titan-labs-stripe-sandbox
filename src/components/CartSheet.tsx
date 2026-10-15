@@ -1,8 +1,8 @@
 import { ThemedProductImage } from "@/components/ThemedImage";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Check, ChevronRight, Minus, Plus, ShoppingCart, Trash2, Wrench } from "lucide-react";
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { quoteCheckoutAny } from "@/lib/checkout.functions";
@@ -61,19 +61,30 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
   // Signed-in members get the real server quote (Foundation, Titan Club, personal
   // maximum) — benefits are never computed from client data. Guests see a labelled estimate.
   const runQuote = useServerFn(quoteCheckoutAny);
+  const queryClient = useQueryClient();
+  // Reactive auth identity — the member quote is keyed and enabled by the actual
+  // signed-in user, so a cached quote can never leak across logout/login.
+  const [userId, setUserId] = useState<string | null>(null);
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setUserId(data.session?.user.id ?? null));
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserId(session?.user.id ?? null);
+      queryClient.removeQueries({ queryKey: ["cart-member-quote"] });
+    });
+    return () => sub.subscription.unsubscribe();
+  }, [queryClient]);
   const quoteItems = items.map((i) => ({ slug: i.slug, variantId: i.variantId ?? null, pack: i.pack ?? "single", quantity: i.quantity }));
   const memberQuote = useQuery({
-    queryKey: ["cart-member-quote", JSON.stringify(quoteItems)],
+    queryKey: ["cart-member-quote", userId, JSON.stringify(quoteItems)],
     queryFn: async () => {
-      const { data } = await supabase.auth.getSession();
-      if (!data.session) return null;
       const r = await runQuote({ data: { mode: "member", items: quoteItems, shippingMethod: "express", paymentMethod: "payid" } });
       return r.quote;
     },
-    enabled: open && items.length > 0,
+    enabled: open && items.length > 0 && Boolean(userId),
     retry: false,
     staleTime: 30_000,
-    placeholderData: (prev) => prev,
+    // No placeholderData: a previous quote (another user or other items) must
+    // never be presented as this cart's confirmed member pricing.
   });
   const serverQuote = memberQuote.data ?? null;
   const quote = serverQuote ?? localQuote;
@@ -85,6 +96,9 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
     itemsTotal: (quote.itemsCents - quote.multibuyCents) / 100 - memberSavings / 100,
   };
   const capPercent = serverQuote?.capPercent ?? settings.combinedCapPercent;
+  // Until a fresh server quote for THIS user and THESE items arrives, the cart
+  // total is an estimate (or still loading) — never a confirmed member price.
+  const checkingBenefits = Boolean(userId) && items.length > 0 && !serverQuote && (memberQuote.isPending || memberQuote.isFetching);
   const isEstimate = !serverQuote;
   void subtotal;
 
