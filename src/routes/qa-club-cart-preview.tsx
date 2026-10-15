@@ -41,7 +41,7 @@ function QaFixture() {
   // Session must exist before CartSheet's auth effect reads it: seed in a
   // render-phase initializer (runs before any child effects).
   useState(() => {
-    localStorage.setItem(STORAGE_KEY, fakeSession());
+    if (typeof window !== "undefined") localStorage.setItem(STORAGE_KEY, fakeSession());
     return true;
   });
   return (
