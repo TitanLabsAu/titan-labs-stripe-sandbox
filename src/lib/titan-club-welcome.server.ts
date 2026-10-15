@@ -54,16 +54,37 @@ export async function processClubWelcomeJobs(deps: ClubWelcomeDeps) {
   return { sent, processed: jobs.length };
 }
 
-export async function sendPendingClubWelcomeEmails() {
+/** Outcome of the prompt post-save dispatch, reported honestly to Admin. */
+export type ClubWelcomeDispatch = "sent" | "queued" | "none";
+
+/**
+ * Best-effort prompt send for ONE member's freshly queued welcome, after the assignment
+ * transaction has committed. Never throws: the durable hourly job remains the backup.
+ */
+export async function dispatchClubWelcomeFor(userId: string): Promise<ClubWelcomeDispatch> {
+  try {
+    const r = await sendPendingClubWelcomeEmails(userId);
+    if (!r.installed) return "none";
+    return r.sent > 0 ? "sent" : "queued";
+  } catch {
+    console.error("[titan-club-welcome] prompt dispatch failed; hourly retry will handle it");
+    return "queued";
+  }
+}
+
+export async function sendPendingClubWelcomeEmails(onlyUserId?: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
   const db = supabaseAdmin as unknown as SupabaseClient;
   const q = () => db.from("titan_club_welcome_email_queue");
-  return processClubWelcomeJobs({
+  let installed = true;
+  const res = await processClubWelcomeJobs({
     claim: async () => {
-      const { data, error } = await db.rpc("claim_titan_club_welcome_emails", { _limit: 20 });
+      const { data, error } = onlyUserId
+        ? await db.rpc("claim_titan_club_welcome_email_for" as any, { _user_id: onlyUserId })
+        : await db.rpc("claim_titan_club_welcome_emails", { _limit: 20 });
       // Queue not installed yet (staged migration): nothing to send.
-      if (error && /PGRST202|42883|PGRST205|42P01/.test(`${(error as any).code} ${error.message}`)) return [];
+      if (error && /PGRST202|42883|PGRST205|42P01/.test(`${(error as any).code} ${error.message}`)) { installed = false; return []; }
       if (error) throw error;
       return (data ?? []) as Job[];
     },
@@ -98,4 +119,5 @@ export async function sendPendingClubWelcomeEmails() {
     },
     send: sendTemplateEmail,
   });
+  return { ...res, installed };
 }

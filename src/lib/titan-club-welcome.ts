@@ -69,3 +69,11 @@ export function clubWelcomeCopy(c: ClubSnapshot) {
 export function clubWelcomeSubject(d: { firstName?: string }) {
   return d.firstName ? `Congratulations ${d.firstName} — welcome to The Titan Club` : "Congratulations — welcome to The Titan Club";
 }
+
+/** Honest Admin toast after saving a membership; never claims inbox delivery. */
+export function clubSaveMessage(r: { changed: boolean; welcome?: "sent" | "queued" | "none" }): string {
+  if (!r.changed) return "No changes to save";
+  if (r.welcome === "sent") return "Titan Club updated. Welcome email handed to the email service.";
+  if (r.welcome === "queued") return "Titan Club updated. Welcome email is queued and will go out on the next hourly send.";
+  return "Titan Club updated";
+}
