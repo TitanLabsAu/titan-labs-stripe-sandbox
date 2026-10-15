@@ -351,6 +351,13 @@
       "when": 1792040555190,
       "tag": "0049_titan_club",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1792056664955,
+      "tag": "0050_titan_club_stacking",
+      "breakpoints": true
     }
   ]
 }

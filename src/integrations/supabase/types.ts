@@ -1607,6 +1607,12 @@ export type Database = {
           max_cap_percent: number
           percent: number | null
           revoked_at: string | null
+          stack_code: boolean
+          stack_credit: boolean
+          stack_crypto: boolean
+          stack_first_offer: boolean
+          stack_foundation: boolean
+          stack_multibuy: boolean
           updated_at: string
           updated_by: string | null
           user_id: string
@@ -1620,6 +1626,12 @@ export type Database = {
           max_cap_percent?: number
           percent?: number | null
           revoked_at?: string | null
+          stack_code?: boolean
+          stack_credit?: boolean
+          stack_crypto?: boolean
+          stack_first_offer?: boolean
+          stack_foundation?: boolean
+          stack_multibuy?: boolean
           updated_at?: string
           updated_by?: string | null
           user_id: string
@@ -1633,6 +1645,12 @@ export type Database = {
           max_cap_percent?: number
           percent?: number | null
           revoked_at?: string | null
+          stack_code?: boolean
+          stack_credit?: boolean
+          stack_crypto?: boolean
+          stack_first_offer?: boolean
+          stack_foundation?: boolean
+          stack_multibuy?: boolean
           updated_at?: string
           updated_by?: string | null
           user_id?: string
@@ -1769,6 +1787,24 @@ export type Database = {
       }
       admin_set_titan_club_enabled: {
         Args: { _enabled: boolean }
+        Returns: Json
+      }
+      admin_set_titan_club_v2: {
+        Args: {
+          _active: boolean
+          _benefit_type: string
+          _fixed_cents: number
+          _max_cap: number
+          _note: string
+          _percent: number
+          _stack_code: boolean
+          _stack_credit: boolean
+          _stack_crypto: boolean
+          _stack_first_offer: boolean
+          _stack_foundation: boolean
+          _stack_multibuy: boolean
+          _user_id: string
+        }
         Returns: Json
       }
       allocate_welcome_referral_code: {
