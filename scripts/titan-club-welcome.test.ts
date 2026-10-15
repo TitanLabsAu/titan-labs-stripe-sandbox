@@ -3,7 +3,7 @@ import * as React from "react";
 import { render } from "@react-email/render";
 import { TitanClubWelcome, demoClub, template } from "../src/lib/email-templates/titan-club-welcome";
 import { TEMPLATES } from "../src/lib/email-templates/registry";
-import { parseClubSnapshot } from "../src/lib/titan-club-welcome";
+import { clubSaveMessage, parseClubSnapshot } from "../src/lib/titan-club-welcome";
 import { processClubWelcomeJobs, type ClubWelcomeDeps } from "../src/lib/titan-club-welcome.server";
 
 const html = (props: any) => render(React.createElement(TitanClubWelcome, props));
@@ -17,7 +17,10 @@ describe("Titan Club congratulations template", () => {
   test("percent demo: benefit, cap, combos, shipping, no Foundation promise", async () => {
     const t = await text({ firstName: "Alex", club: demoClub });
     expect(t).toContain("10% off every purchase");
-    expect(t).toContain("personal maximum is 30%");
+    expect(t).toContain("personal maximum of 30% per order");
+    expect(t).toContain("website's usual cap applies");
+    expect(t).toContain("Shipping is not part of either cap");
+    expect(t).not.toMatch(/all (your )?orders/i);
     expect(t).toContain("multi-buy savings, the crypto payment discount, discount codes, your referral rewards");
     expect(t).toContain("only if you are still eligible");
     expect(t).toContain("no minimum spend");
@@ -28,6 +31,7 @@ describe("Titan Club congratulations template", () => {
   test("fixed AUD and shipping off", async () => {
     const t = await text({ club: { ...demoClub, benefit_type: "fixed", percent: null, fixed_cents: 2550, free_shipping: false } });
     expect(t).toContain("$25.50 AUD off every purchase");
+    expect(t).toContain("comes off products only and never takes them below $0");
     expect(t).not.toContain("10%");
     expect(t).not.toMatch(/free shipping/i);
   });
@@ -61,7 +65,7 @@ function deps(over: Partial<ClubWelcomeDeps> = {}) {
     claim: async () => [{ user_id: "u1", snapshot: demoClub, attempts: 1 }],
     memberEmail: async () => "alex@example.test",
     firstName: async () => "Alex",
-    stillActive: async () => true,
+    current: async () => ({ programmeOn: true, active: true, club: demoClub }),
     finish: async (_j, o) => { log.finished.push(o); },
     retryLater: async (_j, e) => { log.retried.push(e); },
     send: async (t, to, o) => { log.sends.push({ t, to, o }); return { sent: true }; },
@@ -99,11 +103,74 @@ describe("Titan Club congratulations worker", () => {
     expect(log.retried.length).toBe(1);
   });
   test("missing email / missing user / revoked finish safely without sending", async () => {
-    for (const [over, outcome] of [[{ memberEmail: async () => null }, "no_email"], [{ memberEmail: async () => undefined }, "user_missing"], [{ stillActive: async () => false }, "not_active"]] as const) {
+    for (const [over, outcome] of [[{ memberEmail: async () => null }, "no_email"], [{ memberEmail: async () => undefined }, "user_missing"], [{ current: async () => ({ programmeOn: true, active: false, club: demoClub }) }, "not_active"]] as const) {
       const { d, log } = deps(over as any);
       await processClubWelcomeJobs(d);
       expect(log.sends.length).toBe(0);
       expect(log.finished).toEqual([outcome]);
     }
+  });
+});
+
+const noStack = { stack_multibuy: false, stack_crypto: false, stack_first_offer: false, stack_code: false, stack_credit: false, stack_foundation: false };
+describe("audit follow-up", () => {
+  test("only Foundation allowed does NOT say 'on its own'", async () => {
+    const t = await text({ club: { ...demoClub, ...noStack, stack_foundation: true } });
+    expect(t).not.toContain("applies on its own");
+    expect(t).toContain("If you hold Foundation Member status");
+    expect(await text({ club: { ...demoClub, ...noStack } })).toContain("applies on its own");
+  });
+  test("real HTML + plain text render, CTA routes exist", async () => {
+    const h = await html({ firstName: "Alex", club: demoClub });
+    const t = await text({ firstName: "Alex", club: demoClub });
+    expect(h).toMatch(/^<!DOCTYPE html/i);
+    expect(t).not.toMatch(/<[a-z]/i);
+    expect(t).toContain("Alex");
+    const fs = await import("node:fs");
+    expect(fs.existsSync("src/routes/_authenticated/account.tsx")).toBe(true);
+    expect(fs.existsSync("src/routes/range.tsx")).toBe(true);
+  });
+  test("edited perks before send: email uses current saved perks, not queued copy", async () => {
+    const edited = { ...demoClub, benefit_type: "fixed", percent: null, fixed_cents: 1500, free_shipping: false };
+    const { d, log } = deps({ claim: async () => [{ user_id: "u1", snapshot: demoClub, attempts: 1 }], current: async () => ({ programmeOn: true, active: true, club: edited }) });
+    await processClubWelcomeJobs(d);
+    expect(log.sends[0].o.templateData.club.fixed_cents).toBe(1500);
+    expect(log.sends[0].o.templateData.club.free_shipping).toBe(false);
+  });
+  test("perks edited between read and provider: retries, no send", async () => {
+    let n = 0;
+    const { d, log } = deps({ current: async () => ({ programmeOn: true, active: true, club: n++ ? { ...demoClub, percent: 15 } : demoClub }) });
+    await processClubWelcomeJobs(d);
+    expect(log.sends.length).toBe(0);
+    expect(log.retried.length).toBe(1);
+    expect(log.finished).toEqual([]);
+  });
+  test("programme switched off between claim and send defers, does not consume", async () => {
+    let n = 0;
+    const { d, log } = deps({ current: async () => ({ programmeOn: n++ === 0, active: true, club: demoClub }) });
+    await processClubWelcomeJobs(d);
+    expect(log.sends.length).toBe(0);
+    expect(log.finished).toEqual([]);
+    expect(log.retried[0]).toMatch(/paused/);
+  });
+  test("send succeeds but finish fails: retry reuses the same idempotency key", async () => {
+    let fail = true;
+    const { d, log } = deps({ finish: async (_j, o) => { if (fail) { fail = false; throw new Error("db down"); } log.finished.push(o); } });
+    await processClubWelcomeJobs(d);
+    await processClubWelcomeJobs(d);
+    expect(log.retried).toEqual(["db down"]);
+    expect(log.sends.map((s) => s.o.idempotencyKey)).toEqual(["titan-club-welcome-u1", "titan-club-welcome-u1"]);
+    expect(log.finished).toEqual(["sent"]);
+  });
+  test("no private data even if the saved row carries extras", async () => {
+    const { d, log } = deps({ current: async () => ({ programmeOn: true, active: true, club: { ...demoClub, note: "SECRET", email: "x@y" } }) });
+    await processClubWelcomeJobs(d);
+    expect(JSON.stringify(log.sends[0].o.templateData)).not.toMatch(/SECRET|x@y/);
+  });
+  test("honest Admin save message", () => {
+    expect(clubSaveMessage({ changed: false })).toBe("No changes to save");
+    expect(clubSaveMessage({ changed: true, welcome: "none" })).toBe("Titan Club updated");
+    expect(clubSaveMessage({ changed: true, welcome: "queued" })).toMatch(/queued.*next hourly/);
+    expect(clubSaveMessage({ changed: true, welcome: "sent" })).not.toMatch(/delivered|inbox/i);
   });
 });
