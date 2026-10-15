@@ -57,7 +57,7 @@ export function ClubEditor({ draft, siteCap, onChange, onSave, onCancel, pending
           <Input inputMode="decimal" aria-label="Benefit amount" value={draft.amount} onChange={(e) => onChange({ ...draft, amount: e.target.value })} />
         </label>
         <label className="text-xs uppercase tracking-wide text-muted-foreground">
-          Personal maximum combined discount % (site cap {siteCap}%)
+          Personal maximum combined discount % (min {siteCap}%, max 100%)
           <Input inputMode="decimal" aria-label="Maximum combined discount" value={draft.maxCap} onChange={(e) => onChange({ ...draft, maxCap: e.target.value })} />
         </label>
       </div>
@@ -103,7 +103,7 @@ export function AdminTitanClubView({ data, search, onSave, onToggle, pending, in
   const save = () => {
     if (!draft) return;
     const input = toInput(draft);
-    const err = draft.amount.trim() === "" || draft.maxCap.trim() === "" ? "Enter the benefit and maximum discount." : validateClubInput(input);
+    const err = draft.amount.trim() === "" || draft.maxCap.trim() === "" ? "Enter the benefit and maximum discount." : (validateClubInput(input) ?? clubCapFloorError(input.maxCapPercent, data.siteCapPercent, draft.isNew ? null : (data.members.find((m) => m.userId === draft.userId)?.maxCapPercent ?? null)));
     if (err) return void toast.error(err);
     if (window.confirm(confirmText(draft, data.siteCapPercent))) {
       // Keep the draft (benefit, note) until the save is confirmed; a failed save leaves it editable.
