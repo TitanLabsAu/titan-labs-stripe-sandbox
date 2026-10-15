@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { DEFAULT_PRICING_SETTINGS as S, assertExpectedTotal, quoteOrder, sanitizeClub, type ClubBenefit } from "../src/lib/order-pricing";
+import { DEFAULT_PRICING_SETTINGS as S, __probeClubBranches, assertExpectedTotal, quoteOrder, sanitizeClub, type ClubBenefit } from "../src/lib/order-pricing";
 import { pricingSnapshot } from "../src/lib/checkout-pricing.server";
 import { draftFromMember, draftToInput, isClubDraftDirty, newClubDraft, clubConfirmText } from "../src/lib/titan-club-draft";
 import { validateClubInput, type AdminClubMember } from "../src/lib/titan-club.functions";
@@ -112,22 +112,22 @@ describe("branch choice compares totals after the free-shipping waiver", () => {
     expect(r.shippingCents).toBe(0);
     expect(r.totalCents).toBe(r.merchandiseCents);
   });
-  test("property: free-shipping member always gets min merchandise across branches", () => {
+  test("property: free-shipping member always gets min valid branch merchandise", () => {
+    let n = 0;
     for (const price of [40, 95, 150, 190, 199, 200, 201, 210, 260])
       for (const qty of [1, 2, 4])
-        for (const fc of [100, 500, 2000])
+        for (const fc of [100, 500, 2000, 6000])
           for (const fp of [0, 5])
-            for (const mb of [true, false]) {
-              const lines = [line(price, qty)];
-              const c: ClubBenefit = { type: "fixed", fixedCents: fc, maxCapPercent: 30, stacking: { ...all, multibuy: mb }, freeShipping: true };
-              const r = q({ club: c, foundationPercent: fp }, lines);
-              const normal = q({ foundationPercent: fp }, lines).merchandiseCents;
-              const clubM = q({ club: { ...c, freeShipping: false }, foundationPercent: fp }, lines);
-              // Club branch merchandise when it applies the Club benefit:
-              const candidates = [normal, clubM.clubCents > 0 ? clubM.merchandiseCents : normal];
-              expect(r.merchandiseCents).toBeLessThanOrEqual(Math.max(...candidates));
-              expect(r.merchandiseCents).toBe(Math.min(normal, r.merchandiseCents));
-              expect(r.shippingCents).toBe(0);
-            }
+            for (const mb of [true, false])
+              for (const ship of ["express", "standard"] as const) {
+                const c: ClubBenefit = { type: "fixed", fixedCents: fc, maxCapPercent: 30, stacking: { ...all, multibuy: mb }, freeShipping: true };
+                let b: any = null;
+                const r = __probeClubBranches(() => q({ club: c, foundationPercent: fp }, [line(price, qty)], ship), (x) => (b = x));
+                expect(b.normal.shippingCents).toBe(0); expect(b.club.shippingCents).toBe(0);
+                expect(r.merchandiseCents).toBe(Math.min(b.normal.merchandiseCents, b.club.merchandiseCents));
+                expect(r.totalCents).toBe(r.merchandiseCents);
+                n++;
+              }
+    expect(n).toBeGreaterThan(800);
   });
 });

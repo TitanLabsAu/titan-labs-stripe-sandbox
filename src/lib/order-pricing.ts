@@ -441,6 +441,13 @@ function applyClubFreeShipping(q: Quote, club: CleanClub | null, method: Shippin
   };
 }
 
+/** Test-only hook: observe both priced branches (after any free-shipping waiver) before the choice. */
+let branchProbe: ((b: { normal: Quote; club: Quote }) => void) | null = null;
+export function __probeClubBranches<T>(fn: () => T, probe: (b: { normal: Quote; club: Quote }) => void): T {
+  branchProbe = probe;
+  try { return fn(); } finally { branchProbe = null; }
+}
+
 function quoteProducts(input: QuoteInput, settings: PricingSettings): Quote {
   const club = sanitizeClub(input.club);
   // Free shipping is waived on BOTH branches before comparing, so the cheaper total after the
@@ -471,6 +478,7 @@ function quoteProducts(input: QuoteInput, settings: PricingSettings): Quote {
   }
   if (!st.credit && (input.creditUnits ?? 0) > 0)
     cq = { ...cq, notices: [...cq.notices, "Referral rewards don't combine with your Titan Club benefit, so none were used."] };
+  if (branchProbe) branchProbe({ normal, club: cq });
   const consumed = (q: Quote) => q.creditUnits + (q.firstOfferApplied ? 1 : 0);
   const useClub =
     cq.totalCents < normal.totalCents ||
