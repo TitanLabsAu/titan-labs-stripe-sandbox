@@ -61,7 +61,7 @@ export const quoteCheckoutAny = createServerFn({ method: "POST" })
       mode: CheckoutMode;
       items: CheckoutItemInput[];
       shippingMethod: ShippingMethodKey;
-      paymentMethod: "card" | "payid" | "crypto";
+      paymentMethod: "card" | "payid" | "wise" | "crypto";
       code?: string | null;
       creditUnits?: number;
       contactEmail?: string;
@@ -78,7 +78,7 @@ export const quoteCheckoutAny = createServerFn({ method: "POST" })
       {
         items: data.items,
         shippingMethod: data.shippingMethod === "standard" ? "standard" : "express",
-        paymentMethod: data.paymentMethod === "crypto" ? "crypto" : data.paymentMethod === "payid" ? "payid" : "card",
+        paymentMethod: data.paymentMethod === "crypto" ? "crypto" : data.paymentMethod === "payid" ? "payid" : data.paymentMethod === "wise" ? "wise" : "card",
         code: data.code ?? null,
         creditUnits: Math.max(0, Math.floor(Number(data.creditUnits) || 0)),
       },

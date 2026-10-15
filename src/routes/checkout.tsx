@@ -372,8 +372,8 @@ function CheckoutPage() {
     pack: i.pack ?? "single",
     quantity: i.quantity,
   }));
-  const quotePayment: "card" | "payid" | "crypto" =
-    method === "crypto" ? "crypto" : method === "card" ? "card" : "payid";
+  const quotePayment: "card" | "payid" | "wise" | "crypto" =
+    method === "crypto" ? "crypto" : method === "card" ? "card" : method === "wise" ? "wise" : "payid";
   const quoteEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ? email.trim().toLowerCase() : "";
   const serverQuote = useQuery({
     queryKey: ["checkout-quote", mode, session?.id, JSON.stringify(quoteItems), shippingMethod, quotePayment, appliedCode, creditUnits, quoteEmail],
@@ -543,7 +543,7 @@ function CheckoutPage() {
           state: address.state,
           postcode: address.postcode,
           notes,
-          paymentMethod: method === "crypto" ? "crypto" : "payid",
+          paymentMethod: method === "crypto" ? "crypto" : method === "wise" ? "wise" : "payid",
           shippingMethod,
           items: items.map((i) => ({
             slug: i.slug,

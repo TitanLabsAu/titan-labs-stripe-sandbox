@@ -21,7 +21,7 @@ export type SubmitOrderInput = {
   state: string;
   postcode: string;
   notes?: string;
-  paymentMethod: "payid" | "crypto";
+  paymentMethod: "payid" | "wise" | "crypto";
   shippingMethod?: ShippingMethodKey;
   items: SubmitOrderItem[];
   code?: string | null;
@@ -36,7 +36,7 @@ export type SubmittedOrder = {
   discount: number;
   shipping: number;
   total: number;
-  paymentMethod: "payid" | "crypto" | "card";
+  paymentMethod: "payid" | "wise" | "crypto" | "card";
   shippingMethod: ShippingMethodKey;
   guest?: boolean;
 };
@@ -68,7 +68,15 @@ export const submitOrder = createServerFn({ method: "POST" })
       throw new Error("Please complete your delivery address.");
     }
 
-    const paymentMethod = data.paymentMethod === "crypto" ? "crypto" : "payid";
+    const paymentMethod =
+      data.paymentMethod === "crypto" ? "crypto" : data.paymentMethod === "wise" ? "wise" : "payid";
+    if (paymentMethod === "wise") {
+      // Wise is only accepted while the owner has it switched on in Admin.
+      const { supabaseAdmin: cms } = await import("@/integrations/supabase/client.server");
+      const { data: row } = await (cms as any)
+        .from("site_content").select("body").eq("key", "payment_wise_enabled").maybeSingle();
+      if (row?.body !== "true") throw new Error("Wise is not currently available. Please choose another payment method.");
+    }
     const shippingMethod: ShippingMethodKey =
       data.shippingMethod === "standard" ? "standard" : "express";
 
