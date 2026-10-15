@@ -2,10 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { ShieldCheck, Star } from "lucide-react";
 import { getMyFoundation } from "@/lib/foundation.functions";
+import { getMyTitanClub } from "@/lib/titan-club.functions";
+import { useReferralSettings } from "@/lib/useReferralSettings";
 
 type Data = Awaited<ReturnType<typeof getMyFoundation>>;
 
-export function FoundationMemberView({ data }: { data: Data }) {
+export function FoundationMemberView({ data, capPercent = 20, personalCap = false }: { data: Data; capPercent?: number; personalCap?: boolean }) {
   const { award, status } = data;
   if (award) {
     return (
@@ -19,7 +21,7 @@ export function FoundationMemberView({ data }: { data: Data }) {
             Foundation Member <span className="text-primary">#{String(award.memberNumber).padStart(2, "0")} of {status.capacity}</span>
           </p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Permanent {status.benefitPercent}% member benefit · Combined savings capped at 20%
+            Permanent {status.benefitPercent}% member benefit · {personalCap ? `Your personal combined savings maximum is ${capPercent}%` : `Combined savings capped at ${capPercent}%`}. Range kit prices already include their built-in saving.
           </p>
         </div>
       </section>
@@ -33,7 +35,7 @@ export function FoundationMemberView({ data }: { data: Data }) {
       <p className="text-sm text-muted-foreground">
         <strong className="text-foreground">Foundation Member places remain.</strong> Your next paid order can make you
         one of our first {status.capacity} Foundation Members, with a permanent {status.benefitPercent}% benefit on later
-        purchases (combined savings capped at 20%). The qualifying order itself isn't discounted.
+        purchases (combined savings capped at {capPercent}%). The qualifying order itself isn't discounted.
       </p>
     </section>
   );
@@ -42,5 +44,10 @@ export function FoundationMemberView({ data }: { data: Data }) {
 export function FoundationMemberBadge() {
   const fetchIt = useServerFn(getMyFoundation);
   const { data } = useQuery({ queryKey: ["my-foundation"], queryFn: () => fetchIt() });
-  return data ? <FoundationMemberView data={data} /> : null;
+  const clubFn = useServerFn(getMyTitanClub);
+  const club = useQuery({ queryKey: ["my-titan-club"], queryFn: () => clubFn() });
+  const { settings } = useReferralSettings();
+  const activeClub = club.data ?? null;
+  const cap = activeClub ? activeClub.maxCapPercent : settings.combinedCapPercent;
+  return data ? <FoundationMemberView data={data} capPercent={cap} personalCap={Boolean(activeClub)} /> : null;
 }

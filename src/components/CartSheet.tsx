@@ -2,6 +2,10 @@ import { ThemedProductImage } from "@/components/ThemedImage";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Check, ChevronRight, Minus, Plus, ShoppingCart, Trash2, Wrench } from "lucide-react";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { supabase } from "@/integrations/supabase/client";
+import { quoteCheckoutAny } from "@/lib/checkout.functions";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -20,7 +24,7 @@ import { CryptoEstimate } from "@/components/CryptoEstimate";
 import { useCart } from "@/lib/cart";
 import { equipmentUpsellState } from "@/lib/cart-upsell";
 import { formatPrice, sortedProductVariants } from "@/lib/products";
-import { quoteOrder } from "@/lib/order-pricing";
+import { clubLabel, quoteOrder } from "@/lib/order-pricing";
 import { cartPriceLines, useReferralSettings } from "@/lib/useReferralSettings";
 import { useProducts, useSiteContent } from "@/lib/useCatalog";
 import { cmsValues } from "@/lib/storefrontContent";
@@ -50,16 +54,38 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
     : [];
 
   const { settings } = useReferralSettings();
-  const quote = quoteOrder(
+  const localQuote = quoteOrder(
     { lines: cartPriceLines(items, getProduct, getLinePrice), shippingMethod: "express", paymentMethod: "payid" },
     settings,
   );
+  // Signed-in members get the real server quote (Foundation, Titan Club, personal
+  // maximum) — benefits are never computed from client data. Guests see a labelled estimate.
+  const runQuote = useServerFn(quoteCheckoutAny);
+  const quoteItems = items.map((i) => ({ slug: i.slug, variantId: i.variantId ?? null, pack: i.pack ?? "single", quantity: i.quantity }));
+  const memberQuote = useQuery({
+    queryKey: ["cart-member-quote", JSON.stringify(quoteItems)],
+    queryFn: async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) return null;
+      const r = await runQuote({ data: { mode: "member", items: quoteItems, shippingMethod: "express", paymentMethod: "payid" } });
+      return r.quote;
+    },
+    enabled: open && items.length > 0,
+    retry: false,
+    staleTime: 30_000,
+    placeholderData: (prev) => prev,
+  });
+  const serverQuote = memberQuote.data ?? null;
+  const quote = serverQuote ?? localQuote;
+  const memberSavings = serverQuote ? serverQuote.firstOfferCents + serverQuote.foundationCents + serverQuote.clubCents : 0;
   const totals = {
     subtotal: quote.itemsCents / 100,
     stackDiscount: quote.multibuyCents / 100,
     stackPercent: quote.multibuyPercent,
-    itemsTotal: (quote.itemsCents - quote.multibuyCents) / 100,
+    itemsTotal: (quote.itemsCents - quote.multibuyCents) / 100 - memberSavings / 100,
   };
+  const capPercent = serverQuote?.capPercent ?? settings.combinedCapPercent;
+  const isEstimate = !serverQuote;
   void subtotal;
 
   // Mobile floating trigger is hidden on checkout pages — the checkout flow
@@ -291,13 +317,34 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
             </div>
             {totals.stackDiscount > 0 ? (
               <div className="flex justify-between font-bold text-accent">
-                <span>Titan Stack {totals.stackPercent}% off{quote.capApplied ? ` (capped at ${settings.combinedCapPercent}%)` : ""}</span>
+                <span>Titan Stack {totals.stackPercent}% off{quote.capApplied ? ` (capped at ${capPercent}%)` : ""}</span>
                 <span>−{formatPrice(totals.stackDiscount)}</span>
               </div>
             ) : null}
+            {serverQuote && serverQuote.firstOfferCents > 0 ? (
+              <div className="flex justify-between font-bold text-accent">
+                <span>First purchase {serverQuote.firstOfferPercent}%</span>
+                <span>−{formatPrice(serverQuote.firstOfferCents / 100)}</span>
+              </div>
+            ) : null}
+            {serverQuote && serverQuote.foundationCents > 0 ? (
+              <div className="flex justify-between font-bold text-accent">
+                <span>Foundation Member {serverQuote.foundationPercent}%</span>
+                <span>−{formatPrice(serverQuote.foundationCents / 100)}</span>
+              </div>
+            ) : null}
+            {serverQuote && serverQuote.clubCents > 0 ? (
+              <div className="flex justify-between font-bold text-accent">
+                <span>Titan Club {clubLabel(serverQuote)}</span>
+                <span>−{formatPrice(serverQuote.clubCents / 100)}</span>
+              </div>
+            ) : null}
+            {serverQuote?.clubType ? (
+              <p className="text-xs text-muted-foreground">Your personal maximum combined saving is {serverQuote.capPercent}% of products.</p>
+            ) : null}
             <div className="flex items-center justify-between pt-1">
               <span className="uppercase tracking-wide text-muted-foreground">
-                Total
+                {isEstimate ? "Estimated total" : "Total"}
               </span>
               <span className="text-xl font-extrabold text-accent">
                 {formatPrice(totals.itemsTotal)}{" "}
@@ -307,7 +354,7 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
               </span>
             </div>
             <p className="text-xs text-muted-foreground">
-              Shipping chosen at checkout. Crypto saves up to {settings.cryptoPercent}% — combined multi-buy, kit and crypto savings are capped at {settings.combinedCapPercent}%.
+              Shipping chosen at checkout. Crypto saves up to {settings.cryptoPercent}% — combined savings are capped at {capPercent}%.{isEstimate ? " Estimate only — member benefits (Foundation, Titan Club) are applied at checkout." : " Your member benefits are included; final total confirmed at checkout."}
             </p>
             <CryptoEstimate amountAud={totals.itemsTotal} className="mt-3" />
           </div>

@@ -65,3 +65,5 @@
 - [x] Block manual paid confirmation of reopened order whose 10% claim was released/reused; test
 - [x] Titan Club (unpublished draft, migration pending approval): manager, badges, pricing, tests, previews
 - [x] Titan Club per-member max combined discount (default site cap, up to 100%, replaces global cap for active members)
+- [x] Foundation badge cap text shows effective personal Club cap when active Club
+- [x] Club max cap >= current website cap (UI + admin RPC in titan-club.sql), test reject-below

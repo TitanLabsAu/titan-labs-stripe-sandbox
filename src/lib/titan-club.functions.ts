@@ -159,6 +159,17 @@ export function validateClubInput(i: ClubAssignInput): string | null {
   return null;
 }
 
+/**
+ * A new or changed personal maximum must be at least the current website cap (kit prices
+ * embed savings a lower cap cannot enforce). An unchanged existing maximum is preserved.
+ */
+export function clubCapFloorError(newCap: number, siteCap: number, existingCap: number | null): string | null {
+  if (existingCap !== null && Math.round(existingCap * 100) === Math.round(newCap * 100)) return null;
+  if (Math.round(newCap * 100) < Math.round(siteCap * 100))
+    return `Maximum discount must be at least the website cap of ${siteCap}% (up to 100%).`;
+  return null;
+}
+
 export const adminSetTitanClub = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: ClubAssignInput) => {
@@ -168,7 +179,14 @@ export const adminSetTitanClub = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
-    const { data: res, error } = await (context.supabase as any).rpc("admin_set_titan_club", {
+    const sbc = context.supabase as any;
+    const [{ data: rs }, { data: cur }] = await Promise.all([
+      sbc.from("referral_settings").select("combined_cap_percent").eq("id", 1).maybeSingle(),
+      sbc.from("titan_club_members").select("max_cap_percent").eq("user_id", data.userId).maybeSingle(),
+    ]);
+    const floorErr = clubCapFloorError(Number(data.maxCapPercent), Number(rs?.combined_cap_percent ?? 20), cur ? Number(cur.max_cap_percent) : null);
+    if (floorErr) throw new Error(floorErr);
+    const { data: res, error } = await sbc.rpc("admin_set_titan_club", {
       _user_id: data.userId,
       _benefit_type: data.type,
       _percent: data.type === "percent" ? Math.round(Number(data.percent) * 100) / 100 : null,
@@ -178,7 +196,7 @@ export const adminSetTitanClub = createServerFn({ method: "POST" })
       _note: String(data.note ?? "").trim(),
     });
     if (missing(error)) throw new Error("The Titan Club isn't switched on in the database yet (awaiting approval).");
-    if (error) throw new Error(/unknown member/.test(error.message) ? "That member couldn't be found." : "Couldn't save Titan Club membership.");
+    if (error) throw new Error(/unknown member/.test(error.message) ? "That member couldn't be found." : /below website cap/.test(error.message) ? "Maximum discount must be at least the website cap." : "Couldn't save Titan Club membership.");
     return { changed: Boolean(res?.changed), action: (res?.action ?? null) as string | null };
   });
 

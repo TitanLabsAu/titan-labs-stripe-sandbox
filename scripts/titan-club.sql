@@ -111,6 +111,12 @@ BEGIN
   PERFORM pg_advisory_xact_lock(hashtext('titan_club:' || _user_id::text));
   SELECT * INTO old FROM public.titan_club_members WHERE user_id = _user_id FOR UPDATE;
   SELECT note INTO old_note FROM public.titan_club_notes WHERE user_id = _user_id;
+  -- New or changed personal maxima must be at least the current trusted website cap
+  -- (kit prices embed savings a lower cap could not enforce). Unchanged existing maxima are preserved.
+  IF (old.user_id IS NULL OR old.max_cap_percent <> _max_cap)
+     AND _max_cap < coalesce((SELECT combined_cap_percent FROM public.referral_settings WHERE id = 1), 20) THEN
+    RAISE EXCEPTION 'maximum discount below website cap' USING ERRCODE = '22023';
+  END IF;
 
   IF old.user_id IS NULL THEN
     IF NOT _active THEN RAISE EXCEPTION 'member is not in the club' USING ERRCODE = '22023'; END IF;
