@@ -152,7 +152,9 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
             </p>
           ) : (
             <>
-              <FreeShippingMeter amount={totals.itemsTotal} />
+              {/* Uses the same remaining-to-free-shipping the quote/checkout computes
+                  (after multibuy + crypto percent, matching checkout eligibility). */}
+              <FreeShippingMeter remaining={quote.remainingForFreeShippingCents / 100} />
 
               <ul className="space-y-4">
                 {items.map((item) => {
@@ -368,7 +370,7 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
               </span>
             </div>
             <p className="text-xs text-muted-foreground">
-              Shipping chosen at checkout. Crypto saves up to {settings.cryptoPercent}% — combined savings are capped at {capPercent}%.{isEstimate ? " Estimate only — member benefits (Foundation, Titan Club) are applied at checkout." : " Your member benefits are included; final total confirmed at checkout."}
+              Shipping chosen at checkout. Crypto saves up to {settings.cryptoPercent}% — combined savings are capped at {capPercent}%.{checkingBenefits ? " Checking your member benefits…" : isEstimate ? " Estimate only — member benefits (Foundation, Titan Club) are applied at checkout." : " Your member benefits are included; final total confirmed at checkout."}
             </p>
             <CryptoEstimate amountAud={totals.itemsTotal} className="mt-3" />
           </div>
