@@ -14,6 +14,7 @@ export type ClubDraft = {
   active: boolean;
   isNew: boolean;
   stacking: ClubStacking;
+  freeShipping: boolean;
 };
 
 const shortId = (id: string) => id.slice(0, 8);
@@ -23,16 +24,17 @@ export function draftFromMember(m: AdminClubMember): ClubDraft {
     userId: m.userId, name: m.name, email: m.email, type: m.type,
     amount: m.type === "percent" ? String(m.percent) : (m.fixedCents / 100).toFixed(2),
     maxCap: String(m.maxCapPercent), note: m.note, active: m.active, isNew: false, stacking: { ...DEFAULT_CLUB_STACKING, ...m.stacking },
+    freeShipping: m.freeShipping === true,
   };
 }
 
 export function newClubDraft(c: { userId: string; name: string; email: string | null }, siteCap: number): ClubDraft {
-  return { ...c, type: "percent", amount: "", maxCap: String(siteCap), note: "", active: true, isNew: true, stacking: { ...DEFAULT_CLUB_STACKING } };
+  return { ...c, type: "percent", amount: "", maxCap: String(siteCap), note: "", active: true, isNew: true, stacking: { ...DEFAULT_CLUB_STACKING }, freeShipping: false };
 }
 
 export function draftToInput(d: ClubDraft): ClubAssignInput {
   return {
-    userId: d.userId, type: d.type, maxCapPercent: Number(d.maxCap), active: d.active, note: d.note, stacking: { ...d.stacking },
+    userId: d.userId, type: d.type, maxCapPercent: Number(d.maxCap), active: d.active, note: d.note, stacking: { ...d.stacking }, freeShipping: d.freeShipping === true,
     ...(d.type === "percent" ? { percent: Number(d.amount) } : { fixedDollars: Number(d.amount) }),
   };
 }
@@ -48,6 +50,7 @@ export function validateClubDraft(d: ClubDraft, siteCap: number, existing: Admin
 export function isClubDraftDirty(d: ClubDraft, existing: AdminClubMember | null): boolean {
   if (!existing) return d.active;
   const base = draftFromMember(existing);
+  if (d.freeShipping !== base.freeShipping) return true;
   if ((Object.keys(DEFAULT_CLUB_STACKING) as (keyof ClubStacking)[]).some((k) => d.stacking[k] !== base.stacking[k])) return true;
   return (["type", "amount", "maxCap", "note", "active"] as const).some((k) =>
     k === "amount" || k === "maxCap" ? Number(d[k]) !== Number(base[k]) || d[k].trim() === "" : d[k] !== base[k]);
@@ -63,6 +66,7 @@ export function clubConfirmText(d: ClubDraft, siteCap: number, existing: AdminCl
   ];
   const off = STACK_LABELS.filter(([k]) => !d.stacking[k]).map(([, l]) => l);
   lines.push(`Combines with: ${STACK_LABELS.filter(([k]) => d.stacking[k]).map(([, l]) => l).join(", ") || "nothing extra"}.${off.length ? ` Not combined: ${off.join(", ")}.` : ""}`);
+  lines.push(d.freeShipping ? "Titan Club free shipping: ON — every order ships free, no minimum spend." : "Titan Club free shipping: off (normal website shipping).");
   if (Number(d.maxCap) > siteCap)
     lines.push(`WARNING: ${d.maxCap}% is ABOVE the website cap of ${siteCap}%. This member's total product discounts can reach ${d.maxCap}%.`);
   return lines.join("\n\n");

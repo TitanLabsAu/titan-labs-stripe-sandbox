@@ -68,7 +68,7 @@ describe("regressions & trust", () => {
   test("legacy row (no columns) = all allowed incl Foundation", () => expect(stackingFromRow({})).toEqual({ ...all, foundation: true }));
   test("DB false values honoured", () => expect(stackingFromRow({ stack_code: false }).code).toBe(false));
   test("tampered foundation key rejected", () => {
-    const base = { userId: "11111111-1111-1111-1111-111111111111", type: "percent" as const, percent: 5, maxCapPercent: 20, active: true, note: "" };
+    const base = { userId: "11111111-1111-1111-1111-111111111111", type: "percent" as const, percent: 5, maxCapPercent: 20, active: true, note: "", freeShipping: false };
     expect(validateClubInput({ ...base, stacking: { ...all, foundation: "on" } as any })).toMatch(/stacking/);
     expect(validateClubInput({ ...base, stacking: { ...all, code: "yes" } as any })).toMatch(/stacking/);
     expect(validateClubInput({ ...base, stacking: all })).toBeNull();

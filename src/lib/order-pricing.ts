@@ -153,6 +153,10 @@ export type Quote = {
   clubFixedCents: number;
   clubCents: number;
   clubCapReached: boolean;
+  /** Titan Club free-shipping entitlement applied (separate from product discounts and the cap). */
+  clubFreeShipping: boolean;
+  /** Shipping actually waived by the Club entitlement (0 when the order already qualified by threshold). */
+  clubFreeShippingCents: number;
   creditUnits: number;
   creditCents: number;
   merchandiseCents: number;
@@ -332,6 +336,8 @@ function evaluate(
     clubFixedCents: club?.type === "fixed" ? club.fixedCents : 0,
     clubCents,
     clubCapReached,
+    clubFreeShipping: false,
+    clubFreeShippingCents: 0,
     creditUnits,
     creditCents,
     merchandiseCents,
@@ -372,6 +378,8 @@ export type ClubBenefit = ({ type: "percent"; percent: number; fixedCents?: 0 } 
   maxCapPercent: number;
   /** Which EXTRA checkout discounts may combine with Club (missing = all allowed, legacy behaviour). */
   stacking?: Partial<ClubStacking>;
+  /** Free shipping on every non-empty order (strict boolean; anything else = off). */
+  freeShipping?: boolean;
 };
 
 /** True for a finite value in (0, max] with at most 2 decimals (integer basis points). */
@@ -386,21 +394,22 @@ export function sanitizeStacking(v: Partial<ClubStacking> | null | undefined, fa
   return o;
 }
 
-type CleanClub = ({ type: "percent"; percent: number; fixedCents: 0 } | { type: "fixed"; percent: 0; fixedCents: number }) & { maxCapPercent: number; stacking: ClubStacking };
+type CleanClub = ({ type: "percent"; percent: number; fixedCents: 0 } | { type: "fixed"; percent: 0; fixedCents: number }) & { maxCapPercent: number; stacking: ClubStacking; freeShipping: boolean };
 
 /** Strict: percent 0.01–100, fixed 1c–$1000 integer cents, max cap 0.01–100; anything else = no benefit. */
 export function sanitizeClub(c: ClubBenefit | null | undefined): CleanClub | null {
   if (!c || !isTwoDpPercent(c.maxCapPercent)) return null;
   const maxCapPercent = Math.round(Number(c.maxCapPercent) * 100) / 100;
   const stacking = sanitizeStacking(c.stacking);
+  const freeShipping = c.freeShipping === true;
   if (c.type === "percent") {
     if (!isTwoDpPercent(c.percent)) return null;
-    return { type: "percent", percent: Math.round(Number(c.percent) * 100) / 100, fixedCents: 0, maxCapPercent, stacking };
+    return { type: "percent", percent: Math.round(Number(c.percent) * 100) / 100, fixedCents: 0, maxCapPercent, stacking, freeShipping };
   }
   if (c.type === "fixed") {
     const f = Number(c.fixedCents);
     if (!Number.isInteger(f) || f <= 0 || f > 100000) return null;
-    return { type: "fixed", percent: 0, fixedCents: f, maxCapPercent, stacking };
+    return { type: "fixed", percent: 0, fixedCents: f, maxCapPercent, stacking, freeShipping };
   }
   return null;
 }
@@ -410,6 +419,29 @@ export function sanitizeClub(c: ClubBenefit | null | undefined): CleanClub | nul
  * cheaper outcome for the customer wins and a notice explains why.
  */
 export function quoteOrder(input: QuoteInput, settings: PricingSettings = DEFAULT_PRICING_SETTINGS): Quote {
+  return applyClubFreeShipping(quoteProducts(input, settings), sanitizeClub(input.club), input.shippingMethod);
+}
+
+/**
+ * Titan Club free shipping: applies to whichever pricing branch won (never part of the
+ * product discount cap or any reward). Empty orders never show a shipping saving.
+ */
+function applyClubFreeShipping(q: Quote, club: CleanClub | null, method: ShippingMethodKey): Quote {
+  if (!club?.freeShipping || q.itemsCents <= 0) return q;
+  const option = SHIPPING_OPTIONS.find((o) => o.key === method) ?? SHIPPING_OPTIONS[1]!;
+  const waived = q.shippingCents;
+  return {
+    ...q,
+    clubFreeShipping: true,
+    clubFreeShippingCents: waived,
+    shippingCents: 0,
+    freeShippingCents: toCents(option.price),
+    totalCents: q.totalCents - waived,
+    remainingForFreeShippingCents: 0,
+  };
+}
+
+function quoteProducts(input: QuoteInput, settings: PricingSettings): Quote {
   const club = sanitizeClub(input.club);
   const normal = quoteCore({ ...input, club: null }, settings);
   if (!club) return normal;
