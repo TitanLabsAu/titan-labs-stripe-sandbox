@@ -74,7 +74,7 @@ export function AdminMemberTitanClubView({ member, data, onSave, pending, initia
       {draft ? (
         <div className="mt-4 border-t border-border pt-4">
           {draft.active ? (
-            <ClubEditor compact draft={draft} siteCap={data.siteCapPercent} onChange={setDraft} onSave={save} onCancel={() => setDraft(null)}
+            <ClubEditor compact stackingInstalled={data.stackingInstalled} draft={draft} siteCap={data.siteCapPercent} onChange={setDraft} onSave={save} onCancel={() => setDraft(null)}
               pending={Boolean(pending)} saveDisabled={!dirty} saveLabel="Save Titan Club details" />
           ) : (
             <div className="space-y-3">

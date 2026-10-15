@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { TitanClubPill, clubBenefitText } from "@/components/TitanClubBadge";
-import { clubConfirmText, draftFromMember, draftToInput, newClubDraft, validateClubDraft, type ClubDraft } from "@/lib/titan-club-draft";
+import { STACK_LABELS, clubConfirmText, draftFromMember, draftToInput, newClubDraft, validateClubDraft, type ClubDraft } from "@/lib/titan-club-draft";
 import {
   adminGetTitanClub,
   adminSearchClubCandidates,
@@ -24,7 +24,8 @@ const shortId = (id: string) => id.slice(0, 8);
 
 type Draft = ClubDraft;
 
-export function ClubEditor({ draft, siteCap, onChange, onSave, onCancel, pending, saveLabel, saveDisabled, compact }: {
+export function ClubEditor({ draft, siteCap, onChange, onSave, onCancel, pending, saveLabel, saveDisabled, compact, stackingInstalled = true }: {
+  stackingInstalled?: boolean;
   draft: Draft; siteCap: number; onChange: (d: Draft) => void; onSave: () => void; onCancel: () => void; pending?: boolean;
   saveLabel?: string; saveDisabled?: boolean; compact?: boolean;
 }) {
@@ -56,6 +57,7 @@ export function ClubEditor({ draft, siteCap, onChange, onSave, onCancel, pending
           Above the website cap of {siteCap}%: this member's total product discounts can reach {draft.maxCap}%.
         </p>
       ) : null}
+      <StackingPolicy draft={draft} onChange={onChange} stackingInstalled={stackingInstalled} />
       <label className="block text-xs uppercase tracking-wide text-muted-foreground">
         Private admin note (never shown to the member)
         <Input aria-label="Private admin note" maxLength={500} value={draft.note} onChange={(e) => onChange({ ...draft, note: e.target.value })} />
@@ -69,6 +71,33 @@ export function ClubEditor({ draft, siteCap, onChange, onSave, onCancel, pending
         <Button type="button" variant="outline" disabled={pending} onClick={onCancel}>Cancel</Button>
       </div>
     </div>
+  );
+}
+
+/** Per-member stacking switches. Foundation is a locked hard rule, never editable. */
+export function StackingPolicy({ draft, onChange, stackingInstalled = true }: { draft: Draft; onChange: (d: Draft) => void; stackingInstalled?: boolean }) {
+  return (
+    <fieldset className="rounded-lg border border-border p-3" aria-label="Titan Club stacking">
+      <legend className="px-1 text-xs font-bold uppercase tracking-wide text-foreground">Combines with</legend>
+      <p className="mb-2 text-xs text-muted-foreground">
+        These control EXTRA checkout discounts only. Sale and Range kit prices already shown on products are kept. Website rules still apply on top.
+      </p>
+      <ul className="grid gap-2 sm:grid-cols-2">
+        {STACK_LABELS.map(([k, label]) => (
+          <li key={k} className="flex items-center justify-between gap-2 rounded border border-border px-3 py-2 text-sm text-foreground">
+            <span>{label}</span>
+            <Switch aria-label={`Combine with ${label}`} checked={draft.stacking[k]}
+              onCheckedChange={(on) => onChange({ ...draft, stacking: { ...draft.stacking, [k]: on } })} />
+          </li>
+        ))}
+        <li className="text-xs text-muted-foreground sm:col-span-2">
+          Foundation Member is off by default for new members: with it off, checkout uses either Club or Foundation, whichever is cheaper.
+        </li>
+      </ul>
+      {!stackingInstalled ? (
+        <p role="note" className="mt-2 text-xs font-bold text-primary">Database update pending: only "every switch on" (including Foundation) can be saved until stacking controls are installed.</p>
+      ) : null}
+    </fieldset>
   );
 }
 
@@ -100,7 +129,7 @@ export function AdminTitanClubView({ data, search, onSave, onToggle, pending, in
       ? `Reactivate ${m.name} (${m.email ?? "no email"}) in The Titan Club with ${clubBenefitText(m)} and ${m.maxCapPercent}% maximum?`
       : `Revoke ${m.name}'s Titan Club benefit? Future checkouts use the standard ${data.siteCapPercent}% cap; existing orders are unchanged.`;
     if (window.confirm(msg))
-      void Promise.resolve(onSave({ userId: m.userId, type: m.type, maxCapPercent: m.maxCapPercent, active: on, note: m.note, ...(m.type === "percent" ? { percent: m.percent } : { fixedDollars: m.fixedCents / 100 }) })).catch(() => undefined);
+      void Promise.resolve(onSave({ userId: m.userId, type: m.type, maxCapPercent: m.maxCapPercent, active: on, note: m.note, stacking: m.stacking, ...(m.type === "percent" ? { percent: m.percent } : { fixedDollars: m.fixedCents / 100 }) })).catch(() => undefined);
   };
 
   return (
@@ -155,7 +184,7 @@ export function AdminTitanClubView({ data, search, onSave, onToggle, pending, in
           })}
         </ul>
       ) : null}
-      {draft ? <ClubEditor draft={draft} siteCap={data.siteCapPercent} onChange={setDraft} onSave={save} onCancel={() => setDraft(null)} pending={pending ?? false} /> : null}
+      {draft ? <ClubEditor stackingInstalled={data.stackingInstalled} draft={draft} siteCap={data.siteCapPercent} onChange={setDraft} onSave={save} onCancel={() => setDraft(null)} pending={pending ?? false} /> : null}
 
       <div className="mt-6 overflow-x-auto">
         {data.members.length ? (
