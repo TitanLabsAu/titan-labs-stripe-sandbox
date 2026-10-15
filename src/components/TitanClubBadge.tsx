@@ -20,9 +20,10 @@ export function TitanClubView({ club }: { club: NonNullable<MyTitanClub> }) {
         </p>
         <p className="mt-1 text-sm text-muted-foreground">
           Your Club benefit is permanent while your membership is active and is applied automatically at checkout to
-          products (not shipping). Your personal maximum combined saving is {club.maxCapPercent}% of products — all
-          discounts together (kits, Foundation, multi-buy, crypto, codes, offers, referral rewards and Club) never exceed
-          it, so your Club saving may be reduced on orders that already have other discounts.
+          products (not shipping). Extra checkout savings (Foundation, multi-buy, crypto, codes, offers, referral
+          rewards and Club) are capped at your personal maximum of {club.maxCapPercent}% of products. Range kit prices
+          already include their built-in saving — you keep that lower kit price in full, so your Club saving may be
+          reduced on orders that already have other discounts.
         </p>
       </div>
     </section>
