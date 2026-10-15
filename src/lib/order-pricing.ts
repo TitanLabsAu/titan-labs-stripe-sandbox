@@ -146,6 +146,13 @@ export type Quote = {
   foundationCents: number;
   /** True when the combined cap reduced (or zeroed) the Foundation saving. */
   foundationCapReached: boolean;
+  /** Titan Club admin-assigned benefit (server-verified only). */
+  clubApplied: boolean;
+  clubType: "percent" | "fixed" | null;
+  clubPercent: number;
+  clubFixedCents: number;
+  clubCents: number;
+  clubCapReached: boolean;
   creditUnits: number;
   creditCents: number;
   merchandiseCents: number;
@@ -226,12 +233,15 @@ function evaluate(
   // Foundation Member: permanent automatic benefit, applied BEFORE consumable referral rewards.
   // For members the TOTAL discount (kit savings included) never exceeds the combined cap.
   const fPct = Math.min(100, Math.max(0, Number(input.foundationPercent) || 0));
+  const club = sanitizeClub(input.club);
+  const capCents = Math.floor((baseCents * s.combinedCapPercent) / 100);
+  if ((fPct > 0 || club) && itemsCents > 0) {
+    const over = baseCents - (afterOffer - codeCents) - capCents;
+    if (over > 0) codeCents -= Math.min(over, codeCents);
+  }
   let foundationCents = 0;
   let foundationCapReached = false;
   if (fPct > 0 && itemsCents > 0) {
-    const capCents = Math.floor((baseCents * s.combinedCapPercent) / 100);
-    const over = baseCents - (afterOffer - codeCents) - capCents;
-    if (over > 0) codeCents -= Math.min(over, codeCents);
     const want = Math.round((baseCents * fPct) / 100);
     const roomLeft = Math.max(0, capCents - (baseCents - (afterOffer - codeCents)));
     foundationCents = Math.max(0, Math.min(want, roomLeft, afterOffer - codeCents));
@@ -243,7 +253,23 @@ function evaluate(
           : `Your Foundation Member saving was reduced so total savings stay within the ${s.combinedCapPercent}% maximum.`,
       );
   }
-  const afterCode = afterOffer - codeCents - foundationCents;
+  // Titan Club: after Foundation, before consumable referral rewards; products only, shares the cap.
+  let clubCents = 0;
+  let clubCapReached = false;
+  if (club && itemsCents > 0) {
+    const want = club.type === "percent" ? Math.round((itemsCents * club.percent) / 100) : club.fixedCents;
+    const left = afterOffer - codeCents - foundationCents;
+    const roomLeft = Math.max(0, capCents - (baseCents - left));
+    clubCents = Math.max(0, Math.min(want, roomLeft, left));
+    clubCapReached = clubCents < want;
+    if (clubCapReached)
+      notices.push(
+        clubCents === 0
+          ? `Your other discounts already reach the ${s.combinedCapPercent}% maximum, so your Titan Club benefit couldn't add more this time.`
+          : `Your Titan Club saving was reduced so total savings stay within the ${s.combinedCapPercent}% maximum.`,
+      );
+  }
+  const afterCode = afterOffer - codeCents - foundationCents - clubCents;
 
   let creditUnits = 0;
   let creditCents = 0;
@@ -297,6 +323,12 @@ function evaluate(
     foundationPercent: foundationCents > 0 ? fPct : 0,
     foundationCents,
     foundationCapReached,
+    clubApplied: clubCents > 0,
+    clubType: club ? club.type : null,
+    clubPercent: club?.type === "percent" ? club.percent : 0,
+    clubFixedCents: club?.type === "fixed" ? club.fixedCents : 0,
+    clubCents,
+    clubCapReached,
     creditUnits,
     creditCents,
     merchandiseCents,
@@ -320,7 +352,27 @@ export type QuoteInput = {
   firstOfferEligible?: boolean;
   /** Server-verified only: Foundation Member benefit percent (0 when not awarded). */
   foundationPercent?: number;
+  /** Server-verified only: active Titan Club benefit (null for non-members). */
+  club?: ClubBenefit | null;
 };
+
+export type ClubBenefit = { type: "percent"; percent: number; fixedCents?: 0 } | { type: "fixed"; fixedCents: number; percent?: 0 };
+
+/** Strict: percent 0.01–20 (2dp), fixed 1c–$1000 integer cents; anything else = no benefit. */
+export function sanitizeClub(c: ClubBenefit | null | undefined): { type: "percent"; percent: number; fixedCents: 0 } | { type: "fixed"; percent: 0; fixedCents: number } | null {
+  if (!c) return null;
+  if (c.type === "percent") {
+    const p = Number(c.percent);
+    if (!Number.isFinite(p) || p <= 0 || p > 20 || Math.round(p * 100) !== p * 100) return null;
+    return { type: "percent", percent: p, fixedCents: 0 };
+  }
+  if (c.type === "fixed") {
+    const f = Number(c.fixedCents);
+    if (!Number.isInteger(f) || f <= 0 || f > 100000) return null;
+    return { type: "fixed", percent: 0, fixedCents: f };
+  }
+  return null;
+}
 
 /**
  * Price an order. When a code can't stack with active discounts, the
