@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatPrice } from "@/lib/products";
 import { AdminMilestones } from "@/components/AdminMilestones";
+import { AdminTitanClub } from "@/components/AdminTitanClub";
 import {
   adminDeleteDiscountCode,
   adminListDiscountCodes,
@@ -297,6 +298,7 @@ export function AdminDiscounts() {
     <div className="space-y-6">
       <ProgramSettings />
       <AdminMilestones />
+      <AdminTitanClub />
 
       <div className="rounded-xl border border-border bg-card p-6">
         <h3 className="flex items-center gap-2 text-lg font-extrabold uppercase text-foreground">
