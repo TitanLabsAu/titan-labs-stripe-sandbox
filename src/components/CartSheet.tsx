@@ -83,8 +83,8 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
     enabled: open && items.length > 0 && Boolean(userId),
     retry: false,
     staleTime: 30_000,
-    // No placeholderData: a previous quote (another user or other items) must
-    // never be presented as this cart's confirmed member pricing.
+    // No cached placeholder: a previous quote (another user or other items)
+    // must never be presented as this cart's confirmed member pricing.
   });
   const serverQuote = memberQuote.data ?? null;
   const quote = serverQuote ?? localQuote;
