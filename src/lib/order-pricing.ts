@@ -438,8 +438,8 @@ export function quoteOrder(input: QuoteInput, settings: PricingSettings = DEFAUL
     cq = { ...cq, notices: [...cq.notices, "Referral rewards don't combine with your Titan Club benefit, so none were used."] };
   const consumed = (q: Quote) => q.creditUnits + (q.firstOfferApplied ? 1 : 0);
   const useClub =
-    cq.clubCents > 0 &&
-    (cq.totalCents < normal.totalCents || (cq.totalCents === normal.totalCents && consumed(cq) <= consumed(normal)));
+    cq.totalCents < normal.totalCents ||
+    (cq.clubCents > 0 && cq.totalCents === normal.totalCents && consumed(cq) <= consumed(normal));
   if (useClub) {
     return normal.foundationCents > 0 && cq.foundationCents === 0
       ? { ...cq, notices: [...cq.notices, "Foundation Member 5% doesn't combine with Titan Club — your Titan Club benefit was applied as it saves more."] }
