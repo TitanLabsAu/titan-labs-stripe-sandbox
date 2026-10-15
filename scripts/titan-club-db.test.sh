@@ -3,7 +3,7 @@
 # Usage: bash scripts/titan-club-db.test.sh
 set -euo pipefail
 SRC="$(cd "$(dirname "$0")" && pwd)/titan-club.sql"
-if [ "$(id -u)" = 0 ]; then cp "$SRC" /tmp/tc-mig.sql; cp "$0" /tmp/tc-test.sh; chmod 644 /tmp/tc-mig.sql /tmp/tc-test.sh; exec setpriv --reuid=7777 --regid=7777 --clear-groups env HOME=/tmp TC_MIG=/tmp/tc-mig.sql bash /tmp/tc-test.sh; fi
+if [ "$(id -u)" = 0 ]; then cp "$SRC" /tmp/tc-mig.sql; cp "$0" /tmp/tc-test.sh; chmod 644 /tmp/tc-mig.sql /tmp/tc-test.sh; exec setpriv --reuid=1000 --regid=1000 --clear-groups env HOME=/tmp TC_MIG=/tmp/tc-mig.sql bash /tmp/tc-test.sh; fi
 MIG="${TC_MIG:-$SRC}"
 DIR=$(mktemp -d); PORT=55433
 unset PGHOST PGPORT PGUSER PGPASSWORD PGDATABASE PGSSLMODE
