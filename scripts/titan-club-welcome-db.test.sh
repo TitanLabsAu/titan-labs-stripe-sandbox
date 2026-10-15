@@ -85,11 +85,11 @@ q "update titan_club_welcome_email_queue set next_attempt_at=now() where user_id
 check "retry due is claimed" "$(as service_role '' "select count(*) from claim_titan_club_welcome_emails(10) where user_id='$N'")" 1
 
 # Rejoining update: local installation only, no provider or project database access.
-BEFORE=$(q "select md5(string_agg(row_to_json(q)::text,',' order by user_id)) from titan_club_welcome_email_queue q")
+BEFORE=$(q "select md5(string_agg(to_jsonb(q)::text,',' order by user_id)) from titan_club_welcome_email_queue q")
 $P -f "$(pick titan-club-rejoin-welcome)"
 check "rejoin installation adds no rows" "$(q "select count(*) from titan_club_welcome_email_queue")" 3
 check "legacy first welcome identity preserved" "$(q "select welcome_event_id from titan_club_welcome_email_queue where user_id='$N'")" initial
-check "legacy queue state preserved" "$(q "select md5(string_agg((to_jsonb(q)-'welcome_event_id')::json::text,',' order by user_id)) from titan_club_welcome_email_queue q")" "$(q "select md5(string_agg((to_jsonb(q)-'welcome_event_id')::json::text,',' order by user_id)) from titan_club_welcome_email_queue q")"
+check "legacy queue state preserved" "$(q "select md5(string_agg((to_jsonb(q)-'welcome_event_id')::text,',' order by user_id)) from titan_club_welcome_email_queue q")" "$BEFORE"
 check "existing active member edit still does not queue" "$(as authenticated $A "$(V3 $E 18)" >/dev/null; CNT $E)" 0
 as authenticated $A "$(V3 $E 18 false)" >/dev/null
 check "revocation does not queue email" "$(CNT $E)" 0
