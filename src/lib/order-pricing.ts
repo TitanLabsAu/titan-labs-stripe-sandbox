@@ -359,9 +359,12 @@ export type QuoteInput = {
   club?: ClubBenefit | null;
 };
 
-/** Per-member Titan Club stacking policy. Foundation never stacks with Club (hard rule, not stored). */
-export type ClubStacking = { multibuy: boolean; crypto: boolean; firstOffer: boolean; code: boolean; credit: boolean };
-export const DEFAULT_CLUB_STACKING: ClubStacking = { multibuy: true, crypto: true, firstOffer: true, code: true, credit: true };
+/** Per-member Titan Club stacking policy (all editable by Admin). */
+export type ClubStacking = { multibuy: boolean; crypto: boolean; firstOffer: boolean; code: boolean; credit: boolean; foundation: boolean };
+/** Defaults for NEW assignments: Foundation off, everything else on. */
+export const DEFAULT_CLUB_STACKING: ClubStacking = { multibuy: true, crypto: true, firstOffer: true, code: true, credit: true, foundation: false };
+/** Behaviour of rows saved before stacking columns existed (everything combined). */
+export const LEGACY_CLUB_STACKING: ClubStacking = { ...DEFAULT_CLUB_STACKING, foundation: true };
 type InternalQuoteInput = QuoteInput & { _block?: { multibuy: boolean; crypto: boolean } };
 
 export type ClubBenefit = ({ type: "percent"; percent: number; fixedCents?: 0 } | { type: "fixed"; fixedCents: number; percent?: 0 }) & {
@@ -377,8 +380,8 @@ export function isTwoDpPercent(v: unknown, max = 100) {
   return typeof v !== "boolean" && Number.isFinite(n) && n > 0 && n <= max && Math.abs(Math.round(n * 100) - n * 100) < 1e-9;
 }
 
-export function sanitizeStacking(v: Partial<ClubStacking> | null | undefined): ClubStacking {
-  const o = { ...DEFAULT_CLUB_STACKING };
+export function sanitizeStacking(v: Partial<ClubStacking> | null | undefined, fallback: ClubStacking = LEGACY_CLUB_STACKING): ClubStacking {
+  const o = { ...fallback };
   for (const k of Object.keys(o) as (keyof ClubStacking)[]) if (v && typeof v[k] === "boolean") o[k] = v[k] as boolean;
   return o;
 }
@@ -410,13 +413,13 @@ export function quoteOrder(input: QuoteInput, settings: PricingSettings = DEFAUL
   const club = sanitizeClub(input.club);
   const normal = quoteCore({ ...input, club: null }, settings);
   if (!club) return normal;
-  // Club branch: Foundation is NEVER combined; only the member's allowed extra discounts apply.
+  // Club branch: only the member's allowed extra discounts (incl. Foundation when switched on) apply.
   // Global/first-offer/code rules still restrict further — Club permission can't bypass them.
   const st = club.stacking;
   const clubInput: InternalQuoteInput = {
     ...input,
     club,
-    foundationPercent: 0,
+    foundationPercent: st.foundation ? input.foundationPercent : 0,
     firstOfferEligible: Boolean(input.firstOfferEligible) && st.firstOffer,
     creditUnits: st.credit ? input.creditUnits : 0,
     code: st.code ? input.code : null,
@@ -438,7 +441,7 @@ export function quoteOrder(input: QuoteInput, settings: PricingSettings = DEFAUL
     cq.clubCents > 0 &&
     (cq.totalCents < normal.totalCents || (cq.totalCents === normal.totalCents && consumed(cq) <= consumed(normal)));
   if (useClub) {
-    return normal.foundationCents > 0
+    return normal.foundationCents > 0 && cq.foundationCents === 0
       ? { ...cq, notices: [...cq.notices, "Foundation Member 5% doesn't combine with Titan Club — your Titan Club benefit was applied as it saves more."] }
       : cq;
   }

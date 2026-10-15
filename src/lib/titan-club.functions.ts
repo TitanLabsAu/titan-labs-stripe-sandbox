@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { isTwoDpPercent, sanitizeStacking, DEFAULT_CLUB_STACKING, type ClubStacking } from "@/lib/order-pricing";
+import { isTwoDpPercent, sanitizeStacking, DEFAULT_CLUB_STACKING, LEGACY_CLUB_STACKING, type ClubStacking } from "@/lib/order-pricing";
 
 export type ClubBenefitView = {
   type: "percent" | "fixed";
@@ -75,8 +75,9 @@ async function hasStackingColumns(sb: any) {
   return !error;
 }
 
+/** Before the update is installed, only the legacy (everything combines) policy can be stored faithfully. */
 export const isDefaultStacking = (st: ClubStacking) =>
-  (Object.keys(DEFAULT_CLUB_STACKING) as (keyof ClubStacking)[]).every((k) => st[k] === DEFAULT_CLUB_STACKING[k]);
+  (Object.keys(LEGACY_CLUB_STACKING) as (keyof ClubStacking)[]).every((k) => st[k] === LEGACY_CLUB_STACKING[k]);
 
 const nameOf = (p: any) => [p?.first_name, p?.last_name].filter(Boolean).join(" ") || p?.email || "Member";
 
@@ -111,7 +112,7 @@ export const adminGetTitanClub = createServerFn({ method: "POST" })
       siteCapPercent,
       members: rows.map((r) => ({
         ...view(r),
-        stacking: sanitizeStacking({ multibuy: r.stack_multibuy, crypto: r.stack_crypto, firstOffer: r.stack_first_offer, code: r.stack_code, credit: r.stack_credit }),
+        stacking: sanitizeStacking({ multibuy: r.stack_multibuy, crypto: r.stack_crypto, firstOffer: r.stack_first_offer, code: r.stack_code, credit: r.stack_credit, foundation: r.stack_foundation }),
         userId: r.user_id,
         name: nameOf(pm.get(r.user_id)),
         email: pm.get(r.user_id)?.email ?? null,
@@ -173,7 +174,6 @@ export function validateClubInput(i: ClubAssignInput): string | null {
   if (String(i.note ?? "").length > 500) return "Note must be 500 characters or fewer.";
   const st = i.stacking as any;
   if (!st || (Object.keys(DEFAULT_CLUB_STACKING) as string[]).some((k) => typeof st[k] !== "boolean")) return "Invalid stacking settings.";
-  if ("foundation" in st) return "Foundation Member savings never combine with Titan Club.";
   return null;
 }
 
@@ -207,12 +207,12 @@ export const adminSetTitanClub = createServerFn({ method: "POST" })
     const stacking = sanitizeStacking(data.stacking);
     const stackArgs = {
       _stack_multibuy: stacking.multibuy, _stack_crypto: stacking.crypto, _stack_first_offer: stacking.firstOffer,
-      _stack_code: stacking.code, _stack_credit: stacking.credit,
+      _stack_code: stacking.code, _stack_credit: stacking.credit, _stack_foundation: stacking.foundation,
     };
     const v2 = await hasStackingColumns(sbc);
     // Never silently drop a policy: before the update is installed only the legacy all-allowed policy can be saved.
     if (!v2 && !isDefaultStacking(stacking))
-      throw new Error("Stacking controls need a pending database update before they can be saved. Leave every switch on, or ask for the update to be installed.");
+      throw new Error("Stacking controls need a pending database update before they can be saved. Leave every switch on (including Foundation), or ask for the update to be installed.");
     const { data: res, error } = await sbc.rpc(v2 ? "admin_set_titan_club_v2" : "admin_set_titan_club", {
       ...(v2 ? stackArgs : {}),
       _user_id: data.userId,

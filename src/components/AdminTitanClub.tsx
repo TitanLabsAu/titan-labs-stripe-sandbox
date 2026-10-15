@@ -90,16 +90,12 @@ export function StackingPolicy({ draft, onChange, stackingInstalled = true }: { 
               onCheckedChange={(on) => onChange({ ...draft, stacking: { ...draft.stacking, [k]: on } })} />
           </li>
         ))}
-        <li className="flex items-center justify-between gap-2 rounded border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground sm:col-span-2">
-          <span>
-            Foundation Member 5% <span className="ml-1 rounded bg-secondary px-1.5 py-0.5 text-[10px] font-bold uppercase text-secondary-foreground">Locked off</span>
-            <span className="mt-0.5 block text-xs">Never combines with Titan Club. Checkout uses whichever is cheaper for the member.</span>
-          </span>
-          <Switch aria-label="Combine with Foundation Member (locked off)" checked={false} disabled />
+        <li className="text-xs text-muted-foreground sm:col-span-2">
+          Foundation Member is off by default for new members: with it off, checkout uses either Club or Foundation, whichever is cheaper.
         </li>
       </ul>
       {!stackingInstalled ? (
-        <p role="note" className="mt-2 text-xs font-bold text-primary">Database update pending: only "all on" can be saved until stacking controls are installed.</p>
+        <p role="note" className="mt-2 text-xs font-bold text-primary">Database update pending: only "every switch on" (including Foundation) can be saved until stacking controls are installed.</p>
       ) : null}
     </fieldset>
   );

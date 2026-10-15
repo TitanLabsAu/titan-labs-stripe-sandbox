@@ -22,7 +22,7 @@ export function draftFromMember(m: AdminClubMember): ClubDraft {
   return {
     userId: m.userId, name: m.name, email: m.email, type: m.type,
     amount: m.type === "percent" ? String(m.percent) : (m.fixedCents / 100).toFixed(2),
-    maxCap: String(m.maxCapPercent), note: m.note, active: m.active, isNew: false, stacking: { ...(m.stacking ?? DEFAULT_CLUB_STACKING) },
+    maxCap: String(m.maxCapPercent), note: m.note, active: m.active, isNew: false, stacking: { ...DEFAULT_CLUB_STACKING, ...m.stacking },
   };
 }
 
@@ -62,7 +62,7 @@ export function clubConfirmText(d: ClubDraft, siteCap: number, existing: AdminCl
     `Benefit: ${benefit} every purchase. Personal maximum combined discount: ${d.maxCap}%.`,
   ];
   const off = STACK_LABELS.filter(([k]) => !d.stacking[k]).map(([, l]) => l);
-  lines.push(`Combines with: ${STACK_LABELS.filter(([k]) => d.stacking[k]).map(([, l]) => l).join(", ") || "nothing extra"}.${off.length ? ` Not combined: ${off.join(", ")}.` : ""} Foundation Member 5% never combines with Titan Club.`);
+  lines.push(`Combines with: ${STACK_LABELS.filter(([k]) => d.stacking[k]).map(([, l]) => l).join(", ") || "nothing extra"}.${off.length ? ` Not combined: ${off.join(", ")}.` : ""}`);
   if (Number(d.maxCap) > siteCap)
     lines.push(`WARNING: ${d.maxCap}% is ABOVE the website cap of ${siteCap}%. This member's total product discounts can reach ${d.maxCap}%.`);
   return lines.join("\n\n");
@@ -74,4 +74,5 @@ export const STACK_LABELS: [keyof ClubStacking, string][] = [
   ["firstOffer", "New-member first purchase"],
   ["code", "Discount codes"],
   ["credit", "Referral rewards"],
+  ["foundation", "Foundation Member 5%"],
 ];
