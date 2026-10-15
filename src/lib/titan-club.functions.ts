@@ -244,10 +244,10 @@ export const adminSetTitanClub = createServerFn({ method: "POST" })
     if (missing(error)) throw new Error("The Titan Club isn't switched on in the database yet (awaiting approval).");
     if (error) throw new Error(/unknown member/.test(error.message) ? "That member couldn't be found." : /below website cap/.test(error.message) ? "Maximum discount must be at least the website cap." : "Couldn't save Titan Club membership.");
     const action = (res?.action ?? null) as string | null;
-    // Only a brand-new first assignment queues a welcome; the trigger fires at commit, which
+    // First assignment and reactivation queue a welcome; the trigger fires at commit, which
     // has happened by now. Recipient is resolved server-side from the member's auth record.
     let welcome: "sent" | "queued" | "none" = "none";
-    if (res?.changed && action === "assign") {
+    if (res?.changed && (action === "assign" || action === "reactivate")) {
       const { dispatchClubWelcomeFor } = await import("@/lib/titan-club-welcome.server");
       welcome = await dispatchClubWelcomeFor(data.userId);
     }
