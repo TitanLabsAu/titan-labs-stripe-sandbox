@@ -13,10 +13,17 @@ describe("Titan Club congratulations template", () => {
   test("registered with Alex preview", () => {
     expect(TEMPLATES["titan-club-welcome"]).toBe(template);
     expect(template.previewData.firstName).toBe("Alex");
+    expect(clubWelcomeSubject({ firstName: "Alex" })).toBe("You're in: Welcome to The Titan Club, Alex");
+    expect(clubWelcomeSubject({})).toBe("You're in: Welcome to The Titan Club");
   });
   test("percent demo: benefit, cap, combos, shipping, no Foundation promise", async () => {
     const t = await text({ firstName: "Alex", club: demoClub });
     expect(t).toContain("10% off every purchase");
+    expect(t).toContain("As one of our valued members");
+    expect(t).toContain("Enjoy 10% off products on every eligible order");
+    expect(t).toContain("Stackable Perks:");
+    expect(t).toContain("Guaranteed Best Price:");
+    expect(t).not.toContain("Express Shipping");
     expect(t).toContain("exclusive 30% order cap");
     expect(t).toContain("website's usual cap applies");
     expect(t).toContain("Shipping is not part of either cap");
