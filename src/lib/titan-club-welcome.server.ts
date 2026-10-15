@@ -24,7 +24,8 @@ export async function processClubWelcomeJobs(deps: ClubWelcomeDeps) {
   for (const job of jobs) {
     try {
       const cur = await deps.current(job.user_id);
-      if (cur && (cur.welcome_event_id ?? "initial") !== eventId(job)) { await deps.finish(job, "superseded"); continue; }
+      // The queue row now belongs to another activation; leave it completely untouched.
+      if (cur && (cur.welcome_event_id ?? "initial") !== eventId(job)) continue;
       if (!cur || !cur.active) { await deps.finish(job, "not_active"); continue; }
       if (!cur.programmeOn) { await deps.retryLater(job, "paused: programme off"); continue; }
       // Always describe the CURRENT saved perks, so admin edits made after queueing are reflected.
@@ -36,7 +37,7 @@ export async function processClubWelcomeJobs(deps: ClubWelcomeDeps) {
       const templateData = { firstName: (await deps.firstName(job.user_id)) ?? "", club };
       // Re-check right before the provider: a pause defers, a revoke ends, an edit re-reads.
       const last = await deps.current(job.user_id);
-      if (last && (last.welcome_event_id ?? "initial") !== eventId(job)) { await deps.finish(job, "superseded"); continue; }
+      if (last && (last.welcome_event_id ?? "initial") !== eventId(job)) continue;
       if (!last || !last.active) { await deps.finish(job, "not_active"); continue; }
       if (!last.programmeOn) { await deps.retryLater(job, "paused: programme off"); continue; }
       if (JSON.stringify(parseClubSnapshot(last.club)) !== JSON.stringify(club)) { await deps.retryLater(job, "perks changed during send; retrying"); continue; }

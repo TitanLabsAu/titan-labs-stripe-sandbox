@@ -108,7 +108,8 @@ describe("Titan Club congratulations worker", () => {
       });
       await processClubWelcomeJobs(d);
       expect(log.sends).toEqual([]);
-      expect(log.finished).toEqual(["superseded"]);
+      expect(log.finished).toEqual([]);
+      expect(log.retried).toEqual([]);
     }
   });
   test("success uses server recipient and stable idempotency key", async () => {
