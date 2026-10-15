@@ -419,10 +419,10 @@ export function quoteOrder(input: QuoteInput, settings: PricingSettings = DEFAUL
   const clubInput: InternalQuoteInput = {
     ...input,
     club,
-    foundationPercent: st.foundation ? input.foundationPercent : 0,
+    foundationPercent: st.foundation ? (input.foundationPercent ?? 0) : 0,
     firstOfferEligible: Boolean(input.firstOfferEligible) && st.firstOffer,
-    creditUnits: st.credit ? input.creditUnits : 0,
-    code: st.code ? input.code : null,
+    creditUnits: st.credit ? (input.creditUnits ?? 0) : 0,
+    code: st.code ? (input.code ?? null) : null,
     _block: { multibuy: !st.multibuy, crypto: !st.crypto },
   };
   let cq = quoteCore(clubInput, settings);
