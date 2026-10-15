@@ -9,4 +9,4 @@
 - [x] SQL unapplied, no real grants, no publish
 
 - [x] Titan Club stacking: Foundation is an editable per-member switch (default OFF for new), staged SQL/RPC/audit, tests, screenshots
-- [ ] Audit fixes: policy CHECK, Foundation notice needs !st.foundation, snapshot keeps assigned max
+- [x] Audit fixes: policy CHECK, Foundation notice needs !st.foundation, snapshot keeps assigned max
