@@ -1567,6 +1567,125 @@ export type Database = {
           },
         ]
       }
+      titan_club_events: {
+        Row: {
+          action: string
+          actor: string | null
+          after: Json | null
+          before: Json | null
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          actor?: string | null
+          after?: Json | null
+          before?: Json | null
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          actor?: string | null
+          after?: Json | null
+          before?: Json | null
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      titan_club_members: {
+        Row: {
+          active: boolean
+          assigned_at: string
+          assigned_by: string | null
+          benefit_type: string
+          fixed_cents: number | null
+          max_cap_percent: number
+          percent: number | null
+          revoked_at: string | null
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          assigned_at?: string
+          assigned_by?: string | null
+          benefit_type: string
+          fixed_cents?: number | null
+          max_cap_percent?: number
+          percent?: number | null
+          revoked_at?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          assigned_at?: string
+          assigned_by?: string | null
+          benefit_type?: string
+          fixed_cents?: number | null
+          max_cap_percent?: number
+          percent?: number | null
+          revoked_at?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      titan_club_notes: {
+        Row: {
+          note: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          note?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          note?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "titan_club_notes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "titan_club_members"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      titan_club_settings: {
+        Row: {
+          enabled: boolean
+          id: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          enabled?: boolean
+          id?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          enabled?: boolean
+          id?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1634,6 +1753,22 @@ export type Database = {
       }
       admin_set_foundation_member: {
         Args: { _enable: boolean; _user_id: string }
+        Returns: Json
+      }
+      admin_set_titan_club: {
+        Args: {
+          _active: boolean
+          _benefit_type: string
+          _fixed_cents: number
+          _max_cap: number
+          _note: string
+          _percent: number
+          _user_id: string
+        }
+        Returns: Json
+      }
+      admin_set_titan_club_enabled: {
+        Args: { _enabled: boolean }
         Returns: Json
       }
       allocate_welcome_referral_code: {
@@ -1792,6 +1927,7 @@ export type Database = {
         }[]
       }
       store_credit_summary: { Args: { _user_id: string }; Returns: Json }
+      titan_club_my_benefit: { Args: never; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "user"
