@@ -1,11 +1,9 @@
-# Roadmap
+# Titan Club final validation
 
-- [ ] CartSheet: auth-scoped memberQuote key (userId), no cross-user placeholderData, invalidate on auth change, estimate/loading label until fresh quote
-- [ ] FreeShippingMeter: use quote.remainingForFreeShippingCents (matches checkout eligibility)
-- [ ] Focused auth-switch/stale-quote regression test
+- [x] CartSheet auth-scoped member quote (userId + items key, no stale placeholder, cleared on auth change, estimate/checking labels)
+- [x] FreeShippingMeter uses quote.remainingForFreeShippingCents (matches checkout eligibility)
+- [x] Regression tests (scripts/cart-member-quote.test.ts, 8 tests)
 - [x] TitanClubView wording: extra checkout savings capped, kit prices retained
-- [ ] Separate TitanClubView profile badge screenshot (dummy 25% / 30% cap) + Admin assignment preview
-- [ ] typecheck + tests + production build
-- [ ] Confirm titan-club SQL unapplied, no real grants
-- [ ] Rebuild dummy QA fixture deriving sample quote from same item lines; capture Admin + profile badge (Club cap/Foundation text) desktop/mobile light/dark
-- [ ] Remove fixture, commit, report
+- [x] Dummy previews: cart, TitanClubView 25%/30% profile badge, Admin assignment (desktop/mobile, light/dark)
+- [x] Fixture removed; 237 tests + typecheck + production build pass
+- [x] SQL unapplied, no real grants, no publish
