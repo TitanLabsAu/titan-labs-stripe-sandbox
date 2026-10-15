@@ -12,6 +12,8 @@ import {
 import { orderReference } from "@/lib/order-reference";
 import { AdminMemberRewards } from "@/components/AdminMemberRewards";
 import { AdminMemberFoundation } from "@/components/AdminMemberFoundation";
+import { useAdminClubMembers } from "@/components/AdminTitanClub";
+import { TitanClubPill, clubBenefitText } from "@/components/TitanClubBadge";
 
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString("en-AU", {
@@ -132,6 +134,7 @@ function MemberDetail({
   member: AdminMember;
   onBack: () => void;
 }) {
+  const club = useAdminClubMembers().get(member.id);
   const { data, isLoading } = useQuery({
     queryKey: ["admin-member-orders", member.id],
     queryFn: () => adminGetMemberOrders({ data: { userId: member.id } }),
@@ -159,6 +162,11 @@ function MemberDetail({
         <h2 className="text-2xl font-extrabold uppercase text-foreground">
           {memberName(member)}
         </h2>
+        {club ? (
+          <p className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+            <TitanClubPill /> {clubBenefitText(club)} · max {club.maxCapPercent}%
+          </p>
+        ) : null}
         <div className="mt-3 grid gap-1 text-sm text-muted-foreground sm:grid-cols-2">
           <p>{member.email ?? "No email"}</p>
           <p>{member.phone_number ?? "No phone number"}</p>
@@ -275,6 +283,7 @@ function MemberDetail({
 
 export function AdminMembers() {
   const [selected, setSelected] = useState<AdminMember | null>(null);
+  const clubMembers = useAdminClubMembers();
   const { data, isLoading } = useQuery({
     queryKey: ["admin-members"],
     queryFn: () => adminListMembers({}),
@@ -310,6 +319,7 @@ export function AdminMembers() {
               <p className="text-base font-extrabold uppercase text-foreground">
                 {memberName(m)}
               </p>
+              {clubMembers.has(m.id) ? <TitanClubPill /> : null}
               <p>{m.email ?? "No email"}</p>
               <p>{m.phone_number ?? "No phone number"}</p>
               <p>
