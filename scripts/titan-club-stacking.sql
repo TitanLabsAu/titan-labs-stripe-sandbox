@@ -12,6 +12,11 @@ ALTER TABLE public.titan_club_members
 -- Existing rows got TRUE above (preserves saved behaviour); new rows default to FALSE.
 ALTER TABLE public.titan_club_members ALTER COLUMN stack_foundation SET DEFAULT false;
 
+-- Allow the new 'policy' audit action (same list + 'policy').
+ALTER TABLE public.titan_club_events DROP CONSTRAINT IF EXISTS titan_club_events_action_check;
+ALTER TABLE public.titan_club_events ADD CONSTRAINT titan_club_events_action_check
+  CHECK (action IN ('assign', 'edit', 'revoke', 'reactivate', 'note', 'enable', 'disable', 'policy'));
+
 -- Member: own active benefit + policy, only while the programme is on. No note, no audit.
 CREATE OR REPLACE FUNCTION public.titan_club_my_benefit()
 RETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
