@@ -20,6 +20,7 @@ CREATE TYPE public.app_role AS ENUM ('admin','user');
 CREATE TABLE public.user_roles (user_id uuid, role app_role);
 CREATE FUNCTION public.has_role(_user_id uuid, _role app_role) RETURNS boolean LANGUAGE sql SECURITY DEFINER AS \$\$ SELECT exists(SELECT 1 FROM public.user_roles WHERE user_id=_user_id AND role=_role) \$\$;
 CREATE TABLE public.profiles (id uuid PRIMARY KEY);
+CREATE TABLE public.referral_settings (id smallint PRIMARY KEY, combined_cap_percent numeric); INSERT INTO public.referral_settings VALUES (1, 20);
 INSERT INTO public.profiles VALUES ('$A'),('$M'),('$N'),('eeeeeeee-0000-0000-0000-000000000005');
 INSERT INTO public.user_roles VALUES ('$A','admin');
 GRANT USAGE ON SCHEMA public, auth TO anon, authenticated;

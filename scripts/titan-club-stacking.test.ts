@@ -100,7 +100,7 @@ describe("Foundation stacking ON", () => {
 
 describe("audit fixes", () => {
   test("no 'not set to combine' notice when Foundation stacking is ON but cap exhausted", () => {
-    const r = q({ club: pct(30, 30, { foundation: true }), foundationPercent: 5 });
+    const r = q({ club: pct(30, 30, { foundation: true }), foundationPercent: 5 }, [line(700, 1, 1000)]);
     expect(r.foundationCents).toBe(0);
     expect(r.notices.join(" ")).not.toContain("isn't set to combine");
   });
