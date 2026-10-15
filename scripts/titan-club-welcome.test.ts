@@ -3,7 +3,7 @@ import * as React from "react";
 import { render } from "@react-email/render";
 import { TitanClubWelcome, demoClub, template } from "../src/lib/email-templates/titan-club-welcome";
 import { TEMPLATES } from "../src/lib/email-templates/registry";
-import { clubSaveMessage, parseClubSnapshot } from "../src/lib/titan-club-welcome";
+import { clubSaveMessage, clubWelcomeSubject, parseClubSnapshot } from "../src/lib/titan-club-welcome";
 import { processClubWelcomeJobs, type ClubWelcomeDeps } from "../src/lib/titan-club-welcome.server";
 
 const html = (props: any) => render(React.createElement(TitanClubWelcome, props));
@@ -13,25 +13,32 @@ describe("Titan Club congratulations template", () => {
   test("registered with Alex preview", () => {
     expect(TEMPLATES["titan-club-welcome"]).toBe(template);
     expect(template.previewData.firstName).toBe("Alex");
+    expect(clubWelcomeSubject({ firstName: "Alex" })).toBe("You're in: Welcome to The Titan Club, Alex");
+    expect(clubWelcomeSubject({})).toBe("You're in: Welcome to The Titan Club");
   });
   test("percent demo: benefit, cap, combos, shipping, no Foundation promise", async () => {
     const t = await text({ firstName: "Alex", club: demoClub });
     expect(t).toContain("10% off every purchase");
-    expect(t).toContain("personal maximum of 30% per order");
+    expect(t).toContain("As one of our valued members");
+    expect(t).toContain("Enjoy 10% off products on every eligible order");
+    expect(t).toContain("Stackable Perks:");
+    expect(t).toContain("Guaranteed Best Price:");
+    expect(t).not.toContain("Express Shipping");
+    expect(t).toContain("exclusive 30% order cap");
     expect(t).toContain("website's usual cap applies");
     expect(t).toContain("Shipping is not part of either cap");
     expect(t).not.toMatch(/all (your )?orders/i);
     expect(t).toContain("multi-buy savings, the crypto payment discount, discount codes, your referral rewards");
     expect(t).toContain("only if you are still eligible");
     expect(t).toContain("no minimum spend");
-    expect(t).toContain("kit prices already include their savings");
+    expect(t).toContain("already include built-in savings and retain their special pricing");
     expect(t).toContain("while your Club membership and The Titan Club programme are active");
     expect(t).not.toMatch(/Foundation/);
   });
   test("fixed AUD and shipping off", async () => {
     const t = await text({ club: { ...demoClub, benefit_type: "fixed", percent: null, fixed_cents: 2550, free_shipping: false } });
     expect(t).toContain("$25.50 AUD off every purchase");
-    expect(t).toContain("comes off products only and never takes them below $0");
+    expect(t).toContain("Your saving applies to products only, up to their value");
     expect(t).not.toContain("10%");
     expect(t).not.toMatch(/free shipping/i);
   });
