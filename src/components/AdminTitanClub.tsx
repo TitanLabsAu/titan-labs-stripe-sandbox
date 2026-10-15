@@ -115,7 +115,7 @@ export function AdminTitanClubView({ data, search, onSave, onToggle, pending, in
       ? `Reactivate ${m.name} (${m.email ?? "no email"}) in The Titan Club with ${clubBenefitText(m)} and ${m.maxCapPercent}% maximum?`
       : `Revoke ${m.name}'s Titan Club benefit? Future checkouts use the standard ${data.siteCapPercent}% cap; existing orders are unchanged.`;
     if (window.confirm(msg))
-      onSave({ userId: m.userId, type: m.type, maxCapPercent: m.maxCapPercent, active: on, note: m.note, ...(m.type === "percent" ? { percent: m.percent } : { fixedDollars: m.fixedCents / 100 }) });
+      void Promise.resolve(onSave({ userId: m.userId, type: m.type, maxCapPercent: m.maxCapPercent, active: on, note: m.note, ...(m.type === "percent" ? { percent: m.percent } : { fixedDollars: m.fixedCents / 100 }) })).catch(() => undefined);
   };
 
   return (
