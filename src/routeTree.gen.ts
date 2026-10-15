@@ -14,7 +14,6 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as CertificatesRouteImport } from './routes/certificates'
 import { Route as CheckoutRouteImport } from './routes/checkout'
-import { Route as ClubPreviewRouteImport } from './routes/club-preview'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as PenGuideRouteImport } from './routes/pen-guide'
 import { Route as PensRouteImport } from './routes/pens'
@@ -66,11 +65,6 @@ const CertificatesRoute = CertificatesRouteImport.update({
 const CheckoutRoute = CheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ClubPreviewRoute = ClubPreviewRouteImport.update({
-  id: '/club-preview',
-  path: '/club-preview',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -224,7 +218,6 @@ export interface FileRoutesByFullPath {
   '/calculator': typeof CalculatorRoute
   '/certificates': typeof CertificatesRoute
   '/checkout': typeof CheckoutRoute
-  '/club-preview': typeof ClubPreviewRoute
   '/contact': typeof ContactRoute
   '/pen-guide': typeof PenGuideRoute
   '/pens': typeof PensRoute
@@ -259,7 +252,6 @@ export interface FileRoutesByTo {
   '/calculator': typeof CalculatorRoute
   '/certificates': typeof CertificatesRoute
   '/checkout': typeof CheckoutRoute
-  '/club-preview': typeof ClubPreviewRoute
   '/contact': typeof ContactRoute
   '/pen-guide': typeof PenGuideRoute
   '/pens': typeof PensRoute
@@ -296,7 +288,6 @@ export interface FileRoutesById {
   '/calculator': typeof CalculatorRoute
   '/certificates': typeof CertificatesRoute
   '/checkout': typeof CheckoutRoute
-  '/club-preview': typeof ClubPreviewRoute
   '/contact': typeof ContactRoute
   '/pen-guide': typeof PenGuideRoute
   '/pens': typeof PensRoute
@@ -333,7 +324,6 @@ export interface FileRouteTypes {
     | '/calculator'
     | '/certificates'
     | '/checkout'
-    | '/club-preview'
     | '/contact'
     | '/pen-guide'
     | '/pens'
@@ -368,7 +358,6 @@ export interface FileRouteTypes {
     | '/calculator'
     | '/certificates'
     | '/checkout'
-    | '/club-preview'
     | '/contact'
     | '/pen-guide'
     | '/pens'
@@ -404,7 +393,6 @@ export interface FileRouteTypes {
     | '/calculator'
     | '/certificates'
     | '/checkout'
-    | '/club-preview'
     | '/contact'
     | '/pen-guide'
     | '/pens'
@@ -441,7 +429,6 @@ export interface RootRouteChildren {
   CalculatorRoute: typeof CalculatorRoute
   CertificatesRoute: typeof CertificatesRoute
   CheckoutRoute: typeof CheckoutRoute
-  ClubPreviewRoute: typeof ClubPreviewRoute
   ContactRoute: typeof ContactRoute
   PenGuideRoute: typeof PenGuideRoute
   PensRoute: typeof PensRoute
@@ -500,13 +487,6 @@ declare module '@tanstack/react-router' {
       path: '/checkout'
       fullPath: '/checkout'
       preLoaderRoute: typeof CheckoutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/club-preview': {
-      id: '/club-preview'
-      path: '/club-preview'
-      fullPath: '/club-preview'
-      preLoaderRoute: typeof ClubPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -738,7 +718,6 @@ const rootRouteChildren: RootRouteChildren = {
   CalculatorRoute: CalculatorRoute,
   CertificatesRoute: CertificatesRoute,
   CheckoutRoute: CheckoutRoute,
-  ClubPreviewRoute: ClubPreviewRoute,
   ContactRoute: ContactRoute,
   PenGuideRoute: PenGuideRoute,
   PensRoute: PensRoute,
