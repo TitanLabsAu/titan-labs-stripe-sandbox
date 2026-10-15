@@ -2,8 +2,8 @@
 
 - [x] Stage rejoining welcome trigger and activation-specific retry protection; preserve email design and current-perk reads.
 - [x] Test revoke/re-add, updated perks, no duplicate edit sends, rollback and access controls locally (23 email tests and 46 disposable database checks).
-- [ ] Publish event-aware sender, then apply rejoining email update (approved by owner).
-- [ ] Send the Club welcome with current perks to all five current members (owner chose all five).
+- [x] Publish event-aware sender, then apply rejoining email update (approved by owner).
+- [ ] Send the Club welcome to all five current members — queued; goes out on the next hourly email run.
 
 - [x] CartSheet auth-scoped member quote (userId + items key, no stale placeholder, cleared on auth change, estimate/checking labels)
 - [x] FreeShippingMeter uses quote.remainingForFreeShippingCents (matches checkout eligibility)
