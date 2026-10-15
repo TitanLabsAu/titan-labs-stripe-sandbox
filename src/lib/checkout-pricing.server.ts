@@ -275,9 +275,6 @@ export async function clubBenefitFor(admin: any, userId: string | null): Promise
   return sanitizeClub(benefit) ? benefit : null;
 }
 
- off` : `${q.clubPercent}% off`;
-}
-
 /**
  * Foundation Member benefit from the database award (trusted server user id only).
  * Read errors throw a retriable message rather than silently dropping the benefit.
