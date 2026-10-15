@@ -27,7 +27,7 @@ describe("Titan Club pricing", () => {
     const r = q({ club: pct(10) }, [line(100, 4)]); // multibuy 20%
     expect(r.multibuyCents).toBe(8000);
     expect(r.clubCents).toBe(0);
-    expect(r.clubCapReached).toBe(true);
+    expect(r.capPercent).toBe(20); // normal branch wins: personal cap does not leak
     expect(r.notices.join(" ")).toContain("Titan Club");
   });
   test("personal 30% cap allows 25% saving above site cap", () => {
