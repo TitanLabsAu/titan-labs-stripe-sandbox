@@ -1,7 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { CLUB_WELCOME_MAX_ATTEMPTS, CLUB_WELCOME_TEMPLATE, parseClubSnapshot } from "./titan-club-welcome";
 
-type Job = { user_id: string; snapshot: unknown; attempts: number };
+type Job = { user_id: string; snapshot: unknown; attempts: number; welcome_event_id?: string };
+const eventId = (job: Job) => job.welcome_event_id ?? "initial";
 type Send = (template: string, to: string, opts: any) => Promise<{ sent: boolean }>;
 
 /** Everything the worker touches, injectable so tests never reach the database or provider. */
@@ -11,7 +12,7 @@ export type ClubWelcomeDeps = {
   memberEmail: (userId: string) => Promise<string | null | undefined>; // undefined = definitively missing user
   firstName: (userId: string) => Promise<string | null>;
   /** Current trusted saved membership + programme state, read fresh (never the queued copy). */
-  current: (userId: string) => Promise<{ programmeOn: boolean; active: boolean; club: unknown } | null>;
+  current: (userId: string) => Promise<{ programmeOn: boolean; active: boolean; club: unknown; welcome_event_id?: string } | null>;
   finish: (job: Job, outcome: string) => Promise<void>;
   retryLater: (job: Job, error: string) => Promise<void>;
   send: Send;
@@ -23,6 +24,7 @@ export async function processClubWelcomeJobs(deps: ClubWelcomeDeps) {
   for (const job of jobs) {
     try {
       const cur = await deps.current(job.user_id);
+      if (cur && (cur.welcome_event_id ?? "initial") !== eventId(job)) { await deps.finish(job, "superseded"); continue; }
       if (!cur || !cur.active) { await deps.finish(job, "not_active"); continue; }
       if (!cur.programmeOn) { await deps.retryLater(job, "paused: programme off"); continue; }
       // Always describe the CURRENT saved perks, so admin edits made after queueing are reflected.
@@ -34,12 +36,13 @@ export async function processClubWelcomeJobs(deps: ClubWelcomeDeps) {
       const templateData = { firstName: (await deps.firstName(job.user_id)) ?? "", club };
       // Re-check right before the provider: a pause defers, a revoke ends, an edit re-reads.
       const last = await deps.current(job.user_id);
+      if (last && (last.welcome_event_id ?? "initial") !== eventId(job)) { await deps.finish(job, "superseded"); continue; }
       if (!last || !last.active) { await deps.finish(job, "not_active"); continue; }
       if (!last.programmeOn) { await deps.retryLater(job, "paused: programme off"); continue; }
       if (JSON.stringify(parseClubSnapshot(last.club)) !== JSON.stringify(club)) { await deps.retryLater(job, "perks changed during send; retrying"); continue; }
       const result = await deps.send(CLUB_WELCOME_TEMPLATE, email, {
         templateData,
-        idempotencyKey: `titan-club-welcome-${job.user_id}`,
+        idempotencyKey: `titan-club-welcome-${job.user_id}${eventId(job) === "initial" ? "" : `-${eventId(job)}`}`,
         fromName: "Titan Labs Aus",
       });
       if (result.sent) sent++;
@@ -89,13 +92,14 @@ export async function sendPendingClubWelcomeEmails(onlyUserId?: string) {
       return (data ?? []) as Job[];
     },
     current: async (id) => {
-      const [m, st] = await Promise.all([
+      const [m, st, queued] = await Promise.all([
         db.from("titan_club_members").select("active, benefit_type, percent, fixed_cents, max_cap_percent, stack_multibuy, stack_crypto, stack_first_offer, stack_code, stack_credit, stack_foundation, free_shipping").eq("user_id", id).maybeSingle(),
         db.from("titan_club_settings").select("enabled").eq("id", 1).maybeSingle(),
+        q().select("*").eq("user_id", id).maybeSingle(),
       ]);
-      if (m.error || st.error) throw m.error || st.error;
+      if (m.error || st.error || queued.error) throw m.error || st.error || queued.error;
       if (!m.data) return null;
-      return { programmeOn: st.data?.enabled === true, active: (m.data as any).active === true, club: m.data };
+      return { programmeOn: st.data?.enabled === true, active: (m.data as any).active === true, club: m.data, welcome_event_id: queued.data?.welcome_event_id };
     },
     memberEmail: async (id) => {
       const { data, error } = await db.auth.admin.getUserById(id);
@@ -111,11 +115,16 @@ export async function sendPendingClubWelcomeEmails(onlyUserId?: string) {
       return data?.first_name?.trim() || null;
     },
     finish: async (job, outcome) => {
-      const { error } = await q().update({ completed_at: new Date().toISOString(), outcome, claimed_until: null }).eq("user_id", job.user_id);
+      let update = q().update({ completed_at: new Date().toISOString(), outcome, claimed_until: null }).eq("user_id", job.user_id);
+      if (job.welcome_event_id !== undefined) update = update.eq("welcome_event_id", job.welcome_event_id);
+      const { error } = await update;
       if (error) throw error;
     },
     retryLater: async (job, message) => {
-      await q().update({ last_error: message, claimed_until: null, next_attempt_at: new Date(Date.now() + 55 * 60_000).toISOString() }).eq("user_id", job.user_id);
+      let update = q().update({ last_error: message, claimed_until: null, next_attempt_at: new Date(Date.now() + 55 * 60_000).toISOString() }).eq("user_id", job.user_id);
+      if (job.welcome_event_id !== undefined) update = update.eq("welcome_event_id", job.welcome_event_id);
+      const { error } = await update;
+      if (error) throw error;
     },
     send: sendTemplateEmail,
   });
