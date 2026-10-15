@@ -190,8 +190,9 @@ function evaluate(
   const kitSavingsCents = Math.max(0, baseCents - itemsCents);
   const units = input.lines.reduce((a, l) => a + l.quantity, 0);
 
-  let mb = itemsCents > 0 ? multibuyPercentFor(units, s) : 0;
-  let cr = itemsCents > 0 && input.paymentMethod === "crypto" ? s.cryptoPercent : 0;
+  const blocked = (input as InternalQuoteInput)._block;
+  let mb = itemsCents > 0 && !blocked?.multibuy ? multibuyPercentFor(units, s) : 0;
+  let cr = itemsCents > 0 && !blocked?.crypto && input.paymentMethod === "crypto" ? s.cryptoPercent : 0;
   if (!s.allowMultibuyCrypto && mb > 0 && cr > 0) {
     if (mb >= cr) cr = 0;
     else mb = 0;
@@ -358,9 +359,16 @@ export type QuoteInput = {
   club?: ClubBenefit | null;
 };
 
+/** Per-member Titan Club stacking policy. Foundation never stacks with Club (hard rule, not stored). */
+export type ClubStacking = { multibuy: boolean; crypto: boolean; firstOffer: boolean; code: boolean; credit: boolean };
+export const DEFAULT_CLUB_STACKING: ClubStacking = { multibuy: true, crypto: true, firstOffer: true, code: true, credit: true };
+type InternalQuoteInput = QuoteInput & { _block?: { multibuy: boolean; crypto: boolean } };
+
 export type ClubBenefit = ({ type: "percent"; percent: number; fixedCents?: 0 } | { type: "fixed"; fixedCents: number; percent?: 0 }) & {
   /** Personal maximum combined product discount, 0.01–100 (2dp). */
   maxCapPercent: number;
+  /** Which EXTRA checkout discounts may combine with Club (missing = all allowed, legacy behaviour). */
+  stacking?: Partial<ClubStacking>;
 };
 
 /** True for a finite value in (0, max] with at most 2 decimals (integer basis points). */
@@ -369,20 +377,27 @@ export function isTwoDpPercent(v: unknown, max = 100) {
   return typeof v !== "boolean" && Number.isFinite(n) && n > 0 && n <= max && Math.abs(Math.round(n * 100) - n * 100) < 1e-9;
 }
 
-type CleanClub = ({ type: "percent"; percent: number; fixedCents: 0 } | { type: "fixed"; percent: 0; fixedCents: number }) & { maxCapPercent: number };
+export function sanitizeStacking(v: Partial<ClubStacking> | null | undefined): ClubStacking {
+  const o = { ...DEFAULT_CLUB_STACKING };
+  for (const k of Object.keys(o) as (keyof ClubStacking)[]) if (v && typeof v[k] === "boolean") o[k] = v[k] as boolean;
+  return o;
+}
+
+type CleanClub = ({ type: "percent"; percent: number; fixedCents: 0 } | { type: "fixed"; percent: 0; fixedCents: number }) & { maxCapPercent: number; stacking: ClubStacking };
 
 /** Strict: percent 0.01–100, fixed 1c–$1000 integer cents, max cap 0.01–100; anything else = no benefit. */
 export function sanitizeClub(c: ClubBenefit | null | undefined): CleanClub | null {
   if (!c || !isTwoDpPercent(c.maxCapPercent)) return null;
   const maxCapPercent = Math.round(Number(c.maxCapPercent) * 100) / 100;
+  const stacking = sanitizeStacking(c.stacking);
   if (c.type === "percent") {
     if (!isTwoDpPercent(c.percent)) return null;
-    return { type: "percent", percent: Math.round(Number(c.percent) * 100) / 100, fixedCents: 0, maxCapPercent };
+    return { type: "percent", percent: Math.round(Number(c.percent) * 100) / 100, fixedCents: 0, maxCapPercent, stacking };
   }
   if (c.type === "fixed") {
     const f = Number(c.fixedCents);
     if (!Number.isInteger(f) || f <= 0 || f > 100000) return null;
-    return { type: "fixed", percent: 0, fixedCents: f, maxCapPercent };
+    return { type: "fixed", percent: 0, fixedCents: f, maxCapPercent, stacking };
   }
   return null;
 }
@@ -392,7 +407,49 @@ export function sanitizeClub(c: ClubBenefit | null | undefined): CleanClub | nul
  * cheaper outcome for the customer wins and a notice explains why.
  */
 export function quoteOrder(input: QuoteInput, settings: PricingSettings = DEFAULT_PRICING_SETTINGS): Quote {
-  return quoteCore(input, settings);
+  const club = sanitizeClub(input.club);
+  const normal = quoteCore({ ...input, club: null }, settings);
+  if (!club) return normal;
+  // Club branch: Foundation is NEVER combined; only the member's allowed extra discounts apply.
+  // Global/first-offer/code rules still restrict further — Club permission can't bypass them.
+  const st = club.stacking;
+  const clubInput: InternalQuoteInput = {
+    ...input,
+    club,
+    foundationPercent: 0,
+    firstOfferEligible: Boolean(input.firstOfferEligible) && st.firstOffer,
+    creditUnits: st.credit ? input.creditUnits : 0,
+    code: st.code ? input.code : null,
+    _block: { multibuy: !st.multibuy, crypto: !st.crypto },
+  };
+  let cq = quoteCore(clubInput, settings);
+  if (!st.code && input.code) {
+    const c = input.code;
+    const itemsOk = cq.itemsCents >= c.minSpendCents;
+    // A valid referral code still records attribution (zero saving); member codes are simply not applied.
+    cq = c.kind === "referral" && itemsOk
+      ? { ...cq, code: c.code, codeApplied: true, codeCents: 0, notices: [...cq.notices, `Code ${c.code} is recorded, but discount codes don't combine with your Titan Club benefit.`] }
+      : { ...cq, notices: [...cq.notices, `Code ${c.code} doesn't combine with your Titan Club benefit.`] };
+  }
+  if (!st.credit && (input.creditUnits ?? 0) > 0)
+    cq = { ...cq, notices: [...cq.notices, "Referral rewards don't combine with your Titan Club benefit, so none were used."] };
+  const consumed = (q: Quote) => q.creditUnits + (q.firstOfferApplied ? 1 : 0);
+  const useClub =
+    cq.clubCents > 0 &&
+    (cq.totalCents < normal.totalCents || (cq.totalCents === normal.totalCents && consumed(cq) <= consumed(normal)));
+  if (useClub) {
+    return normal.foundationCents > 0
+      ? { ...cq, notices: [...cq.notices, "Foundation Member 5% doesn't combine with Titan Club — your Titan Club benefit was applied as it saves more."] }
+      : cq;
+  }
+  // Normal branch wins: standard cap only, personal Club cap does not leak.
+  return {
+    ...normal,
+    clubType: club.type,
+    clubPercent: club.type === "percent" ? club.percent : 0,
+    clubFixedCents: club.type === "fixed" ? club.fixedCents : 0,
+    notices: [...normal.notices, "Your standard discounts save more than your Titan Club benefit on this order, so they were applied instead."],
+  };
 }
 
 function quoteCore(input: QuoteInput, settings: PricingSettings): Quote {
