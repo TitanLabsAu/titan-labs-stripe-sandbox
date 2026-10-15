@@ -5,14 +5,14 @@ import { draftFromMember, isClubDraftDirty, draftToInput } from "../src/lib/tita
 import { validateClubInput } from "../src/lib/titan-club.functions";
 
 const line = (d: number, qty = 1, base = d) => ({ unitCents: d * 100, baseCents: base * 100, quantity: qty });
-const all = { multibuy: true, crypto: true, firstOffer: true, code: true, credit: true };
+const all = { multibuy: true, crypto: true, firstOffer: true, code: true, credit: true, foundation: false };
 const pct = (p: number, cap = 30, st: Partial<typeof all> = {}): ClubBenefit => ({ type: "percent", percent: p, maxCapPercent: cap, stacking: { ...all, ...st } });
 const fixed = (c: number, cap = 30, st: Partial<typeof all> = {}): ClubBenefit => ({ type: "fixed", fixedCents: c, maxCapPercent: cap, stacking: { ...all, ...st } });
 const q = (x: any = {}, lines = [line(100)], pay = "payid") => quoteOrder({ lines, shippingMethod: "express", paymentMethod: pay, ...x }, S);
 const ref: CodeRule = { code: "REF1", kind: "referral", discountType: "percent", value: 5, minSpendCents: 0, combineMultibuy: true, combineCrypto: true, combineCredit: true };
 const never = (r: any) => expect(r.foundationCents > 0 && r.clubCents > 0).toBe(false);
 
-describe("Foundation never combines with Club", () => {
+describe("Foundation stacking OFF: mutually exclusive branches", () => {
   test("percent Club beats Foundation: no Foundation", () => {
     const r = q({ club: pct(10), foundationPercent: 5 }); never(r);
     expect(r.clubCents).toBe(1000); expect(r.foundationCents).toBe(0);
@@ -65,11 +65,11 @@ describe("each stacking switch", () => {
 
 describe("regressions & trust", () => {
   test("guest / no club unchanged", () => expect(q({ foundationPercent: 5 }).totalCents).toBe(q({ club: null, foundationPercent: 5 }).totalCents));
-  test("legacy row (no columns) = all allowed", () => expect(stackingFromRow({})).toEqual(all));
+  test("legacy row (no columns) = all allowed incl Foundation", () => expect(stackingFromRow({})).toEqual({ ...all, foundation: true }));
   test("DB false values honoured", () => expect(stackingFromRow({ stack_code: false }).code).toBe(false));
   test("tampered foundation key rejected", () => {
     const base = { userId: "11111111-1111-1111-1111-111111111111", type: "percent" as const, percent: 5, maxCapPercent: 20, active: true, note: "" };
-    expect(validateClubInput({ ...base, stacking: { ...all, foundation: true } as any })).toMatch(/Foundation/);
+    expect(validateClubInput({ ...base, stacking: { ...all, foundation: "on" } as any })).toMatch(/stacking/);
     expect(validateClubInput({ ...base, stacking: { ...all, code: "yes" } as any })).toMatch(/stacking/);
     expect(validateClubInput({ ...base, stacking: all })).toBeNull();
   });
@@ -80,5 +80,20 @@ describe("regressions & trust", () => {
     const re = { ...d, active: true, stacking: { ...d.stacking, code: false } };
     expect(isClubDraftDirty(re, m)).toBe(true);
     expect(draftToInput(re).stacking).toEqual({ ...all, crypto: false, code: false });
+  });
+});
+
+describe("Foundation stacking ON", () => {
+  test("Foundation + Club stack within personal cap", () => {
+    const r = q({ club: pct(10, 30, { foundation: true }), foundationPercent: 5 });
+    expect(r.foundationCents).toBe(500); expect(r.clubCents).toBe(1000);
+  });
+  test("still clipped by personal cap", () => {
+    const r = q({ club: pct(28, 30, { foundation: true }), foundationPercent: 5 });
+    expect(r.itemsCents - r.merchandiseCents).toBe(3000);
+  });
+  test("new draft defaults Foundation off", async () => {
+    const { newClubDraft } = await import("../src/lib/titan-club-draft");
+    expect(newClubDraft({ userId: "u", name: "x", email: null }, 20).stacking.foundation).toBe(false);
   });
 });

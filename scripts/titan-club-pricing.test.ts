@@ -103,7 +103,7 @@ describe("trusted Club lookup", () => {
   test("feature off by default gives nothing", async () => expect(await clubBenefitFor(fakeDb({ enabled: false }, row), "u")).toBeNull());
   test("revoked gives nothing (global cap)", async () => expect(await clubBenefitFor(fakeDb({ enabled: true }, { ...row, active: false }), "u")).toBeNull());
   test("active member gets DB benefit + personal cap", async () =>
-    expect(await clubBenefitFor(fakeDb({ enabled: true }, row), "u")).toEqual({ type: "percent", percent: 25, fixedCents: 0, maxCapPercent: 30 }));
+    expect(await clubBenefitFor(fakeDb({ enabled: true }, row), "u")).toMatchObject({ type: "percent", percent: 25, fixedCents: 0, maxCapPercent: 30, stacking: { foundation: true } }));
   test("not-installed tables = no club", async () => expect(await clubBenefitFor(fakeDb(null, null, { code: "PGRST205" }), "u")).toBeNull());
   test("other errors fail closed", async () => expect(clubBenefitFor(fakeDb(null, null, { code: "500", message: "x" }), "u")).rejects.toThrow(/member benefits/));
   test("checkout quote input has no client benefit fields", async () => {
