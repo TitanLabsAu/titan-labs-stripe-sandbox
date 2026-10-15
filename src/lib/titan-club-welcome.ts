@@ -56,6 +56,7 @@ export function clubWelcomeCopy(c: ClubSnapshot) {
   const combos: string[] = [];
   if (allowed.length) combos.push(`Your Club benefit can combine with ${allowed.join(", ")}.`);
   if (c.stack_first_offer) combos.push("It can also combine with the new-member first-purchase offer, but only if you are still eligible for that offer.");
+  if (c.stack_foundation) combos.push("If you hold Foundation Member status, your Club benefit can combine with it.");
   if (!allowed.length && !c.stack_first_offer) combos.push("Your Club benefit applies on its own; where another saving is available, checkout keeps whichever single option gives you the lower price.");
   else combos.push("Where a saving isn't allowed to combine, checkout compares the options and keeps the one that gives you the lower price.");
   const cap = `Your personal maximum is ${fmtPct(c.max_cap_percent)}: extra savings added at checkout are capped at this amount per order.`;
