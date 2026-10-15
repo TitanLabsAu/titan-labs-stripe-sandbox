@@ -9,10 +9,12 @@ export type ClubBenefitView = {
   maxCapPercent: number;
 };
 
-export type MyTitanClub = (ClubBenefitView & { assignedAt: string }) | null;
+export type MyTitanClub = (ClubBenefitView & { assignedAt: string; freeShipping: boolean }) | null;
 
 export type AdminClubMember = ClubBenefitView & {
   stacking: ClubStacking;
+  /** Free shipping on every non-empty order (separate from product discounts). */
+  freeShipping: boolean;
   userId: string;
   name: string;
   email: string | null;
@@ -37,6 +39,8 @@ export type AdminTitanClub = {
   installed: boolean;
   /** False until the staged stacking-policy database update is installed. */
   stackingInstalled: boolean;
+  /** False until the free-shipping database update is installed. */
+  freeShippingInstalled: boolean;
   enabled: boolean;
   siteCapPercent: number;
   members: AdminClubMember[];
@@ -62,12 +66,17 @@ export const getMyTitanClub = createServerFn({ method: "POST" })
     const { data, error } = await (context.supabase as any).rpc("titan_club_my_benefit");
     if (missing(error)) return null;
     if (error) throw new Error("Couldn't load your member benefits. Please refresh.");
-    return data ? { ...view(data), assignedAt: String(data.assigned_at) } : null;
+    return data ? { ...view(data), assignedAt: String(data.assigned_at), freeShipping: data.free_shipping === true } : null;
   });
 
 async function requireAdmin(context: any) {
   const { data, error } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
   if (error || data !== true) throw new Error("Forbidden");
+}
+
+async function hasFreeShippingColumn(sb: any) {
+  const { error } = await sb.from("titan_club_members").select("free_shipping").limit(1);
+  return !error;
 }
 
 async function hasStackingColumns(sb: any) {
@@ -95,7 +104,7 @@ export const adminGetTitanClub = createServerFn({ method: "POST" })
     ]);
     const siteCapPercent = Number(site.data?.combined_cap_percent ?? 20);
     if (missing(settings.error) || missing(members.error))
-      return { installed: false, stackingInstalled: false, enabled: false, siteCapPercent, members: [], events: [] };
+      return { installed: false, stackingInstalled: false, freeShippingInstalled: false, enabled: false, siteCapPercent, members: [], events: [] };
     if (settings.error || members.error || notes.error || events.error) throw new Error("Couldn't load The Titan Club.");
     const rows = (members.data ?? []) as any[];
     const ids = [...new Set([...rows.map((r) => r.user_id), ...((events.data ?? []) as any[]).map((e) => e.user_id)])];
@@ -105,14 +114,17 @@ export const adminGetTitanClub = createServerFn({ method: "POST" })
     const pm = new Map(((profiles ?? []) as any[]).map((p) => [p.id, p]));
     const nm = new Map(((notes.data ?? []) as any[]).map((n) => [n.user_id, n.note]));
     const stackingInstalled = rows.length ? "stack_multibuy" in rows[0] : await hasStackingColumns(sb);
+    const freeShippingInstalled = rows.length ? "free_shipping" in rows[0] : await hasFreeShippingColumn(sb);
     return {
       installed: true,
       stackingInstalled,
+      freeShippingInstalled,
       enabled: Boolean(settings.data?.enabled),
       siteCapPercent,
       members: rows.map((r) => ({
         ...view(r),
         stacking: sanitizeStacking({ multibuy: r.stack_multibuy, crypto: r.stack_crypto, firstOffer: r.stack_first_offer, code: r.stack_code, credit: r.stack_credit, foundation: r.stack_foundation }),
+        freeShipping: r.free_shipping === true,
         userId: r.user_id,
         name: nameOf(pm.get(r.user_id)),
         email: pm.get(r.user_id)?.email ?? null,
@@ -161,6 +173,7 @@ export type ClubAssignInput = {
   active: boolean;
   note: string;
   stacking: ClubStacking;
+  freeShipping: boolean;
 };
 
 /** Strict validation shared with the UI. Returns an error message or null. */
@@ -174,6 +187,7 @@ export function validateClubInput(i: ClubAssignInput): string | null {
   if (String(i.note ?? "").length > 500) return "Note must be 500 characters or fewer.";
   const st = i.stacking as any;
   if (!st || (Object.keys(DEFAULT_CLUB_STACKING) as string[]).some((k) => typeof st[k] !== "boolean")) return "Invalid stacking settings.";
+  if (typeof i.freeShipping !== "boolean") return "Invalid free shipping setting.";
   return null;
 }
 
@@ -209,12 +223,16 @@ export const adminSetTitanClub = createServerFn({ method: "POST" })
       _stack_multibuy: stacking.multibuy, _stack_crypto: stacking.crypto, _stack_first_offer: stacking.firstOffer,
       _stack_code: stacking.code, _stack_credit: stacking.credit, _stack_foundation: stacking.foundation,
     };
-    const v2 = await hasStackingColumns(sbc);
+    const [v2, v3] = await Promise.all([hasStackingColumns(sbc), hasFreeShippingColumn(sbc)]);
+    if (!v3 && data.freeShipping)
+      throw new Error("Free shipping needs a pending database update before it can be saved. Leave it off, or ask for the update to be installed.");
     // Never silently drop a policy: before the update is installed only the legacy all-allowed policy can be saved.
     if (!v2 && !isDefaultStacking(stacking))
       throw new Error("Stacking controls need a pending database update before they can be saved. Leave every switch on (including Foundation), or ask for the update to be installed.");
-    const { data: res, error } = await sbc.rpc(v2 ? "admin_set_titan_club_v2" : "admin_set_titan_club", {
+    const fn = v3 ? "admin_set_titan_club_v3" : v2 ? "admin_set_titan_club_v2" : "admin_set_titan_club";
+    const { data: res, error } = await sbc.rpc(fn, {
       ...(v2 ? stackArgs : {}),
+      ...(v3 ? { _free_shipping: data.freeShipping === true } : {}),
       _user_id: data.userId,
       _benefit_type: data.type,
       _percent: data.type === "percent" ? Math.round(Number(data.percent) * 100) / 100 : null,
