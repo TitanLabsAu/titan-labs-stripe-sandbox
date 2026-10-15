@@ -154,6 +154,17 @@ export const PAYMENT_FIELDS: HomeField[] = [
     fallback:
       "Transfer the order total from your banking app using your order number as the payment description. Payments clear instantly with Osko.",
   },
+  { key: "payment_wise_enabled", label: "Show Wise at checkout", align: "left", fallback: "false" },
+  { key: "payment_wise_label", label: "Wise option name", align: "left", fallback: "Wise" },
+  { key: "payment_wise_link", label: "Wise payment link", align: "left", fallback: "https://wise.com" },
+  {
+    key: "payment_wise_instructions",
+    label: "Wise instructions",
+    multiline: true,
+    align: "left",
+    fallback:
+      "Open your Wise payment link, send the order total in AUD and use your order number as the payment reference.",
+  },
   { key: "payment_crypto_label", label: "Crypto option name", align: "left", fallback: "Cryptocurrency (10% off)" },
   { key: "payment_card_label", label: "Card option name", align: "left", fallback: "Credit / Debit Card" },
   {
@@ -222,7 +233,7 @@ export function termsVersion(content: Record<string, string> | undefined) {
   return homeValue(content, "legal_terms_version").trim() || "2026.1";
 }
 
-export type PaymentMethodKey = "payid" | "crypto" | "card";
+export type PaymentMethodKey = "payid" | "wise" | "crypto" | "card";
 
 export function paymentMethodName(
   content: Record<string, string> | undefined,
@@ -231,6 +242,8 @@ export function paymentMethodName(
   const key =
     method === "payid"
       ? "payment_payid_label"
+      : method === "wise"
+        ? "payment_wise_label"
       : method === "crypto"
         ? "payment_crypto_label"
         : "payment_card_label";

@@ -101,6 +101,7 @@ export function TitanTrustStrip() {
   const badges = [
     { label: "Credit / Debit Card", Icon: CreditCard },
     ...(homeValue(content, "payment_bank_enabled") === "true" ? [{ label: homeValue(content, "payment_payid_label"), Icon: Landmark }] : []),
+    ...(homeValue(content, "payment_wise_enabled") === "true" ? [{ label: homeValue(content, "payment_wise_label"), Icon: Landmark }] : []),
     { label: `Crypto · ${CRYPTO_DISCOUNT_PERCENT}% off`, Icon: Bitcoin },
     { label: "BTC · ETH · USDT", Icon: ShieldCheck },
     { label: "AusPost tracked", Icon: Truck },

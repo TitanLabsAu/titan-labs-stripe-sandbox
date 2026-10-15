@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertTriangle, Check, Copy } from "lucide-react";
+import { AlertTriangle, Check, Copy, ExternalLink } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -79,6 +79,33 @@ export function PaymentDetails({
         )}
         <p className="mt-3 whitespace-pre-line text-xs text-muted-foreground">
           {value("payment_payid_instructions")}
+        </p>
+      </div>
+    );
+  }
+
+  if (method === "wise") {
+    const link = value("payment_wise_link");
+    const safeLink = /^https:\/\//i.test(link) ? link : "";
+    return (
+      <div className={cn("border border-border bg-muted/20 p-4", className)}>
+        {safeLink ? (
+          <a
+            href={safeLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 border border-accent bg-accent/10 px-3 py-2 text-xs font-bold uppercase tracking-wide text-foreground hover:bg-accent/20"
+          >
+            Open Wise to pay <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            Wise payment details will be sent to you with your order confirmation.
+          </p>
+        )}
+        {reference ? <div className="mt-3"><CopyLine label="Payment reference" value={reference} /></div> : null}
+        <p className="mt-3 whitespace-pre-line text-xs text-muted-foreground">
+          {value("payment_wise_instructions")}
         </p>
       </div>
     );
@@ -217,6 +244,7 @@ export function PaymentMethodPicker({
   content: Record<string, string> | undefined;
 }) {
   const bankEnabled = homeValue(content, "payment_bank_enabled") === "true";
+  const wiseEnabled = homeValue(content, "payment_wise_enabled") === "true";
   const options: { key: PaymentMethodKey; label: string; hint: string; badge?: string }[] = [
     {
       key: "card",
@@ -227,6 +255,11 @@ export function PaymentMethodPicker({
       key: "payid" as const,
       label: homeValue(content, "payment_payid_label"),
       hint: "Transfer from your banking app using the payment details provided.",
+    }] : []),
+    ...(wiseEnabled ? [{
+      key: "wise" as const,
+      label: homeValue(content, "payment_wise_label"),
+      hint: "Pay the order total through Wise using the link provided.",
     }] : []),
     {
       key: "crypto",

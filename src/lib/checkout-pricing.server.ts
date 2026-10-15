@@ -83,7 +83,7 @@ export async function priceCheckout(
   input: {
     items: CheckoutItemInput[];
     shippingMethod: ShippingMethodKey;
-    paymentMethod: "card" | "payid" | "crypto";
+    paymentMethod: "card" | "payid" | "wise" | "crypto";
     code?: string | null;
     creditUnits?: number;
   },

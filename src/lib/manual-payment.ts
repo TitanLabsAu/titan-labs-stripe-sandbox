@@ -7,7 +7,7 @@ export type ManualPaymentOrder = {
 };
 
 export function isManualPaymentMethod(method: string | null) {
-  return method === null || method === "payid" || method === "crypto";
+  return method === null || method === "payid" || method === "wise" || method === "crypto";
 }
 
 export function canMarkManualPaid(order: ManualPaymentOrder) {

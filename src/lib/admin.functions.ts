@@ -151,7 +151,7 @@ export const adminSetPaymentConfirmed = createServerFn({ method: "POST" })
         .is("refunded_at", null);
       update = current.payment_method === null
         ? update.is("payment_method", null)
-        : update.in("payment_method", ["payid", "crypto"]);
+        : update.in("payment_method", ["payid", "wise", "crypto"]);
       const { data: changed, error } = await update.select("id");
       if (error && String(error.message ?? "").includes("FIRST_OFFER_STALE"))
         throw new Error("This order's 10% new-member offer has since been released or used on another order. Review and re-price it before marking paid.");

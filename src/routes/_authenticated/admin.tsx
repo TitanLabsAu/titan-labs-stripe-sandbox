@@ -542,7 +542,9 @@ function OrderDetail({ order, live }: { order: AdminOrder; live: boolean }) {
             <p className="mt-1 text-sm text-foreground">
               {order.payment_method === "crypto"
                 ? "Cryptocurrency"
-                : "PayID / Bank transfer"}
+                : order.payment_method === "wise"
+                  ? "Wise"
+                  : "PayID / Bank transfer"}
             </p>
             {order.payment_reference ? (
               <p className="mt-1 break-all font-mono text-xs text-muted-foreground">

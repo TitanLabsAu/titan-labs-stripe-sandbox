@@ -22,7 +22,7 @@ describe("manual Mark as paid eligibility", () => {
     expect(fn).toContain('.eq("payment_confirmed", false)');
     expect(fn).toContain('.neq("status", "cancelled")');
     expect(fn).toContain('.is("refunded_at", null)');
-    expect(fn).toContain('.in("payment_method", ["payid", "crypto"])');
+    expect(fn).toContain('.in("payment_method", ["payid", "wise", "crypto"])');
     expect(fn).not.toMatch(/status:\s/);
     const noop = fn.indexOf("alreadyPaid: true");
     expect(noop).toBeGreaterThan(-1);
