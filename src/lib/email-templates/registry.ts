@@ -20,6 +20,7 @@ import { template as orderDispatchedTemplate } from './order-dispatched'
 import { template as orderCheckpointTemplate } from './order-checkpoint'
 import { template as calendarReminderTemplate } from './calendar-reminder'
 import { template as memberWelcomeTemplate } from './member-welcome'
+import { template as titanClubWelcomeTemplate } from './titan-club-welcome'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'order-delivered': orderDeliveredTemplate,
@@ -29,5 +30,6 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'order-checkpoint': orderCheckpointTemplate,
   'calendar-reminder': calendarReminderTemplate,
   'member-welcome': memberWelcomeTemplate,
+  'titan-club-welcome': titanClubWelcomeTemplate,
 }
 
