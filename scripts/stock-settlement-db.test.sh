@@ -37,7 +37,8 @@ CREATE TABLE public.inventory_movements (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(), product_id uuid NOT NULL, product_slug text NOT NULL,
   variant_id text, variant_label text, kind text NOT NULL, before_qty integer NOT NULL,
   delta integer NOT NULL, after_qty integer NOT NULL, reason text NOT NULL, reference text,
-  actor uuid, created_at timestamptz NOT NULL DEFAULT now());
+  actor uuid, created_at timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT inventory_movements_kind_check CHECK (kind = ANY (ARRAY['receive','remove','count','editor','system','sale'])));
 CREATE TABLE public.admin_notifications (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(), order_id uuid, title text NOT NULL,
   body text, kind text NOT NULL, read boolean NOT NULL DEFAULT false, email_sent boolean NOT NULL DEFAULT false,

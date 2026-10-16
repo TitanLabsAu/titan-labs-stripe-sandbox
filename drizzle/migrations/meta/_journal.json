@@ -386,6 +386,13 @@
       "when": 1792143618049,
       "tag": "0054_paid_order_stock_settlement",
       "breakpoints": true
+    },
+    {
+      "idx": 55,
+      "version": "7",
+      "when": 1792143657898,
+      "tag": "0055_inventory_movements_sale_kind",
+      "breakpoints": true
     }
   ]
 }
