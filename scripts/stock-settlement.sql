@@ -168,30 +168,14 @@ BEGIN
     END IF;
   END LOOP;
 
-  IF settled > 0 OR skipped > 0 THEN
-    IF NOT EXISTS (SELECT 1 FROM jsonb_array_elements(plan)) THEN
-      RETURN jsonb_build_object('status', 'nothing_to_settle', 'skipped', skipped);
-    END IF;
-    IF settled = jsonb_array_length(plan) - (SELECT count(*) FROM jsonb_array_elements(plan) e2 WHERE EXISTS (
-         SELECT 1 FROM public.inventory_movements m
-         WHERE m.kind = 'sale' AND m.reference = 'order:' || o.id::text
-           AND m.product_id = (e2.value->>'product_id')::uuid
-           AND coalesce(m.variant_id, '') = coalesce(e2.value->>'variant_id', '')
-           AND m.created_at < now() - interval '1 minute')) THEN
-      NULL; -- mixed fresh/replayed lines still count as settled below
-    END IF;
-    UPDATE public.stock_settlement_exceptions SET resolved_at = now()
-      WHERE order_id = _order_id AND resolved_at IS NULL;
-    RETURN jsonb_build_object('status', CASE WHEN settled = 0 THEN 'already_settled' ELSE 'settled' END,
-      'settled', settled, 'skipped', skipped);
+  IF jsonb_array_length(plan) = 0 THEN
+    RETURN jsonb_build_object('status', 'nothing_to_settle', 'skipped', skipped);
   END IF;
-
-  IF EXISTS (SELECT 1 FROM public.inventory_movements WHERE kind = 'sale' AND reference = 'order:' || o.id::text) THEN
-    UPDATE public.stock_settlement_exceptions SET resolved_at = now()
-      WHERE order_id = _order_id AND resolved_at IS NULL;
-    RETURN jsonb_build_object('status', 'already_settled');
-  END IF;
-  RETURN jsonb_build_object('status', 'nothing_to_settle');
+  -- Every planned line either inserted fresh or already had its permanent marker.
+  UPDATE public.stock_settlement_exceptions SET resolved_at = now()
+    WHERE order_id = _order_id AND resolved_at IS NULL;
+  RETURN jsonb_build_object('status', CASE WHEN settled = 0 THEN 'already_settled' ELSE 'settled' END,
+    'settled', settled, 'skipped', skipped);
 END;
 $$;
 REVOKE ALL ON FUNCTION public.settle_order_stock(uuid) FROM anon;
