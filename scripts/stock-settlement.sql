@@ -130,10 +130,10 @@ BEGIN
   IF jsonb_array_length(problems) > 0 THEN
     IF NOT EXISTS (SELECT 1 FROM public.stock_settlement_exceptions WHERE order_id = _order_id AND resolved_at IS NULL) THEN
       INSERT INTO public.stock_settlement_exceptions (order_id, reason, detail)
-      VALUES (_order_id, (problems->0)->>'issue', problems);
+      VALUES (_order_id, ((problems->0)->>'issue'), problems);
       INSERT INTO public.admin_notifications (order_id, title, body, kind, read, email_sent)
       VALUES (_order_id, 'Stock settlement needs attention',
-        'Payment is confirmed for order #' || o.order_number || ' but stock could not be deducted (' || (problems->0)->>'issue' || '). Review Inventory and retry from Admin.',
+        'Payment is confirmed for order #' || o.order_number || ' but stock could not be deducted (' || ((problems->0)->>'issue') || '). Review Inventory and retry from Admin.',
         'stock_settlement', false, false);
     END IF;
     RETURN jsonb_build_object('status', 'exception', 'problems', problems);
@@ -195,7 +195,7 @@ BEGIN
   PERFORM set_config('titan.stock_settle', '1', true);
   result := public.settle_order_stock(_order_id);
   IF result->>'status' = 'exception' THEN
-    RAISE EXCEPTION 'Stock could not be deducted: %', (result->'problems'->0)->>'issue';
+    RAISE EXCEPTION 'Stock could not be deducted: %', ((result->'problems'->0)->>'issue');
   END IF;
   RETURN result;
 END;
