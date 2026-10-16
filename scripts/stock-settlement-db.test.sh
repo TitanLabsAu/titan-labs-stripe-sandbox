@@ -51,7 +51,8 @@ fail=0; check() { if [ "$2" = "$3" ]; then echo "PASS $1"; else echo "FAIL $1: g
 # Fixtures: range product with variants, equipment multipack (stock in packs), unlimited equipment, no-variant product.
 q "INSERT INTO products (slug,name,stock_quantity,product_variants) VALUES
   ('mt-1','MT-1',9,'[{\"id\":\"v10\",\"label\":\"10mg\",\"stock\":9}]'),
-  ('pen','Pen',4,'[]'),
+  ('pen','Pen',4,'[]')" >/dev/null
+q "INSERT INTO products (slug,name,stock_quantity,product_variants,unlimited_stock,catalogue_section) VALUES
   ('sharps','Sharps',999,'[]',true,'equipment')" >/dev/null
 q "UPDATE products SET catalogue_section='equipment', product_variants='[{\"id\":\"pk\",\"label\":\"5 Pack\",\"stock\":7,\"packSize\":5}]', stock_quantity=7 WHERE slug='pen'" >/dev/null
 mkorder() { q "INSERT INTO orders (order_number, status, payment_confirmed) VALUES ($1, '$2', $3) RETURNING id"; }
