@@ -19,3 +19,4 @@
 - [x] Titan Club congrats: best-effort prompt send after a successful first Admin assignment (hourly retry stays as backup)
 
 - [x] Titan Club congrats email: branded design reviewed, queue installed as migration 0052 (0 rows, no backfill), 298 tests + throwaway DB checks + typecheck + build pass, published to titanlabsaus.com
+- [x] Paid-order stock settlement (migration 0054/0055, live) + #1080 MT-1 reconciliation (9→7, sale ledger marker)

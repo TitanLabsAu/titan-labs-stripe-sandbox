@@ -1469,6 +1469,41 @@ export type Database = {
         }
         Relationships: []
       }
+      stock_settlement_exceptions: {
+        Row: {
+          created_at: string
+          detail: Json
+          id: string
+          order_id: string
+          reason: string
+          resolved_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          detail?: Json
+          id?: string
+          order_id: string
+          reason: string
+          resolved_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          detail?: Json
+          id?: string
+          order_id?: string
+          reason?: string
+          resolved_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_settlement_exceptions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_credit_ledger: {
         Row: {
           created_at: string
@@ -2054,6 +2089,8 @@ export type Database = {
         }
         Returns: string
       }
+      retry_stock_settlement: { Args: { _order_id: string }; Returns: Json }
+      settle_order_stock: { Args: { _order_id: string }; Returns: Json }
       store_credit_available_units: {
         Args: { _user_id: string }
         Returns: number

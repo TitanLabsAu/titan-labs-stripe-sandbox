@@ -352,8 +352,13 @@ function StatusSelect({ order }: { order: AdminOrder }) {
       adminSetPaymentConfirmed({ data: { orderId: order.id, confirmed: true } }),
     onSuccess: (result) => {
       // Emails are queued/retried asynchronously, so never claim the member was notified.
-      toast.success(result?.alreadyPaid ? "Already marked paid." : "Payment confirmed.");
+      if (result?.alreadyPaid) toast.success("Already marked paid.");
+      else if (result?.stock === "exception")
+        toast.warning(`Payment confirmed, but ${result.stockError ?? "stock could not be deducted"} Recorded for retry in Admin notifications.`);
+      else if (result?.stock === "settled") toast.success("Payment confirmed and stock deducted.");
+      else toast.success("Payment confirmed.");
       void queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin-inventory"] });
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not mark this order as paid"),
   });
