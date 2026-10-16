@@ -147,7 +147,7 @@ check "cancelled order: no deduction" "$(stock mt-1)" 10
 check "anon forbidden" "$(if $P -tA -c "SET ROLE anon; SELECT settle_order_stock('$O1')" >/dev/null 2>&1; then echo ok; else echo err; fi)" err
 check "non-admin forbidden" "$(if $P -tA -c "SET ROLE authenticated; SELECT set_config('test.uid','bbbbbbbb-0000-0000-0000-000000000002',false); SELECT settle_order_stock('$O1')" >/dev/null 2>&1; then echo ok; else echo err; fi)" err
 check "admin allowed" "$(if $P -tA -c "SET ROLE authenticated; SELECT set_config('test.uid','$A',false); SELECT settle_order_stock('$O1')" >/dev/null 2>&1; then echo ok; else echo err; fi)" ok
-check "exceptions not readable by non-admin" "$(if $P -tA -c "SET ROLE authenticated; SELECT set_config('test.uid','bbbbbbbb-0000-0000-0000-000000000002',false); SELECT count(*) FROM stock_settlement_exceptions" >/dev/null 2>&1; then echo ok; else echo err; fi)" err
+check "exceptions not readable by non-admin" "$($P -tA -c "SET ROLE authenticated; SELECT set_config('test.uid','bbbbbbbb-0000-0000-0000-000000000002',false); SELECT count(*) FROM stock_settlement_exceptions" | tail -n1)" 0
 
 # 15. Concurrent settlement of the same order: single debit, no error.
 O10=$(mkorder 10 pending_payment false); additem $O10 mt-1 10mg 2
