@@ -46,6 +46,8 @@ GRANT USAGE ON SCHEMA public, auth TO anon, authenticated;
 E
 $P -f "$DIR/stub.sql"; $P -f "$MIG"
 q() { $P -tA -c "$1"; }
+settle() { $P -tA -c "SELECT set_config('titan.stock_settle','1',false); SELECT settle_order_stock('$1')" | tail -n1; }
+retry() { $P -tA -c "SELECT set_config('test.uid','$A',false); SELECT retry_stock_settlement('$1')" | tail -n1; }
 fail=0; check() { if [ "$2" = "$3" ]; then echo "PASS $1"; else echo "FAIL $1: got '$2' want '$3'"; fail=1; fi; }
 
 # Fixtures: range product with variants, equipment multipack (stock in packs), unlimited equipment, no-variant product.
@@ -71,7 +73,7 @@ check "mark paid: ledger row" "$(q "SELECT delta FROM inventory_movements WHERE 
 check "mark paid: parent=sum variants" "$(q "SELECT stock_quantity FROM products WHERE slug='mt-1'")" 7
 
 # 3. Replay: repeated settle + unconfirm/reconfirm never double-debit.
-q "SELECT settle_order_stock('$O1')" >/dev/null
+settle $O1 >/dev/null
 q "UPDATE orders SET payment_confirmed=false WHERE id='$O1'"; q "UPDATE orders SET payment_confirmed=true WHERE id='$O1'"
 check "replay: still 7" "$(stock mt-1)" 7
 check "replay: one ledger row" "$(q "SELECT count(*) FROM inventory_movements WHERE kind='sale' AND reference='order:$O1'")" 1
@@ -113,10 +115,10 @@ check "insufficient: payment still confirmed" "$(q "SELECT payment_confirmed FRO
 check "insufficient: no deduction" "$(stock mt-1)" 4
 check "insufficient: exception recorded" "$(q "SELECT reason FROM stock_settlement_exceptions WHERE order_id='$O7'")" insufficient_stock
 check "insufficient: admin notified" "$(q "SELECT count(*) FROM admin_notifications WHERE order_id='$O7' AND kind='stock_settlement'")" 1
-check "insufficient: no duplicate exception on replay" "$(q "SELECT settle_order_stock('$O7')" >/dev/null; q "SELECT count(*) FROM stock_settlement_exceptions WHERE order_id='$O7'")" 1
+check "insufficient: no duplicate exception on replay" "$(settle $O7 >/dev/null; q "SELECT count(*) FROM stock_settlement_exceptions WHERE order_id='$O7'")" 1
 # Retry after restock settles and resolves the exception.
 q "UPDATE products SET product_variants='[{\"id\":\"v10\",\"label\":\"10mg\",\"stock\":60}]', stock_quantity=60 WHERE slug='mt-1'"
-check "retry after restock settles" "$(q "SELECT retry_stock_settlement('$O7')->>'status'")" settled
+check "retry after restock settles" "$(retry $O7 | tail -c 200 | grep -o "settled\|exception" | head -1)" settled
 check "retry deducted 50" "$(stock mt-1)" 10
 check "exception resolved" "$(q "SELECT count(*) FROM stock_settlement_exceptions WHERE order_id='$O7' AND resolved_at IS NULL")" 0
 
@@ -150,8 +152,8 @@ check "exceptions not readable by non-admin" "$(if $P -tA -c "SET ROLE authentic
 # 15. Concurrent settlement of the same order: single debit, no error.
 O10=$(mkorder 10 pending_payment false); additem $O10 mt-1 10mg 2
 q "UPDATE orders SET payment_confirmed=true WHERE id='$O10'"
-$P -tA -c "SELECT settle_order_stock('$O10')" >/dev/null 2>&1 &
-$P -tA -c "SELECT settle_order_stock('$O10')" >/dev/null 2>&1 &
+settle $O10 >/dev/null 2>&1 &
+settle $O10 >/dev/null 2>&1 &
 wait
 check "concurrent: single ledger row" "$(q "SELECT count(*) FROM inventory_movements WHERE kind='sale' AND reference='order:$O10'")" 1
 check "concurrent: deducted once" "$(stock mt-1)" 8
