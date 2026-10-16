@@ -179,6 +179,15 @@ export const adminSetPaymentConfirmed = createServerFn({ method: "POST" })
     }
     const { tryOrderCheckpointEmails } = await import("@/lib/order-checkpoint-email.server");
     await tryOrderCheckpointEmails(data.orderId);
+    // Stock settles via the paid-order database trigger; surface the outcome truthfully.
+    // A stock problem never fails the confirmed payment — it is recorded durably for retry.
+    if (data.confirmed) {
+      const { data: settle, error: settleError } = await (context.supabase as any).rpc("retry_stock_settlement", { _order_id: data.orderId });
+      if (settleError) return { ok: true, stock: "exception" as const, stockError: settleError.message };
+      const status = (settle as any)?.status as string | undefined;
+      if (status === "exception") return { ok: true, stock: "exception" as const, stockError: "Stock could not be deducted — see Admin notifications." };
+      return { ok: true, stock: (status ?? "settled") as "settled" | "already_settled" | "nothing_to_settle" | "not_payable" };
+    }
     return { ok: true };
   });
 
