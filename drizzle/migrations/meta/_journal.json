@@ -379,6 +379,13 @@
       "when": 1792105048758,
       "tag": "0053_titan_club_rejoin_welcome",
       "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "7",
+      "when": 1792143618049,
+      "tag": "0054_paid_order_stock_settlement",
+      "breakpoints": true
     }
   ]
 }
