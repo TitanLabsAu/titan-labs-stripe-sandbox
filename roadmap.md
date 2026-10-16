@@ -20,3 +20,4 @@
 
 - [x] Titan Club congrats email: branded design reviewed, queue installed as migration 0052 (0 rows, no backfill), 298 tests + throwaway DB checks + typecheck + build pass, published to titanlabsaus.com
 - [x] Paid-order stock settlement (migration 0054/0055, live) + #1080 MT-1 reconciliation (9→7, sale ledger marker)
+- [ ] Fix stock-settlement audit blockers: canonical product+variant grouping (kit-weighted units), settled-marker check before stock validation, deferred order/items triggers, guard INSERT on settled orders (old+new order), stable variant ID snapshot priority, revoke PUBLIC on security-definer RPCs, never trust client GUC, retry RPC returns structured status (no RAISE rollback), DB regressions for same-SKU kit+single, paid multirow INSERT, replay-low-stock, GUC bypass, insert-after-settled. Corrective additive migration; never re-deduct #1080. No publish.
