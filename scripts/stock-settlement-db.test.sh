@@ -47,7 +47,7 @@ GRANT USAGE ON SCHEMA public, auth TO anon, authenticated;
 E
 $P -f "$DIR/stub.sql"; $P -f "$MIG"
 q() { $P -tA -c "$1"; }
-settle() { $P -tA -c "SELECT set_config('titan.stock_settle','1',false); SELECT settle_order_stock('$1')" | tail -n1; }
+settle() { $P -tA -c "SELECT settle_order_stock('$1')" | tail -n1; }
 retry() { $P -tA -c "SELECT set_config('test.uid','$A',false); SELECT retry_stock_settlement('$1')" | tail -n1; }
 fail=0; check() { if [ "$2" = "$3" ]; then echo "PASS $1"; else echo "FAIL $1: got '$2' want '$3'"; fail=1; fi; }
 
@@ -144,10 +144,12 @@ O9=$(mkorder 9 cancelled false); additem $O9 mt-1 10mg 1
 q "UPDATE orders SET payment_confirmed=true WHERE id='$O9'"
 check "cancelled order: no deduction" "$(stock mt-1)" 10
 
-# 14. Permissions: anon and non-admin cannot call directly.
+# 14. Permissions: core is service/trigger-only; even admins go through the retry wrapper.
 check "anon forbidden" "$(if $P -tA -c "SET ROLE anon; SELECT settle_order_stock('$O1')" >/dev/null 2>&1; then echo ok; else echo err; fi)" err
 check "non-admin forbidden" "$(if $P -tA -c "SET ROLE authenticated; SELECT set_config('test.uid','bbbbbbbb-0000-0000-0000-000000000002',false); SELECT settle_order_stock('$O1')" >/dev/null 2>&1; then echo ok; else echo err; fi)" err
-check "admin allowed" "$(if $P -tA -c "SET ROLE authenticated; SELECT set_config('test.uid','$A',false); SELECT settle_order_stock('$O1')" >/dev/null 2>&1; then echo ok; else echo err; fi)" ok
+check "admin cannot call core directly" "$(if $P -tA -c "SET ROLE authenticated; SELECT set_config('test.uid','$A',false); SELECT settle_order_stock('$O1')" >/dev/null 2>&1; then echo ok; else echo err; fi)" err
+check "admin retry allowed" "$(if $P -tA -c "SET ROLE authenticated; SELECT set_config('test.uid','$A',false); SELECT retry_stock_settlement('$O1')" >/dev/null 2>&1; then echo ok; else echo err; fi)" ok
+check "non-admin retry forbidden" "$(if $P -tA -c "SET ROLE authenticated; SELECT set_config('test.uid','bbbbbbbb-0000-0000-0000-000000000002',false); SELECT retry_stock_settlement('$O1')" >/dev/null 2>&1; then echo ok; else echo err; fi)" err
 check "exceptions not readable by non-admin" "$($P -tA -c "SET ROLE authenticated; SELECT set_config('test.uid','bbbbbbbb-0000-0000-0000-000000000002',false); SELECT count(*) FROM stock_settlement_exceptions" | tail -n1)" 0
 
 # 15. Concurrent settlement of the same order: single debit, no error.
@@ -163,5 +165,33 @@ check "concurrent: deducted once" "$(stock mt-1)" 8
 BEFORE=$(stock mt-1)
 $P -c "BEGIN; INSERT INTO orders (order_number,status,payment_confirmed) VALUES (11,'processing',true); ROLLBACK" >/dev/null 2>&1 || true
 check "rolled-back paid insert: no deduction" "$(stock mt-1)" "$BEFORE"
+
+# 17. Kit + single of the same SKU merge into one plan entry with kit-weighted units.
+q "UPDATE products SET product_variants='[{\"id\":\"r10\",\"label\":\"10mg\",\"stock\":30}]', stock_quantity=30 WHERE slug='reta'" >/dev/null
+O11=$(mkorder 12 pending_payment false)
+additem $O11 reta '10mg · 10x Kit' 1; additem $O11 reta '10mg' 2
+q "UPDATE orders SET payment_confirmed=true WHERE id='$O11'"
+check "kit+single merged: 12 units deducted" "$(q "SELECT (product_variants->0->>'stock')::int FROM products WHERE slug='reta'")" 18
+check "kit+single merged: single ledger row of -12" "$(q "SELECT delta FROM inventory_movements WHERE kind='sale' AND reference='order:$O11'")" -12
+
+# 18. Replay with stock since lowered below the order's units: already_settled, never insufficient.
+q "UPDATE products SET product_variants='[{\"id\":\"r10\",\"label\":\"10mg\",\"stock\":1}]', stock_quantity=1 WHERE slug='reta'" >/dev/null
+check "replay low stock: already_settled" "$(settle $O11 | grep -o 'already_settled\|exception' | head -1)" already_settled
+check "replay low stock: no exception row" "$(q "SELECT count(*) FROM stock_settlement_exceptions WHERE order_id='$O11'")" 0
+check "replay low stock: stock untouched" "$(q "SELECT (product_variants->0->>'stock')::int FROM products WHERE slug='reta'")" 1
+
+# 19. Inserting items into an already-settled order is blocked; moving items between orders is blocked.
+check "insert after settled blocked" "$(if $P -c "INSERT INTO order_items (order_id, product_slug, product_name, variant_label, unit_price, quantity) VALUES ('$O11','reta','x','10mg',10,1)" >/dev/null 2>&1; then echo ok; else echo err; fi)" err
+O12=$(mkorder 13 pending_payment false); additem $O12 mt-1 10mg 1
+check "move item into settled order blocked" "$(if $P -c "UPDATE order_items SET order_id='$O11' WHERE order_id='$O12'" >/dev/null 2>&1; then echo ok; else echo err; fi)" err
+check "move item out of settled order blocked" "$(if $P -c "UPDATE order_items SET order_id='$O12' WHERE order_id='$O11'" >/dev/null 2>&1; then echo ok; else echo err; fi)" err
+
+# 20. Saved variant_id snapshot wins over label resolution.
+q "INSERT INTO products (slug,name,stock_quantity,product_variants) VALUES ('snap','Snap',5,'[{\"id\":\"s1\",\"label\":\"5mg\",\"stock\":5}]')" >/dev/null
+O13=$(mkorder 14 pending_payment false)
+q "INSERT INTO order_items (order_id, product_slug, product_name, variant_label, variant_id, unit_price, quantity) VALUES ('$O13','snap','x','renamed label','s1',10,2)" >/dev/null
+q "UPDATE orders SET payment_confirmed=true WHERE id='$O13'"
+check "variant_id snapshot: deducted despite stale label" "$(q "SELECT (product_variants->0->>'stock')::int FROM products WHERE slug='snap'")" 3
+check "variant_id snapshot: ledger variant id" "$(q "SELECT variant_id FROM inventory_movements WHERE kind='sale' AND reference='order:$O13'")" s1
 
 echo; if [ $fail = 0 ]; then echo "ALL PASS"; else echo "FAILURES"; exit 1; fi

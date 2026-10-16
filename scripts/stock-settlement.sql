@@ -69,9 +69,6 @@ DECLARE
   plan jsonb := '[]'::jsonb;
   problems jsonb := '[]'::jsonb;
   entry jsonb;
-  base_label text;
-  is_kit boolean;
-  vids text[];
   vid text;
   idx integer;
   cur integer;
@@ -111,14 +108,14 @@ BEGIN
                     ELSE oi.variant_label END
             LIMIT 1)
         ) AS variant_id,
-        (pr.catalogue_section = 'range' AND oi.variant_label LIKE '% · 10x Kit') AS is_kit
+        (pr.catalogue_section = 'range' AND oi.variant_label LIKE '% · 10x Kit') AS kit_flag
       FROM public.order_items oi
       JOIN public.products pr ON pr.slug = oi.product_slug
       WHERE oi.order_id = _order_id
     )
     SELECT product_id, max(slug) AS slug, variant_id,
            min(variant_label) AS variant_label,
-           sum(quantity * (CASE WHEN is_kit THEN 10 ELSE 1 END))::int AS units
+           sum(quantity * (CASE WHEN kit_flag THEN 10 ELSE 1 END))::int AS units
     FROM resolved
     GROUP BY product_id, variant_id
     ORDER BY product_id, variant_id
@@ -470,7 +467,7 @@ BEGIN
     SET status = 'paid', transaction_id = _payment_intent_id, order_id = _order.id, updated_at = now()
     WHERE id = _attempt_id AND user_id = _user_id;
     RETURN jsonb_build_object('id', _order.id, 'order_number', _order.order_number,
-      'subtotal', _order.subtotal, 'shipping', _order.subtotal, 'total', _order.total);
+      'subtotal', _order.subtotal, 'shipping', _order.shipping, 'total', _order.total);
   END IF;
 
   BEGIN
@@ -516,7 +513,7 @@ BEGIN
     SET status = 'paid', transaction_id = _payment_intent_id, order_id = _order.id, updated_at = now()
     WHERE id = _attempt_id AND user_id = _user_id;
     RETURN jsonb_build_object('id', _order.id, 'order_number', _order.order_number,
-      'subtotal', _order.subtotal, 'shipping', _order.subtotal, 'total', _order.total);
+      'subtotal', _order.subtotal, 'shipping', _order.shipping, 'total', _order.total);
   END;
 
   INSERT INTO public.order_items (order_id, product_slug, product_name, unit_price, quantity, variant_label, variant_id)
@@ -536,6 +533,6 @@ BEGIN
   WHERE id = _attempt_id AND user_id = _user_id;
 
   RETURN jsonb_build_object('id', _order.id, 'order_number', _order.order_number,
-    'subtotal', _order.subtotal, 'shipping', _order.subtotal, 'total', _order.total);
+    'subtotal', _order.subtotal, 'shipping', _order.shipping, 'total', _order.total);
 END;
 $function$;
