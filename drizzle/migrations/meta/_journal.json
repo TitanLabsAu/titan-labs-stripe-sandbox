@@ -393,6 +393,13 @@
       "when": 1792143657898,
       "tag": "0055_inventory_movements_sale_kind",
       "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "7",
+      "when": 1792145104859,
+      "tag": "0056_stock_settlement_v2_canonical_deferred_security",
+      "breakpoints": true
     }
   ]
 }

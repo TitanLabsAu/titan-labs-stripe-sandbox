@@ -780,6 +780,7 @@ export type Database = {
           product_slug: string
           quantity: number
           unit_price: number
+          variant_id: string | null
           variant_label: string
         }
         Insert: {
@@ -790,6 +791,7 @@ export type Database = {
           product_slug: string
           quantity: number
           unit_price: number
+          variant_id?: string | null
           variant_label?: string
         }
         Update: {
@@ -800,6 +802,7 @@ export type Database = {
           product_slug?: string
           quantity?: number
           unit_price?: number
+          variant_id?: string | null
           variant_label?: string
         }
         Relationships: [

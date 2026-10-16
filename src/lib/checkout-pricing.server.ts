@@ -26,6 +26,7 @@ export type PricedLine = {
   unit_price: number;
   quantity: number;
   variant_label: string;
+  variant_id: string | null;
 };
 
 export type ResolvedCode = {
@@ -166,6 +167,7 @@ export async function priceCheckout(
       unit_price: unitPrice,
       quantity,
       variant_label: pack === "kit" ? `${label} · 10x Kit` : label,
+      variant_id: variant ? String(variant.id) : null,
     });
     priceLines.push({
       unitCents: Math.round(unitPrice * 100),
