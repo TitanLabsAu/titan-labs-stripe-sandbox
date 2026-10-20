@@ -10,6 +10,22 @@ export const PROTOCOL_STACK_GOALS = [
   { id: "recovery", title: "Recovery", compounds: ["BPC-157", "TB-500", "GHK-Cu", "KPV", "MOTS-C", "SS-31", "NAD+"] },
 ] as const;
 
+export const PROTOCOL_TOPIC_OVERVIEWS: Record<(typeof PROTOCOL_STACK_GOALS)[number]["id"], string> = {
+  "weight-loss": "Explore research on metabolic signalling, energy metabolism and body-weight regulation. The entries below describe individual compounds and the limits of their cited research.",
+  bulking: "Explore research involving androgen signalling, growth-hormone biology and muscle-related experimental models. Each entry provides its own research context rather than a combined regimen.",
+  cutting: "Explore research involving body composition, endocrine signalling and cellular energy metabolism. Individual study contexts are kept separate from this reference grouping.",
+  optimization: "Explore a broad research topic spanning endocrine signalling, cellular metabolism, redox biology and tissue-related models. This category brings together references, not a performance prescription.",
+  longevity: "Explore research involving cellular ageing, mitochondrial biology and related molecular pathways. The compound entries describe distinct areas of investigation, not established longevity outcomes.",
+  recovery: "Explore experimental research involving tissue repair, inflammatory signalling and cellular metabolism. Read each compound's saved research context and qualifications independently.",
+};
+
+/** Return the complete saved wording, never an inferred role or shortened claim. */
+export function protocolResearchOverview(entry: ResearchEntry | undefined): string | undefined {
+  if (!entry?.published) return undefined;
+  if (entry.at_a_glance.trim()) return entry.at_a_glance;
+  return entry.summary.trim() ? entry.summary : undefined;
+}
+
 export function protocolGoal(id: string) {
   return PROTOCOL_STACK_GOALS.find((goal) => goal.id === id) ?? PROTOCOL_STACK_GOALS[0];
 }

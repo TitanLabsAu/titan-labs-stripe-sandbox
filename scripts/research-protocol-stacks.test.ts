@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { PROTOCOL_STACK_GOALS, protocolGoal, publishedProtocolEntry } from "../src/lib/research-protocol-stacks";
+import { PROTOCOL_STACK_GOALS, protocolGoal, protocolResearchOverview, publishedProtocolEntry } from "../src/lib/research-protocol-stacks";
 import { toResearchEntry } from "../src/lib/research";
 
 const entry = (overrides: Record<string, unknown> = {}) => toResearchEntry({ id: "fictional", slug: "nad", title: "NAD+", published: true, ...overrides });
@@ -13,6 +13,21 @@ const expected = [
 ] as const;
 
 describe("Protocol Stacks reference rules", () => {
+  test("complete saved overview retains qualifications and formatting verbatim", () => {
+    const saved = "  **Laboratory findings only.**\nHuman effects are not established. ";
+    expect(protocolResearchOverview(entry({ at_a_glance: saved, summary: "Not the selected text" }))).toBe(saved);
+  });
+  test("missing or whitespace-only overview uses the complete saved summary", () => {
+    const saved = "Animal research. Safety and efficacy in humans remain unknown.";
+    expect(protocolResearchOverview(entry({ at_a_glance: "", summary: saved }))).toBe(saved);
+    expect(protocolResearchOverview(entry({ at_a_glance: " \n ", summary: saved }))).toBe(saved);
+  });
+  test("missing summaries and unpublished or ambiguous entries never expose an overview", () => {
+    expect(protocolResearchOverview(entry())).toBeUndefined();
+    expect(protocolResearchOverview(entry({ published: false, at_a_glance: "Private draft" }))).toBeUndefined();
+    expect(protocolResearchOverview(publishedProtocolEntry("NAD+", [entry(), entry({ id: "other" })]))).toBeUndefined();
+    expect(protocolResearchOverview(publishedProtocolEntry("NAD+", []))).toBeUndefined();
+  });
   for (const [title, compounds] of expected) test(`${title} exact ordered grouping`, () => {
     expect(PROTOCOL_STACK_GOALS.find(g => g.title === title)?.compounds).toEqual(compounds);
   });

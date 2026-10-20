@@ -13,7 +13,7 @@ export const Route = createFileRoute("/research/protocol-stacks")({
     links: [{ rel: "canonical", href: `${SITE_ORIGIN}/research/protocol-stacks` }],
     meta: [
       { title: "Protocol Stacks | Titan Research Lab" },
-      { name: "description", content: "Explore six names-only compound topic groupings in Titan Research Lab. Educational references, not tested combinations or treatment instructions." },
+      { name: "description", content: "Explore six compound research topics with saved published research overviews. Educational references, not tested combinations or treatment instructions." },
       { property: "og:title", content: "Protocol Stacks | Titan Research Lab" },
       { property: "og:description", content: "Six educational compound topic groupings, with links only to published Research Lab entries." },
       { property: "og:type", content: "website" },

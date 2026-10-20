@@ -1,6 +1,7 @@
 # Titan Club final validation
 
 ## Research Lab Protocol Stacks — separate draft only
+- [x] Enriched six category introductions and published cards with complete saved overviews/fallbacks. 16 focused tests/25 assertions pass; all six keyboard switches, deep links/Back, saved BPC-157 text match and desktop/mobile light/dark checked with no overflow or browser errors. Draft preview returns HTTP 200; automatic build OK 23:36:37 UTC. New Weight Loss/Recovery desktop-dark/mobile-light PNGs delivered.
 - [x] Remove compound card/header evidence badges and evidence-map tile; unframe the detail evidence banner while preserving its exact explanatory text. Evidence/Admin fields and references unchanged.
 - [x] Add six exact names-only goal groupings at /research/protocol-stacks?goal=..., shell/footer navigation and published-only exact slug/alias links.
 - [x] 13 focused grouping/privacy tests pass; browser verified six keyboard goal switches, deep link, back/footer navigation, 44 public cards and fully rendered BPC-157 detail with zero status badges, seven Weight Loss published destinations, signed-out preview redirect to /auth, desktop/mobile light/dark without horizontal overflow; four PNG previews supplied. Automatic checks/build OK at 23:26:34 UTC.
