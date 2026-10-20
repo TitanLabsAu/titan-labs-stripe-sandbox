@@ -272,11 +272,18 @@ export const adminSendOrderEmail = createServerFn({ method: "POST" })
     if (error) throw error;
     if (!order) throw new Error("Order not found");
 
-    if (data.template === "order-confirmation" && process.env['TITAN_RECEIPT_ATTACHMENTS_ENABLED'] === 'true') {
-      const saved = await context.supabase.from("orders").select((await import("./order-receipt")).RECEIPT_ORDER_COLUMNS).eq("id", data.orderId).single();
+    let receiptData: Record<string, unknown> = {};
+    if (data.template === "order-confirmation") {
+      const receiptLib = await import("./order-receipt");
+      const saved = await context.supabase.from("orders").select(receiptLib.RECEIPT_ORDER_COLUMNS).eq("id", data.orderId).single();
       if (saved.error) throw saved.error;
-      const { prepareRequiredReceiptEmail } = await import("./required-receipt-email.server");
-      await prepareRequiredReceiptEmail(saved.data as unknown as import("./order-receipt").SavedReceiptOrder);
+      const savedOrder = saved.data as unknown as import("./order-receipt").SavedReceiptOrder;
+      if (process.env['TITAN_RECEIPT_ATTACHMENTS_ENABLED'] === 'true') {
+        const { prepareRequiredReceiptEmail } = await import("./required-receipt-email.server");
+        await prepareRequiredReceiptEmail(savedOrder);
+      }
+      // Approved branded content, same saved receipt as the automatic worker.
+      receiptData = { receipt: receiptLib.receiptFromOrder(receiptLib.ownerVisibleReceiptOrder(savedOrder)), orderId: (order as any).id };
     }
     const { data: profile } = await context.supabase
       .from("profiles")
@@ -297,7 +304,7 @@ export const adminSendOrderEmail = createServerFn({ method: "POST" })
       trackingNumber: (order as any).tracking_number ?? "",
       items: ((order as any).order_items ?? []).map(
         (i: any) => `${i.quantity} × ${i.product_name} — ${money(i.unit_price * i.quantity)}`,
-      ),
+      ),      ...receiptData,
     };
 
     const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
