@@ -1,6 +1,8 @@
 # Titan Club final validation
 
 ## Draft receipt / email / first-offer review (20 October)
+- [ ] Audit correction: default-OFF server attachment flag preserves legacy emails; actual handler/mock-auth access tests and updated owner report.
+- [ ] Visual correction: realistic quote-backed paid fixture, one-page normal receipt, regenerate PDFs/email/Admin desktop/mobile PNGs individually and ZIP.
 - [x] Shared saved-order purchase breakdown for Admin/customer/PDF/email; member/Admin and existing guest-capability PDF downloads.
 - [x] Branded confirmation/payment email drafts, unchanged noreply sender; attachment limitation disclosed, required sends fail closed and remain retryable.
 - [ ] Real automatic PDF email attachment: blocked by managed email API/installed email-js attachment support; not a link substitution. Do not publish this email draft until resolved.
