@@ -24,7 +24,7 @@ async function scenario({userId='owner', admin=false, guest=false, cookie='a'.re
     '@/lib/guest-capability':capabilities,'@/integrations/supabase/client.server':{supabaseAdmin:db},
   });
   const gate={authenticated:true};
-  const builder=()=>{let validator=x=>x, protectedFn=false;const b={middleware(ms){protectedFn=ms.includes(gate);return b;},inputValidator(fn){validator=fn;return b;},handler(fn){return async args=>{if(protectedFn&&!args.context?.userId)throw new Error('Unauthenticated');return fn({...args,data:validator(args.data)});}};return b;};
+  const builder=()=>{let validator=x=>x, protectedFn=false;const b={middleware(ms){protectedFn=ms.includes(gate);return b;},inputValidator(fn){validator=fn;return b;},handler(fn){return async args=>{if(protectedFn&&!args.context?.userId)throw new Error('Unauthenticated');return fn({...args,data:validator(args.data)});};}};return b;};
   const handlers=compile('src/lib/receipt.functions.ts',{'@tanstack/react-start':{createServerFn:builder},'@/integrations/supabase/auth-middleware':{requireSupabaseAuth:gate},
     './order-receipt':model,'./checkout-buyer.server':buyer,'@/integrations/supabase/client.server':{supabaseAdmin:db}});
   return {run:()=> (guest?handlers.getGuestOrderReceipt:handlers.getOrderReceipt)({data:{orderId:id},context:{supabase:db,userId}}),queries};
