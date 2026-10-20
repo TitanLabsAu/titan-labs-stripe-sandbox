@@ -1,14 +1,14 @@
 # Titan Club final validation
 
 ## Draft receipt / email / first-offer review (20 October)
-- [ ] Audit correction: default-OFF server attachment flag preserves legacy emails; actual handler/mock-auth access tests and updated owner report.
-- [ ] Visual correction: realistic quote-backed paid fixture, one-page normal receipt, regenerate PDFs/email/Admin desktop/mobile PNGs individually and ZIP.
-- [ ] Both paid/pending fictional fixtures use quoteOrder with explicit settings and $200 free-shipping rule; all receipt/email totals match snapshots.
+- [x] Audit correction: server attachment flag defaults OFF preserving legacy confirmation/payment/Admin emails; ON unsupported retries without sending. Actual handler tests cover owner/Admin/cross-member and hashed wrong/expired guest cookies; response allowlisted.
+- [x] Visual correction: quote-backed three-item paid PDF fits one A4 page; true long-order repeated headers retained. Corrected PDF/email/Admin previews inspected.
+- [x] Both fictional fixtures use quoteOrder with explicit settings: paid $600 less $80 Stack = $520/free shipping; known $50 kit savings count toward 20% cap on $650 base. Pending $150 less $15 first offer + $10 shipping = $145 below $200.
 - [x] Shared saved-order purchase breakdown for Admin/customer/PDF/email; member/Admin and existing guest-capability PDF downloads.
-- [x] Branded confirmation/payment email drafts, unchanged noreply sender; attachment limitation disclosed, required sends fail closed and remain retryable.
+- [x] Branded confirmation/payment content remains preview-only; unchanged noreply sender and legacy sending when flag OFF. Provider choice/enablement pending.
 - [ ] Real automatic PDF email attachment: blocked by managed email API/installed email-js attachment support; not a link substitution. Do not publish this email draft until resolved.
 - [x] Mock-only first-offer investigation: held payable claim explains lost eligibility; stale quote placeholder and ignored cancellation fixed in frontend, guards unchanged.
-- [x] Fictional Alex PDFs and rendered desktop/mobile email/Admin screenshots; 67 focused tests plus confirmation/checkpoint worker suites pass; preview build/typecheck OK.
+- [x] Fictional Alex PDFs and rendered desktop/mobile email/Admin screenshots; 68 focused tests plus actual receipt handler and confirmation/checkpoint worker suites pass; automatic preview build/typecheck OK.
 - [ ] Owner review and supported attachment decision required; no live migrations/settings/data/claims/orders/emails or native publication performed.
 
 - [x] Stage rejoining welcome trigger and activation-specific retry protection; preserve email design and current-perk reads.
