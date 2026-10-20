@@ -13,7 +13,7 @@ function toStatus(raw: any): FoundationStatus {
   return {
     enrolmentEnabled: Boolean(raw?.enrolment_enabled),
     launched: Boolean(raw?.launched),
-    capacity: Number(raw?.capacity ?? 50),
+    capacity: Number(raw?.capacity ?? 25),
     benefitPercent: Number(raw?.benefit_percent ?? 5),
     awarded: Number(raw?.awarded ?? 0),
   };
@@ -66,7 +66,7 @@ export const adminGetFoundation = createServerFn({ method: "POST" })
     return {
       enrolmentEnabled: Boolean(s.enrolment_enabled),
       launchedAt: s.launched_at ? String(s.launched_at) : null,
-      capacity: Number(s.capacity ?? 50),
+      capacity: Number(s.capacity ?? 25),
       benefitPercent: Number(s.benefit_percent ?? 5),
       awards: rows.map((r) => {
         const p: any = pm.get(r.user_id);
@@ -106,7 +106,7 @@ export const adminGetMemberFoundation = createServerFn({ method: "POST" })
     return { memberNumber: row ? Number(row.member_number) : null };
   });
 
-/** Admin: grant or remove Foundation Member status (database checks admin role and the 50-place cap). */
+/** Admin: grant or remove Foundation Member status (database checks admin role and the 25-place cap). */
 export const adminSetMemberFoundation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { userId: string; enabled: boolean }) => ({ userId: String(input?.userId ?? ""), enabled: input?.enabled === true }))
