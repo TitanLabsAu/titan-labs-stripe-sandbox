@@ -5,6 +5,8 @@ export const RECEIPT_ATTACHMENT_BLOCKER = 'RECEIPT_ATTACHMENT_UNSUPPORTED: manag
 /** Required receipts fail closed. Existing caller retries retain the same event key.
  * No invented attachment payload, send without receipt, or silent link fallback. */
 export async function prepareRequiredReceiptEmail(order: SavedReceiptOrder) {
+  // Server-only opt-in; absent/false/unrecognised values preserve production mail.
+  if (process.env['TITAN_RECEIPT_ATTACHMENTS_ENABLED'] !== 'true') return;
   const snapshot = order.pricing_snapshot as { quote?: { itemsCents?: number }; receipt_item_count?: number } | null;
   if (!order.order_items.length || (snapshot?.receipt_item_count != null && snapshot.receipt_item_count !== order.order_items.length)) throw new Error('RECEIPT_ITEMS_INCOMPLETE');
   const sum = order.order_items.reduce((a, i) => a + Math.round(Number(i.unit_price) * 100) * i.quantity, 0);

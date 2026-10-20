@@ -272,7 +272,7 @@ export const adminSendOrderEmail = createServerFn({ method: "POST" })
     if (error) throw error;
     if (!order) throw new Error("Order not found");
 
-    if (data.template === "order-confirmation") {
+    if (data.template === "order-confirmation" && process.env['TITAN_RECEIPT_ATTACHMENTS_ENABLED'] === 'true') {
       const saved = await context.supabase.from("orders").select((await import("./order-receipt")).RECEIPT_ORDER_COLUMNS).eq("id", data.orderId).single();
       if (saved.error) throw saved.error;
       const { prepareRequiredReceiptEmail } = await import("./required-receipt-email.server");
