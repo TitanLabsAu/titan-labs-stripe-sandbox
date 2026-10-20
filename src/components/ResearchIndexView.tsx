@@ -8,7 +8,6 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, Layers3, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ResearchEvidenceBadge } from "@/components/ResearchEvidenceBadge";
 import { EVIDENCE_STATUSES, label, type ResearchEntry } from "@/lib/research";
 import { entriesForCollection, RESEARCH_COLLECTIONS } from "@/lib/research-discovery";
 import { TitanBlendsView } from "@/components/TitanBlendsView";
@@ -202,7 +201,6 @@ export function ResearchIndexView({
             >
               <p className="technical-label text-accent">{entry.category || "Research"}</p>
               <h2 className="mt-2 font-display text-xl font-bold uppercase">{entry.title}</h2>
-              <ResearchEvidenceBadge status={entry.evidence_status} className="mt-4" />
               <p className="mt-4 text-sm leading-6 text-muted-foreground">
                 {entry.at_a_glance || entry.summary}
               </p>

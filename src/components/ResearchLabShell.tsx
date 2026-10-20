@@ -36,9 +36,18 @@ export function ResearchLabShell({
         >
           <Link
             to={preview ? "/research-preview" : "/research"}
+            activeOptions={{ exact: true }}
+            activeProps={{ className: "border-primary text-primary" }}
             className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl border border-border bg-card px-4 font-display text-xs font-bold uppercase text-foreground hover:border-primary hover:text-primary"
           >
             <FlaskConical className="h-4 w-4" /> Compound Library
+          </Link>
+          <Link
+            to="/research/protocol-stacks"
+            activeProps={{ className: "border-primary text-primary" }}
+            className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl border border-border bg-card px-4 font-display text-xs font-bold uppercase text-foreground hover:border-primary hover:text-primary"
+          >
+            <Layers3 className="h-4 w-4" aria-hidden="true" /> Protocol Stacks
           </Link>
           <a
             href={`${preview ? "/research-preview" : "/research"}#collections`}

@@ -4,7 +4,6 @@ import { researchProducts } from "@/lib/research-products";
 import { Link } from "@tanstack/react-router";
 import { AlertTriangle, ArrowLeft, ArrowRight, BookOpen, ExternalLink, Info, Layers3, ListChecks } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ResearchEvidenceBadge } from "@/components/ResearchEvidenceBadge";
 import { RichText } from "@/components/RichText";
 import { BLEND_NOTICE, EVIDENCE_EXPLANATIONS, EVIDENCE_TYPES, VERIFIED_EXPLANATION, doiUrl, label, pubchemUrl, pubmedUrl, safeUrl, type ResearchEntry, type ResearchSection } from "@/lib/research";
 import { blendsForEntry, relatedResearch } from "@/lib/research-discovery";
@@ -38,7 +37,6 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
             <h1 className="font-display text-[clamp(2.15rem,10vw,3rem)] font-black uppercase leading-none tracking-[0.055em] text-foreground sm:text-5xl sm:tracking-[0.08em]">{entry.title}</h1>
             {entry.synonyms.length ? <p className="mt-2 text-sm text-muted-foreground">Also known as {entry.synonyms.join(" · ")}</p> : null}
           </div>
-          <ResearchEvidenceBadge status={entry.evidence_status} className="self-start sm:self-auto" />
         </div>
       </header>
 
