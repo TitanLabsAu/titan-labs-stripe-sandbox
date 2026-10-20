@@ -16,9 +16,19 @@ export function protocolGoal(id: string) {
 
 const exact = (value: string) => value.trim().toLowerCase().replace(/\s+/g, " ");
 
+/** Known research routes recorded in the site's research sitemap, not catalogue aliases. */
+const RESEARCH_SLUGS: Record<string, string> = {
+  "Retatrutide": "retatrutide", "5-Amino-1MQ": "5-amino-1mq", "AOD-9604": "aod-9604",
+  "HGH": "hgh", "MOTS-C": "mots-c", "SS-31": "ss-31", "NAD+": "nad",
+  "Testosterone": "testosterone", "Nandrolone Decanoate": "nandrolone-decanoate",
+  "CJC-1295 + Ipamorelin": "cjc-1295-ipamorelin", "BPC-157": "bpc-157",
+  "Tesamorelin": "tesamorelin", "Primobolan": "primobolan", "Glutathione": "glutathione",
+  "Epithalon": "epithalon", "GHK-Cu": "ghk-cu", "TB-500": "tb-500", "KPV": "kpv",
+};
+
 /** Exact named alias only; ambiguity and unpublished records fail closed. No fuzzy product matching. */
 export function publishedProtocolEntry(name: string, entries: ResearchEntry[]): ResearchEntry | undefined {
   const matches = entries.filter((entry) => entry.published &&
-    [entry.title, ...entry.synonyms].some((alias) => exact(alias) === exact(name)));
+    (entry.slug === RESEARCH_SLUGS[name] || [entry.title, ...entry.synonyms].some((alias) => exact(alias) === exact(name))));
   return matches.length === 1 ? matches[0] : undefined;
 }

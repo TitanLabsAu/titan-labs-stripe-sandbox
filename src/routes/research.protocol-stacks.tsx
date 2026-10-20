@@ -8,7 +8,7 @@ import { SITE_ORIGIN } from "@/lib/seo";
 const publishedQuery = queryOptions({ queryKey: ["research", "list"], queryFn: () => listPublishedResearch(), staleTime: 30_000 });
 
 export const Route = createFileRoute("/research/protocol-stacks")({
-  validateSearch: (search: Record<string, unknown>) => ({ goal: typeof search.goal === "string" ? search.goal : "weight-loss" }),
+  validateSearch: (search: Record<string, unknown>): { goal?: string } => ({ goal: typeof search['goal'] === "string" ? search['goal'] : undefined }),
   head: () => ({
     links: [{ rel: "canonical", href: `${SITE_ORIGIN}/research/protocol-stacks` }],
     meta: [
@@ -28,5 +28,5 @@ export const Route = createFileRoute("/research/protocol-stacks")({
 function ProtocolStacksPage() {
   const { data: entries } = useSuspenseQuery(publishedQuery);
   const { goal } = Route.useSearch();
-  return <ResearchLabShell><ResearchProtocolStacks entries={entries} goalId={goal} /></ResearchLabShell>;
+  return <ResearchLabShell><ResearchProtocolStacks entries={entries} goalId={goal ?? "weight-loss"} /></ResearchLabShell>;
 }
