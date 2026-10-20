@@ -1,9 +1,10 @@
 # Titan Club final validation
 
 ## Research Lab Protocol Stacks — separate draft only
-- [ ] Remove only compound evidence badges, preserving all existing text and evidence/Admin data.
-- [ ] Add six exact names-only goal groupings within /research, shell/footer navigation and published exact-alias links.
-- [ ] Run grouping/privacy tests and browser-check switching, deep links, back/footer navigation and desktop/mobile light/dark; attach four PNGs.
+- [x] Remove compound card/header evidence badges and evidence-map tile; unframe the detail evidence banner while preserving its exact explanatory text. Evidence/Admin fields and references unchanged.
+- [x] Add six exact names-only goal groupings at /research/protocol-stacks?goal=..., shell/footer navigation and published-only exact slug/alias links.
+- [x] 13 focused grouping/privacy tests pass; browser verified six keyboard goal switches, deep link, back/footer navigation, 44 public cards and BPC-157 detail with zero status badges, desktop/mobile light/dark without horizontal overflow; four PNG previews supplied. Automatic checks/build OK at 23:25:14 UTC.
+- [ ] Existing shared header CMS hydration mismatch observed on one reload (server default brand/tagline versus saved browser content); not changed here because unrelated header/content behavior is outside this task. Does not block tested Research Lab navigation.
 - No receipt/checkout/commerce edits, database/settings/data writes, emails, real orders, publication or draft acceptance authorized.
 
 ## Receipt / branded email / first-offer (owner approved 21 Oct) — READY FOR NATIVE PUBLISH by owner
