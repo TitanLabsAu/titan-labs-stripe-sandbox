@@ -26,6 +26,7 @@ async function scenario({paid = false, fail = false, suppressed = false, lines =
     }});
   vm.runInNewContext(js, {exports, Error, console: {error() {}}, require(path) {
     if (path.includes('required-receipt-email.server')) return prep;
+    if (path.includes('order-receipt')) return {ownerVisibleReceiptOrder: o => o, receiptFromOrder: o => ({savedReceiptFor: o.id})};
     if (path.includes('order-admin-copy.server')) return {sendAdminOrderCopy: async (...args) => {copies.push(args)}};
     if (path.includes('client.server')) return {supabaseAdmin: db};
     if (path.includes('send-email')) return {sendTemplateEmail: async (...args) => {
@@ -60,6 +61,9 @@ async function scenario({paid = false, fail = false, suppressed = false, lines =
   assert.equal((await scenario({lines: false})).calls.length, 0, 'do not send an incomplete order');
   assert.equal((await scenario({cancelled: true})).calls.length, 0, 'do not confirm cancelled orders');
   const off = await scenario({fail: 'attachment'});
+  assert.deepEqual(off.calls[0][2].templateData.receipt, {savedReceiptFor: 'order-1'}, 'OFF sends branded saved receipt');
+  assert.equal(off.calls[0][2].templateData.orderId, 'order-1');
+  assert.deepEqual(off.copies[0][1].receipt, {savedReceiptFor: 'order-1'}, 'Admin copy gets same receipt');
   assert.equal(off.calls.length, 2, 'OFF preserves confirmation delivery with no PDF requirement');
   const blocked = await scenario({enabled: true});
   assert.equal(blocked.calls.length, 0, 'required attachment failure sends nothing');

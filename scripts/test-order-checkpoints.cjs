@@ -33,6 +33,7 @@ async function scenario(kind, overrides = {}, failure = false, suppressed = fals
   }});
   const worker = compile('src/lib/order-checkpoint-email.server.ts', {
     '@/lib/required-receipt-email.server': prep,
+    '@/lib/order-receipt': {ownerVisibleReceiptOrder: o => o, receiptFromOrder: o => ({savedReceiptFor: o.id})},
     '@/integrations/supabase/client.server': {supabaseAdmin: db},
     '@/lib/order-admin-copy.server': {sendAdminOrderCopy: async (...args) => { copies.push(args); }},
     '@/lib/email-templates/send-email': {sendTemplateEmail: async (...args) => {
@@ -62,6 +63,10 @@ async function scenario(kind, overrides = {}, failure = false, suppressed = fals
     assert.equal((await scenario(kind, {status: 'cancelled'})).calls.length, 0);
   }
   assert.equal((await scenario('payment-confirmed', {payment_confirmed: false})).calls.length, 0);
+  const branded = await scenario('payment-confirmed');
+  assert.deepEqual(branded.calls[0][2].templateData.receipt, {savedReceiptFor: 'test-order'}, 'OFF payment email carries saved receipt');
+  assert.deepEqual(branded.copies[0][1].receipt, {savedReceiptFor: 'test-order'});
+  assert.equal((await scenario('dispatched')).calls[0][2].templateData.receipt, undefined, 'dispatch unchanged');
   assert.equal((await scenario('dispatched', {tracking_number: ''})).calls.length, 0);
   assert.equal((await scenario('dispatched', {status: 'delivered'})).updates[0].outcome, 'superseded');
   const failed = await scenario('delivered', {}, true, false, 2);
