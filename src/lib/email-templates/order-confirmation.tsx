@@ -1,9 +1,12 @@
 import * as React from "react";
 import type { TemplateEntry } from "./registry";
 import { BrandedOrderEmail, type OrderEmailProps } from "./order-receipt-content";
+import { LegacyOrderConfirmation } from './legacy-order-confirmation';
 
 export type OrderConfirmationProps = OrderEmailProps;
-export function OrderConfirmation(props: OrderConfirmationProps) { return <BrandedOrderEmail {...props}/>; }
+export function OrderConfirmation(props: OrderConfirmationProps) {
+  return props.receipt ? <BrandedOrderEmail {...props}/> : <LegacyOrderConfirmation {...props}/>;
+}
 
 export const template = {
   component: OrderConfirmation,

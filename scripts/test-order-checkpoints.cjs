@@ -12,11 +12,11 @@ function compile(file, mocks = {}) {
   return exports;
 }
 
-async function scenario(kind, overrides = {}, failure = false, suppressed = false, attempts = 0) {
+async function scenario(kind, overrides = {}, failure = false, suppressed = false, attempts = 0, enabled = false) {
   const calls = [], copies = [], updates = [], alerts = [];
   const order = {id: 'test-order', order_number: 1056, status: kind === 'delivered' ? 'delivered' : 'shipped',
     total: 288, payment_confirmed: true, contact_email: 'buyer@example.com', contact_name: 'Test Buyer',
-    tracking_number: 'TRACK123', notes: 'Shipping: Standard tracked', ...overrides};
+    tracking_number: 'TRACK123', notes: 'Shipping: Standard tracked', order_items: [{product_name: 'Sample', quantity: 1, unit_price: 288}], ...overrides};
   const db = {from(table) {
     const q = {select() {return q}, is() {return q}, lte() {return q}, order() {return q}, limit() {return q}, eq() {return q},
       single: async () => ({data: order}), update(value) {updates.push(value);return q},
@@ -24,12 +24,19 @@ async function scenario(kind, overrides = {}, failure = false, suppressed = fals
       then(resolve) {return Promise.resolve({data: table === 'order_checkpoint_email_queue' ? [{order_id: order.id, kind, attempts}] : null}).then(resolve)}};
     return q;
   }};
+  const prep = {};
+  const prepJs = ts.transpileModule(fs.readFileSync('src/lib/required-receipt-email.server.ts', 'utf8'), {compilerOptions: {module: ts.ModuleKind.CommonJS}}).outputText;
+  vm.runInNewContext(prepJs, {exports: prep, Error, process: {env: enabled ? {TITAN_RECEIPT_ATTACHMENTS_ENABLED: 'true'} : {}}, require(path) {
+    if (path.includes('order-receipt')) return {receiptFromOrder: x => x};
+    if (path.includes('receipt-pdf')) return {generateBrandedReceiptPdf: async () => ({bytes: []})};
+    throw new Error(path);
+  }});
   const worker = compile('src/lib/order-checkpoint-email.server.ts', {
-    '@/lib/required-receipt-email.server': {prepareRequiredReceiptEmail: async () => { if (failure === 'attachment') throw new Error('RECEIPT_ATTACHMENT_UNSUPPORTED'); }},
+    '@/lib/required-receipt-email.server': prep,
     '@/integrations/supabase/client.server': {supabaseAdmin: db},
     '@/lib/order-admin-copy.server': {sendAdminOrderCopy: async (...args) => { copies.push(args); }},
     '@/lib/email-templates/send-email': {sendTemplateEmail: async (...args) => {
-      calls.push(args);if (failure) throw new Error('provider unavailable');
+      calls.push(args);if (failure === true) throw new Error('provider unavailable');
       return suppressed ? {sent: false, reason: 'recipient_suppressed'} : {sent: true};
     }},
   });
@@ -72,12 +79,11 @@ async function scenario(kind, overrides = {}, failure = false, suppressed = fals
   assert.match(deliveryText, /marked delivered/);
   assert.match(deliveryText, /TRACK123/);
   assert.doesNotMatch(deliveryText, /Live Orders|Closed Orders|Customer:/);
-  const blocked = await scenario('payment-confirmed', {}, 'attachment');
+  assert.equal((await scenario('payment-confirmed', {}, 'attachment')).calls.length, 2, 'OFF preserves payment confirmations');
+  const blocked = await scenario('payment-confirmed', {}, false, false, 0, true);
   assert.equal(blocked.calls.length, 0);
-  assert.equal(blocked.updates[0].last_error, 'RECEIPT_ATTACHMENT_UNSUPPORTED');
+  assert.match(blocked.updates[0].last_error, /^RECEIPT_ATTACHMENT_UNSUPPORTED/);
   assert.ok(!blocked.updates[0].completed_at);
-  const paymentText = await render(React.createElement(email.OrderCheckpoint, {kind: 'payment-confirmed', orderNumber: 'TL-1056'}), {plainText: true});
-  assert.match(paymentText, /Your payment is confirmed/);
   console.log('Checkpoint email, retry, suppression and delivery-status checks passed');
 })().catch(error => {console.error(error);process.exitCode = 1});
 

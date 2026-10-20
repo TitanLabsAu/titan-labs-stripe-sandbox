@@ -36,12 +36,12 @@ export async function generateReceiptPdf(receipt: Receipt, logoBytes: Uint8Array
     y = 711; text(receipt.reference, 38, y, 16, brand.blue); text(receipt.status, 360, y, 12); y -= 21;
     text(`Order date: ${receiptDate(receipt.date)} (Melbourne)`, 38, y); y -= 18;
     if (first) {
-      text(`Payment: ${receipt.payment}`, 38, y); y -= 18;
-      if (receipt.paidAt) { text(`Paid date recorded: ${receiptDate(receipt.paidAt)}`, 38, y); y -= 18; }
-      if (receipt.customer.name) { text(receipt.customer.name, 38, y, 11); y -= 17; }
+      text(`Payment: ${receipt.payment}`, 38, y); y -= 15;
+      if (receipt.paidAt) { text(`Paid date recorded: ${receiptDate(receipt.paidAt)}`, 38, y); y -= 15; }
+      if (receipt.customer.name) { text(receipt.customer.name, 38, y, 11); y -= 15; }
       for (const value of [receipt.customer.email, receipt.customer.phone, receipt.customer.address].filter(Boolean)) {
         for (const line of wrap(value, 515)) { text(line, 38, y); y -= 15; }
-      } y -= 10;
+      } y -= 8;
     } else y -= 14;
   };
   const tableHead = () => { page.drawRectangle({ x: 38, y: y - 9, width: 519, height: 26, color: colour(brand.pale) }); text('Product / saved size & pack', 46, y); text('Qty', 338, y); text('Unit (AUD)', 382, y); text('Line (AUD)', 470, y); y -= 30; };
@@ -50,7 +50,7 @@ export async function generateReceiptPdf(receipt: Receipt, logoBytes: Uint8Array
   for (const line of receipt.lines) {
     const name = wrap(line.name, 275, 11), size = wrap(line.sizePack, 275, 9);
     const originals = line.originalUnitCents != null ? wrap(`Original unit: ${receiptMoney(line.originalUnitCents)}`, 275, 9) : [];
-    const height = (name.length + size.length + originals.length) * 15 + 14;
+    const height = (name.length + size.length + originals.length) * 15 + 10;
     ensure(height, true);
     let at = y;
     for (const s of name) { text(s, 46, at, 11); at -= 15; }
@@ -58,20 +58,20 @@ export async function generateReceiptPdf(receipt: Receipt, logoBytes: Uint8Array
     text(String(line.quantity), 342, y); text(`$${(line.unitCents / 100).toFixed(2)}`, 382, y); text(`$${(line.lineCents / 100).toFixed(2)}`, 470, y);
     y -= height; page.drawLine({ start: { x: 38, y: y + 12 }, end: { x: 557, y: y + 12 }, thickness: 0.4, color: colour(brand.muted) });
   }
-  y -= 14;
+  y -= 10;
   const amount = (label: string, value: number, total = false) => {
     const labels = wrap(label, 365, total ? 12 : 10); ensure(labels.length * 16 + 12);
     if (total) page.drawRectangle({ x: 38, y: y - 12, width: 519, height: labels.length * 16 + 14, color: colour(brand.blue) });
     for (let i = 0; i < labels.length; i++) text(labels[i] ?? '', 46, y - i * 16, total ? 12 : 10, total ? brand.white : brand.charcoal);
     const valueText = `${value < 0 ? '−' : ''}$${(Math.abs(value) / 100).toFixed(2)}`;
     text(valueText, 550 - font.widthOfTextAtSize(valueText, total ? 12 : 10), y, total ? 12 : 10, total ? brand.white : brand.charcoal);
-    y -= labels.length * 16 + 10;
+    y -= labels.length * 16 + 6;
   };
   amount('Merchandise before extra discounts', receipt.beforeCents);
   for (const d of receipt.discounts) amount(d.label, -d.cents);
   if (receipt.reconciliationCents) amount('Saved total adjustment — detail unavailable', receipt.reconciliationCents);
   amount('Merchandise after discounts', receipt.merchandiseCents); amount(receipt.shippingLabel, receipt.shippingCents);
-  ensure(100); amount('TOTAL AUD', receipt.totalCents, true);
+  ensure(80); amount('TOTAL AUD', receipt.totalCents, true);
   if (receipt.amountPaidCents != null) amount(receipt.status === 'Refunded' ? 'Originally paid' : 'Amount paid', receipt.amountPaidCents);
   if (receipt.balanceCents != null) amount('Balance', receipt.balanceCents);
   const notes = [...receipt.warnings, ...(receipt.capNote ? [receipt.capNote] : []), ...(receipt.builtInSavings ? [`Built-in pack saving ${receiptMoney(receipt.builtInSavings)} is already included; not deducted again.`] : []), 'Titan Labs Australia · For research use only.'];

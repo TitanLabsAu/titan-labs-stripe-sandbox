@@ -2,23 +2,27 @@ import { describe, it, expect } from 'bun:test';
 import { readFile } from 'node:fs/promises';
 import { receiptFromOrder, canReadReceipt } from '../src/lib/order-receipt';
 import { generateReceiptPdf } from '../src/lib/receipt-pdf.server';
-import { alexPaid, alexPending, alexMultipage } from './receipt-fixtures';
+import { alexPaid, alexPending, alexMultipage, paidQuote, pendingQuote } from './receipt-fixtures';
 import { cancelAndRefreshQuote, isVerifiedQuote } from '../src/lib/checkout-quote-refresh';
 import { ownsRow } from '../src/lib/guest-capability';
 
 describe('saved historical receipts', () => {
-  it('reconciles all seven named positive discounts to saved $390 total', () => {
+  it('reconciles quote-generated PayID paid total and the 20% cap including kit savings', () => {
     const r = receiptFromOrder(alexPaid);
-    expect(r.beforeCents).toBe(60000); expect(r.discounts).toHaveLength(7);
-    expect(r.beforeCents - r.discounts.reduce((a, d) => a + d.cents, 0) + r.shippingCents).toBe(39000);
-    expect(r.totalCents).toBe(39000); expect(r.builtInSavings).toBe(5000);
+    expect(r.beforeCents).toBe(60000); expect(r.discounts).toEqual([{label:'Titan Stack / multibuy',cents:8000}]);
+    expect(r.beforeCents - r.discounts.reduce((a, d) => a + d.cents, 0) + r.shippingCents).toBe(52000);
+    expect(r.totalCents).toBe(52000); expect(r.builtInSavings).toBe(5000);
+    expect(paidQuote.cryptoCents).toBe(0); expect(paidQuote.capApplied).toBe(true);
+    expect(paidQuote.baseCents - paidQuote.merchandiseCents).toBe(65000 * 0.2);
+    expect(r.shippingCents).toBe(0);
   });
   it('retains mixed saved sizes and kits and known original unit', () => {
     const r = receiptFromOrder(alexPaid); expect(r.lines.map(l => l.sizePack)).toEqual(['10mg · Single vial', '20mg · Single vial', '5mg · 10x Kit']);
     expect(r.lines[2]?.originalUnitCents).toBe(25000);
   });
-  it('pending is $0 paid and $555 balance, never a paid receipt', () => {
-    const r = receiptFromOrder(alexPending); expect(r.status).toBe('Payment pending'); expect(r.amountPaidCents).toBe(0); expect(r.balanceCents).toBe(55500);
+  it('pending quote gets 10% off $150 then $10 standard shipping below the $200 threshold', () => {
+    const r = receiptFromOrder(alexPending); expect(r.status).toBe('Payment pending'); expect(r.amountPaidCents).toBe(0); expect(r.balanceCents).toBe(14500);
+    expect(pendingQuote.firstOfferCents).toBe(1500); expect(r.merchandiseCents).toBe(13500); expect(r.shippingCents).toBe(1000);
   });
   it('refunded status takes priority and does not invent refund balance', () => {
     const r = receiptFromOrder({ ...alexPaid, refunded_at: '2026-10-20T09:00:00Z' }); expect(r.status).toBe('Refunded'); expect(r.balanceCents).toBeNull();
@@ -29,7 +33,7 @@ describe('saved historical receipts', () => {
   });
   it('overstated saved discount detail is not represented as verified', () => {
     const r = receiptFromOrder({ ...alexPaid, pricing_snapshot: { quote: { itemsCents: 60000, clubCents: 90000 } } });
-    expect(r.discounts.some(d => d.label === 'Titan Club')).toBe(false); expect(r.discounts[0]?.cents).toBe(21000);
+    expect(r.discounts.some(d => d.label === 'Titan Club')).toBe(false); expect(r.discounts[0]?.cents).toBe(8000);
   });
   it('owner/admin access denies cross-member and ownerless reads', () => {
     expect(canReadReceipt('alex', 'alex', false)).toBe(true); expect(canReadReceipt('other', 'alex', false)).toBe(false);
@@ -47,6 +51,10 @@ describe('saved historical receipts', () => {
     expect(new TextDecoder().decode(pdf.bytes.slice(0, 5))).toBe('%PDF-'); expect(pdf.mime).toBe('application/pdf');
     expect(pdf.filename).toBe('TL-900003-paid-receipt.pdf');
     const { PDFDocument } = await import('pdf-lib'); expect((await PDFDocument.load(pdf.bytes)).getPageCount()).toBeGreaterThan(1);
+  });
+  it('keeps the normal three-line paid receipt on one A4 page', async () => {
+    const pdf = await generateReceiptPdf(receiptFromOrder(alexPaid), new Uint8Array(await readFile('public/favicon.png')));
+    const { PDFDocument } = await import('pdf-lib'); expect((await PDFDocument.load(pdf.bytes)).getPageCount()).toBe(1);
   });
 });
 describe('checkout cancellation and quote trust', () => {

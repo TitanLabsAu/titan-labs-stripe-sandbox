@@ -29,7 +29,8 @@ export function OrderCheckpoint({
   trackingNumber = "",
   receipt, orderId,
 }: Props) {
-  if (kind === "payment-confirmed") return <BrandedOrderEmail kind={kind} orderNumber={orderNumber} customerName={customerName} total={total} paymentConfirmed={true} receipt={receipt} orderId={orderId}/>;
+  // Branded receipt content is preview-only until the server opt-in is approved.
+  if (kind === "payment-confirmed" && receipt) return <BrandedOrderEmail kind={kind} orderNumber={orderNumber} customerName={customerName} total={total} paymentConfirmed={true} receipt={receipt} orderId={orderId}/>;
   const delivered = kind === "delivered";
   const title = delivered ? "Delivery confirmation" : "Payment confirmed";
   return (
