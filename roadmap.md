@@ -3,7 +3,9 @@
 - [x] Stage rejoining welcome trigger and activation-specific retry protection; preserve email design and current-perk reads.
 - [x] Test revoke/re-add, updated perks, no duplicate edit sends, rollback and access controls locally (23 email tests and 46 disposable database checks).
 - [x] Publish event-aware sender, then apply rejoining email update (approved by owner).
-- [ ] Send the Club welcome to all five current members — queued; goes out on the next hourly email run.
+- [x] Club welcome to all five members: queue "sent" 15 Oct 23:17 UTC and accepted by the email service (no bounces seen); inbox delivery not reported by provider.
+- [x] Foundation capacity 50 -> 25 live (migration 0057), wording/defaults updated, 16 disposable-DB limit tests pass; 8 existing awards untouched.
+- [ ] Native Publish — owner to click.
 
 - [x] CartSheet auth-scoped member quote (userId + items key, no stale placeholder, cleared on auth change, estimate/checking labels)
 - [x] FreeShippingMeter uses quote.remainingForFreeShippingCents (matches checkout eligibility)
