@@ -22,7 +22,7 @@ export async function sendPendingOrderConfirmations(orderId?: string) {
       const { data: savedOrder, error: readError } = await db
         .from("orders")
         .select(
-          "id, order_number, total, status, payment_confirmed, contact_email, contact_name, notes, order_items(product_name, variant_label, quantity, unit_price)",
+          "id, order_number, created_at, subtotal, shipping, total, status, payment_confirmed, payment_confirmed_at, refunded_at, payment_method, pricing_snapshot, discount_code, contact_email, contact_name, contact_phone, shipping_address, notes, order_items(product_name, variant_label, variant_id, quantity, unit_price)",
         )
         .eq("id", row.order_id)
         .single();
@@ -48,6 +48,8 @@ export async function sendPendingOrderConfirmations(orderId?: string) {
       let outcome = "cancelled";
       if (order.status !== "cancelled") {
         if (!order.contact_email) throw new Error("Order has no contact email");
+        const { prepareRequiredReceiptEmail } = await import("@/lib/required-receipt-email.server");
+        await prepareRequiredReceiptEmail(savedOrder as import("@/lib/order-receipt").SavedReceiptOrder);
         const money = (value: number) => `$${Number(value).toFixed(2)} AUD`;
         const result = await sendTemplateEmail(
           "order-confirmation",

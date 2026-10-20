@@ -36,7 +36,7 @@ export async function sendPendingOrderCheckpointEmails(orderId?: string) {
       const { data, error: readError } = await db
         .from("orders")
         .select(
-          "id, order_number, total, status, payment_confirmed, contact_email, contact_name, tracking_number, notes",
+          "id, order_number, created_at, subtotal, shipping, total, status, payment_confirmed, payment_confirmed_at, refunded_at, payment_method, pricing_snapshot, discount_code, contact_email, contact_name, contact_phone, shipping_address, tracking_number, notes, order_items(product_name, variant_label, variant_id, quantity, unit_price)",
         )
         .eq("id", event.order_id)
         .single();
@@ -55,6 +55,10 @@ export async function sendPendingOrderCheckpointEmails(orderId?: string) {
       let outcome = "superseded";
       if (valid) {
         if (!order.contact_email) throw new Error("missing_recipient");
+        if (kind === "payment-confirmed") {
+          const { prepareRequiredReceiptEmail } = await import("@/lib/required-receipt-email.server");
+          await prepareRequiredReceiptEmail(data as import("@/lib/order-receipt").SavedReceiptOrder);
+        }
         const template =
           kind === "dispatched" ? "order-dispatched" : "order-checkpoint";
         const result = await sendTemplateEmail(template, order.contact_email, {
@@ -112,7 +116,7 @@ export async function sendPendingOrderCheckpointEmails(orderId?: string) {
         .from("order_checkpoint_email_queue")
         .update({
           attempts,
-          last_error: "send_failed",
+          last_error: error instanceof Error && error.message.startsWith("RECEIPT_") ? error.message.slice(0, 240) : "send_failed",
           next_attempt_at: new Date(
             Date.now() + Math.min(attempts * 15, 60) * 60_000,
           ).toISOString(),

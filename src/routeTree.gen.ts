@@ -34,6 +34,7 @@ import { Route as AuthIndexRouteImport } from './routes/auth.index'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
 import { Route as AuthSignupRouteImport } from './routes/auth.signup'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
+import { Route as ReceiptOrderIdRouteImport } from './routes/receipt.$orderId'
 import { Route as ResearchIndexRouteImport } from './routes/research.index'
 import { Route as ResearchSlugRouteImport } from './routes/research.$slug'
 import { Route as AuthenticatedResearchPreviewIndexRouteImport } from './routes/_authenticated/research-preview.index'
@@ -168,6 +169,11 @@ const ProductSlugRoute = ProductSlugRouteImport.update({
   path: '/product/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReceiptOrderIdRoute = ReceiptOrderIdRouteImport.update({
+  id: '/receipt/$orderId',
+  path: '/receipt/$orderId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResearchIndexRoute = ResearchIndexRouteImport.update({
   id: '/research/',
   path: '/research/',
@@ -237,6 +243,7 @@ export interface FileRoutesByFullPath {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/product/$slug': typeof ProductSlugRoute
+  '/receipt/$orderId': typeof ReceiptOrderIdRoute
   '/research/$slug': typeof ResearchSlugRoute
   '/auth/': typeof AuthIndexRoute
   '/research/': typeof ResearchIndexRoute
@@ -271,6 +278,7 @@ export interface FileRoutesByTo {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/product/$slug': typeof ProductSlugRoute
+  '/receipt/$orderId': typeof ReceiptOrderIdRoute
   '/research/$slug': typeof ResearchSlugRoute
   '/auth': typeof AuthIndexRoute
   '/research': typeof ResearchIndexRoute
@@ -307,6 +315,7 @@ export interface FileRoutesById {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/product/$slug': typeof ProductSlugRoute
+  '/receipt/$orderId': typeof ReceiptOrderIdRoute
   '/research/$slug': typeof ResearchSlugRoute
   '/auth/': typeof AuthIndexRoute
   '/research/': typeof ResearchIndexRoute
@@ -343,6 +352,7 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/auth/signup'
     | '/product/$slug'
+    | '/receipt/$orderId'
     | '/research/$slug'
     | '/auth/'
     | '/research/'
@@ -377,6 +387,7 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/auth/signup'
     | '/product/$slug'
+    | '/receipt/$orderId'
     | '/research/$slug'
     | '/auth'
     | '/research'
@@ -412,6 +423,7 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/auth/signup'
     | '/product/$slug'
+    | '/receipt/$orderId'
     | '/research/$slug'
     | '/auth/'
     | '/research/'
@@ -443,6 +455,7 @@ export interface RootRouteChildren {
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
   AuthSignupRoute: typeof AuthSignupRoute
   ProductSlugRoute: typeof ProductSlugRoute
+  ReceiptOrderIdRoute: typeof ReceiptOrderIdRoute
   ResearchSlugRoute: typeof ResearchSlugRoute
   AuthIndexRoute: typeof AuthIndexRoute
   ResearchIndexRoute: typeof ResearchIndexRoute
@@ -629,6 +642,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/receipt/$orderId': {
+      id: '/receipt/$orderId'
+      path: '/receipt/$orderId'
+      fullPath: '/receipt/$orderId'
+      preLoaderRoute: typeof ReceiptOrderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/research/': {
       id: '/research/'
       path: '/research'
@@ -732,6 +752,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthResetPasswordRoute: AuthResetPasswordRoute,
   AuthSignupRoute: AuthSignupRoute,
   ProductSlugRoute: ProductSlugRoute,
+  ReceiptOrderIdRoute: ReceiptOrderIdRoute,
   ResearchSlugRoute: ResearchSlugRoute,
   AuthIndexRoute: AuthIndexRoute,
   ResearchIndexRoute: ResearchIndexRoute,
