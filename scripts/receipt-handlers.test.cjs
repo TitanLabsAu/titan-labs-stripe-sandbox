@@ -8,12 +8,12 @@ function compile(file, mocks) {
 const model = compile('src/lib/order-receipt.ts', {});
 const capabilities = compile('src/lib/guest-capability.ts', {});
 const id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
-async function scenario({userId='owner', admin=false, guest=false, cookie='a'.repeat(64), expired=false, wrong=false}={}) {
+async function scenario({userId='owner', admin=false, guest=false, cookie='a'.repeat(43), expired=false, wrong=false}={}) {
   const queries=[];
   const row={id, user_id:guest?null:'owner', guest_session_id:'session-a', created_at:'2026-10-20T08:00:00Z',status:'processing',subtotal:100,shipping:10,total:110,
     notes:'PRIVATE',payment_transaction_id:'SECRET',credit_reservation_id:'PRIVATE',pricing_snapshot:{settings:{private:'SECRET'},quote:{itemsCents:10000,firstOfferCents:0,provider_token:'SECRET'}},
     order_items:[{product_name:'Fictional',quantity:1,unit_price:100,private_note:'SECRET'}]};
-  const tokenHash = await capabilities.hashGuestToken('a'.repeat(64));
+  const tokenHash = await capabilities.hashGuestToken('a'.repeat(43));
   const db={from(table){const filters=[]; const q={select(columns){queries.push({table,columns,filters});return q;},eq(k,v){filters.push([k,v]);return q;},is(k,v){filters.push([k,v]);return q;},async maybeSingle(){
     if(table==='guest_checkout_sessions') return {data: filters.some(([k,v])=>k==='token_hash'&&v===tokenHash) ? {id:wrong?'session-b':'session-a',expires_at:expired?'2020-01-01T00:00:00Z':'2099-01-01T00:00:00Z'}:null};
     return {data:filters.every(([k,v])=>row[k]===v)?row:null};
@@ -39,6 +39,6 @@ async function scenario({userId='owner', admin=false, guest=false, cookie='a'.re
   assert.equal((await (await scenario({guest:true})).run()).order.total,110);
   await assert.rejects((await scenario({guest:true,wrong:true})).run,/access denied/);
   await assert.rejects((await scenario({guest:true,expired:true})).run);
-  await assert.rejects((await scenario({guest:true,cookie:'b'.repeat(64)})).run);
+  await assert.rejects((await scenario({guest:true,cookie:'b'.repeat(43)})).run);
   console.log('Actual receipt handlers: owner/Admin allowed; cross-member, signed-out, wrong/expired guest cookies denied; response allowlist verified');
 })().catch(e=>{console.error(e);process.exitCode=1;});
