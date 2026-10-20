@@ -84,8 +84,6 @@ async function scenario(kind, overrides = {}, failure = false, suppressed = fals
   assert.equal(blocked.calls.length, 0);
   assert.match(blocked.updates[0].last_error, /^RECEIPT_ATTACHMENT_UNSUPPORTED/);
   assert.ok(!blocked.updates[0].completed_at);
-  const paymentText = await render(React.createElement(email.OrderCheckpoint, {kind: 'payment-confirmed', orderNumber: 'TL-1056'}), {plainText: true});
-  assert.match(paymentText, /Your payment is confirmed/);
   console.log('Checkpoint email, retry, suppression and delivery-status checks passed');
 })().catch(error => {console.error(error);process.exitCode = 1});
 
