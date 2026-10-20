@@ -9,6 +9,8 @@ import { orderReference } from "@/lib/order-reference";
 import { canMarkManualPaid, canArchiveOrder, countsTowardSpend } from "@/lib/manual-payment";
 
 export type AdminOrderItem = {
+  variant_label?: string | null;
+  variant_id?: string | null;
   id: string;
   product_name: string;
   product_slug: string;
@@ -29,6 +31,8 @@ export type AdminCustomer = {
 };
 
 export type AdminOrder = {
+  pricing_snapshot?: import("@/integrations/supabase/types").Json;
+  payment_confirmed_at?: string | null;
   id: string;
   user_id: string | null;
   status: "processing" | "shipped" | "delivered" | "cancelled";
@@ -77,7 +81,7 @@ export const adminListOrders = createServerFn({ method: "POST" })
     let query = context.supabase
       .from("orders")
       .select(
-        "id, user_id, status, tracking_number, tracking_status, subtotal, shipping, total, created_at, delivered_at, order_number, payment_method, payment_reference, payment_confirmed, refunded_at, archived_at, archive_reason, contact_name, contact_email, contact_phone, shipping_address, notes, order_items(id, product_name, product_slug, unit_price, quantity)",
+        "id, user_id, status, tracking_number, tracking_status, subtotal, shipping, total, created_at, delivered_at, order_number, payment_method, payment_reference, payment_confirmed, payment_confirmed_at, pricing_snapshot, refunded_at, archived_at, archive_reason, contact_name, contact_email, contact_phone, shipping_address, notes, order_items(id, product_name, product_slug, variant_label, variant_id, unit_price, quantity)",
       );
     query =
       data.scope === "archived"
@@ -200,7 +204,7 @@ export const adminArchiveOrder = createServerFn({ method: "POST" })
     if (data.archive) {
       const { data: cur, error: readError } = await context.supabase
         .from("orders")
-        .select("status, payment_method, payment_confirmed, refunded_at, archived_at")
+        .select("status, payment_method, payment_confirmed, payment_confirmed_at, pricing_snapshot, refunded_at, archived_at")
         .eq("id", data.orderId)
         .maybeSingle();
       if (readError) throw readError;
@@ -268,6 +272,12 @@ export const adminSendOrderEmail = createServerFn({ method: "POST" })
     if (error) throw error;
     if (!order) throw new Error("Order not found");
 
+    if (data.template === "order-confirmation") {
+      const saved = await context.supabase.from("orders").select((await import("./order-receipt")).RECEIPT_ORDER_COLUMNS).eq("id", data.orderId).single();
+      if (saved.error) throw saved.error;
+      const { prepareRequiredReceiptEmail } = await import("./required-receipt-email.server");
+      await prepareRequiredReceiptEmail(saved.data as unknown as import("./order-receipt").SavedReceiptOrder);
+    }
     const { data: profile } = await context.supabase
       .from("profiles")
       .select("email, first_name")
@@ -418,7 +428,7 @@ export const adminGetMemberOrders = createServerFn({ method: "POST" })
     const { data: orders, error } = await context.supabase
       .from("orders")
       .select(
-        "id, user_id, status, tracking_number, tracking_status, subtotal, shipping, total, created_at, delivered_at, payment_method, payment_confirmed, refunded_at, archived_at, stripe_livemode, order_number, order_items(id, product_name, product_slug, unit_price, quantity)",
+        "id, user_id, status, tracking_number, tracking_status, subtotal, shipping, total, created_at, delivered_at, payment_method, payment_confirmed, payment_confirmed_at, pricing_snapshot, refunded_at, archived_at, stripe_livemode, order_number, order_items(id, product_name, product_slug, variant_label, variant_id, unit_price, quantity)",
       )
       .eq("user_id", data.userId)
       .order("created_at", { ascending: false });

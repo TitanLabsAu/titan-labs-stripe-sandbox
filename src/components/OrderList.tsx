@@ -1,4 +1,6 @@
-import { formatPrice } from "@/lib/products";
+import { OrderPurchaseBreakdown } from "./OrderPurchaseBreakdown";
+import { ReceiptDownload } from "./ReceiptDownload";
+import type { SavedReceiptOrder } from "@/lib/order-receipt";
 import { orderReference } from "@/lib/order-reference";
 
 export type OrderItemRow = {
@@ -9,7 +11,7 @@ export type OrderItemRow = {
   quantity: number;
 };
 
-export type OrderRow = {
+export type OrderRow = SavedReceiptOrder & {
   id: string;
   order_number?: number | null;
   status: "processing" | "shipped" | "delivered" | "cancelled";
@@ -80,45 +82,8 @@ export function OrderList({
             </span>
           </header>
 
-          <ul className="divide-y divide-border">
-            {order.order_items.map((item) => (
-              <li
-                key={item.id}
-                className="flex items-center justify-between gap-4 py-3"
-              >
-                <div>
-                  <p className="font-bold uppercase text-foreground">
-                    {item.product_name}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {item.quantity} × {formatPrice(Number(item.unit_price))}
-                  </p>
-                </div>
-                <span className="font-extrabold text-accent">
-                  {formatPrice(Number(item.unit_price) * item.quantity)}
-                </span>
-              </li>
-            ))}
-          </ul>
-
-          <div className="space-y-2 border-t border-border pt-4 text-sm">
-            <div className="flex justify-between text-muted-foreground">
-              <span>Subtotal</span>
-              <span>{formatPrice(Number(order.subtotal))}</span>
-            </div>
-            <div className="flex justify-between text-muted-foreground">
-              <span>Express shipping</span>
-              <span>{formatPrice(Number(order.shipping))}</span>
-            </div>
-            <div className="flex items-center justify-between pt-1">
-              <span className="font-bold uppercase tracking-wide text-foreground">
-                Total
-              </span>
-              <span className="text-xl font-extrabold text-accent">
-                {formatPrice(Number(order.total))}
-              </span>
-            </div>
-          </div>
+          <div className="py-5"><OrderPurchaseBreakdown order={order}/></div>
+          <ReceiptDownload orderId={order.id}/>
 
           <div className="mt-4 rounded-xl border border-border bg-background/40 p-4">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">

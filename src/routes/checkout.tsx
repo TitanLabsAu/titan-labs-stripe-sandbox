@@ -1,8 +1,9 @@
 import { cmsValues } from "@/lib/storefrontContent";
+import { cancelAndRefreshQuote, isVerifiedQuote } from "@/lib/checkout-quote-refresh";
 import { TitanPageHeading } from "@/components/TitanPageHeading";
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
   Elements,
@@ -382,12 +383,16 @@ function CheckoutPage() {
     queryKey: ["checkout-quote", mode, session?.id, JSON.stringify(quoteItems), shippingMethod, quotePayment, appliedCode, creditUnits, quoteEmail],
     queryFn: () =>
       runQuote({
-        data: { mode: mode!, items: quoteItems, shippingMethod, paymentMethod: quotePayment, code: appliedCode, creditUnits: session ? creditUnits : 0, contactEmail: quoteEmail },
+        data: { mode: mode ?? "member", items: quoteItems, shippingMethod, paymentMethod: quotePayment, code: appliedCode, creditUnits: session ? creditUnits : 0, contactEmail: quoteEmail },
       }),
     enabled: Boolean(mode) && items.length > 0,
     retry: false,
-    placeholderData: (prev) => prev,
+    staleTime: 0,
+    refetchOnMount: "always",
   });
+  const queryClient = useQueryClient();
+  const [cancellingPayment, setCancellingPayment] = useState(false);
+  const quoteReady = !mode || isVerifiedQuote(serverQuote);
   const localQuote = quoteOrder(
     { lines: cartPriceLines(items, getProduct, getLinePrice), shippingMethod, paymentMethod: quotePayment },
     settings,
@@ -425,7 +430,7 @@ function CheckoutPage() {
   });
 
   const cardCheckoutData = (acknowledgementId: string) => ({
-    mode: mode!,
+    mode: mode ?? "member",
     acknowledgementId,
     firstName,
     lastName,
@@ -862,6 +867,7 @@ function CheckoutPage() {
                           startStripeCardPayment.isPending ||
                           !stripePromise ||
                           !acknowledged ||
+                          !quoteReady || cancellingPayment ||
                           !mode
                         }
                         onClick={() => startStripeCardPayment.mutate()}
@@ -893,9 +899,17 @@ function CheckoutPage() {
                         }
                         onCancel={() => {
                           const id = stripeIntentId;
-                          setStripeClientSecret(null);
-                          setStripeIntentId(null);
-                          if (id && mode) void cancelStripe({ data: { paymentIntentId: id, mode } }).catch(() => undefined);
+                          if (!id || !mode || cancellingPayment) return;
+                          setCancellingPayment(true);
+                          void cancelAndRefreshQuote({
+                            cancel: () => cancelStripe({ data: { paymentIntentId: id, mode } }),
+                            clear: () => { setStripeClientSecret(null); setStripeIntentId(null); },
+                            refresh: async () => {
+                              await queryClient.invalidateQueries({ queryKey: ["cart-member-quote"] });
+                              await queryClient.invalidateQueries({ queryKey: ["checkout-quote"] });
+                            },
+                          }).catch(() => toast.error("Payment cancellation could not be confirmed. Your offer remains reserved; please try again."))
+                            .finally(() => setCancellingPayment(false));
                         }}
                         acknowledged={acknowledged}
                       />
@@ -1009,6 +1023,8 @@ function CheckoutPage() {
               </div>
 
               <div className="mt-4 space-y-2 border-t border-border pt-4 text-sm">
+                {!quoteReady && <p role="status" className="text-muted-foreground">{serverQuote.isError ? "Unable to confirm your total. Please try again." : "Checking your total and member benefits…"}</p>}
+                <div className={!quoteReady ? "invisible" : "contents"} aria-hidden={!quoteReady}>
                 <div className="flex justify-between text-muted-foreground">
                   <span>Subtotal</span>
                   <span>{formatPrice(quote.itemsCents / 100)}</span>
@@ -1106,6 +1122,7 @@ function CheckoutPage() {
                 <p className="text-xs text-muted-foreground">
                   All prices displayed in AUD.
                 </p>
+                </div>
               </div>
 
               <div className="mt-5 border-t border-border pt-5">
@@ -1122,7 +1139,7 @@ function CheckoutPage() {
                     <Button
                       size="lg"
                       className="mt-6 w-full font-bold uppercase tracking-wide"
-                      disabled={placeOrder.isPending || !acknowledged}
+                      disabled={placeOrder.isPending || !acknowledged || !quoteReady || cancellingPayment}
                       onClick={() => placeOrder.mutate()}
                     >
                       {placeOrder.isPending ? "Submitting…" : "Submit order"}

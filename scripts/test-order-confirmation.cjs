@@ -18,6 +18,7 @@ async function scenario({paid = false, fail = false, suppressed = false, lines =
   }};
   const exports = {};
   vm.runInNewContext(js, {exports, console: {error() {}}, require(path) {
+    if (path.includes('required-receipt-email.server')) return {prepareRequiredReceiptEmail: async () => { if (fail === 'attachment') throw new Error('RECEIPT_ATTACHMENT_UNSUPPORTED'); }};
     if (path.includes('order-admin-copy.server')) return {sendAdminOrderCopy: async (...args) => {copies.push(args)}};
     if (path.includes('client.server')) return {supabaseAdmin: db};
     if (path.includes('send-email')) return {sendTemplateEmail: async (...args) => {
@@ -51,6 +52,9 @@ async function scenario({paid = false, fail = false, suppressed = false, lines =
   assert.equal(suppressed.updates[0].outcome, 'recipient_suppressed');
   assert.equal((await scenario({lines: false})).calls.length, 0, 'do not send an incomplete order');
   assert.equal((await scenario({cancelled: true})).calls.length, 0, 'do not confirm cancelled orders');
+  const blocked = await scenario({fail: 'attachment'});
+  assert.equal(blocked.calls.length, 0, 'required attachment failure sends nothing');
+  assert.equal(blocked.updates.length, 0, 'required attachment failure leaves event pending');
   console.log('Order confirmation checks passed');
 })().catch(e => {console.error(e);process.exitCode = 1});
 

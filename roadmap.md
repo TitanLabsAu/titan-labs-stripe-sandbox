@@ -1,11 +1,18 @@
 # Titan Club final validation
 
+## Draft receipt / email / first-offer review (20 October)
+- [ ] Shared saved-order purchase breakdown for Admin/customer/PDF/email; secure server PDF download.
+- [ ] Branded confirmation/payment email drafts; verify attachment support and report any blocker without substitution.
+- [ ] Mock-only first-offer investigation and focused fix if confirmed.
+- [ ] Fictional Alex PDFs and desktop/mobile email/Admin screenshots in Files; focused tests and preview checks.
+- [ ] Owner review; no live migrations/settings/data/claims/orders/emails or native publication authorized.
+
 - [x] Stage rejoining welcome trigger and activation-specific retry protection; preserve email design and current-perk reads.
 - [x] Test revoke/re-add, updated perks, no duplicate edit sends, rollback and access controls locally (23 email tests and 46 disposable database checks).
 - [x] Publish event-aware sender, then apply rejoining email update (approved by owner).
 - [x] Club welcome to all five members: queue "sent" 15 Oct 23:17 UTC and accepted by the email service (no bounces seen); inbox delivery not reported by provider.
 - [x] Foundation capacity 50 -> 25 live (migration 0057), wording/defaults updated, 16 disposable-DB limit tests pass; 8 existing awards untouched.
-- [ ] Native Publish — owner to click.
+- [x] Previous stock0056 and Foundation25 published by owner (owner confirmation); preserve.
 
 - [x] CartSheet auth-scoped member quote (userId + items key, no stale placeholder, cleared on auth change, estimate/checking labels)
 - [x] FreeShippingMeter uses quote.remainingForFreeShippingCents (matches checkout eligibility)
@@ -22,4 +29,4 @@
 
 - [x] Titan Club congrats email: branded design reviewed, queue installed as migration 0052 (0 rows, no backfill), 298 tests + throwaway DB checks + typecheck + build pass, published to titanlabsaus.com
 - [x] Paid-order stock settlement (migration 0054/0055, live) + #1080 MT-1 reconciliation (9→7, sale ledger marker)
-- [x] Stock-settlement v2 audit blockers fixed and applied live as migration 0056 (canonical product+variant grouping, marker-first replay, deferred triggers, INSERT guard, PUBLIC revoked, structured retry); 49 disposable-DB tests + 37 repo tests + typecheck + build all green; #1080 verified not re-deducted. Awaiting owner publish.
+- [x] Stock-settlement v2 audit blockers fixed and applied live as migration 0056 (canonical product+variant grouping, marker-first replay, deferred triggers, INSERT guard, PUBLIC revoked, structured retry); 49 disposable-DB tests + 37 repo tests + typecheck + build all green; #1080 verified not re-deducted. Published by owner; preserve.

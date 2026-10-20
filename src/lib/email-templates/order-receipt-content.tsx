@@ -1,0 +1,30 @@
+import * as React from 'react';
+import { Body, Button, Container, Head, Heading, Html, Img, Link, Preview, Section, Text } from '@react-email/components';
+import { RECEIPT_BRAND as b } from '../receipt-brand';
+import { receiptMoney, type Receipt } from '../order-receipt';
+
+export type OrderEmailProps = { orderNumber?: string; customerName?: string; total?: string; paymentConfirmed?: boolean; shippingMethod?: string; items?: string[]; receipt?: Receipt | undefined; orderId?: string | undefined; kind?: string };
+export function BrandedOrderEmail({ orderNumber = 'TL-0000', customerName = 'there', total = '$0.00 AUD', paymentConfirmed = false, items = [], receipt, orderId, kind }: OrderEmailProps) {
+  const paid = receipt ? receipt.status === 'Paid' : paymentConfirmed;
+  const title = receipt?.status === 'Refunded' ? 'Refunded order' : kind === 'payment-confirmed' && paid ? 'Payment confirmed' : paid ? 'Your paid receipt' : 'Your order is received';
+  const target = orderId ? `${b.origin}/receipt/${encodeURIComponent(orderId)}` : `${b.origin}/orders`;
+  return <Html lang="en"><Head/><Preview>{`${orderNumber} — ${title}`}</Preview><Body style={{ backgroundColor: b.white, fontFamily: 'Arial, Helvetica, sans-serif', margin: 0, color: b.charcoal }}><Container style={{ maxWidth: '600px', width: '100%', margin: '0 auto', backgroundColor: b.white }}>
+    <Section style={{ backgroundColor: b.ink, padding: '28px 24px', textAlign: 'center', borderBottom: `4px solid ${b.blue}` }}><Img src={b.logo} width="120" height="120" alt="Titan Labs Australia logo" style={{ display: 'block', margin: '0 auto', borderRadius: '8px' }}/><Text style={{ color: b.white, fontSize: '14px', fontWeight: 700, margin: '14px 0 0' }}>TITAN LABS AUSTRALIA</Text></Section>
+    <Section style={{ padding: '28px 24px 16px' }}><Text style={{ color: b.blue, fontWeight: 700, fontSize: '13px', margin: '0 0 8px' }}>{orderNumber} · {receipt?.status ?? (paid ? 'Paid' : 'Payment pending')}</Text><Heading style={{ color: b.ink, fontSize: '27px', lineHeight: '34px', margin: '0 0 18px' }}>{title}</Heading><Text style={copy}>Hi {customerName},</Text><Text style={copy}>{receipt?.status === 'Refunded' ? 'Your order is recorded as refunded. The saved order amounts are shown below.' : paid ? 'Thank you. Your payment is confirmed, and your saved order details are below. We’ll send your tracking details when your parcel is dispatched.' : 'Thank you for your order. Payment is not yet confirmed; this is an order summary, not a paid receipt.'}</Text>
+      {receipt ? <>
+        {receipt.lines.map((line, i) => <Section key={i} style={{ padding: '12px 0', borderBottom: `1px solid ${b.pale}` }}><Text style={{ ...copy, fontWeight: 700, margin: '0 0 4px' }}>{line.name}</Text><Text style={{ ...copy, fontSize: '12px', color: b.muted, margin: '0 0 4px' }}>{line.sizePack}</Text><Text style={{ ...copy, margin: 0 }}>{line.quantity} × {receiptMoney(line.unitCents)} · {receiptMoney(line.lineCents)}</Text></Section>)}
+        <Section style={{ padding: '16px 0' }}><SummaryLine label="Merchandise before extra discounts" value={receipt.beforeCents}/>{receipt.discounts.map(d => <SummaryLine key={d.label} label={d.label} value={-d.cents}/>)}{receipt.reconciliationCents > 0 && <SummaryLine label="Saved total adjustment — detail unavailable" value={receipt.reconciliationCents}/>}<SummaryLine label="Merchandise after discounts" value={receipt.merchandiseCents}/><SummaryLine label={receipt.shippingLabel} value={receipt.shippingCents}/>{receipt.capNote && <Text style={{ ...copy, fontSize: '12px', color: b.muted }}>{receipt.capNote}</Text>}{receipt.warnings.map(w => <Text key={w} style={{ ...copy, fontSize: '12px', color: b.muted }}>{w}</Text>)}</Section>
+      </> : items.map((line, i) => <Text key={i} style={copy}>{line}</Text>)}
+      <Section style={{ padding: '18px', backgroundColor: b.blue, borderRadius: '8px' }}><Text style={{ color: b.white, fontSize: '13px', margin: '0 0 6px' }}>ORDER TOTAL · AUD</Text><Text style={{ color: b.white, fontSize: '26px', fontWeight: 700, margin: 0 }}>{receipt ? receiptMoney(receipt.totalCents) : total}</Text></Section>
+      <Text style={{ ...copy, fontSize: '12px', color: b.muted }}>{receipt?.payment ?? ''}</Text>
+      <Section style={{ padding: '12px 0' }}><Button href={target} style={primary}>View order</Button>{orderId && <Button href={target} style={secondary}>Download receipt</Button>}</Section>
+      <Text style={copy}>Explore the <Link href={`${b.origin}/calculator`} style={link}>calculator</Link>, or organise your own notes and reminders in your <Link href={`${b.origin}/auth?redirect=${encodeURIComponent('/calendar')}`} style={link}>member calendar</Link>.</Text>
+      <Text style={{ ...copy, fontSize: '13px' }}>Once you’ve received your order, you’re welcome to <Link href={`${b.origin}/reviews#leave-review`} style={link}>leave a review</Link>.</Text>
+    </Section><Section style={{ backgroundColor: b.ink, borderTop: `4px solid ${b.blue}`, padding: '22px 24px' }}><Text style={{ color: b.white, fontSize: '12px', fontWeight: 700, margin: '0 0 8px' }}>TITAN LABS AUS</Text><Text style={{ color: b.pale, fontSize: '12px', lineHeight: '18px', margin: 0 }}>For research use only. This email relates to your Titan Labs Australia order.</Text></Section>
+  </Container></Body></Html>;
+}
+function SummaryLine({ label, value }: { label: string; value: number }) { return <Text style={{ ...copy, fontSize: '13px', margin: '0 0 7px' }}>{label}: {value < 0 ? '−' : ''}{receiptMoney(Math.abs(value))}</Text>; }
+const copy = { fontSize: '14px', lineHeight: '22px', margin: '0 0 12px', color: b.charcoal };
+const link = { color: b.blue, textDecoration: 'underline' };
+const primary = { backgroundColor: b.blue, color: b.white, fontSize: '14px', fontWeight: 700, padding: '12px 18px', borderRadius: '8px', margin: '0 8px 10px 0' };
+const secondary = { ...primary, color: b.blue, backgroundColor: b.white, border: `1px solid ${b.blue}` };

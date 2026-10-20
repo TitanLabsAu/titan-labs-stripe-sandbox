@@ -10,9 +10,10 @@ import {
   Section,
   Text,
 } from "@react-email/components";
+import { BrandedOrderEmail, type OrderEmailProps } from "./order-receipt-content";
 import type { TemplateEntry } from "./registry";
 
-type Props = {
+type Props = OrderEmailProps & {
   kind?: "payment-confirmed" | "delivered";
   orderNumber?: string;
   customerName?: string;
@@ -26,7 +27,9 @@ export function OrderCheckpoint({
   customerName = "there",
   total = "$0.00 AUD",
   trackingNumber = "",
+  receipt, orderId,
 }: Props) {
+  if (kind === "payment-confirmed") return <BrandedOrderEmail kind={kind} orderNumber={orderNumber} customerName={customerName} total={total} paymentConfirmed={true} receipt={receipt} orderId={orderId}/>;
   const delivered = kind === "delivered";
   const title = delivered ? "Delivery confirmation" : "Payment confirmed";
   return (

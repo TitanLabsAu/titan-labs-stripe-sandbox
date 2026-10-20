@@ -1,3 +1,5 @@
+import { OrderPurchaseBreakdown } from "@/components/OrderPurchaseBreakdown";
+import { ReceiptDownload } from "@/components/ReceiptDownload";
 import { confirmDiscardCmsDrafts } from "@/lib/cmsDirtyGuard";
 import { TitanPageHeading } from "@/components/TitanPageHeading";
 import { Fragment, useEffect, useMemo, useState } from "react";
@@ -519,24 +521,8 @@ function OrderDetail({ order, live }: { order: AdminOrder; live: boolean }) {
         </Button>
       </div>
 
-      <ul className="space-y-1 text-xs">
-        {order.order_items.map((item) => (
-          <li key={item.id} className="flex justify-between">
-            <span>
-              {item.quantity} × {item.product_name}
-            </span>
-            <span>{formatPrice(Number(item.unit_price) * item.quantity)}</span>
-          </li>
-        ))}
-      </ul>
-
-      <p className="text-xs text-muted-foreground">
-        Subtotal {formatPrice(Number(order.subtotal))} + express shipping{" "}
-        {formatPrice(Number(order.shipping))} ={" "}
-        <span className="font-bold text-foreground">
-          {formatPrice(Number(order.total))}
-        </span>
-      </p>
+      <OrderPurchaseBreakdown order={order}/>
+      <ReceiptDownload orderId={order.id}/>
 
       <div className="rounded-xl border border-border bg-background/40 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -545,7 +531,9 @@ function OrderDetail({ order, live }: { order: AdminOrder; live: boolean }) {
               PAYMENT
             </p>
             <p className="mt-1 text-sm text-foreground">
-              {order.payment_method === "crypto"
+              {order.payment_method === "card"
+                ? "Card / Stripe"
+                : order.payment_method === "crypto"
                 ? "Cryptocurrency"
                 : order.payment_method === "wise"
                   ? "Wise"

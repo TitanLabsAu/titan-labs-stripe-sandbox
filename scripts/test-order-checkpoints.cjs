@@ -8,7 +8,7 @@ function compile(file, mocks = {}) {
   const js = ts.transpileModule(fs.readFileSync(file, 'utf8'), {compilerOptions: {
     module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.React,
   }}).outputText;
-  vm.runInNewContext(js, {exports, Date, console: {error() {}}, require(path) {return mocks[path] || require(path)}});
+  vm.runInNewContext(js, {exports, Date, Error, console: {error() {}}, require(path) {return mocks[path] || require(path)}});
   return exports;
 }
 
@@ -25,6 +25,7 @@ async function scenario(kind, overrides = {}, failure = false, suppressed = fals
     return q;
   }};
   const worker = compile('src/lib/order-checkpoint-email.server.ts', {
+    '@/lib/required-receipt-email.server': {prepareRequiredReceiptEmail: async () => { if (failure === 'attachment') throw new Error('RECEIPT_ATTACHMENT_UNSUPPORTED'); }},
     '@/integrations/supabase/client.server': {supabaseAdmin: db},
     '@/lib/order-admin-copy.server': {sendAdminOrderCopy: async (...args) => { copies.push(args); }},
     '@/lib/email-templates/send-email': {sendTemplateEmail: async (...args) => {
@@ -66,13 +67,17 @@ async function scenario(kind, overrides = {}, failure = false, suppressed = fals
 
   const React = require('react');
   const {render} = require('@react-email/render');
-  const email = compile('src/lib/email-templates/order-checkpoint.tsx');
+  const email = compile('src/lib/email-templates/order-checkpoint.tsx', { './order-receipt-content': compile('src/lib/email-templates/order-receipt-content.tsx', { '../receipt-brand': compile('src/lib/receipt-brand.ts'), '../order-receipt': compile('src/lib/order-receipt.ts') }) });
   const deliveryText = await render(React.createElement(email.OrderCheckpoint, {kind: 'delivered', orderNumber: 'TL-1056', trackingNumber: 'TRACK123'}), {plainText: true});
   assert.match(deliveryText, /marked delivered/);
   assert.match(deliveryText, /TRACK123/);
   assert.doesNotMatch(deliveryText, /Live Orders|Closed Orders|Customer:/);
+  const blocked = await scenario('payment-confirmed', {}, 'attachment');
+  assert.equal(blocked.calls.length, 0);
+  assert.equal(blocked.updates[0].last_error, 'RECEIPT_ATTACHMENT_UNSUPPORTED');
+  assert.ok(!blocked.updates[0].completed_at);
   const paymentText = await render(React.createElement(email.OrderCheckpoint, {kind: 'payment-confirmed', orderNumber: 'TL-1056'}), {plainText: true});
-  assert.match(paymentText, /Payment for order TL-1056 is confirmed/);
+  assert.match(paymentText, /Your payment is confirmed/);
   console.log('Checkpoint email, retry, suppression and delivery-status checks passed');
 })().catch(error => {console.error(error);process.exitCode = 1});
 
