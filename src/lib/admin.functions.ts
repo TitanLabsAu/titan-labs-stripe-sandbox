@@ -304,7 +304,8 @@ export const adminSendOrderEmail = createServerFn({ method: "POST" })
       trackingNumber: (order as any).tracking_number ?? "",
       items: ((order as any).order_items ?? []).map(
         (i: any) => `${i.quantity} × ${i.product_name} — ${money(i.unit_price * i.quantity)}`,
-      ),      ...receiptData,
+      ),
+      ...receiptData,
     };
 
     const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
