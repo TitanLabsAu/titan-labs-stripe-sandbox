@@ -1,6 +1,9 @@
 # Titan Club final validation
 
-## Draft receipt / email / first-offer review (20 October)
+## Receipt / branded email / first-offer (owner approved 21 Oct) — READY FOR NATIVE PUBLISH by owner
+- [x] PDF heading uses TITAN LABS // AUS website treatment on every page/status; normal paid stays one page.
+- [x] Branded saved receipts wired into automatic confirmation, payment-confirmed worker, Admin resend and Admin copies; attachment flag stays absent/OFF, so delivery cannot be blocked by it.
+- [ ] Real PDF attachments: still unsupported by the email provider; download link only, never described as attached.
 - [x] Audit correction: server attachment flag defaults OFF preserving legacy confirmation/payment/Admin emails; ON unsupported retries without sending. Actual handler tests cover owner/Admin/cross-member and hashed wrong/expired guest cookies; response allowlisted.
 - [x] Visual correction: quote-backed three-item paid PDF fits one A4 page; true long-order repeated headers retained. Corrected PDF/email/Admin previews inspected.
 - [x] Both fictional fixtures use quoteOrder with explicit settings: paid $600 less $80 Stack = $520/free shipping; known $50 kit savings count toward 20% cap on $650 base. Pending $150 less $15 first offer + $10 shipping = $145 below $200.
