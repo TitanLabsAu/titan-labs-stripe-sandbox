@@ -37,6 +37,7 @@ import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as ReceiptOrderIdRouteImport } from './routes/receipt.$orderId'
 import { Route as ResearchIndexRouteImport } from './routes/research.index'
 import { Route as ResearchSlugRouteImport } from './routes/research.$slug'
+import { Route as ResearchProtocolStacksRouteImport } from './routes/research.protocol-stacks'
 import { Route as AuthenticatedResearchPreviewIndexRouteImport } from './routes/_authenticated/research-preview.index'
 import { Route as AuthenticatedResearchPreviewSlugRouteImport } from './routes/_authenticated/research-preview.$slug'
 import { Route as ApiPublicOrderEmailRetryRouteImport } from './routes/api/public/order-email-retry'
@@ -184,6 +185,11 @@ const ResearchSlugRoute = ResearchSlugRouteImport.update({
   path: '/research/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResearchProtocolStacksRoute = ResearchProtocolStacksRouteImport.update({
+  id: '/research/protocol-stacks',
+  path: '/research/protocol-stacks',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedResearchPreviewIndexRoute =
   AuthenticatedResearchPreviewIndexRouteImport.update({
     id: '/research-preview/',
@@ -245,6 +251,7 @@ export interface FileRoutesByFullPath {
   '/product/$slug': typeof ProductSlugRoute
   '/receipt/$orderId': typeof ReceiptOrderIdRoute
   '/research/$slug': typeof ResearchSlugRoute
+  '/research/protocol-stacks': typeof ResearchProtocolStacksRoute
   '/auth/': typeof AuthIndexRoute
   '/research/': typeof ResearchIndexRoute
   '/research-preview/$slug': typeof AuthenticatedResearchPreviewSlugRoute
@@ -280,6 +287,7 @@ export interface FileRoutesByTo {
   '/product/$slug': typeof ProductSlugRoute
   '/receipt/$orderId': typeof ReceiptOrderIdRoute
   '/research/$slug': typeof ResearchSlugRoute
+  '/research/protocol-stacks': typeof ResearchProtocolStacksRoute
   '/auth': typeof AuthIndexRoute
   '/research': typeof ResearchIndexRoute
   '/research-preview/$slug': typeof AuthenticatedResearchPreviewSlugRoute
@@ -317,6 +325,7 @@ export interface FileRoutesById {
   '/product/$slug': typeof ProductSlugRoute
   '/receipt/$orderId': typeof ReceiptOrderIdRoute
   '/research/$slug': typeof ResearchSlugRoute
+  '/research/protocol-stacks': typeof ResearchProtocolStacksRoute
   '/auth/': typeof AuthIndexRoute
   '/research/': typeof ResearchIndexRoute
   '/_authenticated/research-preview/$slug': typeof AuthenticatedResearchPreviewSlugRoute
@@ -354,6 +363,7 @@ export interface FileRouteTypes {
     | '/product/$slug'
     | '/receipt/$orderId'
     | '/research/$slug'
+    | '/research/protocol-stacks'
     | '/auth/'
     | '/research/'
     | '/research-preview/$slug'
@@ -389,6 +399,7 @@ export interface FileRouteTypes {
     | '/product/$slug'
     | '/receipt/$orderId'
     | '/research/$slug'
+    | '/research/protocol-stacks'
     | '/auth'
     | '/research'
     | '/research-preview/$slug'
@@ -425,6 +436,7 @@ export interface FileRouteTypes {
     | '/product/$slug'
     | '/receipt/$orderId'
     | '/research/$slug'
+    | '/research/protocol-stacks'
     | '/auth/'
     | '/research/'
     | '/_authenticated/research-preview/$slug'
@@ -457,6 +469,7 @@ export interface RootRouteChildren {
   ProductSlugRoute: typeof ProductSlugRoute
   ReceiptOrderIdRoute: typeof ReceiptOrderIdRoute
   ResearchSlugRoute: typeof ResearchSlugRoute
+  ResearchProtocolStacksRoute: typeof ResearchProtocolStacksRoute
   AuthIndexRoute: typeof AuthIndexRoute
   ResearchIndexRoute: typeof ResearchIndexRoute
   ApiPublicOrderEmailRetryRoute: typeof ApiPublicOrderEmailRetryRoute
@@ -663,6 +676,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResearchSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/research/protocol-stacks': {
+      id: '/research/protocol-stacks'
+      path: '/research/protocol-stacks'
+      fullPath: '/research/protocol-stacks'
+      preLoaderRoute: typeof ResearchProtocolStacksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/research-preview/': {
       id: '/_authenticated/research-preview/'
       path: '/research-preview'
@@ -754,6 +774,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProductSlugRoute: ProductSlugRoute,
   ReceiptOrderIdRoute: ReceiptOrderIdRoute,
   ResearchSlugRoute: ResearchSlugRoute,
+  ResearchProtocolStacksRoute: ResearchProtocolStacksRoute,
   AuthIndexRoute: AuthIndexRoute,
   ResearchIndexRoute: ResearchIndexRoute,
   ApiPublicOrderEmailRetryRoute: ApiPublicOrderEmailRetryRoute,

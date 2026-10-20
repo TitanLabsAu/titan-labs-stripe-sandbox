@@ -51,6 +51,7 @@ export function SiteFooter() {
                  return <Link key={tab} to="/auth">{label("header_nav_login")}</Link>;
                })}
                <Link to="/reviews" hash="leave-review">{cmsValues(content,"review_submission").cta_label}</Link>
+               <Link to="/research/protocol-stacks">Protocol Stacks</Link>
                {extraLinks.map((l, i) => <CmsLink key={i} href={l.url}>{l.label}</CmsLink>)}
             </div>
           </div>

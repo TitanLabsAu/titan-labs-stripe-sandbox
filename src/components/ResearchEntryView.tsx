@@ -2,9 +2,8 @@ import { cmsValues } from "@/lib/storefrontContent";
 import { useProducts, useSiteContent } from "@/lib/useCatalog";
 import { researchProducts } from "@/lib/research-products";
 import { Link } from "@tanstack/react-router";
-import { AlertTriangle, ArrowLeft, ArrowRight, BookOpen, ExternalLink, Info, Layers3, ListChecks } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, BookOpen, ExternalLink, Layers3, ListChecks } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ResearchEvidenceBadge } from "@/components/ResearchEvidenceBadge";
 import { RichText } from "@/components/RichText";
 import { BLEND_NOTICE, EVIDENCE_EXPLANATIONS, EVIDENCE_TYPES, VERIFIED_EXPLANATION, doiUrl, label, pubchemUrl, pubmedUrl, safeUrl, type ResearchEntry, type ResearchSection } from "@/lib/research";
 import { blendsForEntry, relatedResearch } from "@/lib/research-discovery";
@@ -38,13 +37,11 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
             <h1 className="font-display text-[clamp(2.15rem,10vw,3rem)] font-black uppercase leading-none tracking-[0.055em] text-foreground sm:text-5xl sm:tracking-[0.08em]">{entry.title}</h1>
             {entry.synonyms.length ? <p className="mt-2 text-sm text-muted-foreground">Also known as {entry.synonyms.join(" · ")}</p> : null}
           </div>
-          <ResearchEvidenceBadge status={entry.evidence_status} className="self-start sm:self-auto" />
         </div>
       </header>
 
-      <section className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-4" aria-label="Quick research map">
+      <section className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3" aria-label="Quick research map">
         <ResearchMapItem label={lb.map_area} value={entry.category || "Research"} />
-        <ResearchMapItem label={lb.map_evidence} value={label(EVIDENCE_TYPES, entry.evidence_status)} />
         <ResearchMapItem label={lb.map_refs} value={String(entry.source_references.length)} />
         <ResearchMapItem label={lb.map_check} value={entry.verification_status === "verified" ? "Verified" : "In review"} />
       </section>
@@ -56,15 +53,10 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
             <p className="mt-3 text-lg leading-8 text-foreground">{entry.at_a_glance || entry.summary}</p>
           </section>
 
-          <section className="border border-primary/30 bg-primary/10 p-5 sm:p-6">
-            <div className="flex items-start gap-3">
-              <Info className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
-              <div>
+          <section>
                 <h2 className="font-display text-base font-bold uppercase text-foreground">{lb.level}</h2>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">{EVIDENCE_EXPLANATIONS[entry.evidence_status]}</p>
                 <p className="mt-2 text-xs leading-5 text-muted-foreground">Evidence level describes the cited research, not safety, efficacy, suitability or approval.</p>
-              </div>
-            </div>
           </section>
 
           {entry.blend_notice ? (
