@@ -1,11 +1,12 @@
 # Titan Club final validation
 
 ## Draft receipt / email / first-offer review (20 October)
-- [ ] Shared saved-order purchase breakdown for Admin/customer/PDF/email; secure server PDF download.
-- [ ] Branded confirmation/payment email drafts; verify attachment support and report any blocker without substitution.
-- [ ] Mock-only first-offer investigation and focused fix if confirmed.
-- [ ] Fictional Alex PDFs and desktop/mobile email/Admin screenshots in Files; focused tests and preview checks.
-- [ ] Owner review; no live migrations/settings/data/claims/orders/emails or native publication authorized.
+- [x] Shared saved-order purchase breakdown for Admin/customer/PDF/email; member/Admin and existing guest-capability PDF downloads.
+- [x] Branded confirmation/payment email drafts, unchanged noreply sender; attachment limitation disclosed, required sends fail closed and remain retryable.
+- [ ] Real automatic PDF email attachment: blocked by managed email API/installed email-js attachment support; not a link substitution. Do not publish this email draft until resolved.
+- [x] Mock-only first-offer investigation: held payable claim explains lost eligibility; stale quote placeholder and ignored cancellation fixed in frontend, guards unchanged.
+- [x] Fictional Alex PDFs and rendered desktop/mobile email/Admin screenshots; 67 focused tests plus confirmation/checkpoint worker suites pass; preview build/typecheck OK.
+- [ ] Owner review and supported attachment decision required; no live migrations/settings/data/claims/orders/emails or native publication performed.
 
 - [x] Stage rejoining welcome trigger and activation-specific retry protection; preserve email design and current-perk reads.
 - [x] Test revoke/re-add, updated perks, no duplicate edit sends, rollback and access controls locally (23 email tests and 46 disposable database checks).
