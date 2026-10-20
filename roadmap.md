@@ -1,5 +1,11 @@
 # Titan Club final validation
 
+## Research Lab Protocol Stacks — separate draft only
+- [ ] Remove only compound evidence badges, preserving all existing text and evidence/Admin data.
+- [ ] Add six exact names-only goal groupings within /research, shell/footer navigation and published exact-alias links.
+- [ ] Run grouping/privacy tests and browser-check switching, deep links, back/footer navigation and desktop/mobile light/dark; attach four PNGs.
+- No receipt/checkout/commerce edits, database/settings/data writes, emails, real orders, publication or draft acceptance authorized.
+
 ## Receipt / branded email / first-offer (owner approved 21 Oct) — READY FOR NATIVE PUBLISH by owner
 - [x] PDF heading uses TITAN LABS // AUS website treatment on every page/status; normal paid stays one page.
 - [x] Branded saved receipts wired into automatic confirmation, payment-confirmed worker, Admin resend and Admin copies; attachment flag stays absent/OFF, so delivery cannot be blocked by it.
