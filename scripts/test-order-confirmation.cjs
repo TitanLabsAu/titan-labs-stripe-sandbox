@@ -5,7 +5,7 @@ const ts = require('typescript');
 const source = fs.readFileSync('src/lib/order-confirmation.server.ts', 'utf8');
 const js = ts.transpileModule(source, {compilerOptions: {module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022}}).outputText;
 
-async function scenario({paid = false, fail = false, suppressed = false, lines = true, cancelled = false} = {}) {
+async function scenario({paid = false, fail = false, suppressed = false, lines = true, cancelled = false, enabled = false} = {}) {
   const calls = [], copies = [], updates = [];
   const order = {id: 'order-1', order_number: 1056, total: 288, status: cancelled ? 'cancelled' : 'processing',
     payment_confirmed: paid, contact_email: 'buyer@example.com', contact_name: 'Test Buyer', notes: 'Shipping: Standard tracked (3-7 days)',
@@ -17,12 +17,19 @@ async function scenario({paid = false, fail = false, suppressed = false, lines =
     return q;
   }};
   const exports = {};
-  vm.runInNewContext(js, {exports, console: {error() {}}, require(path) {
-    if (path.includes('required-receipt-email.server')) return {prepareRequiredReceiptEmail: async () => { if (fail === 'attachment') throw new Error('RECEIPT_ATTACHMENT_UNSUPPORTED'); }};
+  const prep = {};
+  vm.runInNewContext(ts.transpileModule(fs.readFileSync('src/lib/required-receipt-email.server.ts', 'utf8'), {compilerOptions: {module: ts.ModuleKind.CommonJS}}).outputText,
+    {exports: prep, process: {env: enabled ? {TITAN_RECEIPT_ATTACHMENTS_ENABLED: 'true'} : {}}, Error, require(path) {
+      if (path.includes('order-receipt')) return {receiptFromOrder: x => x};
+      if (path.includes('receipt-pdf')) return {generateBrandedReceiptPdf: async () => ({bytes: []})};
+      throw new Error(path);
+    }});
+  vm.runInNewContext(js, {exports, Error, console: {error() {}}, require(path) {
+    if (path.includes('required-receipt-email.server')) return prep;
     if (path.includes('order-admin-copy.server')) return {sendAdminOrderCopy: async (...args) => {copies.push(args)}};
     if (path.includes('client.server')) return {supabaseAdmin: db};
     if (path.includes('send-email')) return {sendTemplateEmail: async (...args) => {
-      calls.push(args);if (fail) throw new Error('temporary provider failure');
+      calls.push(args);if (fail === true) throw new Error('temporary provider failure');
       return suppressed ? {sent: false, reason: 'recipient_suppressed'} : {sent: true};
     }};
     throw new Error(path);
@@ -52,7 +59,9 @@ async function scenario({paid = false, fail = false, suppressed = false, lines =
   assert.equal(suppressed.updates[0].outcome, 'recipient_suppressed');
   assert.equal((await scenario({lines: false})).calls.length, 0, 'do not send an incomplete order');
   assert.equal((await scenario({cancelled: true})).calls.length, 0, 'do not confirm cancelled orders');
-  const blocked = await scenario({fail: 'attachment'});
+  const off = await scenario({fail: 'attachment'});
+  assert.equal(off.calls.length, 2, 'OFF preserves confirmation delivery with no PDF requirement');
+  const blocked = await scenario({enabled: true});
   assert.equal(blocked.calls.length, 0, 'required attachment failure sends nothing');
   assert.equal(blocked.updates.length, 0, 'required attachment failure leaves event pending');
   console.log('Order confirmation checks passed');
