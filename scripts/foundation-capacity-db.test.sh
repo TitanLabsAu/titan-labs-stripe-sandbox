@@ -6,7 +6,7 @@ ROOT=$(cd "$(dirname "$0")/.." && pwd)
 if [ "$(id -u)" = 0 ]; then
   cat "$ROOT/scripts/foundation-member.sql" "$ROOT/drizzle/migrations/0041_foundation_admin_grant.sql" > /tmp/fc-base.sql
   cp "$ROOT/scripts/foundation-capacity-25.sql" /tmp/fc-new.sql; chmod 644 /tmp/fc-*.sql
-  exec setpriv --reuid=7777 --regid=7777 --clear-groups env HOME=/tmp FC_INNER=1 bash "$0"
+  exec setpriv --reuid=65534 --regid=65534 --clear-groups env HOME=/tmp FC_INNER=1 bash "$0"
 fi
 DIR=$(mktemp -d); PORT=55433
 unset PGHOST PGPORT PGUSER PGPASSWORD PGDATABASE PGSSLMODE
