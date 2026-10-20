@@ -69,3 +69,24 @@ export function canReadReceipt(userId: string, ownerId: string | null, isAdmin: 
 }
 
 export const RECEIPT_ORDER_COLUMNS = 'id, user_id, order_number, created_at, status, subtotal, shipping, total, payment_confirmed, payment_confirmed_at, refunded_at, payment_method, pricing_snapshot, discount_code, contact_name, contact_email, contact_phone, shipping_address, order_items(id, product_name, product_slug, variant_label, variant_id, quantity, unit_price)';
+
+/** Explicit response allowlist: never return raw snapshots, ownership IDs or internal fields. */
+export function ownerVisibleReceiptOrder(row: SavedReceiptOrder): SavedReceiptOrder {
+  const snapshot = record(row.pricing_snapshot), quote = record(snapshot['quote']);
+  const safeQuote: Record<string, Json> = {};
+  for (const key of ['itemsCents', 'baseCents', 'kitSavingsCents', 'multibuyCents', 'cryptoCents', 'firstOfferCents', 'foundationCents', 'clubCents', 'codeCents', 'code', 'creditCents', 'clubFreeShipping', 'clubFreeShippingCents', 'freeShippingCents', 'capApplied', 'clubCapReached', 'foundationCapReached']) {
+    const value = quote[key];
+    if (typeof value === 'number' || typeof value === 'string' || typeof value === 'boolean' || value === null) safeQuote[key] = value;
+  }
+  return {
+    id: row.id, order_number: row.order_number ?? null, created_at: row.created_at, status: row.status,
+    subtotal: row.subtotal, shipping: row.shipping, total: row.total,
+    payment_confirmed: row.payment_confirmed ?? null, payment_confirmed_at: row.payment_confirmed_at ?? null,
+    refunded_at: row.refunded_at ?? null, payment_method: row.payment_method ?? null,
+    discount_code: row.discount_code ?? null, pricing_snapshot: { quote: safeQuote },
+    contact_name: row.contact_name ?? null, contact_email: row.contact_email ?? null,
+    contact_phone: row.contact_phone ?? null, shipping_address: row.shipping_address ?? null,
+    order_items: row.order_items.map(i => ({ product_name: i.product_name, variant_label: i.variant_label ?? null,
+      variant_id: i.variant_id ?? null, quantity: i.quantity, unit_price: i.unit_price })),
+  };
+}

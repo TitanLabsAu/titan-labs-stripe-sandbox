@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
-import { canReadReceipt, receiptFromOrder, RECEIPT_ORDER_COLUMNS, type SavedReceiptOrder } from './order-receipt';
+import { canReadReceipt, receiptFromOrder, ownerVisibleReceiptOrder, RECEIPT_ORDER_COLUMNS, type SavedReceiptOrder } from './order-receipt';
 
 export const getOrderReceipt = createServerFn({ method: 'POST' })
   .middleware([requireSupabaseAuth])
@@ -20,12 +20,13 @@ export const getOrderReceipt = createServerFn({ method: 'POST' })
     }
     if (!canReadReceipt(context.userId, row.user_id, admin)) throw new Error('Order not found or access denied');
     if (!row.order_items.length) throw new Error('Order items are not complete yet');
-    const receipt = receiptFromOrder(row);
-    if (!data.pdf) return { order: row, pdf: null };
+    const visible = ownerVisibleReceiptOrder(row);
+    const receipt = receiptFromOrder(visible);
+    if (!data.pdf) return { order: visible, pdf: null };
     const { generateBrandedReceiptPdf } = await import('./receipt-pdf.server');
     const pdf = await generateBrandedReceiptPdf(receipt);
     let binary = ''; for (const byte of pdf.bytes) binary += String.fromCharCode(byte);
-    return { order: row, pdf: { base64: btoa(binary), filename: pdf.filename, mime: pdf.mime } };
+    return { order: visible, pdf: { base64: btoa(binary), filename: pdf.filename, mime: pdf.mime } };
   });
 
 /** Guest access requires the existing verified, hashed, expiring checkout cookie. */
@@ -44,9 +45,10 @@ export const getGuestOrderReceipt = createServerFn({ method: 'POST' })
     if (result.error || !result.data) throw new Error('Order not found or access denied');
     const row = result.data as unknown as SavedReceiptOrder;
     if (!row.order_items.length) throw new Error('Order items are not complete yet');
-    if (!data.pdf) return { order: row, pdf: null };
+    const visible = ownerVisibleReceiptOrder(row);
+    if (!data.pdf) return { order: visible, pdf: null };
     const { generateBrandedReceiptPdf } = await import('./receipt-pdf.server');
-    const pdf = await generateBrandedReceiptPdf(receiptFromOrder(row));
+    const pdf = await generateBrandedReceiptPdf(receiptFromOrder(visible));
     let binary = ''; for (const byte of pdf.bytes) binary += String.fromCharCode(byte);
-    return { order: row, pdf: { base64: btoa(binary), filename: pdf.filename, mime: pdf.mime } };
+    return { order: visible, pdf: { base64: btoa(binary), filename: pdf.filename, mime: pdf.mime } };
   });
