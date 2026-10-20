@@ -55,24 +55,30 @@ export async function sendPendingOrderCheckpointEmails(orderId?: string) {
       let outcome = "superseded";
       if (valid) {
         if (!order.contact_email) throw new Error("missing_recipient");
+        let receiptData: Record<string, unknown> = {};
         if (kind === "payment-confirmed") {
           const { prepareRequiredReceiptEmail } = await import("@/lib/required-receipt-email.server");
           await prepareRequiredReceiptEmail(data as import("@/lib/order-receipt").SavedReceiptOrder);
+          // Approved branded content: saved historical receipt, independent of the attachment flag.
+          const { receiptFromOrder, ownerVisibleReceiptOrder } = await import("@/lib/order-receipt");
+          receiptData = { receipt: receiptFromOrder(ownerVisibleReceiptOrder(data as import("@/lib/order-receipt").SavedReceiptOrder)), orderId: order.id };
         }
         const template =
           kind === "dispatched" ? "order-dispatched" : "order-checkpoint";
+        const payload = {
+          kind,
+          orderNumber: `TL-${order.order_number}`,
+          customerName: order.contact_name || "there",
+          trackingNumber: order.tracking_number || "",
+          total: `$${Number(order.total).toFixed(2)} AUD`,
+          shippingMethod: /Shipping: Standard/.test(order.notes ?? "")
+            ? "Standard tracked"
+            : "Australia Post Express",
+          ...receiptData,
+        };
         const result = await sendTemplateEmail(template, order.contact_email, {
           idempotencyKey: `customer-order-${kind}-${order.id}`,
-          templateData: {
-            kind,
-            orderNumber: `TL-${order.order_number}`,
-            customerName: order.contact_name || "there",
-            trackingNumber: order.tracking_number || "",
-            total: `$${Number(order.total).toFixed(2)} AUD`,
-            shippingMethod: /Shipping: Standard/.test(order.notes ?? "")
-              ? "Standard tracked"
-              : "Australia Post Express",
-          },
+          templateData: payload,
         });
         outcome = result.sent ? "sent" : "recipient_suppressed";
         if (result.sent) {
@@ -80,16 +86,7 @@ export async function sendPendingOrderCheckpointEmails(orderId?: string) {
           const { sendAdminOrderCopy } = await import("@/lib/order-admin-copy.server");
           await sendAdminOrderCopy(
             template,
-            {
-              kind,
-              orderNumber: `TL-${order.order_number}`,
-              customerName: order.contact_name || "there",
-              trackingNumber: order.tracking_number || "",
-              total: `$${Number(order.total).toFixed(2)} AUD`,
-              shippingMethod: /Shipping: Standard/.test(order.notes ?? "")
-                ? "Standard tracked"
-                : "Australia Post Express",
-            },
+            payload,
             `customer-order-${kind}-${order.id}`,
           );
         }

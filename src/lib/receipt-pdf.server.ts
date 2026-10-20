@@ -31,7 +31,8 @@ export async function generateReceiptPdf(receipt: Receipt, logoBytes: Uint8Array
     page.drawRectangle({ x: 0, y: 740, width: 595.28, height: 102, color: colour(brand.ink) });
     page.drawRectangle({ x: 0, y: 736, width: 595.28, height: 4, color: colour(brand.blue) });
     page.drawImage(logo, { x: 38, y: 758, width: 64, height: 64 });
-    text('TITAN LABS AUSTRALIA', 120, 799, 18, brand.white);
+    // Website title treatment: letter-spaced, faux-bold (single embedded font has no bold face).
+    { let x = 120; for (const c of 'TITAN LABS // AUS') { for (const dx of [0, 0.45]) page.drawText(c, { x: x + dx, y: 799, size: 19, font, color: colour(brand.white) }); x += font.widthOfTextAtSize(c, 19) + 2.2; } }
     text(receipt.title.toUpperCase(), 120, 775, 11, brand.white);
     y = 711; text(receipt.reference, 38, y, 16, brand.blue); text(receipt.status, 360, y, 12); y -= 21;
     text(`Order date: ${receiptDate(receipt.date)} (Melbourne)`, 38, y); y -= 18;

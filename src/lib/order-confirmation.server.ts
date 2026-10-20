@@ -51,24 +51,29 @@ export async function sendPendingOrderConfirmations(orderId?: string) {
         const { prepareRequiredReceiptEmail } = await import("@/lib/required-receipt-email.server");
         await prepareRequiredReceiptEmail(savedOrder as import("@/lib/order-receipt").SavedReceiptOrder);
         const money = (value: number) => `$${Number(value).toFixed(2)} AUD`;
+        // Approved branded content: saved historical receipt, independent of the attachment flag.
+        const { receiptFromOrder, ownerVisibleReceiptOrder } = await import("@/lib/order-receipt");
+        const payload = {
+          orderNumber: `TL-${order.order_number}`,
+          customerName: order.contact_name || "there",
+          total: money(order.total),
+          paymentConfirmed: Boolean(order.payment_confirmed),
+          shippingMethod: /Shipping: Standard/.test(order.notes ?? "")
+            ? "Standard tracked"
+            : "Australia Post Express",
+          items: order.order_items.map(
+            (i) =>
+              `${i.quantity} × ${i.product_name}${i.variant_label ? ` (${i.variant_label})` : ""} — ${money(i.unit_price * i.quantity)}`,
+          ),
+          receipt: receiptFromOrder(ownerVisibleReceiptOrder(savedOrder as import("@/lib/order-receipt").SavedReceiptOrder)),
+          orderId: order.id,
+        };
         const result = await sendTemplateEmail(
           "order-confirmation",
           order.contact_email,
           {
             idempotencyKey: `order-confirmation-${order.id}-none`,
-            templateData: {
-              orderNumber: `TL-${order.order_number}`,
-              customerName: order.contact_name || "there",
-              total: money(order.total),
-              paymentConfirmed: Boolean(order.payment_confirmed),
-              shippingMethod: /Shipping: Standard/.test(order.notes ?? "")
-                ? "Standard tracked"
-                : "Australia Post Express",
-              items: order.order_items.map(
-                (i) =>
-                  `${i.quantity} × ${i.product_name}${i.variant_label ? ` (${i.variant_label})` : ""} — ${money(i.unit_price * i.quantity)}`,
-              ),
-            },
+            templateData: payload,
           },
         );
         outcome = result.sent ? "sent" : "recipient_suppressed";
@@ -77,19 +82,7 @@ export async function sendPendingOrderConfirmations(orderId?: string) {
           const { sendAdminOrderCopy } = await import("@/lib/order-admin-copy.server");
           await sendAdminOrderCopy(
             "order-confirmation",
-            {
-              orderNumber: `TL-${order.order_number}`,
-              customerName: order.contact_name || "there",
-              total: money(order.total),
-              paymentConfirmed: Boolean(order.payment_confirmed),
-              shippingMethod: /Shipping: Standard/.test(order.notes ?? "")
-                ? "Standard tracked"
-                : "Australia Post Express",
-              items: order.order_items.map(
-                (i) =>
-                  `${i.quantity} × ${i.product_name}${i.variant_label ? ` (${i.variant_label})` : ""} — ${money(i.unit_price * i.quantity)}`,
-              ),
-            },
+            payload,
             `order-confirmation-${order.id}-none`,
           );
         }
