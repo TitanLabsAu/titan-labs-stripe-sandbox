@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, ArrowUpRight, Brain, Dumbbell, Flame, HeartPulse, Layers3, Sparkles, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PROTOCOL_STACK_GOALS, protocolGoal, publishedProtocolEntry } from "@/lib/research-protocol-stacks";
+import { RichText } from "@/components/RichText";
+import { PROTOCOL_STACK_GOALS, PROTOCOL_TOPIC_OVERVIEWS, protocolGoal, protocolResearchOverview, publishedProtocolEntry } from "@/lib/research-protocol-stacks";
 import type { ResearchEntry } from "@/lib/research";
 
 const goalIcons = [Flame, Dumbbell, Target, Brain, Sparkles, HeartPulse];
@@ -33,12 +34,25 @@ export function ResearchProtocolStacks({ entries, goalId }: { entries: ResearchE
           <div><p className="technical-label text-muted-foreground">Selected topic</p><h2 id="protocol-goal-title" className="mt-1 font-display text-3xl font-bold uppercase text-foreground">{selected.title}</h2></div>
           <span className="shrink-0 font-mono text-xs text-muted-foreground">{selected.compounds.length} compounds</span>
         </div>
-        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <p className="mt-3 max-w-3xl text-base leading-7 text-muted-foreground">{PROTOCOL_TOPIC_OVERVIEWS[selected.id]}</p>
+        <p className="mt-2 max-w-3xl text-xs leading-5 text-muted-foreground">Individual-compound summaries do not establish the effects of a combination.</p>
+        <div className="mt-6 grid items-start gap-4 md:grid-cols-2">
           {selected.compounds.map((name, index) => {
             const entry = publishedProtocolEntry(name, entries);
-            const content = <><span className="font-mono text-xs text-muted-foreground">{String(index + 1).padStart(2, "0")}</span><span className="min-w-0 flex-1 font-display text-lg font-bold leading-6 text-foreground">{name}</span>{entry ? <ArrowUpRight className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" /> : <Layers3 className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />}</>;
-            const cardClass = "flex min-h-20 items-center gap-4 rounded-md border border-border bg-card px-4 py-4";
-            return entry ? <Link key={name} to="/research/$slug" params={{ slug: entry.slug }} aria-label={`${name} research entry`} className={`${cardClass} transition-colors hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring`}>{content}</Link> : <div key={name} className={cardClass}>{content}</div>;
+            const overview = protocolResearchOverview(entry);
+            return <article key={name} aria-labelledby={`protocol-compound-${index}`} className="flex h-full min-w-0 flex-col rounded-md border border-border bg-card p-5 sm:p-6">
+              <header className="flex items-baseline gap-3 border-b border-border pb-4">
+                <span className="font-mono text-xs text-muted-foreground">{String(index + 1).padStart(2, "0")}</span>
+                <h3 id={`protocol-compound-${index}`} className="min-w-0 break-words font-display text-xl font-bold leading-7 text-foreground">{name}</h3>
+              </header>
+              <p className="technical-label mt-4 text-primary">Research overview</p>
+              <div className="mt-2 break-words text-sm leading-7 text-muted-foreground">
+                {overview ? <RichText text={overview} /> : <p>Research overview not yet available.</p>}
+              </div>
+              {entry ? <Button asChild variant="link" className="mt-auto h-auto justify-start whitespace-normal px-0 pt-5 text-left tracking-normal">
+                <Link to="/research/$slug" params={{ slug: entry.slug }} aria-label={`Read ${name} compound research`}>Read compound research<ArrowUpRight className="h-4 w-4 shrink-0" aria-hidden="true" /></Link>
+              </Button> : null}
+            </article>;
           })}
         </div>
       </section>
