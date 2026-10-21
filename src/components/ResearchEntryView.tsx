@@ -7,6 +7,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { RichText } from "@/components/RichText";
 import { BLEND_NOTICE, EVIDENCE_EXPLANATIONS, EVIDENCE_TYPES, VERIFIED_EXPLANATION, doiUrl, label, pubchemUrl, pubmedUrl, safeUrl, type ResearchEntry, type ResearchSection } from "@/lib/research";
 import { blendsForEntry, relatedResearch } from "@/lib/research-discovery";
+import { ResearchSourceDescription } from "@/components/ResearchSourceDescription";
 
 const compositionHeading = /composition|identifier/i;
 const crossRegHeading = /cross[- ]?reference|regulatory/i;
@@ -39,6 +40,8 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
           </div>
         </div>
       </header>
+
+      <ResearchSourceDescription entry={entry} entries={entries} prominent />
 
       <section className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3" aria-label="Quick research map">
         <ResearchMapItem label={lb.map_area} value={entry.category || "Research"} />

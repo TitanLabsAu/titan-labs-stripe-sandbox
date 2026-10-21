@@ -15,7 +15,7 @@
 - Guest checkout ownership comes only from the hashed guest cookie or verified bearer (`checkout-buyer.server.ts`); posted IDs/emails are never trusted.
 - First-purchase offer claims stay held while a Stripe intent is payable; released only after confirmed cancellation.
 - Research Lab: `research_entries` (admin RLS CRUD, public published-only via server fn, `at_a_glance` summaries); `/research-preview` shows drafts to admins only.
-- Protocol Stacks use a browser-safe topic registry and /research/protocol-stacks goal search; exact published linking and verbatim saved overviews preserve privacy/content.
+- Protocol Stacks use a browser-safe registry, exact published links and verbatim overviews. Source quotations use a separate presentation map/shared block; unique published matching excludes held identities and ambiguity without changing saved science/categories.
 - Mobile floating cart reuses root-layout `CartSheet`.
 - Catalogue sections use `products.catalogue_section`, separate from scientific `categories`.
 - Reviews: `customer_reviews`, admin-only writes; anonymous submissions only via throttled `submitCustomerReview` (unpublished, unrated); homepage featured block capped at three.
