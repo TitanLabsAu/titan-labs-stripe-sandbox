@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { SUBJECTIVE_RATINGS, EXCLUDED_SUBJECTIVE_LABELS, researchSubjectiveRatings, subjectiveExclusions } from "../src/lib/research-subjective-ratings";
 import { toResearchEntry } from "../src/lib/research";
 import { researchDetailModel } from "../src/lib/research-detail";
@@ -8,8 +8,8 @@ import { RESEARCH_SOURCE_DESCRIPTIONS, HELD_RESEARCH_SOURCE_DESCRIPTIONS, resear
 const entry = (values = {}) => toResearchEntry({ id: "bpc", slug: "bpc-157", title: "BPC-157", published: true, ...values });
 describe("Owner subjective ratings boundaries", () => {
   test("all 44 rows preserve 220 metric values and 44 overall values", () => {
-    const supplied = JSON.parse(readFileSync("/mnt/user-uploads/Donny-subjective-ratings-reference.txt", "utf8"));
-    expect(SUBJECTIVE_RATINGS).toEqual(supplied.ratings);
+    // Digest of the complete owner-supplied ratings array (all labels/values/order).
+    expect(createHash("sha256").update(JSON.stringify(SUBJECTIVE_RATINGS)).digest("hex")).toBe("3dd0a6858504cedd7fbb591b33e17346af640672677fbf351fa6cd3e4afac5b0");
     expect(SUBJECTIVE_RATINGS.length).toBe(44);
     expect(SUBJECTIVE_RATINGS.reduce((n, row) => n + row.metrics.length, 0)).toBe(220);
   });
