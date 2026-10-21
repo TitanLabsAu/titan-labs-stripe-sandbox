@@ -10,11 +10,11 @@ describe("Research detail presentation boundaries", () => {
   test("saved counts are actual references, notes and findings", () => {
     expect(researchDetailModel(row).counts).toEqual({ references: 2, notes: 3, findings: 1 });
   });
-  test("route, half-life and cycle remain unassigned", () => {
-    expect(researchDetailModel(row).quick).toEqual([{ label: "Class", value: "Saved class" }, { label: "Route", value: "—" }, { label: "Half-life", value: "—" }, { label: "Cycle", value: "—" }]);
+  test("blank route, half-life and cycle placeholders are omitted", () => {
+    expect(researchDetailModel(row).quick).toEqual([{ label: "Class", value: "Saved class" }]);
   });
-  test("all four protocol fields remain blank", () => {
-    expect(researchDetailModel(row).protocol).toEqual([{ label: "Dose", value: "—" }, { label: "Timing", value: "—" }, { label: "Timeline", value: "—" }, { label: "Level", value: "—" }]);
+  test("blank protocol fields are omitted", () => {
+    expect(researchDetailModel(row).protocol).toEqual([]);
   });
   test("ratings never derive clinical scores", () => {
     expect(researchDetailModel(row).ratings.map(item => item.value)).toEqual(["—", "—", "—"]);

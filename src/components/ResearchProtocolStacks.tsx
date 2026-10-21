@@ -3,7 +3,8 @@ import { ArrowLeft, ArrowUpRight, Brain, Dumbbell, Flame, HeartPulse, Layers3, S
 import { Button } from "@/components/ui/button";
 import { RichText } from "@/components/RichText";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { PROTOCOL_REFERENCE_FIELDS, PROTOCOL_STACK_GOALS, PROTOCOL_TOPIC_OVERVIEWS, protocolGoal, protocolResearchOverview, publishedProtocolEntry } from "@/lib/research-protocol-stacks";
+import { PROTOCOL_STACK_GOALS, PROTOCOL_TOPIC_OVERVIEWS, protocolGoal, protocolResearchOverview, publishedProtocolEntry } from "@/lib/research-protocol-stacks";
+import { publishedReferenceRows } from "@/lib/research-reference-fields";
 import type { ResearchEntry } from "@/lib/research";
 import { ResearchSourceDescription } from "@/components/ResearchSourceDescription";
 
@@ -39,19 +40,19 @@ export function ResearchProtocolStacks({ entries, goalId }: { entries: ResearchE
               <h2 id="protocol-goal-title" className="mt-1 font-display text-4xl font-bold uppercase leading-tight text-foreground sm:text-5xl">{selected.title}</h2>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{PROTOCOL_TOPIC_OVERVIEWS[selected.id]}</p>
             </div>
-            <dl className="grid grid-cols-3 gap-2 lg:w-72">
-              {[["Compounds", selected.compounds.length], ["Timeline", PROTOCOL_REFERENCE_FIELDS.timeline ?? "—"], ["Level", PROTOCOL_REFERENCE_FIELDS.level ?? "—"]].map(([label, value]) => <div key={label} className="rounded-lg border border-border px-3 py-4 text-center">
+            <dl className="grid gap-2 lg:w-24">
+              {[["Compounds", selected.compounds.length]].map(([label, value]) => <div key={label} className="rounded-lg border border-border px-3 py-4 text-center">
                 <dt className="font-mono text-[10px] uppercase text-muted-foreground">{label}</dt>
                 <dd className="mt-2 font-display text-2xl font-bold text-primary">{value}</dd>
               </div>)}
             </dl>
           </div>
-          <p className="mt-5 border-t border-border pt-3 text-xs leading-5 text-muted-foreground">Protocol fields are not supplied in this draft. Individual-compound summaries do not establish the effects of a combination.</p>
         </div>
         <div className="mt-5 grid items-start gap-3 md:grid-cols-2 xl:grid-cols-4">
           {selected.compounds.map((name, index) => {
             const entry = publishedProtocolEntry(name, entries);
             const overview = protocolResearchOverview(entry);
+            const referenceRows = publishedReferenceRows(entry);
             return <article key={`${selected.id}-${name}`} aria-labelledby={`protocol-compound-${index}`} className="flex h-full min-w-0 flex-col rounded-xl border border-border bg-protocol-surface p-4">
               <header className="flex items-start justify-between gap-2">
                 <h3 id={`protocol-compound-${index}`} className="min-w-0 break-words font-display text-xl font-bold leading-6 text-foreground">{name}</h3>
@@ -59,9 +60,9 @@ export function ResearchProtocolStacks({ entries, goalId }: { entries: ResearchE
               </header>
               <p className="mt-3 text-xs leading-5 text-muted-foreground">{entry ? entry.category || "Research category not available." : "Published research not available."}</p>
               <ResearchSourceDescription entry={entry} entries={entries} />
-              <dl className="mt-4 grid grid-cols-2 rounded-lg border border-border bg-protocol-inset px-3 py-3">
-                {[["Dose", PROTOCOL_REFERENCE_FIELDS.dose], ["Timing", PROTOCOL_REFERENCE_FIELDS.timing]].map(([label, value]) => <div key={label}><dt className="font-mono text-[10px] uppercase text-muted-foreground">{label}</dt><dd className="mt-1 text-sm text-foreground">{value ?? "—"}</dd></div>)}
-              </dl>
+              {referenceRows.length ? <dl className="mt-4 grid gap-3 rounded-lg border border-border bg-protocol-inset px-3 py-3">
+                {referenceRows.map(({ label, value }) => <div key={label}><dt className="font-mono text-[10px] uppercase text-muted-foreground">{label}</dt><dd className="mt-1 whitespace-pre-wrap break-words text-sm text-foreground">{value}</dd></div>)}
+              </dl> : null}
               <Accordion type="single" collapsible className="mt-2">
                 <AccordionItem value="overview" className="border-0">
                   <AccordionTrigger className="gap-2 py-3 text-xs text-primary">Research overview</AccordionTrigger>

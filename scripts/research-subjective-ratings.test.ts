@@ -59,8 +59,8 @@ describe("Owner subjective ratings boundaries", () => {
   });
   test("ratings never populate seven regimen fields or Titan ratings", () => {
     const row = entry(); researchSubjectiveRatings(row, [row]);
-    expect(researchDetailModel(row).quick.slice(1).map(x => x.value)).toEqual(["—", "—", "—"]);
-    expect(researchDetailModel(row).protocol.map(x => x.value)).toEqual(["—", "—", "—", "—"]);
+    expect(researchDetailModel(row).quick.slice(1)).toEqual([]);
+    expect(researchDetailModel(row).protocol).toEqual([]);
     expect(researchDetailModel(row).ratings.map(x => x.value)).toEqual(["—", "—", "—"]);
     for (const source of SUBJECTIVE_RATINGS) expect(Object.keys(source).sort()).toEqual(["metrics", "name", "overall", "slug"]);
   });

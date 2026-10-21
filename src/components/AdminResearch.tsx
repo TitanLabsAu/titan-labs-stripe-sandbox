@@ -29,6 +29,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
+import { ResearchReferenceFieldsEditor } from "@/components/ResearchReferenceFieldsEditor";
+import { isResearchReferenceSection } from "@/lib/research-reference-fields";
 import {
   CLAIM_FIELDS,
   CLAIM_STATES,
@@ -378,8 +380,7 @@ export function AdminResearch() {
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">
               Status: {existing?.published ? "Published" : "Draft"} · Research
-              reference only. Do not add dosing, administration or treatment
-              instructions.
+              reference only.
             </p>
           </div>
           <Button
@@ -488,6 +489,8 @@ export function AdminResearch() {
           </Field>
         </div>
 
+        <ResearchReferenceFieldsEditor content={draft.content} onChange={content => set("content", content)} />
+
         <div className="mt-6">
           <div className="flex items-center justify-between">
             <p className="technical-label text-foreground">Content sections</p>
@@ -502,7 +505,7 @@ export function AdminResearch() {
             </Button>
           </div>
           <div className="mt-3 space-y-3">
-            {draft.content.map((s, i) => (
+            {draft.content.map((s, i) => isResearchReferenceSection(s) ? null : (
               <div key={i} className="grid gap-2 border border-border p-3">
                 <div className="flex gap-2">
                   <Input

@@ -12,6 +12,7 @@ import { researchSourceDescription } from "@/lib/research-source-descriptions";
 import { researchDetailModel } from "@/lib/research-detail";
 import { ResearchShowcase } from "@/components/ResearchShowcase";
 import { ResearchSubjectiveScorecard } from "@/components/ResearchSubjectiveScorecard";
+import { isResearchReferenceSection } from "@/lib/research-reference-fields";
 
 export function ResearchEntryView({ entry, entries = [], preview = false }: { entry: ResearchEntry; entries?: ResearchEntry[]; preview?: boolean }) {
   const { products } = useProducts();
@@ -58,10 +59,10 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
       <div className="research-module-grid">{model.findings.length ? model.findings.map((finding, index) => <div key={index} className="research-note-card"><span className="research-interest-number research-mono">{String(index + 1).padStart(2, "0")}</span><RichText text={finding} /></div>) : <p className="research-section-note">Research findings not available in this saved entry.</p>}</div>
     </section>
 
-    <section className="research-numbered-section" aria-labelledby="research-protocol">
+    {model.protocol.length ? <section className="research-numbered-section" aria-labelledby="research-protocol">
       <SectionHeading number="04" eyebrow="PROTOCOL REFERENCE" title="Protocol readout" id="research-protocol" />
-      <div className="research-terminal"><div className="research-terminal-bar research-mono"><span aria-hidden="true">● ● ●</span>{entry.slug}_protocol.cfg</div><dl>{model.protocol.map(item => <div key={item.label}><dt className="research-mono">{item.label}</dt><dd>{item.value}</dd></div>)}</dl><p className="research-terminal-note">Educational research reference only. Not medical advice.</p></div>
-    </section>
+      <div className="research-terminal"><div className="research-terminal-bar research-mono"><span aria-hidden="true">● ● ●</span>{entry.slug}_protocol.cfg</div><dl>{model.protocol.map(item => <div key={item.label}><dt className="research-mono">{item.label}</dt><dd className="whitespace-pre-wrap break-words">{item.value}</dd></div>)}</dl><p className="research-terminal-note">Educational research reference only. Not medical advice.</p></div>
+    </section> : null}
 
     <section className="research-numbered-section" aria-labelledby="research-related">
       <SectionHeading number="05" eyebrow="RELATED RESEARCH" title="Related compounds" id="research-related" />
@@ -75,7 +76,7 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
         <AccordionItem value="science"><AccordionTrigger className="research-science-trigger">Science &amp; References</AccordionTrigger><AccordionContent className="research-science-content">
           {entry.at_a_glance ? <DetailSection heading={lb.quick_read} body={entry.at_a_glance} /> : null}
           {entry.summary ? <DetailSection heading="Verified summary" body={entry.summary} /> : null}
-          {entry.content.map((section, index) => <DetailSection key={index} heading={section.heading || "Research notes"} body={section.body} />)}
+          {entry.content.filter(section => !isResearchReferenceSection(section)).map((section, index) => <DetailSection key={index} heading={section.heading || "Research notes"} body={section.body} />)}
           {entry.research_findings.length ? <section><h3>{lb.studying}</h3><ul className="list-disc space-y-3 pl-5">{entry.research_findings.map((finding, index) => <li key={index}><RichText text={finding} /></li>)}</ul></section> : null}
           {identifiers.length || entry.sequence ? <dl className="research-identifiers">{identifiers.map(([name, value]) => <div key={name}><dt className="research-mono">{name}</dt><dd>{name === "PubChem CID" && pubchem ? <a href={pubchem} target="_blank" rel="noopener noreferrer">{value}</a> : value}</dd></div>)}{entry.sequence ? <div><dt className="research-mono">Sequence</dt><dd>{entry.sequence}</dd></div> : null}</dl> : null}
           <section><h3>{lb.level}</h3><p>{EVIDENCE_EXPLANATIONS[entry.evidence_status]}</p><p>Evidence level describes the cited research, not safety, efficacy, suitability or approval.</p></section>
