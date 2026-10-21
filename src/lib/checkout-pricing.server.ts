@@ -9,6 +9,7 @@ import {
   settingsFromRow,
   type ClubBenefit,
   type CodeRule,
+  type PriceLine,
   type PricingSettings,
   type Quote,
 } from "@/lib/order-pricing";
@@ -113,7 +114,7 @@ export async function priceCheckout(
 
   const bySlug = new Map((products ?? []).map((p: any) => [p.slug, p]));
   const lines: PricedLine[] = [];
-  const priceLines: { unitCents: number; baseCents: number; quantity: number }[] = [];
+  const priceLines: PriceLine[] = [];
   const requestedStock = new Map<string, number>();
   for (const item of items) {
     const product: any = bySlug.get(item.slug);
@@ -173,6 +174,9 @@ export async function priceCheckout(
       unitCents: Math.round(unitPrice * 100),
       baseCents: Math.round((pack === "kit" ? singlePrice * 10 : singlePrice) * 100),
       quantity,
+      // Titan Stack eligibility comes only from the stored catalogue section
+      // (never client input); anything that is not exactly "range" fails closed.
+      multibuyEligible: product.catalogue_section === "range",
     });
   }
 

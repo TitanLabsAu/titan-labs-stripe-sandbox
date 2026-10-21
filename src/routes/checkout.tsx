@@ -965,11 +965,11 @@ function CheckoutPage() {
                   The Titan Stack
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {settings.multibuyTiers.map((t) => `${t.units} items = ${t.percent}% off`).join(" · ")}
-                  {` · multi-buy, kit and crypto savings combined are capped at ${settings.combinedCapPercent}%`}
+                  {settings.multibuyTiers.map((t) => `${t.units} Range items = ${t.percent}% off`).join(" · ")}
+                  {` · pens and equipment don't count · multi-buy, kit and crypto savings combined are capped at ${settings.combinedCapPercent}%`}
                 </p>
                 <div className="mt-3">
-                  <TitanStackBanner units={quote.units} />
+                  <TitanStackBanner units={quote.multibuyUnits} />
                 </div>
               </div>
 

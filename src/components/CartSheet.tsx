@@ -319,7 +319,7 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
               </section>
               ) : null}
 
-              <TitanStackBanner units={count} />
+              <TitanStackBanner units={quote.multibuyUnits} />
               <TitanTrustStrip />
             </>
           )}

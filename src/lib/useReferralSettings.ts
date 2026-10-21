@@ -26,6 +26,12 @@ export function cartPriceLines(
       const single = getProductOption(product, item.variantId ?? null, "single").unitPrice;
       base = single * 10;
     }
-    return { unitCents: Math.round(unit * 100), baseCents: Math.round(base * 100), quantity: item.quantity };
+    return {
+      unitCents: Math.round(unit * 100),
+      baseCents: Math.round(base * 100),
+      quantity: item.quantity,
+      // Titan Stack counts Range products only; unknown products fail closed.
+      multibuyEligible: product?.catalogueSection === "range",
+    };
   });
 }
