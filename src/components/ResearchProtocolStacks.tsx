@@ -54,7 +54,7 @@ export function ResearchProtocolStacks({ entries, goalId }: { entries: ResearchE
             const entry = publishedProtocolEntry(name, entries);
             const overview = protocolResearchOverview(entry);
             const referenceRows = publishedReferenceRows(entry);
-            return <article key={`${selected.id}-${name}`} aria-labelledby={`protocol-compound-${index}`} className="titan-product-card flex h-full min-w-0 flex-col rounded-xl border border-border bg-card p-4">
+            return <article key={`${selected.id}-${name}`} aria-labelledby={`protocol-compound-${index}`} className="flex h-full min-w-0 flex-col rounded-xl border border-border bg-card p-4">
               <header className="flex items-start justify-between gap-2">
                 <h3 id={`protocol-compound-${index}`} className="min-w-0 break-words font-display text-xl font-bold leading-6 text-foreground">{name}</h3>
                 <span className="shrink-0 rounded border border-primary px-1.5 py-1 font-display text-[10px] font-bold uppercase leading-none tracking-wider text-primary">Reference</span>
