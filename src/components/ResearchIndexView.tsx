@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { EVIDENCE_STATUSES, label, type ResearchEntry } from "@/lib/research";
 import { entriesForCollection, RESEARCH_COLLECTIONS } from "@/lib/research-discovery";
 import { TitanBlendsView } from "@/components/TitanBlendsView";
-import { ResearchSourceDescription } from "@/components/ResearchSourceDescription";
+import { ResearchSourceDescription, SourceAttributionNote } from "@/components/ResearchSourceDescription";
 
 export function ResearchIndexView({
   entries,
@@ -186,6 +186,7 @@ export function ResearchIndexView({
           Compound Library
         </h2>
       </div>
+      <SourceAttributionNote className="mt-2 max-w-3xl" />
 
       {visible.length === 0 ? (
         <div className="mt-8 rounded-2xl border border-primary/25 bg-card/90 p-8 text-center shadow-glow text-sm text-muted-foreground">
