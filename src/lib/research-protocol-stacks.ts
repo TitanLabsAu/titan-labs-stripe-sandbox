@@ -1,5 +1,8 @@
 import type { ResearchEntry } from "./research";
 
+/** Intentionally unpopulated pending qualified review, never inferred from research. */
+export const PROTOCOL_REFERENCE_FIELDS = { timeline: null, level: null, dose: null, timing: null } as const;
+
 /** Names-only reference categories. Never a protocol or a recommendation. */
 export const PROTOCOL_STACK_GOALS = [
   { id: "weight-loss", title: "Weight Loss", compounds: ["Retatrutide", "5-Amino-1MQ", "AOD-9604", "HGH", "MOTS-C", "SS-31", "NAD+"] },

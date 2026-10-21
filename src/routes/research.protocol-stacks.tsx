@@ -28,5 +28,5 @@ export const Route = createFileRoute("/research/protocol-stacks")({
 function ProtocolStacksPage() {
   const { data: entries } = useSuspenseQuery(publishedQuery);
   const { goal } = Route.useSearch();
-  return <ResearchLabShell><ResearchProtocolStacks entries={entries} goalId={goal ?? "weight-loss"} /></ResearchLabShell>;
+  return <ResearchLabShell protocolStacks><ResearchProtocolStacks entries={entries} goalId={goal ?? "weight-loss"} /></ResearchLabShell>;
 }

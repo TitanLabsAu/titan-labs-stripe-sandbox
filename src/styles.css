@@ -61,6 +61,8 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --font-sans: "Barlow", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Rajdhani", ui-sans-serif, system-ui, sans-serif;
+  --color-protocol-surface: var(--protocol-surface);
+  --color-protocol-inset: var(--protocol-inset);
 }
 
 :root,
@@ -753,3 +755,37 @@ html.light .theme-label-light { display: contents !important; }
 .light .titan-account-card :is(h1, p) { color: var(--account-ink) !important; text-shadow: none; }
 .light .titan-account-card .titan-account-copy { background: linear-gradient(to bottom, transparent, var(--background)); }
 @media (min-width: 640px) { .light .titan-account-card .titan-account-copy { background: none; } }
+
+/* Protocol reference layout: isolated from library and commerce theme roles. */
+.protocol-stacks-shell {
+  --protocol-atmosphere: linear-gradient(125deg, oklch(0.19 0.025 145), oklch(0.12 0.004 270) 48%, oklch(0.18 0.025 335));
+  background-image: var(--protocol-atmosphere);
+}
+.protocol-stacks-layout {
+  --foreground: oklch(0.96 0.005 145);
+  --muted-foreground: oklch(0.73 0.008 145);
+  --primary: oklch(0.88 0.2 125);
+  --primary-foreground: oklch(0.17 0.015 145);
+  --ring: var(--primary);
+  --border: oklch(0.32 0.009 145);
+  --protocol-surface: oklch(0.19 0.006 145);
+  --protocol-inset: oklch(0.145 0.004 145);
+  --card: var(--protocol-surface);
+  color: var(--foreground);
+}
+.light .protocol-stacks-shell {
+  --protocol-atmosphere: linear-gradient(125deg, oklch(0.97 0.015 145), oklch(0.98 0.004 270) 48%, oklch(0.96 0.012 335));
+}
+.light .protocol-stacks-layout {
+  --foreground: oklch(0.24 0.012 145);
+  --muted-foreground: oklch(0.46 0.015 145);
+  --primary: oklch(0.4 0.11 140);
+  --primary-foreground: oklch(0.99 0 0);
+  --border: oklch(0.82 0.015 145);
+  --protocol-surface: oklch(0.995 0.003 145);
+  --protocol-inset: oklch(0.95 0.012 145);
+  --card: var(--protocol-surface);
+}
+.protocol-stacks-layout .protocol-overview { background-color: var(--protocol-surface); }
+.protocol-stacks-layout [data-state] { animation: none; }
+.protocol-stacks-layout :is(a, button):focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }

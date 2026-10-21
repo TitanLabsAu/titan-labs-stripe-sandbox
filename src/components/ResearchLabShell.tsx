@@ -13,12 +13,14 @@ import { SiteHeader } from "@/components/SiteHeader";
 export function ResearchLabShell({
   children,
   preview = false,
+  protocolStacks = false,
 }: {
   children: React.ReactNode;
   preview?: boolean;
+  protocolStacks?: boolean;
 }) {
   return (
-    <div className="research-lab-theme bg-hero min-h-screen">
+    <div className={`research-lab-theme bg-hero min-h-screen${protocolStacks ? " protocol-stacks-shell" : ""}`}>
       <SiteHeader />
       <main className="page-shell py-8 sm:py-12">
         <TitanPageHeading
