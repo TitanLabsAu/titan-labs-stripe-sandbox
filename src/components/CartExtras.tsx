@@ -95,8 +95,8 @@ export function TitanStackBanner({ units }: { units: number }) {
       <p className="mt-3 text-xs text-muted-foreground">
         {next ? (
           <>
-            Add {next.units - units} more {next.units - units === 1 ? "unit" : "units"} to unlock{" "}
-            <strong className="text-foreground">{next.percent}% off</strong> your vials.
+            Add {next.units - units} more Range {next.units - units === 1 ? "item" : "items"} to
+            unlock <strong className="text-foreground">{next.percent}% off</strong> your vials.
           </>
         ) : (
           <>
@@ -104,7 +104,8 @@ export function TitanStackBanner({ units }: { units: number }) {
             <strong className="text-accent">{active}% off</strong> the more you stack, the more you
             save.
           </>
-        )}
+        )}{" "}
+        Pens and equipment don't count toward the Titan Stack.
       </p>
     </div>
   );

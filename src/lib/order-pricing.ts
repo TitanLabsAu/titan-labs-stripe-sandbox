@@ -108,6 +108,13 @@ export type PriceLine = {
   /** Undiscounted reference per unit (10x single price for kits). */
   baseCents: number;
   quantity: number;
+  /**
+   * Titan Stack multi-buy eligibility, resolved from the stored catalogue
+   * section (only "The Range" counts). Callers must set this from trusted
+   * catalogue facts and fail closed (false) for equipment, pens and unknown
+   * products. Undefined preserves legacy behaviour (eligible).
+   */
+  multibuyEligible?: boolean;
 };
 
 export type CodeRule = {
@@ -130,6 +137,9 @@ export type Quote = {
   units: number;
   multibuyPercent: number;
   multibuyCents: number;
+  /** Units and item subtotal that count toward the Titan Stack (Range products only). */
+  multibuyUnits: number;
+  multibuyItemsCents: number;
   cryptoPercent: number;
   cryptoCents: number;
   capPercent: number;
@@ -194,8 +204,14 @@ function evaluate(
   const kitSavingsCents = Math.max(0, baseCents - itemsCents);
   const units = input.lines.reduce((a, l) => a + l.quantity, 0);
 
+  // Titan Stack multi-buy counts and discounts ONLY Range-eligible lines;
+  // equipment, pens and unknown products never progress a tier or get the rate.
+  const mbLines = input.lines.filter((l) => l.multibuyEligible !== false);
+  const multibuyItemsCents = mbLines.reduce((a, l) => a + Math.round(l.unitCents) * l.quantity, 0);
+  const multibuyUnits = mbLines.reduce((a, l) => a + l.quantity, 0);
+
   const blocked = (input as InternalQuoteInput)._block;
-  let mb = itemsCents > 0 && !blocked?.multibuy ? multibuyPercentFor(units, s) : 0;
+  let mb = multibuyItemsCents > 0 && !blocked?.multibuy ? multibuyPercentFor(multibuyUnits, s) : 0;
   let cr = itemsCents > 0 && !blocked?.crypto && input.paymentMethod === "crypto" ? s.cryptoPercent : 0;
   if (!s.allowMultibuyCrypto && mb > 0 && cr > 0) {
     if (mb >= cr) cr = 0;
@@ -209,12 +225,13 @@ function evaluate(
     if (!offer.combineMultibuy) mb = 0;
     if (!offer.combineCrypto) cr = 0;
   }
-  const pct = mb + cr;
-  const raw = Math.round((itemsCents * pct) / 100);
+  const rawMb = Math.round((multibuyItemsCents * mb) / 100);
+  const rawCr = Math.round((itemsCents * cr) / 100);
+  const raw = rawMb + rawCr;
   const room = Math.max(0, Math.floor((baseCents * s.combinedCapPercent) / 100) - kitSavingsCents);
   const pctCents = Math.min(raw, room);
   const capApplied = pctCents < raw;
-  const multibuyCents = pct > 0 ? Math.round((pctCents * mb) / pct) : 0;
+  const multibuyCents = raw > 0 ? Math.round((pctCents * rawMb) / raw) : 0;
   const cryptoCents = pctCents - multibuyCents;
   const afterPct = itemsCents - pctCents;
 
@@ -316,6 +333,8 @@ function evaluate(
     units,
     multibuyPercent: mb,
     multibuyCents,
+    multibuyUnits,
+    multibuyItemsCents,
     cryptoPercent: cr,
     cryptoCents,
     capPercent: s.combinedCapPercent,
