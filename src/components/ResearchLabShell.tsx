@@ -14,16 +14,18 @@ export function ResearchLabShell({
   children,
   preview = false,
   protocolStacks = false,
+  detail = false,
 }: {
   children: React.ReactNode;
   preview?: boolean;
   protocolStacks?: boolean;
+  detail?: boolean;
 }) {
   return (
-    <div className={`research-lab-theme bg-hero min-h-screen${protocolStacks ? " protocol-stacks-shell" : ""}`}>
+    <div className={`research-lab-theme bg-hero min-h-screen${protocolStacks ? " protocol-stacks-shell" : ""}${detail ? " research-detail-shell" : ""}`}>
       <SiteHeader />
-      <main className="page-shell py-8 sm:py-12">
-        <TitanPageHeading
+      <main className={detail ? "research-detail-container" : "page-shell py-8 sm:py-12"}>
+        {detail ? <p className="research-detail-breadcrumb"><Link to={preview ? "/research-preview" : "/research"}>Research Lab</Link><span aria-hidden="true"> / </span>Compound reference{preview ? " · Admin preview" : ""}</p> : <TitanPageHeading
           icon={Microscope}
           eyebrow={
             preview
@@ -31,9 +33,9 @@ export function ResearchLabShell({
               : "Research reference library"
           }
           title="Titan Research Lab"
-        />
+        />}
         <nav
-          className="mt-4 flex gap-2 overflow-x-auto pb-1"
+          className={`${detail ? "research-detail-nav" : "mt-4"} flex gap-2 overflow-x-auto pb-1`}
           aria-label="Research Lab navigation"
         >
           <Link
@@ -76,7 +78,7 @@ export function ResearchLabShell({
             <GraduationCap className="h-4 w-4" /> Learn
           </a>
         </nav>
-        <div className="mt-7">{children}</div>
+        <div className={detail ? "" : "mt-7"}>{children}</div>
       </main>
       <SiteFooter />
     </div>

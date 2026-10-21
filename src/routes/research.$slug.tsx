@@ -44,6 +44,6 @@ function EntryPage() {
   const { data: entry } = useSuspenseQuery(entryQuery(slug));
   const { data: entries } = useSuspenseQuery(queryOptions({ queryKey: ["research", "list"], queryFn: () => listPublishedResearch(), staleTime: 30_000 }));
   if (!entry) return <EntryUnavailable />;
-  return <ResearchLabShell><ResearchEntryView entry={entry} entries={entries} /></ResearchLabShell>;
+  return <ResearchLabShell detail><ResearchEntryView entry={entry} entries={entries} /></ResearchLabShell>;
 }
 
