@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { CartProvider } from "@/lib/cart";
 import { CartSheet } from "@/components/CartSheet";
+import { loadSiteChrome } from "@/lib/site-chrome-query";
 
 function NotFoundComponent() {
   return (
@@ -69,6 +70,7 @@ function ErrorComponent({ error, reset }: { error: unknown; reset: () => void })
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  loader: ({ context }) => loadSiteChrome(context.queryClient),
   head: () => ({
     meta: [
       { charSet: "utf-8" },

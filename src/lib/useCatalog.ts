@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { getSiteContent, listProducts, listSiteLinks } from "@/lib/catalog.functions";
+import { listProducts } from "@/lib/catalog.functions";
+import { siteContentQuery, siteLinksQuery } from "@/lib/site-chrome-query";
 import { products as fallbackProducts, type Product } from "@/lib/products";
 
 export function useProducts() {
@@ -17,17 +18,9 @@ export function useProducts() {
 }
 
 export function useSiteLinks() {
-  return useQuery({
-    queryKey: ["site-links"],
-    queryFn: () => listSiteLinks(),
-    staleTime: 30_000,
-  });
+  return useQuery(siteLinksQuery);
 }
 
 export function useSiteContent() {
-  return useQuery({
-    queryKey: ["site-content"],
-    queryFn: () => getSiteContent(),
-    staleTime: 30_000,
-  });
+  return useQuery(siteContentQuery);
 }
