@@ -32,7 +32,7 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
         {source ? <div data-research-source-description className="research-hero-source">
           <p className="research-nickname">“{source.nick}”</p>
           <blockquote>{source.one}</blockquote>
-          <p className="research-source-credit">Donny Optimize source description · Quotation, not a verified Titan finding or endorsement of efficacy, safety or medical approval.</p>
+          <SourceCite />
         </div> : <div className="research-hero-overview"><RichText text={model.overview} /></div>}
         {entry.synonyms.length ? <p className="research-aliases">Also known as {entry.synonyms.join(" · ")}</p> : null}
         {linkedProducts.length ? <div className="research-product-links">{linkedProducts.map(p => <Button asChild variant="outline" key={p.slug}><Link to="/product/$slug" params={{ slug: p.slug }}>Product Info · {p.name}<ArrowRight /></Link></Button>)}</div> : null}
