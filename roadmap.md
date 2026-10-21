@@ -1,7 +1,7 @@
 # Titan Club final validation
 
 ## Research Lab Protocol Stacks — separate draft only
-- [ ] Replace expanded summary grid with compact reference layout, blank protocol fields and accessible verbatim summary expanders; verify navigation/privacy/themes and deliver revised screenshots.
+- [x] Replace expanded summary grid with compact 4/2/1-column reference layout and blank Timeline/Level/Dose/Timing; saved full summaries are collapsed accessible expanders. 20 tests/29 assertions pass; six keyboard goal switches, Back/footer, verbatim detail match and desktop/mobile light/dark verified without overflow or page errors. Automatic build OK 21 Oct 02:57:24 UTC; revised standalone previews/report supplied. No live writes or publication.
 - [x] Enriched six category introductions and published cards with complete saved overviews/fallbacks. 16 focused tests/25 assertions pass; all six keyboard switches, deep links/Back, saved BPC-157 text match and desktop/mobile light/dark checked with no overflow or browser errors. Draft preview returns HTTP 200; automatic build OK 23:36:37 UTC. New Weight Loss/Recovery desktop-dark/mobile-light PNGs delivered.
 - [x] Remove compound card/header evidence badges and evidence-map tile; unframe the detail evidence banner while preserving its exact explanatory text. Evidence/Admin fields and references unchanged.
 - [x] Add six exact names-only goal groupings at /research/protocol-stacks?goal=..., shell/footer navigation and published-only exact slug/alias links.
