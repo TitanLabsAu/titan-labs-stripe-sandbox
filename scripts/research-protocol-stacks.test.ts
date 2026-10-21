@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { PROTOCOL_STACK_GOALS, protocolGoal, protocolResearchOverview, publishedProtocolEntry } from "../src/lib/research-protocol-stacks";
+import { PROTOCOL_REFERENCE_FIELDS, PROTOCOL_STACK_GOALS, protocolGoal, protocolResearchOverview, publishedProtocolEntry } from "../src/lib/research-protocol-stacks";
 import { toResearchEntry } from "../src/lib/research";
 
 const entry = (overrides: Record<string, unknown> = {}) => toResearchEntry({ id: "fictional", slug: "nad", title: "NAD+", published: true, ...overrides });
@@ -13,6 +13,9 @@ const expected = [
 ] as const;
 
 describe("Protocol Stacks reference rules", () => {
+  for (const field of ["timeline", "level", "dose", "timing"] as const) test(`${field} is unpopulated pending review`, () => {
+    expect(PROTOCOL_REFERENCE_FIELDS[field]).toBeNull();
+  });
   test("complete saved overview retains qualifications and formatting verbatim", () => {
     const saved = "  **Laboratory findings only.**\nHuman effects are not established. ";
     expect(protocolResearchOverview(entry({ at_a_glance: saved, summary: "Not the selected text" }))).toBe(saved);

@@ -3,7 +3,7 @@ import { ArrowLeft, ArrowUpRight, Brain, Dumbbell, Flame, HeartPulse, Layers3, S
 import { Button } from "@/components/ui/button";
 import { RichText } from "@/components/RichText";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { PROTOCOL_STACK_GOALS, PROTOCOL_TOPIC_OVERVIEWS, protocolGoal, protocolResearchOverview, publishedProtocolEntry } from "@/lib/research-protocol-stacks";
+import { PROTOCOL_REFERENCE_FIELDS, PROTOCOL_STACK_GOALS, PROTOCOL_TOPIC_OVERVIEWS, protocolGoal, protocolResearchOverview, publishedProtocolEntry } from "@/lib/research-protocol-stacks";
 import type { ResearchEntry } from "@/lib/research";
 
 const goalIcons = [Flame, Dumbbell, Target, Brain, Sparkles, HeartPulse];
@@ -39,7 +39,7 @@ export function ResearchProtocolStacks({ entries, goalId }: { entries: ResearchE
               <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{PROTOCOL_TOPIC_OVERVIEWS[selected.id]}</p>
             </div>
             <dl className="grid grid-cols-3 gap-2 lg:w-72">
-              {[["Compounds", selected.compounds.length], ["Timeline", "—"], ["Level", "—"]].map(([label, value]) => <div key={label} className="rounded-lg border border-border px-3 py-4 text-center">
+              {[["Compounds", selected.compounds.length], ["Timeline", PROTOCOL_REFERENCE_FIELDS.timeline ?? "—"], ["Level", PROTOCOL_REFERENCE_FIELDS.level ?? "—"]].map(([label, value]) => <div key={label} className="rounded-lg border border-border px-3 py-4 text-center">
                 <dt className="font-mono text-[10px] uppercase text-muted-foreground">{label}</dt>
                 <dd className="mt-2 font-display text-2xl font-bold text-primary">{value}</dd>
               </div>)}
@@ -58,7 +58,7 @@ export function ResearchProtocolStacks({ entries, goalId }: { entries: ResearchE
               </header>
               <p className="mt-3 text-xs leading-5 text-muted-foreground">{entry ? entry.category || "Research category not available." : "Published research not available."}</p>
               <dl className="mt-4 grid grid-cols-2 rounded-lg border border-border bg-protocol-inset px-3 py-3">
-                {["Dose", "Timing"].map(label => <div key={label}><dt className="font-mono text-[10px] uppercase text-muted-foreground">{label}</dt><dd className="mt-1 text-sm text-foreground">—</dd></div>)}
+                {[["Dose", PROTOCOL_REFERENCE_FIELDS.dose], ["Timing", PROTOCOL_REFERENCE_FIELDS.timing]].map(([label, value]) => <div key={label}><dt className="font-mono text-[10px] uppercase text-muted-foreground">{label}</dt><dd className="mt-1 text-sm text-foreground">{value ?? "—"}</dd></div>)}
               </dl>
               <Accordion type="single" collapsible className="mt-2">
                 <AccordionItem value="overview" className="border-0">
