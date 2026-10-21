@@ -3,15 +3,15 @@ import { researchSourceDescription } from "@/lib/research-source-descriptions";
 
 /** One page-level explanation of borrowed source wording, so cards stay compact. */
 export const SOURCE_ATTRIBUTION_NOTE =
-  "Quotations marked “Source: Donny Optimize” are third-party opinion wording shown for context. They are not Titan research findings or endorsements of efficacy, safety or medical approval; each entry's research notes provide the qualifications.";
+  "Quoted descriptions are editorial opinion wording shown for context, not Titan research findings or endorsements of efficacy, safety or medical approval. Each entry's research notes provide the qualifications.";
 
 export function SourceAttributionNote({ className = "" }: { className?: string }) {
   return <p className={`text-xs leading-5 text-muted-foreground ${className}`} data-source-attribution-note>{SOURCE_ATTRIBUTION_NOTE}</p>;
 }
 
-/** Compact credit placed directly beside borrowed wording. */
+/** Compact marker beside borrowed wording; provenance is kept internally, not shown publicly. */
 export function SourceCite() {
-  return <cite className="research-source-cite">Source: <b>Donny Optimize</b></cite>;
+  return <cite className="research-source-cite">Editorial quotation</cite>;
 }
 
 /** Attributed quotation, deliberately separate from the saved scientific content. */

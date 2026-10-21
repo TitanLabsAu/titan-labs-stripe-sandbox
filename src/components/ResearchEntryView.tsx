@@ -40,7 +40,7 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
         {entry.synonyms.length ? <p className="research-aliases">Also known as {entry.synonyms.join(" · ")}</p> : null}
         {linkedProducts.length ? <div className="research-product-links">{linkedProducts.map(p => <Button asChild variant="outline" key={p.slug}><Link to="/product/$slug" params={{ slug: p.slug }}>Product Info · {p.name}<ArrowRight /></Link></Button>)}</div> : null}
       </div>
-      <ResearchShowcase entry={entry} references={model.counts.references} notes={model.counts.notes} related={related.length} />
+      <ResearchShowcase entry={entry} entries={entries} />
     </header>
     <dl className="research-quick-strip">{model.quick.map(item => <div key={item.label}><dt className="research-mono">{item.label}</dt><dd>{item.value}</dd></div>)}</dl>
 
@@ -88,7 +88,7 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
         </AccordionContent></AccordionItem>
       </Accordion>
       {entry.verification_status === "verified" ? <div className="research-verification"><h3>Source-checked entry</h3><p>{VERIFIED_EXPLANATION}</p></div> : null}
-      {borrowed ? <div className="research-disclaimer"><h3>About source opinions</h3><SourceAttributionNote /></div> : null}
+      {borrowed ? <div className="research-disclaimer"><h3>About editorial opinions</h3><SourceAttributionNote /></div> : null}
       <div className="research-disclaimer"><h3>Research-use information</h3><p>Educational research reference only. Not medical advice. Laboratory and animal findings do not establish effects in humans. Products supplied by Titan Labs Australia are for laboratory research use only and are not for human or animal consumption.</p></div>
       {entry.updated_at ? <p className="research-updated">Last updated {new Date(entry.updated_at).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric", timeZone: "Australia/Sydney" })}</p> : null}
     </section>
