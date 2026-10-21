@@ -18,6 +18,7 @@ describe("Research showcase card cells", () => {
   });
   test("Retatrutide shows descriptor, not a molecular formula", () => {
     expect(researchShowcaseDescriptor(e("retatrutide", "Retatrutide"))).toEqual({ kind: "descriptor", text: "GLP-1 / GIP / glucagon triple agonist" });
-    expect(researchShowcaseDescriptor(e("kpv", "KPV"))).toBeUndefined();
+    expect(researchShowcaseDescriptor(e("bpc-157", "BPC-157"))?.kind).toBe("formula");
+    expect(researchShowcaseDescriptor(e("not-in-reference", "X"))).toBeUndefined();
   });
 });
