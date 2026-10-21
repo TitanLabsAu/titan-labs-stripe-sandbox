@@ -1,7 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RichText } from "@/components/RichText";
 import { researchDetailModel } from "@/lib/research-detail";
-import { EXPLANATION_CONTEXT, researchExplanations, type ExplanationCard } from "@/lib/research-explanations";
+import { researchExplanations, type ExplanationCard } from "@/lib/research-explanations";
 import type { ResearchEntry } from "@/lib/research";
 
 function Cards({ cards, benefits = false }: { cards: ExplanationCard[]; benefits?: boolean }) {
@@ -18,7 +18,6 @@ export function ResearchExplanations({ entry, entries }: { entry: ResearchEntry;
   const model = researchDetailModel(entry);
   const sourceMechanism = Boolean(source?.plain.length || source?.science.length);
   return <div data-compact-explanations>
-    {source ? <p className="research-editorial-context">{EXPLANATION_CONTEXT}</p> : null}
     <section className="research-numbered-section" aria-labelledby="research-mechanism" data-mechanism>
       {sourceMechanism && source ? <Tabs defaultValue={source.plain.length ? "plain" : "science"}>
         <div className="research-explanation-heading"><div><p className="research-section-eyebrow research-mono">02 · HOW IT WORKS</p><h2 id="research-mechanism">The mechanism</h2></div>

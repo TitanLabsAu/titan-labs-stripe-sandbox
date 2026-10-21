@@ -25,8 +25,7 @@ export function ResearchSourceDescription({ entry, entries, prominent = false }:
   return (
     <figure data-research-source-description className={`mt-4 border-l-2 border-border pl-3 ${prominent ? "py-2 sm:pl-5" : "py-1"}`}>
       <p className={`font-display font-bold text-foreground ${prominent ? "text-2xl" : "text-base"}`}>“{source.nick}”</p>
-      <blockquote className={`mt-1 break-words italic text-foreground/90 ${prominent ? "text-base leading-7" : "text-sm leading-6"}`}>{source.one}</blockquote>
-      <figcaption><SourceCite /></figcaption>
+      <blockquote className={`mt-1 break-words text-foreground/90 ${prominent ? "text-base leading-7" : "text-sm leading-6"}`}>{source.one}</blockquote>
     </figure>
   );
 }

@@ -1,0 +1,225 @@
+{
+  "note": "Exact owner-supplied subjective editorial source tiers, not clinical safety or efficacy grades. No dosing.",
+  "entries": [
+    {
+      "slug": "bpc-157",
+      "name": "BPC-157",
+      "tier": "S"
+    },
+    {
+      "slug": "tb-500",
+      "name": "TB-500",
+      "tier": "S"
+    },
+    {
+      "slug": "ghk-cu",
+      "name": "GHK-Cu",
+      "tier": "A"
+    },
+    {
+      "slug": "kpv",
+      "name": "KPV",
+      "tier": "A"
+    },
+    {
+      "slug": "ahk-cu",
+      "name": "AHK-Cu",
+      "tier": "B"
+    },
+    {
+      "slug": "thymosin-alpha-1",
+      "name": "Thymosin Alpha-1",
+      "tier": "A"
+    },
+    {
+      "slug": "retatrutide",
+      "name": "Retatrutide",
+      "tier": "S"
+    },
+    {
+      "slug": "tirzepatide",
+      "name": "Tirzepatide",
+      "tier": "A"
+    },
+    {
+      "slug": "mots-c",
+      "name": "MOTS-C",
+      "tier": "S"
+    },
+    {
+      "slug": "aod-9604",
+      "name": "AOD-9604",
+      "tier": "A"
+    },
+    {
+      "slug": "5-amino-1mq",
+      "name": "5-Amino-1MQ",
+      "tier": "A"
+    },
+    {
+      "slug": "slu-pp-332",
+      "name": "SLU-PP-332",
+      "tier": "B"
+    },
+    {
+      "slug": "ipamorelin",
+      "name": "Ipamorelin",
+      "tier": "A"
+    },
+    {
+      "slug": "cjc-1295",
+      "name": "CJC-1295 (w/o DAC)",
+      "tier": "A"
+    },
+    {
+      "slug": "tesamorelin",
+      "name": "Tesamorelin",
+      "tier": "A"
+    },
+    {
+      "slug": "cjc-1295-ipamorelin",
+      "name": "CJC-1295 + Ipamorelin",
+      "tier": "S"
+    },
+    {
+      "slug": "sermorelin",
+      "name": "Sermorelin",
+      "tier": "A"
+    },
+    {
+      "slug": "hgh",
+      "name": "HGH",
+      "tier": "S"
+    },
+    {
+      "slug": "somatropin",
+      "name": "Somatropin",
+      "tier": "A"
+    },
+    {
+      "slug": "hmg",
+      "name": "HMG",
+      "tier": "B"
+    },
+    {
+      "slug": "epithalon",
+      "name": "Epithalon",
+      "tier": "A"
+    },
+    {
+      "slug": "nad",
+      "name": "NAD+",
+      "tier": "A"
+    },
+    {
+      "slug": "ss-31",
+      "name": "SS-31",
+      "tier": "A"
+    },
+    {
+      "slug": "foxo4-dri",
+      "name": "FOXO4-DRI",
+      "tier": "B"
+    },
+    {
+      "slug": "glutathione",
+      "name": "Glutathione",
+      "tier": "A"
+    },
+    {
+      "slug": "semax",
+      "name": "Semax",
+      "tier": "A"
+    },
+    {
+      "slug": "selank",
+      "name": "Selank",
+      "tier": "A"
+    },
+    {
+      "slug": "dsip",
+      "name": "DSIP",
+      "tier": "B"
+    },
+    {
+      "slug": "pt-141",
+      "name": "PT-141",
+      "tier": "A"
+    },
+    {
+      "slug": "kisspeptin",
+      "name": "Kisspeptin",
+      "tier": "A"
+    },
+    {
+      "slug": "gonadorelin",
+      "name": "Gonadorelin",
+      "tier": "A"
+    },
+    {
+      "slug": "hcg",
+      "name": "HCG",
+      "tier": "A"
+    },
+    {
+      "slug": "melanotan-1",
+      "name": "Melanotan-1",
+      "tier": "B"
+    },
+    {
+      "slug": "melanotan-2",
+      "name": "Melanotan-2",
+      "tier": "B"
+    },
+    {
+      "slug": "snap-8",
+      "name": "SNAP-8",
+      "tier": "B"
+    },
+    {
+      "slug": "testosterone",
+      "name": "Testosterone",
+      "tier": "S"
+    },
+    {
+      "slug": "nandrolone-decanoate",
+      "name": "Nandrolone Decanoate",
+      "tier": "A"
+    },
+    {
+      "slug": "primobolan",
+      "name": "Primobolan",
+      "tier": "A"
+    },
+    {
+      "slug": "trenbolone",
+      "name": "Trenbolone",
+      "tier": "B"
+    },
+    {
+      "slug": "ara-290",
+      "name": "ARA-290",
+      "tier": "B"
+    },
+    {
+      "slug": "adamax",
+      "name": "Adamax",
+      "tier": "C"
+    },
+    {
+      "slug": "glow",
+      "name": "GLOW",
+      "tier": "S"
+    },
+    {
+      "slug": "klow",
+      "name": "KLOW",
+      "tier": "S"
+    },
+    {
+      "slug": "wolverine",
+      "name": "Wolverine Stack",
+      "tier": "S"
+    }
+  ]
+}
