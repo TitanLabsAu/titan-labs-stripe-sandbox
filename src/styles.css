@@ -908,3 +908,4 @@ html.light .theme-label-light { display: contents !important; }
 .research-source-cite b { font-weight: 600; color: var(--foreground); }
 .research-showcase-stats abbr { text-decoration: none; }
 .research-showcase-note { margin-top: 10px; font-size: 11px; line-height: 1.5; color: var(--muted-foreground); }
+.research-formula.research-mono { text-transform: none; letter-spacing: 0.04em; }
