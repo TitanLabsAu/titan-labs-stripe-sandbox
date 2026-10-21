@@ -13,8 +13,8 @@ import { researchDetailModel } from "@/lib/research-detail";
 import { ResearchShowcase } from "@/components/ResearchShowcase";
 import { ResearchSubjectiveScorecard } from "@/components/ResearchSubjectiveScorecard";
 import { isResearchReferenceSection } from "@/lib/research-reference-fields";
-import { SourceAttributionNote, SourceCite } from "@/components/ResearchSourceDescription";
-import { researchSubjectiveRatings } from "@/lib/research-subjective-ratings";
+import { SourceCite } from "@/components/ResearchSourceDescription";
+import { ResearchExplanations } from "@/components/ResearchExplanations";
 
 export function ResearchEntryView({ entry, entries = [], preview = false }: { entry: ResearchEntry; entries?: ResearchEntry[]; preview?: boolean }) {
   const { products } = useProducts();
@@ -22,7 +22,6 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
   const linkedProducts = researchProducts(entry, products);
   const model = researchDetailModel(entry);
   const source = researchSourceDescription(entry, entries);
-  const borrowed = Boolean(source || researchSubjectiveRatings(entry, entries));
   const related = relatedResearch(entry, preview ? entries : entries.filter(item => item.published));
   const blends = blendsForEntry(entry);
   const pubchem = pubchemUrl(entry.pubchem_cid);
@@ -44,23 +43,8 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
     </header>
     <dl className="research-quick-strip">{model.quick.map(item => <div key={item.label}><dt className="research-mono">{item.label}</dt><dd>{item.value}</dd></div>)}</dl>
 
-    <section className="research-numbered-section" aria-labelledby="research-scorecard">
-      <SectionHeading number="01" eyebrow="THE SCORECARD" title="Research at a glance" id="research-scorecard" />
-      <p className="research-section-note">Counts describe this saved entry, not efficacy or safety.</p>
-      <dl className="research-factual-counts" aria-label="Saved entry counts">{[["Source references", model.counts.references], ["Research notes", model.counts.notes], ["Research findings", model.counts.findings]].map(([name, value]) => <div key={name}><dt>{name}</dt><dd className="research-mono">{value}</dd></div>)}</dl>
-      <ResearchSubjectiveScorecard entry={entry} entries={entries} />
-      <p className="research-section-note">Titan clinical efficacy and safety ratings are not assigned.</p>
-    </section>
-
-    <section className="research-numbered-section" aria-labelledby="research-mechanism">
-      <SectionHeading number="02" eyebrow="HOW IT WORKS" title="The mechanism" id="research-mechanism" />
-      <div className="research-module-grid">{model.mechanism.length ? model.mechanism.map((section, index) => <div className="research-note-card" key={index}><span className="research-step-number">{String(index + 1).padStart(2, "0")}</span><DetailSection heading={section.heading} body={section.body} /></div>) : <p className="research-section-note">Reported mechanism not available in this saved entry.</p>}</div>
-    </section>
-
-    <section className="research-numbered-section" aria-labelledby="research-interests">
-      <SectionHeading number="03" eyebrow="AREAS STUDIED" title="Research interests" id="research-interests" />
-      <div className="research-module-grid">{model.findings.length ? model.findings.map((finding, index) => <div key={index} className="research-note-card"><span className="research-interest-number research-mono">{String(index + 1).padStart(2, "0")}</span><RichText text={finding} /></div>) : <p className="research-section-note">Research findings not available in this saved entry.</p>}</div>
-    </section>
+    <ResearchSubjectiveScorecard entry={entry} entries={entries} />
+    <ResearchExplanations entry={entry} entries={entries} />
 
     {model.protocol.length ? <section className="research-numbered-section" aria-labelledby="research-protocol">
       <SectionHeading number="04" eyebrow="PROTOCOL REFERENCE" title="Protocol readout" id="research-protocol" />
@@ -88,7 +72,6 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
         </AccordionContent></AccordionItem>
       </Accordion>
       {entry.verification_status === "verified" ? <div className="research-verification"><h3>Source-checked entry</h3><p>{VERIFIED_EXPLANATION}</p></div> : null}
-      {borrowed ? <div className="research-disclaimer"><h3>About editorial opinions</h3><SourceAttributionNote /></div> : null}
       <div className="research-disclaimer"><h3>Research-use information</h3><p>Educational research reference only. Not medical advice. Laboratory and animal findings do not establish effects in humans. Products supplied by Titan Labs Australia are for laboratory research use only and are not for human or animal consumption.</p></div>
       {entry.updated_at ? <p className="research-updated">Last updated {new Date(entry.updated_at).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric", timeZone: "Australia/Sydney" })}</p> : null}
     </section>

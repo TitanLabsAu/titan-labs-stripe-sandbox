@@ -1,0 +1,1838 @@
+{
+  "note": "Owner-supplied source editorial mechanism and benefit wording only; not verified efficacy or safety. Preserve original research qualifications separately. No dosing or administration schedules. Missing source arrays must stay missing, never invented.",
+  "entries": [
+    {
+      "slug": "bpc-157",
+      "name": "BPC-157",
+      "steps": [
+        {
+          "num": "01",
+          "title": "You get injured",
+          "desc": "A tendon, muscle, or your gut lining takes some damage and needs repair."
+        },
+        {
+          "num": "02",
+          "title": "BPC-157 shows up",
+          "desc": "It signals your body to grow new blood vessels straight to the damaged area."
+        },
+        {
+          "num": "03",
+          "title": "Repair goes turbo",
+          "desc": "More blood flow plus growth signals means the tissue rebuilds noticeably faster."
+        }
+      ],
+      "stepsSci": [
+        {
+          "num": "01",
+          "title": "Angiogenesis",
+          "desc": "Upregulates the VEGFR2 pathway, driving new blood-vessel formation toward damaged tissue."
+        },
+        {
+          "num": "02",
+          "title": "Growth factors",
+          "desc": "Modulates growth-hormone receptor expression and FGF signaling to accelerate remodeling."
+        },
+        {
+          "num": "03",
+          "title": "Cytoprotection",
+          "desc": "Interacts with the nitric-oxide system and shields cells from further oxidative damage."
+        }
+      ],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Tendon & Ligament Repair",
+          "desc": "The headline use \u2014 speeds healing of stubborn connective tissue."
+        },
+        {
+          "num": "02",
+          "title": "Gut Healing",
+          "desc": "Supports the gut lining; studied for ulcers and leaky-gut symptoms."
+        },
+        {
+          "num": "03",
+          "title": "Faster Muscle Recovery",
+          "desc": "Bounce back quicker between hard training sessions."
+        },
+        {
+          "num": "04",
+          "title": "Less Inflammation",
+          "desc": "Calms local inflammation around injured or irritated areas."
+        },
+        {
+          "num": "05",
+          "title": "Joint Support",
+          "desc": "Users report relief from nagging, everyday joint aches."
+        },
+        {
+          "num": "06",
+          "title": "Neuroprotection",
+          "desc": "Early research points to protective effects on nerves and brain."
+        }
+      ]
+    },
+    {
+      "slug": "tb-500",
+      "name": "TB-500",
+      "steps": [
+        {
+          "num": "01",
+          "title": "It travels everywhere",
+          "desc": "Unlike local peptides, TB-500 spreads system-wide to find damage."
+        },
+        {
+          "num": "02",
+          "title": "Cells get mobile",
+          "desc": "It helps repair cells migrate to injured areas and build new tissue."
+        },
+        {
+          "num": "03",
+          "title": "You move better",
+          "desc": "More blood flow and flexibility means smoother, faster recovery."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Whole-Body Recovery",
+          "desc": "Works systemically rather than just at one injection site."
+        },
+        {
+          "num": "02",
+          "title": "Improved Flexibility",
+          "desc": "Users report looser, more mobile joints and muscles."
+        },
+        {
+          "num": "03",
+          "title": "Better Blood Flow",
+          "desc": "Promotes new blood-vessel growth to speed healing."
+        },
+        {
+          "num": "04",
+          "title": "Reduced Inflammation",
+          "desc": "Calms inflammation across muscles and connective tissue."
+        }
+      ]
+    },
+    {
+      "slug": "ghk-cu",
+      "name": "GHK-Cu",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Copper gets delivered",
+          "desc": "GHK carries copper \u2014 a mineral your skin needs to repair itself."
+        },
+        {
+          "num": "02",
+          "title": "Collagen ramps up",
+          "desc": "It switches on the genes that produce collagen and elastin."
+        },
+        {
+          "num": "03",
+          "title": "Skin renews",
+          "desc": "Old, damaged tissue is remodeled into firmer, healthier skin."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Boosts Collagen",
+          "desc": "Stimulates collagen and elastin for firmer skin."
+        },
+        {
+          "num": "02",
+          "title": "Wound Healing",
+          "desc": "Speeds skin repair and reduces scarring."
+        },
+        {
+          "num": "03",
+          "title": "Anti-Aging",
+          "desc": "Smooths fine lines and improves skin texture."
+        },
+        {
+          "num": "04",
+          "title": "Hair Support",
+          "desc": "May support follicle health and hair growth."
+        }
+      ]
+    },
+    {
+      "slug": "kpv",
+      "name": "KPV",
+      "steps": [
+        {
+          "num": "01",
+          "title": "A fragment of a bigger hormone",
+          "desc": "KPV is the smallest active piece of alpha-MSH, the body's inflammation-calming hormone."
+        },
+        {
+          "num": "02",
+          "title": "Calms the alarm",
+          "desc": "It quiets down the immune cells that drive redness, swelling, and irritation."
+        },
+        {
+          "num": "03",
+          "title": "Tissue settles",
+          "desc": "Gut lining and skin both calm down and function better."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Gut Calming",
+          "desc": "A favorite add-on for leaky-gut and IBD-style symptoms."
+        },
+        {
+          "num": "02",
+          "title": "Skin Support",
+          "desc": "Soothes irritated or inflamed skin."
+        },
+        {
+          "num": "03",
+          "title": "No Immune Suppression",
+          "desc": "Calms inflammation without knocking out your immune system."
+        },
+        {
+          "num": "04",
+          "title": "Stacks Well",
+          "desc": "Commonly added to healing stacks like KLOW."
+        }
+      ]
+    },
+    {
+      "slug": "ahk-cu",
+      "name": "AHK-Cu",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Delivers copper locally",
+          "desc": "Like its cousin GHK-Cu, AHK-Cu shuttles copper to tissue that needs it."
+        },
+        {
+          "num": "02",
+          "title": "Follicles respond",
+          "desc": "Copper peptides are linked to healthier, thicker-looking hair growth cycles."
+        },
+        {
+          "num": "03",
+          "title": "Skin firms up",
+          "desc": "Supports the same collagen-remodeling pathways as GHK-Cu."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Hair Follicle Support",
+          "desc": "A popular topical addition to hair-growth routines."
+        },
+        {
+          "num": "02",
+          "title": "Skin Firmness",
+          "desc": "Supports collagen production similar to GHK-Cu."
+        },
+        {
+          "num": "03",
+          "title": "Gentle Profile",
+          "desc": "Well tolerated topically for daily use."
+        }
+      ]
+    },
+    {
+      "slug": "thymosin-alpha-1",
+      "name": "Thymosin Alpha-1",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Talks to immune cells",
+          "desc": "Thymosin Alpha-1 helps train T-cells to respond appropriately."
+        },
+        {
+          "num": "02",
+          "title": "Balances the response",
+          "desc": "It can calm an overactive immune system or wake up an underactive one."
+        },
+        {
+          "num": "03",
+          "title": "You bounce back",
+          "desc": "Better resilience to illness and physical stress overall."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Immune Balance",
+          "desc": "Helps regulate immune response rather than just boosting it."
+        },
+        {
+          "num": "02",
+          "title": "Illness Recovery",
+          "desc": "Popular for bouncing back faster from colds and infections."
+        },
+        {
+          "num": "03",
+          "title": "Stress Resilience",
+          "desc": "Supports the body under physical and immune stress."
+        }
+      ]
+    },
+    {
+      "slug": "retatrutide",
+      "name": "Retatrutide",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Hits three targets",
+          "desc": "It activates GLP-1, GIP, and glucagon receptors at the same time."
+        },
+        {
+          "num": "02",
+          "title": "Hunger drops",
+          "desc": "You feel full sooner and think about food far less."
+        },
+        {
+          "num": "03",
+          "title": "Fat burns faster",
+          "desc": "The glucagon action also nudges your body to burn more energy."
+        }
+      ],
+      "stepsSci": [
+        {
+          "num": "01",
+          "title": "Incretin agonism",
+          "desc": "Simultaneously agonizes GLP-1 and GIP receptors to improve satiety and insulin response."
+        },
+        {
+          "num": "02",
+          "title": "Glucagon activation",
+          "desc": "Adds glucagon-receptor activity to increase energy expenditure and lipolysis."
+        },
+        {
+          "num": "03",
+          "title": "Net deficit",
+          "desc": "Lower intake plus higher expenditure drives rapid, dose-dependent fat loss."
+        }
+      ],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Powerful Fat Loss",
+          "desc": "Trial data shows category-leading weight reduction."
+        },
+        {
+          "num": "02",
+          "title": "Appetite Suppression",
+          "desc": "Cravings and portion sizes drop dramatically."
+        },
+        {
+          "num": "03",
+          "title": "Better Blood Sugar",
+          "desc": "Improves insulin sensitivity and glucose control."
+        },
+        {
+          "num": "04",
+          "title": "Metabolic Uplift",
+          "desc": "Glucagon action raises overall energy burn."
+        }
+      ]
+    },
+    {
+      "slug": "tirzepatide",
+      "name": "Tirzepatide",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Two hormones, one shot",
+          "desc": "It mimics GLP-1 and GIP, the gut hormones that signal fullness."
+        },
+        {
+          "num": "02",
+          "title": "You eat less",
+          "desc": "Appetite and cravings fall while blood sugar stabilizes."
+        },
+        {
+          "num": "03",
+          "title": "Weight comes off",
+          "desc": "A steady calorie deficit leads to consistent fat loss."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Strong Fat Loss",
+          "desc": "Among the most proven weight-loss compounds available."
+        },
+        {
+          "num": "02",
+          "title": "Appetite Control",
+          "desc": "Reliable, all-day reduction in hunger."
+        },
+        {
+          "num": "03",
+          "title": "Glucose Control",
+          "desc": "Excellent for blood-sugar management."
+        },
+        {
+          "num": "04",
+          "title": "Well Researched",
+          "desc": "Backed by large human clinical trials."
+        }
+      ]
+    },
+    {
+      "slug": "mots-c",
+      "name": "MOTS-C",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Talks to mitochondria",
+          "desc": "MOTS-C is made by your mitochondria \u2014 the cell's power plants."
+        },
+        {
+          "num": "02",
+          "title": "Metabolism tunes up",
+          "desc": "It improves how your cells use glucose and burn energy."
+        },
+        {
+          "num": "03",
+          "title": "You feel it",
+          "desc": "Better insulin sensitivity, endurance, and metabolic flexibility."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Metabolic Flexibility",
+          "desc": "Helps cells switch efficiently between fuel sources."
+        },
+        {
+          "num": "02",
+          "title": "Insulin Sensitivity",
+          "desc": "Improves glucose handling."
+        },
+        {
+          "num": "03",
+          "title": "Endurance",
+          "desc": "May boost exercise capacity and stamina."
+        },
+        {
+          "num": "04",
+          "title": "Healthy Aging",
+          "desc": "Supports mitochondrial function tied to longevity."
+        }
+      ]
+    },
+    {
+      "slug": "aod-9604",
+      "name": "AOD-9604",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Isolates the fat-burning piece",
+          "desc": "AOD-9604 is just the fragment of HGH responsible for fat metabolism."
+        },
+        {
+          "num": "02",
+          "title": "Fat cells respond",
+          "desc": "It signals fat cells to release and burn stored energy."
+        },
+        {
+          "num": "03",
+          "title": "No GH side effects",
+          "desc": "Because it skips the growth-related part of HGH, blood sugar stays stable."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Targeted Fat Burning",
+          "desc": "Mimics HGH's fat-metabolizing effect specifically."
+        },
+        {
+          "num": "02",
+          "title": "Blood Sugar Safe",
+          "desc": "Doesn't carry the insulin-resistance risk of full HGH."
+        },
+        {
+          "num": "03",
+          "title": "No Growth Effects",
+          "desc": "Won't affect bone or organ growth like full-length HGH."
+        }
+      ]
+    },
+    {
+      "slug": "5-amino-1mq",
+      "name": "5-Amino-1MQ",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Blocks a storage enzyme",
+          "desc": "NNMT is an enzyme that helps cells store fat and slow metabolism."
+        },
+        {
+          "num": "02",
+          "title": "Metabolism speeds up",
+          "desc": "Blocking it raises cellular energy expenditure."
+        },
+        {
+          "num": "03",
+          "title": "Fat mobilizes",
+          "desc": "More stored fat becomes available to burn for fuel."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Oral & Easy",
+          "desc": "No injections \u2014 just a daily capsule."
+        },
+        {
+          "num": "02",
+          "title": "Raises Metabolism",
+          "desc": "Targets a cellular pathway tied to fat storage."
+        },
+        {
+          "num": "03",
+          "title": "Beginner Friendly",
+          "desc": "Simple to add to any fat-loss protocol."
+        }
+      ]
+    },
+    {
+      "slug": "slu-pp-332",
+      "name": "SLU-PP-332",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Flips an exercise switch",
+          "desc": "SLU-PP-332 activates the same ERR receptors that exercise turns on."
+        },
+        {
+          "num": "02",
+          "title": "Muscle acts trained",
+          "desc": "In animal studies, muscle fibers shift toward an endurance-trained profile."
+        },
+        {
+          "num": "03",
+          "title": "Fat burns like cardio",
+          "desc": "The metabolic effect mimics running without the miles."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Exercise Mimicry",
+          "desc": "Early data shows effects resembling an endurance-training adaptation."
+        },
+        {
+          "num": "02",
+          "title": "Fat Metabolism",
+          "desc": "May increase fat oxidation similarly to cardio."
+        },
+        {
+          "num": "03",
+          "title": "Cutting Edge",
+          "desc": "One of the most talked-about emerging research compounds."
+        }
+      ]
+    },
+    {
+      "slug": "ipamorelin",
+      "name": "Ipamorelin",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Signals the pituitary",
+          "desc": "Ipamorelin taps your pituitary gland to release your own GH."
+        },
+        {
+          "num": "02",
+          "title": "A clean pulse",
+          "desc": "It does this without spiking hunger or stress hormones."
+        },
+        {
+          "num": "03",
+          "title": "You recover better",
+          "desc": "More natural GH means better sleep, recovery, and body comp."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Natural GH Boost",
+          "desc": "Raises your own growth hormone gently."
+        },
+        {
+          "num": "02",
+          "title": "Better Sleep",
+          "desc": "Deeper, more restorative sleep is the most-reported effect."
+        },
+        {
+          "num": "03",
+          "title": "Recovery & Body Comp",
+          "desc": "Supports lean gains and fat loss over time."
+        },
+        {
+          "num": "04",
+          "title": "Minimal Sides",
+          "desc": "One of the cleanest GH peptides available."
+        }
+      ]
+    },
+    {
+      "slug": "cjc-1295",
+      "name": "CJC-1295 (w/o DAC)",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Primes the pump",
+          "desc": "CJC-1295 tells your pituitary it's time to make growth hormone."
+        },
+        {
+          "num": "02",
+          "title": "Pairs with a pulse",
+          "desc": "Add Ipamorelin and you get a bigger, cleaner GH release."
+        },
+        {
+          "num": "03",
+          "title": "Compounding gains",
+          "desc": "Consistent nightly dosing improves recovery and body comp."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Amplifies GH",
+          "desc": "Increases the size of your natural GH pulses."
+        },
+        {
+          "num": "02",
+          "title": "Better Recovery",
+          "desc": "Supports training recovery and sleep."
+        },
+        {
+          "num": "03",
+          "title": "Body Composition",
+          "desc": "Helps lean-mass gains and fat loss over time."
+        },
+        {
+          "num": "04",
+          "title": "Synergy",
+          "desc": "Works best stacked with a GHRP like Ipamorelin."
+        }
+      ]
+    },
+    {
+      "slug": "tesamorelin",
+      "name": "Tesamorelin",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Raises growth hormone",
+          "desc": "Tesamorelin stimulates a strong, natural GH release."
+        },
+        {
+          "num": "02",
+          "title": "Targets belly fat",
+          "desc": "That GH preferentially mobilizes deep visceral fat."
+        },
+        {
+          "num": "03",
+          "title": "Waistline shrinks",
+          "desc": "Studied specifically for reducing stubborn abdominal fat."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Cuts Visceral Fat",
+          "desc": "The most clinically validated use \u2014 deep belly fat."
+        },
+        {
+          "num": "02",
+          "title": "GH Benefits",
+          "desc": "Improved recovery, sleep, and body composition."
+        },
+        {
+          "num": "03",
+          "title": "Cognitive Support",
+          "desc": "Some evidence for brain and cognitive health."
+        },
+        {
+          "num": "04",
+          "title": "Well Studied",
+          "desc": "FDA-approved for a specific medical use."
+        }
+      ]
+    },
+    {
+      "slug": "cjc-1295-ipamorelin",
+      "name": "CJC-1295 + Ipamorelin",
+      "steps": [
+        {
+          "num": "01",
+          "title": "CJC-1295 primes the pump",
+          "desc": "It tells your pituitary a GH release is coming."
+        },
+        {
+          "num": "02",
+          "title": "Ipamorelin delivers the pulse",
+          "desc": "It triggers a clean, targeted GH release with minimal side effects."
+        },
+        {
+          "num": "03",
+          "title": "Together, more GH",
+          "desc": "The combo produces a bigger, cleaner pulse than either alone."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Best-in-Class GH Combo",
+          "desc": "The most popular pairing in the entire peptide world."
+        },
+        {
+          "num": "02",
+          "title": "Deep Sleep",
+          "desc": "Most-reported benefit is noticeably deeper sleep."
+        },
+        {
+          "num": "03",
+          "title": "Recovery & Body Comp",
+          "desc": "Supports lean mass and fat loss over time."
+        },
+        {
+          "num": "04",
+          "title": "Minimal Sides",
+          "desc": "Ipamorelin keeps hunger and cortisol spikes low."
+        }
+      ]
+    },
+    {
+      "slug": "sermorelin",
+      "name": "Sermorelin",
+      "steps": [
+        {
+          "num": "01",
+          "title": "A gentle nudge",
+          "desc": "Sermorelin mimics natural GHRH to nudge your pituitary into action."
+        },
+        {
+          "num": "02",
+          "title": "Mild, steady release",
+          "desc": "The GH bump is smaller and gentler than CJC-1295."
+        },
+        {
+          "num": "03",
+          "title": "A safe first step",
+          "desc": "It's a great low-risk way to test how you respond to GH peptides."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Gentle Introduction",
+          "desc": "A softer entry point into GH-boosting peptides."
+        },
+        {
+          "num": "02",
+          "title": "Better Sleep",
+          "desc": "Supports deeper, more restful sleep."
+        },
+        {
+          "num": "03",
+          "title": "Well Tolerated",
+          "desc": "Long clinical history and mild side-effect profile."
+        }
+      ]
+    },
+    {
+      "slug": "hgh",
+      "name": "HGH",
+      "steps": [
+        {
+          "num": "01",
+          "title": "The real hormone",
+          "desc": "Unlike secretagogues, HGH is the actual growth hormone itself."
+        },
+        {
+          "num": "02",
+          "title": "System-wide effects",
+          "desc": "It drives IGF-1 production, cell growth, and tissue repair everywhere."
+        },
+        {
+          "num": "03",
+          "title": "Powerful, serious tool",
+          "desc": "Effects are strong \u2014 and so is the need for monitoring."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Maximum GH Effect",
+          "desc": "The strongest option for growth and recovery benefits."
+        },
+        {
+          "num": "02",
+          "title": "Body Composition",
+          "desc": "Supports lean mass and fat loss simultaneously."
+        },
+        {
+          "num": "03",
+          "title": "Tissue Repair",
+          "desc": "Speeds healing across the whole body."
+        },
+        {
+          "num": "04",
+          "title": "Well Studied",
+          "desc": "Decades of clinical and performance use."
+        }
+      ]
+    },
+    {
+      "slug": "somatropin",
+      "name": "Somatropin",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Same hormone, pharma made",
+          "desc": "Somatropin is recombinant HGH manufactured to pharmaceutical standards."
+        },
+        {
+          "num": "02",
+          "title": "Reliable dosing",
+          "desc": "Pen or vial dosing is precise and consistent batch to batch."
+        },
+        {
+          "num": "03",
+          "title": "Same powerful effects",
+          "desc": "Growth, repair, and fat-metabolism benefits mirror natural HGH."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Pharmaceutical Consistency",
+          "desc": "Reliable purity and dosing compared to research-grade HGH."
+        },
+        {
+          "num": "02",
+          "title": "Growth & Recovery",
+          "desc": "Same core benefits as HGH."
+        },
+        {
+          "num": "03",
+          "title": "Well Documented",
+          "desc": "Extensively studied in clinical settings."
+        }
+      ]
+    },
+    {
+      "slug": "hmg",
+      "name": "HMG",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Supplies FSH & LH",
+          "desc": "HMG provides the two hormones that drive reproductive signaling."
+        },
+        {
+          "num": "02",
+          "title": "Supports the system",
+          "desc": "It helps maintain fertility-related hormone production."
+        },
+        {
+          "num": "03",
+          "title": "Pairs with HCG",
+          "desc": "Often used alongside HCG for a fuller fertility-support protocol."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Fertility Support",
+          "desc": "Supports reproductive hormone production."
+        },
+        {
+          "num": "02",
+          "title": "Pairs with HCG",
+          "desc": "Commonly combined for a complete protocol."
+        }
+      ]
+    },
+    {
+      "slug": "epithalon",
+      "name": "Epithalon",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Activates telomerase",
+          "desc": "Epithalon may help maintain telomeres \u2014 the caps on your DNA."
+        },
+        {
+          "num": "02",
+          "title": "Resets your clock",
+          "desc": "It also helps regulate melatonin and your sleep-wake rhythm."
+        },
+        {
+          "num": "03",
+          "title": "Run in short cycles",
+          "desc": "Typically done as short courses a couple times a year."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Telomere Support",
+          "desc": "May help preserve telomere length tied to cellular aging."
+        },
+        {
+          "num": "02",
+          "title": "Deeper Sleep",
+          "desc": "Supports healthy melatonin and circadian rhythm."
+        },
+        {
+          "num": "03",
+          "title": "Antioxidant",
+          "desc": "Helps reduce oxidative stress."
+        },
+        {
+          "num": "04",
+          "title": "Longevity Focus",
+          "desc": "A cornerstone of many anti-aging stacks."
+        }
+      ]
+    },
+    {
+      "slug": "nad",
+      "name": "NAD+",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Fuels every cell",
+          "desc": "NAD+ is a coenzyme your mitochondria need to make energy."
+        },
+        {
+          "num": "02",
+          "title": "Declines with age",
+          "desc": "Levels drop as you get older, and so does cellular vitality."
+        },
+        {
+          "num": "03",
+          "title": "Topping it up",
+          "desc": "Replenishing NAD+ supports energy, repair, and clarity."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "More Energy",
+          "desc": "Central to how cells produce usable energy."
+        },
+        {
+          "num": "02",
+          "title": "Mental Clarity",
+          "desc": "Users report sharper focus and mood."
+        },
+        {
+          "num": "03",
+          "title": "DNA Repair",
+          "desc": "Supports the enzymes that repair damaged DNA."
+        },
+        {
+          "num": "04",
+          "title": "Healthy Aging",
+          "desc": "A pillar of modern longevity protocols."
+        }
+      ]
+    },
+    {
+      "slug": "ss-31",
+      "name": "SS-31",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Docks at the mitochondria",
+          "desc": "SS-31 binds directly to the inner mitochondrial membrane."
+        },
+        {
+          "num": "02",
+          "title": "Protects the power supply",
+          "desc": "It stabilizes the machinery that produces cellular energy."
+        },
+        {
+          "num": "03",
+          "title": "Less oxidative damage",
+          "desc": "Cells run cleaner, with less stress-related wear and tear."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Mitochondrial Protection",
+          "desc": "Directly targets and supports cellular energy production."
+        },
+        {
+          "num": "02",
+          "title": "More Energy",
+          "desc": "Users report improved stamina and reduced fatigue."
+        },
+        {
+          "num": "03",
+          "title": "Antioxidant Effect",
+          "desc": "Reduces oxidative stress at the cellular level."
+        }
+      ]
+    },
+    {
+      "slug": "foxo4-dri",
+      "name": "FOXO4-DRI",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Targets senescent cells",
+          "desc": "FOXO4-DRI disrupts a survival pathway that 'zombie' cells rely on."
+        },
+        {
+          "num": "02",
+          "title": "Zombie cells self-destruct",
+          "desc": "Without that survival signal, aged dysfunctional cells die off."
+        },
+        {
+          "num": "03",
+          "title": "Tissue clears out",
+          "desc": "In animal studies, this reduced signs of aging in treated tissue."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Senolytic Potential",
+          "desc": "Clears aged cells that contribute to tissue dysfunction."
+        },
+        {
+          "num": "02",
+          "title": "Longevity Research",
+          "desc": "A hot topic in cutting-edge anti-aging science."
+        }
+      ]
+    },
+    {
+      "slug": "glutathione",
+      "name": "Glutathione",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Neutralizes free radicals",
+          "desc": "Glutathione is the body's primary defense against oxidative stress."
+        },
+        {
+          "num": "02",
+          "title": "Supports the liver",
+          "desc": "It's central to how your liver detoxifies and processes toxins."
+        },
+        {
+          "num": "03",
+          "title": "Cells (and skin) shine",
+          "desc": "Less oxidative damage shows up as clearer skin and steadier energy."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Master Antioxidant",
+          "desc": "The most important antioxidant your cells produce."
+        },
+        {
+          "num": "02",
+          "title": "Liver & Detox Support",
+          "desc": "Key player in the body's detoxification pathways."
+        },
+        {
+          "num": "03",
+          "title": "Skin Brightening",
+          "desc": "Popular for its skin-clarifying effects."
+        },
+        {
+          "num": "04",
+          "title": "Immune Support",
+          "desc": "Supports healthy immune-cell function."
+        }
+      ]
+    },
+    {
+      "slug": "semax",
+      "name": "Semax",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Boosts BDNF",
+          "desc": "Semax raises brain-derived neurotrophic factor \u2014 brain fertilizer."
+        },
+        {
+          "num": "02",
+          "title": "Sharpens signaling",
+          "desc": "It modulates dopamine and other focus-related pathways."
+        },
+        {
+          "num": "03",
+          "title": "You lock in",
+          "desc": "The result is cleaner focus, better memory, and steady mood."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Laser Focus",
+          "desc": "Popular for deep-work and study sessions."
+        },
+        {
+          "num": "02",
+          "title": "Memory Support",
+          "desc": "May improve learning and recall."
+        },
+        {
+          "num": "03",
+          "title": "Neuroprotection",
+          "desc": "Supports brain resilience and recovery."
+        },
+        {
+          "num": "04",
+          "title": "Mood Lift",
+          "desc": "Often paired with Selank for calm focus."
+        }
+      ]
+    },
+    {
+      "slug": "selank",
+      "name": "Selank",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Balances GABA",
+          "desc": "Selank modulates calming GABA and serotonin systems."
+        },
+        {
+          "num": "02",
+          "title": "Dials down stress",
+          "desc": "It eases anxiety without making you drowsy."
+        },
+        {
+          "num": "03",
+          "title": "Calm and clear",
+          "desc": "You get a relaxed, focused, steady headspace."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Reduces Anxiety",
+          "desc": "Calming effect without sedation or dependency."
+        },
+        {
+          "num": "02",
+          "title": "Calm Focus",
+          "desc": "Take the edge off while staying sharp."
+        },
+        {
+          "num": "03",
+          "title": "Mood Support",
+          "desc": "Helps stabilize mood under stress."
+        },
+        {
+          "num": "04",
+          "title": "Immune Support",
+          "desc": "Derived from an immune-modulating peptide."
+        }
+      ]
+    },
+    {
+      "slug": "dsip",
+      "name": "DSIP",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Targets delta sleep",
+          "desc": "DSIP is named for its link to delta-wave, deep-sleep brain activity."
+        },
+        {
+          "num": "02",
+          "title": "Calms the system",
+          "desc": "It has a mild calming effect that eases the transition into sleep."
+        },
+        {
+          "num": "03",
+          "title": "Deeper rest",
+          "desc": "Users report more restorative, less interrupted sleep."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Deeper Sleep",
+          "desc": "Aims at the deep, restorative stage of sleep specifically."
+        },
+        {
+          "num": "02",
+          "title": "Stress Relief",
+          "desc": "Mild calming effect that can ease nighttime stress."
+        },
+        {
+          "num": "03",
+          "title": "Pairs Well",
+          "desc": "Often stacked with GH peptides taken at night."
+        }
+      ]
+    },
+    {
+      "slug": "pt-141",
+      "name": "PT-141",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Acts on the brain",
+          "desc": "PT-141 activates melanocortin receptors in the nervous system."
+        },
+        {
+          "num": "02",
+          "title": "Desire, not just blood flow",
+          "desc": "Unlike ED pills, it raises actual libido and arousal."
+        },
+        {
+          "num": "03",
+          "title": "For everyone",
+          "desc": "It works for both men and women."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Increased Libido",
+          "desc": "Boosts sexual desire centrally."
+        },
+        {
+          "num": "02",
+          "title": "Works for Women Too",
+          "desc": "One of the few options studied in both sexes."
+        },
+        {
+          "num": "03",
+          "title": "Not Vascular",
+          "desc": "Works even when blood-flow drugs don't."
+        },
+        {
+          "num": "04",
+          "title": "On-Demand",
+          "desc": "Used as needed rather than daily."
+        }
+      ]
+    },
+    {
+      "slug": "kisspeptin",
+      "name": "Kisspeptin",
+      "steps": [
+        {
+          "num": "01",
+          "title": "The first domino",
+          "desc": "Kisspeptin sits upstream, telling the hypothalamus to start the hormone cascade."
+        },
+        {
+          "num": "02",
+          "title": "GnRH gets released",
+          "desc": "That signal triggers the release of GnRH, then LH and FSH."
+        },
+        {
+          "num": "03",
+          "title": "Natural hormones follow",
+          "desc": "The end result is your body's own natural testosterone/estrogen production kicking in."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Upstream Hormonal Support",
+          "desc": "Works at the very top of the reproductive hormone cascade."
+        },
+        {
+          "num": "02",
+          "title": "Libido Support",
+          "desc": "May support natural sexual desire and function."
+        },
+        {
+          "num": "03",
+          "title": "Natural Pathway",
+          "desc": "Leverages the body's own signaling rather than replacing hormones directly."
+        }
+      ]
+    },
+    {
+      "slug": "gonadorelin",
+      "name": "Gonadorelin",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Mimics natural GnRH",
+          "desc": "Gonadorelin copies the hormone your hypothalamus naturally releases."
+        },
+        {
+          "num": "02",
+          "title": "Keeps the signal alive",
+          "desc": "It tells the pituitary to keep sending LH/FSH signals downstream."
+        },
+        {
+          "num": "03",
+          "title": "Testes stay online",
+          "desc": "That keeps natural testosterone production and fertility from shutting down."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Preserves Fertility",
+          "desc": "Keeps natural testicular function active during a cycle."
+        },
+        {
+          "num": "02",
+          "title": "Prevents Shutdown",
+          "desc": "Helps avoid the full shutdown seen with exogenous hormones alone."
+        },
+        {
+          "num": "03",
+          "title": "Easier Recovery",
+          "desc": "Can make post-cycle recovery smoother."
+        }
+      ]
+    },
+    {
+      "slug": "hcg",
+      "name": "HCG",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Mimics LH",
+          "desc": "HCG behaves like luteinizing hormone in the body."
+        },
+        {
+          "num": "02",
+          "title": "Testes keep working",
+          "desc": "That keeps the testes producing testosterone even when external hormones suppress natural signals."
+        },
+        {
+          "num": "03",
+          "title": "Size & fertility maintained",
+          "desc": "This helps preserve testicular size and fertility during a cycle."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Maintains Function",
+          "desc": "The gold-standard for on-cycle testicular support."
+        },
+        {
+          "num": "02",
+          "title": "Fertility Support",
+          "desc": "Helps preserve fertility during hormonal protocols."
+        },
+        {
+          "num": "03",
+          "title": "Well Established",
+          "desc": "Decades of clinical use and understanding."
+        }
+      ]
+    },
+    {
+      "slug": "melanotan-1",
+      "name": "Melanotan-1",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Activates melanocytes",
+          "desc": "Melanotan-1 stimulates the cells that produce skin pigment."
+        },
+        {
+          "num": "02",
+          "title": "Melanin builds up",
+          "desc": "More melanin means a deeper tan with less sun exposure needed."
+        },
+        {
+          "num": "03",
+          "title": "Cleaner than MT-2",
+          "desc": "It's more selective, so libido/nausea side effects are less common."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Deep, Even Tan",
+          "desc": "Builds pigment with less UV exposure required."
+        },
+        {
+          "num": "02",
+          "title": "Milder Sides",
+          "desc": "Fewer libido or flushing side effects than Melanotan-2."
+        }
+      ]
+    },
+    {
+      "slug": "melanotan-2",
+      "name": "Melanotan-2",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Broad melanocortin activation",
+          "desc": "MT-2 activates multiple melanocortin receptors, not just skin ones."
+        },
+        {
+          "num": "02",
+          "title": "Tan and turned on",
+          "desc": "That's why it tans skin AND increases libido, like its cousin PT-141."
+        },
+        {
+          "num": "03",
+          "title": "Watch the sides",
+          "desc": "Nausea and flushing are common, especially with early doses."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Deep Tan",
+          "desc": "Strong pigment-building effect."
+        },
+        {
+          "num": "02",
+          "title": "Libido Boost",
+          "desc": "Shares mechanism with PT-141 for a side benefit."
+        }
+      ]
+    },
+    {
+      "slug": "snap-8",
+      "name": "SNAP-8",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Blocks the muscle signal",
+          "desc": "SNAP-8 interferes with the signal that tells facial muscles to contract."
+        },
+        {
+          "num": "02",
+          "title": "Muscles relax",
+          "desc": "Less contraction means less repeated creasing of the skin."
+        },
+        {
+          "num": "03",
+          "title": "Lines soften",
+          "desc": "Over time, expression lines appear visibly smoother."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Softer Expression Lines",
+          "desc": "A topical alternative to injectable treatments."
+        },
+        {
+          "num": "02",
+          "title": "Easy Daily Use",
+          "desc": "Applied like a serum \u2014 no needles required."
+        }
+      ]
+    },
+    {
+      "slug": "testosterone",
+      "name": "Testosterone",
+      "steps": [
+        {
+          "num": "01",
+          "title": "The base hormone",
+          "desc": "Testosterone is the primary male anabolic and androgenic hormone."
+        },
+        {
+          "num": "02",
+          "title": "Drives protein synthesis",
+          "desc": "Higher levels directly boost muscle-protein synthesis and recovery."
+        },
+        {
+          "num": "03",
+          "title": "Everything builds on it",
+          "desc": "Most other anabolic compounds are used alongside a testosterone base."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Muscle & Strength",
+          "desc": "The most reliable driver of size and strength gains."
+        },
+        {
+          "num": "02",
+          "title": "Vitality & Mood",
+          "desc": "Supports energy, libido, and overall well-being."
+        },
+        {
+          "num": "03",
+          "title": "Foundation Compound",
+          "desc": "The base almost every protocol is built around."
+        },
+        {
+          "num": "04",
+          "title": "Best Understood",
+          "desc": "The most studied anabolic hormone that exists."
+        }
+      ]
+    },
+    {
+      "slug": "nandrolone-decanoate",
+      "name": "Nandrolone Decanoate",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Strong anabolic signal",
+          "desc": "Deca binds strongly to androgen receptors, driving muscle growth."
+        },
+        {
+          "num": "02",
+          "title": "Collagen synthesis rises",
+          "desc": "It also increases collagen production, which is why joints often feel better."
+        },
+        {
+          "num": "03",
+          "title": "Slow, steady mass",
+          "desc": "Its long ester means a slow release and steady, sustained gains."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Lean Mass Gains",
+          "desc": "Reliable size and strength gains over a longer cycle."
+        },
+        {
+          "num": "02",
+          "title": "Joint Comfort",
+          "desc": "Widely reported to ease joint pain from heavy training."
+        },
+        {
+          "num": "03",
+          "title": "Smooth Release",
+          "desc": "Long ester means fewer injections and stable levels."
+        }
+      ]
+    },
+    {
+      "slug": "primobolan",
+      "name": "Primobolan",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Mild but effective",
+          "desc": "Primobolan binds androgen receptors without strong estrogenic activity."
+        },
+        {
+          "num": "02",
+          "title": "Protects muscle in a deficit",
+          "desc": "It helps hold onto lean tissue even while calories are restricted."
+        },
+        {
+          "num": "03",
+          "title": "A harder, drier look",
+          "desc": "Popular specifically for a lean, 'hardened' aesthetic while cutting."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Muscle Preservation",
+          "desc": "Excellent at protecting lean mass during a cut."
+        },
+        {
+          "num": "02",
+          "title": "Gentler Profile",
+          "desc": "Lower estrogenic and hepatic burden than many alternatives."
+        },
+        {
+          "num": "03",
+          "title": "Aesthetic Hardening",
+          "desc": "Popular for a lean, defined look before a show or photoshoot."
+        }
+      ]
+    },
+    {
+      "slug": "trenbolone",
+      "name": "Trenbolone",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Extremely potent binding",
+          "desc": "Trenbolone binds androgen receptors far more strongly than testosterone."
+        },
+        {
+          "num": "02",
+          "title": "Dramatic body recomposition",
+          "desc": "That drives rapid muscle gain and fat loss simultaneously."
+        },
+        {
+          "num": "03",
+          "title": "A harsh trade-off",
+          "desc": "Sleep, mood, cardiovascular strain, and other side effects are common and significant."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Dramatic Recomposition",
+          "desc": "Simultaneous muscle gain and fat loss unlike most compounds."
+        },
+        {
+          "num": "02",
+          "title": "Strength Increases",
+          "desc": "Often produces significant strength gains quickly."
+        }
+      ]
+    },
+    {
+      "slug": "ara-290",
+      "name": "ARA-290",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Built from EPO",
+          "desc": "ARA-290 takes a small piece of the erythropoietin molecule, minus the part that raises red blood cells."
+        },
+        {
+          "num": "02",
+          "title": "Activates the innate repair receptor",
+          "desc": "It binds a separate receptor that turns on tissue-protective, anti-inflammatory signaling."
+        },
+        {
+          "num": "03",
+          "title": "Nerves and tissue respond",
+          "desc": "In trials this showed up as regrowth of small nerve fibers and reduced neuropathic pain."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Small-Fiber Nerve Repair",
+          "desc": "Studied in sarcoidosis and diabetic neuropathy for corneal and skin nerve-fiber regrowth."
+        },
+        {
+          "num": "02",
+          "title": "Neuropathic Pain Relief",
+          "desc": "Phase 2 trials showed pain-score improvement at the 4 mg/day dose."
+        },
+        {
+          "num": "03",
+          "title": "Anti-Inflammatory",
+          "desc": "Activates repair signaling without stimulating red blood cell production."
+        },
+        {
+          "num": "04",
+          "title": "No EPO Side Effects",
+          "desc": "Avoids the blood-thickening (polycythemia) risk that comes with erythropoietin itself."
+        }
+      ]
+    },
+    {
+      "slug": "adamax",
+      "name": "Adamax",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Starts as Semax",
+          "desc": "Adamax is built on the same ACTH(4-10)-derived backbone as Semax, a Russian-studied nootropic."
+        },
+        {
+          "num": "02",
+          "title": "Adds an adamantane group",
+          "desc": "A bulky, fat-soluble chemical group is attached, the same modification used in Peptide 021."
+        },
+        {
+          "num": "03",
+          "title": "Claimed extra staying power",
+          "desc": "Vendors claim this improves stability and blood-brain-barrier crossing, but this hasn't been verified in published human trials."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Claimed Focus & Recall",
+          "desc": "Anecdotal reports mirror Semax's claimed effects on mental clarity and word recall."
+        },
+        {
+          "num": "02",
+          "title": "Claimed BDNF Support",
+          "desc": "Marketed around increasing BDNF and hippocampal TrkB signaling, based on animal and in-vitro data."
+        },
+        {
+          "num": "03",
+          "title": "Claimed Endurance/Recovery",
+          "desc": "Vendor claims of improved exercise endurance are unverified in humans."
+        }
+      ]
+    },
+    {
+      "slug": "glow",
+      "name": "GLOW",
+      "steps": [
+        {
+          "num": "01",
+          "title": "BPC-157 targets locally",
+          "desc": "Drives blood flow and repair right at the site of injury."
+        },
+        {
+          "num": "02",
+          "title": "TB-500 works systemically",
+          "desc": "Boosts whole-body flexibility, flow, and cellular migration to damaged tissue."
+        },
+        {
+          "num": "03",
+          "title": "GHK-Cu remodels",
+          "desc": "Rebuilds collagen and finishes the job with firmer, healthier tissue."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Complete Repair Coverage",
+          "desc": "Local, systemic, and structural healing in one blend."
+        },
+        {
+          "num": "02",
+          "title": "Faster Recovery",
+          "desc": "Popular for injuries, post-surgery recovery, and heavy training blocks."
+        },
+        {
+          "num": "03",
+          "title": "Skin & Tissue Quality",
+          "desc": "GHK-Cu adds a collagen and skin-quality bonus."
+        }
+      ]
+    },
+    {
+      "slug": "klow",
+      "name": "KLOW",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Starts with GLOW",
+          "desc": "BPC-157, TB-500, and GHK-Cu handle local, systemic, and structural repair."
+        },
+        {
+          "num": "02",
+          "title": "KPV joins in",
+          "desc": "It calms inflammation in the gut and skin that the others don't specifically target."
+        },
+        {
+          "num": "03",
+          "title": "A rounder recovery",
+          "desc": "The result covers repair and inflammation together in one blend."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Everything GLOW Offers",
+          "desc": "All the local, systemic, and structural repair benefits."
+        },
+        {
+          "num": "02",
+          "title": "Extra Anti-Inflammatory",
+          "desc": "KPV adds gut and skin-specific calming on top."
+        },
+        {
+          "num": "03",
+          "title": "Broadest Coverage",
+          "desc": "The most complete of the signature repair blends."
+        }
+      ]
+    },
+    {
+      "slug": "wolverine",
+      "name": "Wolverine Stack",
+      "steps": [
+        {
+          "num": "01",
+          "title": "BPC-157 patches the damage",
+          "desc": "Drives blood flow and repair right at the injured tendon, muscle, or joint."
+        },
+        {
+          "num": "02",
+          "title": "TB-500 heals system-wide",
+          "desc": "Boosts whole-body recovery, flexibility, and cell migration to the damage."
+        },
+        {
+          "num": "03",
+          "title": "You bounce back fast",
+          "desc": "Together they cover local and systemic repair for accelerated recovery."
+        }
+      ],
+      "stepsSci": [],
+      "benefits": [
+        {
+          "num": "01",
+          "title": "Accelerated Injury Repair",
+          "desc": "The go-to combo for tendons, ligaments, and stubborn injuries."
+        },
+        {
+          "num": "02",
+          "title": "Local + Systemic Coverage",
+          "desc": "BPC-157 works at the site, TB-500 works everywhere."
+        },
+        {
+          "num": "03",
+          "title": "Better Mobility",
+          "desc": "Users report looser, more flexible joints and muscles."
+        },
+        {
+          "num": "04",
+          "title": "Less Inflammation",
+          "desc": "Calms inflammation across injured and overworked tissue."
+        }
+      ]
+    }
+  ]
+}

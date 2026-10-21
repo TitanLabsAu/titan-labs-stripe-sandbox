@@ -1,5 +1,11 @@
 # Titan Club final validation
 
+## Compact compound explanations — separate unpublished review draft
+- [x] Read full owner brief, both screenshots and all 44 editorial entries; preserve unrelated work and saved research.
+- [x] Implement exact published mapping for 44 identities, 42 explicit whole-card exclusions, unchanged 34 ready/10 held hero descriptions, compact ratings and 3/4-column mechanism/benefit grids.
+- [x] 109 tests/794 assertions across 10 suites pass. Real Retatrutide keyboard modes, saved science/reference links, hidden blank fields, desktop dark/light 1366x900, readable mobile and tablet two columns verified; no page errors/overflow. Existing research/protocol/Titan Stacks/Range routes HTTP 200. Automatic build OK 21 Oct 10:25:23 UTC; no separate type diagnostic emitted.
+- [x] Exact exclusions/report and inspected desktop dark/light/mobile section screenshots prepared for Files. Draft only; no main/live writes, acceptance or publication. Science mode exists only for two supplied arrays; other 42 remain disabled, never invented.
+
 ## Research Lab Protocol Stacks — separate draft only
 - [x] Final owner-approved Dosing/Timing/Cycle fields reuse exact native content headings through existing Research Admin saves; Cycle is not Timeline. 82 tests/289 assertions pass including fixture roundtrip/clear, whitespace, published privacy and no inheritance. Installed admin RLS verified read-only. Four desktop/mobile light/dark public empty-state and isolated editor runs pass; automatic build OK 21 Oct 06:33:21 UTC. No migration/content/commerce writes or acceptance/publication.
 - [x] Owner 06:34 request: finish focused tests/diagnostics and readiness report now, without unrelated work or indefinite browser retries.
