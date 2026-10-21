@@ -15,7 +15,7 @@
 - Guest checkout ownership comes only from the hashed guest cookie or verified bearer (`checkout-buyer.server.ts`); posted IDs/emails are never trusted.
 - First-purchase offer claims stay held while a Stripe intent is payable; released only after confirmed cancellation.
 - Research Lab: `research_entries` (admin RLS CRUD, public published-only via server fn, `at_a_glance` summaries); `/research-preview` shows drafts to admins only.
-- Research UI: preserve science, exact links and held quotes; opinions stay separate. Optional Dosing/Timing/Cycle use exact content headings and admin RLS saves; public rows require that published entry, never Timeline aliases or inheritance.
+- Research UI: preserve science/held quotes. Editorial explanations use immutable owner data, exact unique published matching and whole-card exclusions; never infer modes. Dosing/Timing/Cycle use exact saved headings on that published entry only, never aliases/inheritance.
 - Mobile floating cart reuses root-layout `CartSheet`.
 - Catalogue sections use `products.catalogue_section`, separate from scientific `categories`.
 - Reviews: `customer_reviews`, admin-only writes; anonymous submissions only via throttled `submitCustomerReview` (unpublished, unrated); homepage featured block capped at three.
@@ -30,6 +30,6 @@
 - Admin multiline text uses `MarkupTextEditor`; formatting buttons are enabled only for fields whose storefront consumer renders `RichText` (mode map in AdminEdits) — so the toolbar never offers formatting the website cannot show.
 - Foundation Member awards are made only by the `orders_foundation_award` DB trigger on the paid transition (settings-row lock, fixed launch cutoff); pricing reads the award server-side and applies it before referral rewards — so no payment path or client can mint or skip it.
 - Titan Club: admin-assigned via `admin_set_titan_club` (atomic audit, admin-only notes); pricing reads it server-side after Foundation, before referral rewards; personal max replaces the site cap. Stacking policy lives on `titan_club_members` stack_* columns; `quoteOrder` compares Club vs normal branch and takes the cheaper, so Club never bypasses global rules.
-- Titan Club welcome uses the existing queue/template for first assignment and reactivation; activation identity scopes deduplication so stale retries cannot consume a new welcome.
+- Titan Club welcome reuses queue/template; activation-scoped deduplication protects first/rejoin welcomes from stale retries.
 - Paid-order stock settlement lives in the database: `settle_order_stock` (orders paid transitions + order_items insert triggers) deducts once per order+SKU via the `inventory_movements` sale identity index; stock problems become durable `stock_settlement_exceptions` + admin notifications, never payment failures. Refunds/cancels never auto-restock — returned goods go through `adjust_inventory` explicitly.
 - Receipts share a saved-only model and in-memory server PDFs with owner/Admin or hashed guest-cookie access. Server-only TITAN_RECEIPT_ATTACHMENTS_ENABLED defaults OFF, preserving legacy emails; ON fails closed without supported attachments. Branded email drafts render only with explicit receipt preview data.
