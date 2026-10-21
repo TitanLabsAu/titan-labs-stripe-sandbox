@@ -38,5 +38,5 @@ function ResearchEntryPreview() {
   const { data: entry } = useSuspenseQuery(previewEntryQuery(slug));
   const { data: entries } = useSuspenseQuery(queryOptions({ queryKey: ["research", "admin-preview", "list"], queryFn: () => listResearchPreview(), staleTime: 15_000 }));
   if (!entry) return <EntryPreviewUnavailable />;
-  return <ResearchLabShell preview><ResearchEntryView entry={entry} entries={entries} preview /></ResearchLabShell>;
+  return <ResearchLabShell preview detail><ResearchEntryView entry={entry} entries={entries} preview /></ResearchLabShell>;
 }
