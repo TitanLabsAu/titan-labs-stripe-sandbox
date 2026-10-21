@@ -13,7 +13,6 @@ import { researchDetailModel } from "@/lib/research-detail";
 import { ResearchShowcase } from "@/components/ResearchShowcase";
 import { ResearchSubjectiveScorecard } from "@/components/ResearchSubjectiveScorecard";
 import { isResearchReferenceSection } from "@/lib/research-reference-fields";
-import { SourceCite } from "@/components/ResearchSourceDescription";
 import { ResearchExplanations } from "@/components/ResearchExplanations";
 
 export function ResearchEntryView({ entry, entries = [], preview = false }: { entry: ResearchEntry; entries?: ResearchEntry[]; preview?: boolean }) {
@@ -33,8 +32,7 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
         <h1>{entry.title}</h1>
         {source ? <div data-research-source-description className="research-hero-source">
           <p className="research-nickname">“{source.nick}”</p>
-          <blockquote>{source.one}</blockquote>
-          <SourceCite />
+          <p className="research-one-liner">{source.one}</p>
         </div> : <div className="research-hero-overview"><RichText text={model.overview} /></div>}
         {entry.synonyms.length ? <p className="research-aliases">Also known as {entry.synonyms.join(" · ")}</p> : null}
         {linkedProducts.length ? <div className="research-product-links">{linkedProducts.map(p => <Button asChild variant="outline" key={p.slug}><Link to="/product/$slug" params={{ slug: p.slug }}>Product Info · {p.name}<ArrowRight /></Link></Button>)}</div> : null}
@@ -72,7 +70,7 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
         </AccordionContent></AccordionItem>
       </Accordion>
       {entry.verification_status === "verified" ? <div className="research-verification"><h3>Source-checked entry</h3><p>{VERIFIED_EXPLANATION}</p></div> : null}
-      <div className="research-disclaimer"><h3>Research-use information</h3><p>Educational research reference only. Not medical advice. Laboratory and animal findings do not establish effects in humans. Products supplied by Titan Labs Australia are for laboratory research use only and are not for human or animal consumption.</p></div>
+      <div className="research-disclaimer"><h3>Research-use information</h3><p data-source-context>Nicknames, one-line descriptions, tiers, scores and the mechanism and benefit cards are a borrowed, just-for-fun ranking opinion — not clinically verified grades, results or safety guidance. Titan’s qualified research is in Science &amp; References.</p><p>Educational research reference only. Not medical advice. Laboratory and animal findings do not establish effects in humans. Products supplied by Titan Labs Australia are for laboratory research use only and are not for human or animal consumption.</p></div>
       {entry.updated_at ? <p className="research-updated">Last updated {new Date(entry.updated_at).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric", timeZone: "Australia/Sydney" })}</p> : null}
     </section>
   </article>;
