@@ -1,7 +1,7 @@
 # Titan Club final validation
 
 ## Compact compound explanations — separate unpublished review draft
-- [ ] Correct scorecard cascade/DOM: stacked proportional bars, balanced desktop grade panel, mobile stack; inspect BPC dark/light screenshots and geometry at 1366/1024/390, run regressions and automatic diagnostics. No live writes or acceptance/publication.
+- [x] Corrected scorecard cascade/DOM: scoped vertical rows, exact proportional 9px bars, balanced desktop grade panel/140px circle and mobile stack. Six BPC dark/light runs at 1366/1024/390 passed geometry/no-overflow checks; inspected desktop/mobile captures with adjacent headings. 102 tests/766 assertions pass; automatic build OK 21 Oct 10:58:01 UTC. No live writes or acceptance/publication.
 - [x] Read full owner brief, both screenshots and all 44 editorial entries; preserve unrelated work and saved research.
 - [x] Implement exact published mapping for 44 identities, 42 explicit whole-card exclusions, unchanged 34 ready/10 held hero descriptions, compact ratings and 3/4-column mechanism/benefit grids.
 - [x] 109 tests/794 assertions across 10 suites pass. Real Retatrutide keyboard modes, saved science/reference links, hidden blank fields, desktop dark/light 1366x900, readable mobile and tablet two columns verified; no page errors/overflow. Existing research/protocol/Titan Stacks/Range routes HTTP 200. Automatic build OK 21 Oct 10:25:23 UTC; no separate type diagnostic emitted.
