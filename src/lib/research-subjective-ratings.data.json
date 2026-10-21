@@ -1,0 +1,1193 @@
+{
+  "source": "Owner-supplied Donny Optimize Library.dc.html embedded data. Publisher subjective opinion scores, not validated clinical efficacy/safety measures. No dosage/schedules included.",
+  "ratings": [
+    {
+      "slug": "bpc-157",
+      "name": "BPC-157",
+      "metrics": [
+        {
+          "label": "Healing Power",
+          "value": 96
+        },
+        {
+          "label": "Recovery Boost",
+          "value": 90
+        },
+        {
+          "label": "Gut Support",
+          "value": 88
+        },
+        {
+          "label": "Research Depth",
+          "value": 72
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 85
+        }
+      ],
+      "overall": 92
+    },
+    {
+      "slug": "tb-500",
+      "name": "TB-500",
+      "metrics": [
+        {
+          "label": "Systemic Healing",
+          "value": 92
+        },
+        {
+          "label": "Flexibility",
+          "value": 88
+        },
+        {
+          "label": "Recovery Boost",
+          "value": 90
+        },
+        {
+          "label": "Research Depth",
+          "value": 65
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 80
+        }
+      ],
+      "overall": 89
+    },
+    {
+      "slug": "ghk-cu",
+      "name": "GHK-Cu",
+      "metrics": [
+        {
+          "label": "Skin & Collagen",
+          "value": 94
+        },
+        {
+          "label": "Tissue Remodeling",
+          "value": 86
+        },
+        {
+          "label": "Anti-Aging",
+          "value": 84
+        },
+        {
+          "label": "Research Depth",
+          "value": 78
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 88
+        }
+      ],
+      "overall": 87
+    },
+    {
+      "slug": "kpv",
+      "name": "KPV",
+      "metrics": [
+        {
+          "label": "Anti-Inflammatory",
+          "value": 88
+        },
+        {
+          "label": "Gut Support",
+          "value": 86
+        },
+        {
+          "label": "Skin Support",
+          "value": 80
+        },
+        {
+          "label": "Research Depth",
+          "value": 64
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 90
+        }
+      ],
+      "overall": 82
+    },
+    {
+      "slug": "ahk-cu",
+      "name": "AHK-Cu",
+      "metrics": [
+        {
+          "label": "Hair Support",
+          "value": 84
+        },
+        {
+          "label": "Skin Support",
+          "value": 78
+        },
+        {
+          "label": "Tissue Remodeling",
+          "value": 74
+        },
+        {
+          "label": "Research Depth",
+          "value": 58
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 86
+        }
+      ],
+      "overall": 76
+    },
+    {
+      "slug": "thymosin-alpha-1",
+      "name": "Thymosin Alpha-1",
+      "metrics": [
+        {
+          "label": "Immune Support",
+          "value": 88
+        },
+        {
+          "label": "Recovery",
+          "value": 80
+        },
+        {
+          "label": "Resilience",
+          "value": 82
+        },
+        {
+          "label": "Research Depth",
+          "value": 76
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 78
+        }
+      ],
+      "overall": 84
+    },
+    {
+      "slug": "retatrutide",
+      "name": "Retatrutide",
+      "metrics": [
+        {
+          "label": "Fat Loss Power",
+          "value": 98
+        },
+        {
+          "label": "Appetite Control",
+          "value": 96
+        },
+        {
+          "label": "Metabolic Boost",
+          "value": 90
+        },
+        {
+          "label": "Research Depth",
+          "value": 68
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 70
+        }
+      ],
+      "overall": 94
+    },
+    {
+      "slug": "tirzepatide",
+      "name": "Tirzepatide",
+      "metrics": [
+        {
+          "label": "Fat Loss Power",
+          "value": 92
+        },
+        {
+          "label": "Appetite Control",
+          "value": 94
+        },
+        {
+          "label": "Blood Sugar",
+          "value": 92
+        },
+        {
+          "label": "Research Depth",
+          "value": 88
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 78
+        }
+      ],
+      "overall": 89
+    },
+    {
+      "slug": "mots-c",
+      "name": "MOTS-C",
+      "metrics": [
+        {
+          "label": "Metabolic Health",
+          "value": 88
+        },
+        {
+          "label": "Endurance",
+          "value": 84
+        },
+        {
+          "label": "Insulin Sensitivity",
+          "value": 86
+        },
+        {
+          "label": "Research Depth",
+          "value": 70
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 82
+        }
+      ],
+      "overall": 90
+    },
+    {
+      "slug": "aod-9604",
+      "name": "AOD-9604",
+      "metrics": [
+        {
+          "label": "Fat Burning",
+          "value": 82
+        },
+        {
+          "label": "Blood Sugar Safety",
+          "value": 90
+        },
+        {
+          "label": "Metabolic Support",
+          "value": 78
+        },
+        {
+          "label": "Research Depth",
+          "value": 68
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 86
+        }
+      ],
+      "overall": 80
+    },
+    {
+      "slug": "5-amino-1mq",
+      "name": "5-Amino-1MQ",
+      "metrics": [
+        {
+          "label": "Metabolic Rate",
+          "value": 84
+        },
+        {
+          "label": "Fat Mobilization",
+          "value": 80
+        },
+        {
+          "label": "Convenience",
+          "value": 96
+        },
+        {
+          "label": "Research Depth",
+          "value": 60
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 94
+        }
+      ],
+      "overall": 80
+    },
+    {
+      "slug": "slu-pp-332",
+      "name": "SLU-PP-332",
+      "metrics": [
+        {
+          "label": "Endurance Mimicry",
+          "value": 76
+        },
+        {
+          "label": "Fat Burning",
+          "value": 72
+        },
+        {
+          "label": "Novelty",
+          "value": 90
+        },
+        {
+          "label": "Research Depth",
+          "value": 40
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 50
+        }
+      ],
+      "overall": 66
+    },
+    {
+      "slug": "ipamorelin",
+      "name": "Ipamorelin",
+      "metrics": [
+        {
+          "label": "GH Release",
+          "value": 84
+        },
+        {
+          "label": "Sleep Quality",
+          "value": 88
+        },
+        {
+          "label": "Side-Effect Profile",
+          "value": 94
+        },
+        {
+          "label": "Research Depth",
+          "value": 76
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 92
+        }
+      ],
+      "overall": 87
+    },
+    {
+      "slug": "cjc-1295",
+      "name": "CJC-1295 (w/o DAC)",
+      "metrics": [
+        {
+          "label": "GH Amplification",
+          "value": 86
+        },
+        {
+          "label": "Recovery",
+          "value": 84
+        },
+        {
+          "label": "Side-Effect Profile",
+          "value": 88
+        },
+        {
+          "label": "Research Depth",
+          "value": 74
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 84
+        }
+      ],
+      "overall": 85
+    },
+    {
+      "slug": "tesamorelin",
+      "name": "Tesamorelin",
+      "metrics": [
+        {
+          "label": "Visceral Fat Loss",
+          "value": 90
+        },
+        {
+          "label": "GH Release",
+          "value": 84
+        },
+        {
+          "label": "Cognitive Support",
+          "value": 72
+        },
+        {
+          "label": "Research Depth",
+          "value": 86
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 78
+        }
+      ],
+      "overall": 86
+    },
+    {
+      "slug": "cjc-1295-ipamorelin",
+      "name": "CJC-1295 + Ipamorelin",
+      "metrics": [
+        {
+          "label": "GH Release",
+          "value": 92
+        },
+        {
+          "label": "Sleep Quality",
+          "value": 90
+        },
+        {
+          "label": "Recovery",
+          "value": 88
+        },
+        {
+          "label": "Research Depth",
+          "value": 78
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 88
+        }
+      ],
+      "overall": 91
+    },
+    {
+      "slug": "sermorelin",
+      "name": "Sermorelin",
+      "metrics": [
+        {
+          "label": "GH Release",
+          "value": 74
+        },
+        {
+          "label": "Sleep Quality",
+          "value": 80
+        },
+        {
+          "label": "Side-Effect Profile",
+          "value": 90
+        },
+        {
+          "label": "Research Depth",
+          "value": 82
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 94
+        }
+      ],
+      "overall": 82
+    },
+    {
+      "slug": "hgh",
+      "name": "HGH",
+      "metrics": [
+        {
+          "label": "Growth & Repair",
+          "value": 96
+        },
+        {
+          "label": "Recovery",
+          "value": 92
+        },
+        {
+          "label": "Fat Loss",
+          "value": 84
+        },
+        {
+          "label": "Research Depth",
+          "value": 96
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 40
+        }
+      ],
+      "overall": 88
+    },
+    {
+      "slug": "somatropin",
+      "name": "Somatropin",
+      "metrics": [
+        {
+          "label": "Growth & Repair",
+          "value": 94
+        },
+        {
+          "label": "Consistency",
+          "value": 92
+        },
+        {
+          "label": "Fat Loss",
+          "value": 82
+        },
+        {
+          "label": "Research Depth",
+          "value": 94
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 44
+        }
+      ],
+      "overall": 87
+    },
+    {
+      "slug": "hmg",
+      "name": "HMG",
+      "metrics": [
+        {
+          "label": "Fertility Support",
+          "value": 84
+        },
+        {
+          "label": "Hormonal Support",
+          "value": 76
+        },
+        {
+          "label": "Consistency",
+          "value": 74
+        },
+        {
+          "label": "Research Depth",
+          "value": 80
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 56
+        }
+      ],
+      "overall": 74
+    },
+    {
+      "slug": "epithalon",
+      "name": "Epithalon",
+      "metrics": [
+        {
+          "label": "Longevity Support",
+          "value": 84
+        },
+        {
+          "label": "Sleep Quality",
+          "value": 88
+        },
+        {
+          "label": "Antioxidant",
+          "value": 80
+        },
+        {
+          "label": "Research Depth",
+          "value": 66
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 82
+        }
+      ],
+      "overall": 83
+    },
+    {
+      "slug": "nad",
+      "name": "NAD+",
+      "metrics": [
+        {
+          "label": "Cellular Energy",
+          "value": 90
+        },
+        {
+          "label": "Mental Clarity",
+          "value": 86
+        },
+        {
+          "label": "DNA Repair",
+          "value": 82
+        },
+        {
+          "label": "Research Depth",
+          "value": 78
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 76
+        }
+      ],
+      "overall": 85
+    },
+    {
+      "slug": "ss-31",
+      "name": "SS-31",
+      "metrics": [
+        {
+          "label": "Mitochondrial Support",
+          "value": 88
+        },
+        {
+          "label": "Energy",
+          "value": 82
+        },
+        {
+          "label": "Antioxidant",
+          "value": 84
+        },
+        {
+          "label": "Research Depth",
+          "value": 72
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 76
+        }
+      ],
+      "overall": 82
+    },
+    {
+      "slug": "foxo4-dri",
+      "name": "FOXO4-DRI",
+      "metrics": [
+        {
+          "label": "Senolytic Action",
+          "value": 74
+        },
+        {
+          "label": "Novelty",
+          "value": 92
+        },
+        {
+          "label": "Longevity Potential",
+          "value": 78
+        },
+        {
+          "label": "Research Depth",
+          "value": 46
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 44
+        }
+      ],
+      "overall": 67
+    },
+    {
+      "slug": "glutathione",
+      "name": "Glutathione",
+      "metrics": [
+        {
+          "label": "Antioxidant Power",
+          "value": 92
+        },
+        {
+          "label": "Detox Support",
+          "value": 86
+        },
+        {
+          "label": "Skin Brightening",
+          "value": 80
+        },
+        {
+          "label": "Research Depth",
+          "value": 84
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 88
+        }
+      ],
+      "overall": 86
+    },
+    {
+      "slug": "semax",
+      "name": "Semax",
+      "metrics": [
+        {
+          "label": "Focus & Memory",
+          "value": 88
+        },
+        {
+          "label": "Mood Support",
+          "value": 82
+        },
+        {
+          "label": "Neuroprotection",
+          "value": 80
+        },
+        {
+          "label": "Research Depth",
+          "value": 70
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 86
+        }
+      ],
+      "overall": 84
+    },
+    {
+      "slug": "selank",
+      "name": "Selank",
+      "metrics": [
+        {
+          "label": "Anxiety Relief",
+          "value": 88
+        },
+        {
+          "label": "Calm Focus",
+          "value": 84
+        },
+        {
+          "label": "Mood Support",
+          "value": 82
+        },
+        {
+          "label": "Research Depth",
+          "value": 68
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 88
+        }
+      ],
+      "overall": 83
+    },
+    {
+      "slug": "dsip",
+      "name": "DSIP",
+      "metrics": [
+        {
+          "label": "Sleep Depth",
+          "value": 82
+        },
+        {
+          "label": "Sleep Onset",
+          "value": 76
+        },
+        {
+          "label": "Stress Relief",
+          "value": 70
+        },
+        {
+          "label": "Research Depth",
+          "value": 58
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 84
+        }
+      ],
+      "overall": 74
+    },
+    {
+      "slug": "pt-141",
+      "name": "PT-141",
+      "metrics": [
+        {
+          "label": "Libido Boost",
+          "value": 90
+        },
+        {
+          "label": "Works for M & F",
+          "value": 88
+        },
+        {
+          "label": "Onset Speed",
+          "value": 78
+        },
+        {
+          "label": "Research Depth",
+          "value": 80
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 80
+        }
+      ],
+      "overall": 84
+    },
+    {
+      "slug": "kisspeptin",
+      "name": "Kisspeptin",
+      "metrics": [
+        {
+          "label": "Hormonal Signal",
+          "value": 84
+        },
+        {
+          "label": "Libido Support",
+          "value": 78
+        },
+        {
+          "label": "Natural Pathway",
+          "value": 90
+        },
+        {
+          "label": "Research Depth",
+          "value": 66
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 68
+        }
+      ],
+      "overall": 78
+    },
+    {
+      "slug": "gonadorelin",
+      "name": "Gonadorelin",
+      "metrics": [
+        {
+          "label": "Testicular Function",
+          "value": 88
+        },
+        {
+          "label": "Fertility Preservation",
+          "value": 86
+        },
+        {
+          "label": "Natural Signal",
+          "value": 90
+        },
+        {
+          "label": "Research Depth",
+          "value": 80
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 62
+        }
+      ],
+      "overall": 81
+    },
+    {
+      "slug": "hcg",
+      "name": "HCG",
+      "metrics": [
+        {
+          "label": "Testicular Function",
+          "value": 90
+        },
+        {
+          "label": "Fertility Preservation",
+          "value": 88
+        },
+        {
+          "label": "Well Established",
+          "value": 92
+        },
+        {
+          "label": "Research Depth",
+          "value": 90
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 60
+        }
+      ],
+      "overall": 84
+    },
+    {
+      "slug": "melanotan-1",
+      "name": "Melanotan-1",
+      "metrics": [
+        {
+          "label": "Tanning Effect",
+          "value": 86
+        },
+        {
+          "label": "Side-Effect Profile",
+          "value": 78
+        },
+        {
+          "label": "UV Protection",
+          "value": 72
+        },
+        {
+          "label": "Research Depth",
+          "value": 70
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 70
+        }
+      ],
+      "overall": 76
+    },
+    {
+      "slug": "melanotan-2",
+      "name": "Melanotan-2",
+      "metrics": [
+        {
+          "label": "Tanning Effect",
+          "value": 88
+        },
+        {
+          "label": "Libido Boost",
+          "value": 78
+        },
+        {
+          "label": "Side-Effect Profile",
+          "value": 62
+        },
+        {
+          "label": "Research Depth",
+          "value": 72
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 62
+        }
+      ],
+      "overall": 75
+    },
+    {
+      "slug": "snap-8",
+      "name": "SNAP-8",
+      "metrics": [
+        {
+          "label": "Line Softening",
+          "value": 78
+        },
+        {
+          "label": "Ease of Use",
+          "value": 94
+        },
+        {
+          "label": "Gentleness",
+          "value": 90
+        },
+        {
+          "label": "Research Depth",
+          "value": 62
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 92
+        }
+      ],
+      "overall": 79
+    },
+    {
+      "slug": "testosterone",
+      "name": "Testosterone",
+      "metrics": [
+        {
+          "label": "Muscle & Strength",
+          "value": 96
+        },
+        {
+          "label": "Well Established",
+          "value": 98
+        },
+        {
+          "label": "Versatility",
+          "value": 92
+        },
+        {
+          "label": "Research Depth",
+          "value": 98
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 50
+        }
+      ],
+      "overall": 92
+    },
+    {
+      "slug": "nandrolone-decanoate",
+      "name": "Nandrolone Decanoate",
+      "metrics": [
+        {
+          "label": "Mass Gain",
+          "value": 88
+        },
+        {
+          "label": "Joint Comfort",
+          "value": 90
+        },
+        {
+          "label": "Recovery",
+          "value": 84
+        },
+        {
+          "label": "Research Depth",
+          "value": 86
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 44
+        }
+      ],
+      "overall": 84
+    },
+    {
+      "slug": "primobolan",
+      "name": "Primobolan",
+      "metrics": [
+        {
+          "label": "Muscle Preservation",
+          "value": 86
+        },
+        {
+          "label": "Side-Effect Profile",
+          "value": 80
+        },
+        {
+          "label": "Hardening Effect",
+          "value": 84
+        },
+        {
+          "label": "Research Depth",
+          "value": 78
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 52
+        }
+      ],
+      "overall": 81
+    },
+    {
+      "slug": "trenbolone",
+      "name": "Trenbolone",
+      "metrics": [
+        {
+          "label": "Muscle & Strength",
+          "value": 96
+        },
+        {
+          "label": "Fat Loss",
+          "value": 88
+        },
+        {
+          "label": "Side-Effect Severity",
+          "value": 30
+        },
+        {
+          "label": "Research Depth",
+          "value": 70
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 12
+        }
+      ],
+      "overall": 62
+    },
+    {
+      "slug": "ara-290",
+      "name": "ARA-290",
+      "metrics": [
+        {
+          "label": "Nerve Repair",
+          "value": 78
+        },
+        {
+          "label": "Anti-Inflammatory",
+          "value": 74
+        },
+        {
+          "label": "Safety Profile",
+          "value": 82
+        },
+        {
+          "label": "Research Depth",
+          "value": 68
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 60
+        }
+      ],
+      "overall": 74
+    },
+    {
+      "slug": "adamax",
+      "name": "Adamax",
+      "metrics": [
+        {
+          "label": "Claimed Cognitive Boost",
+          "value": 55
+        },
+        {
+          "label": "Human Evidence",
+          "value": 15
+        },
+        {
+          "label": "Legal Clarity",
+          "value": 25
+        },
+        {
+          "label": "Research Depth",
+          "value": 20
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 30
+        }
+      ],
+      "overall": 38
+    },
+    {
+      "slug": "glow",
+      "name": "GLOW",
+      "metrics": [
+        {
+          "label": "Healing Power",
+          "value": 94
+        },
+        {
+          "label": "Systemic Recovery",
+          "value": 90
+        },
+        {
+          "label": "Tissue Remodeling",
+          "value": 88
+        },
+        {
+          "label": "Research Depth",
+          "value": 70
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 80
+        }
+      ],
+      "overall": 90
+    },
+    {
+      "slug": "klow",
+      "name": "KLOW",
+      "metrics": [
+        {
+          "label": "Healing Power",
+          "value": 94
+        },
+        {
+          "label": "Anti-Inflammatory",
+          "value": 90
+        },
+        {
+          "label": "Gut & Skin Support",
+          "value": 88
+        },
+        {
+          "label": "Research Depth",
+          "value": 68
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 78
+        }
+      ],
+      "overall": 89
+    },
+    {
+      "slug": "wolverine",
+      "name": "Wolverine Stack",
+      "metrics": [
+        {
+          "label": "Healing Power",
+          "value": 96
+        },
+        {
+          "label": "Systemic Recovery",
+          "value": 92
+        },
+        {
+          "label": "Tendon & Joint Repair",
+          "value": 94
+        },
+        {
+          "label": "Research Depth",
+          "value": 72
+        },
+        {
+          "label": "Beginner-Friendly",
+          "value": 82
+        }
+      ],
+      "overall": 92
+    }
+  ]
+}
