@@ -55,3 +55,5 @@
 
 - [x] Research Lab restyle: remove all public Donny wording, showcase first-3 source score cells, descriptor not formula, screenshots
 - [x] Showcase uses owner 44-entry card reference (descriptor/formula + first three metrics, exclusions kept)
+
+- [x] Titan Stack multibuy counts Range only: PriceLine.multibuyEligible (fail-closed) in order-pricing, server priceCheckout derives from stored catalogue_section, client cartPriceLines from catalogue facts; cart/checkout banners use quote.multibuyUnits and clarify pens/equipment don't count; 13 new tests + 117 pricing regressions + typecheck + build pass; preview verified (2 Range + BAC = 10% off Range subtotal only). No publish.
