@@ -11,6 +11,7 @@ import { blendsForEntry, relatedResearch } from "@/lib/research-discovery";
 import { researchSourceDescription } from "@/lib/research-source-descriptions";
 import { researchDetailModel } from "@/lib/research-detail";
 import { ResearchShowcase } from "@/components/ResearchShowcase";
+import { ResearchSubjectiveScorecard } from "@/components/ResearchSubjectiveScorecard";
 
 export function ResearchEntryView({ entry, entries = [], preview = false }: { entry: ResearchEntry; entries?: ResearchEntry[]; preview?: boolean }) {
   const { products } = useProducts();
@@ -41,11 +42,10 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
 
     <section className="research-numbered-section" aria-labelledby="research-scorecard">
       <SectionHeading number="01" eyebrow="THE SCORECARD" title="Research at a glance" id="research-scorecard" />
-      <p className="research-section-note">Ratings are not assigned. Counts describe this saved entry, not efficacy or safety.</p>
-      <div className="research-score-grid">
-        <dl className="research-score-rows">{[["Source references", model.counts.references], ["Research notes", model.counts.notes], ["Research findings", model.counts.findings], ...model.ratings.map(item => [item.label, item.value])].map(([name, value]) => <div key={name}><dt>{name}</dt><dd className="research-mono">{value}</dd><div className="research-score-track" aria-hidden="true" /></div>)}</dl>
-        <div className="research-rating-panel"><span className="research-rating-ring">—</span><h3>Unassigned</h3><p className="research-mono">OVERALL RATING · —</p></div>
-      </div>
+      <p className="research-section-note">Counts describe this saved entry, not efficacy or safety.</p>
+      <dl className="research-factual-counts" aria-label="Saved entry counts">{[["Source references", model.counts.references], ["Research notes", model.counts.notes], ["Research findings", model.counts.findings]].map(([name, value]) => <div key={name}><dt>{name}</dt><dd className="research-mono">{value}</dd></div>)}</dl>
+      <ResearchSubjectiveScorecard entry={entry} entries={entries} />
+      <p className="research-section-note">Titan clinical efficacy and safety ratings are not assigned.</p>
     </section>
 
     <section className="research-numbered-section" aria-labelledby="research-mechanism">
