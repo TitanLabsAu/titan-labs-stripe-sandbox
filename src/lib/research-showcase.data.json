@@ -1,0 +1,841 @@
+{
+  "note": "Owner supplied source descriptive field and first three opinion metrics only. No dosing. Retain existing safety exclusions. Determine chemical formula versus descriptive phrase correctly. Source card short label uses first word uppercased then first six characters.",
+  "entries": [
+    {
+      "slug": "bpc-157",
+      "name": "BPC-157",
+      "descriptorOrFormula": "C62H98N16O22 \u00b7 15 amino acids",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Healing Power",
+          "value": 96
+        },
+        {
+          "label": "Recovery Boost",
+          "value": 90
+        },
+        {
+          "label": "Gut Support",
+          "value": 88
+        }
+      ]
+    },
+    {
+      "slug": "tb-500",
+      "name": "TB-500",
+      "descriptorOrFormula": "Thymosin Beta-4 fragment \u00b7 43 amino acids",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Systemic Healing",
+          "value": 92
+        },
+        {
+          "label": "Flexibility",
+          "value": 88
+        },
+        {
+          "label": "Recovery Boost",
+          "value": 90
+        }
+      ]
+    },
+    {
+      "slug": "ghk-cu",
+      "name": "GHK-Cu",
+      "descriptorOrFormula": "Copper tripeptide-1",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Skin & Collagen",
+          "value": 94
+        },
+        {
+          "label": "Tissue Remodeling",
+          "value": 86
+        },
+        {
+          "label": "Anti-Aging",
+          "value": 84
+        }
+      ]
+    },
+    {
+      "slug": "kpv",
+      "name": "KPV",
+      "descriptorOrFormula": "Tripeptide (Lys-Pro-Val)",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Anti-Inflammatory",
+          "value": 88
+        },
+        {
+          "label": "Gut Support",
+          "value": 86
+        },
+        {
+          "label": "Skin Support",
+          "value": 80
+        }
+      ]
+    },
+    {
+      "slug": "ahk-cu",
+      "name": "AHK-Cu",
+      "descriptorOrFormula": "Copper tripeptide (Ala-His-Lys)",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Hair Support",
+          "value": 84
+        },
+        {
+          "label": "Skin Support",
+          "value": 78
+        },
+        {
+          "label": "Tissue Remodeling",
+          "value": 74
+        }
+      ]
+    },
+    {
+      "slug": "thymosin-alpha-1",
+      "name": "Thymosin Alpha-1",
+      "descriptorOrFormula": "28-amino-acid thymic peptide",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Immune Support",
+          "value": 88
+        },
+        {
+          "label": "Recovery",
+          "value": 80
+        },
+        {
+          "label": "Resilience",
+          "value": 82
+        }
+      ]
+    },
+    {
+      "slug": "retatrutide",
+      "name": "Retatrutide",
+      "descriptorOrFormula": "GLP-1 / GIP / glucagon triple agonist",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Fat Loss Power",
+          "value": 98
+        },
+        {
+          "label": "Appetite Control",
+          "value": 96
+        },
+        {
+          "label": "Metabolic Boost",
+          "value": 90
+        }
+      ]
+    },
+    {
+      "slug": "tirzepatide",
+      "name": "Tirzepatide",
+      "descriptorOrFormula": "GLP-1 / GIP dual agonist",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Fat Loss Power",
+          "value": 92
+        },
+        {
+          "label": "Appetite Control",
+          "value": 94
+        },
+        {
+          "label": "Blood Sugar",
+          "value": 92
+        }
+      ]
+    },
+    {
+      "slug": "mots-c",
+      "name": "MOTS-C",
+      "descriptorOrFormula": "Mitochondrial-derived peptide \u00b7 16 aa",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Metabolic Health",
+          "value": 88
+        },
+        {
+          "label": "Endurance",
+          "value": 84
+        },
+        {
+          "label": "Insulin Sensitivity",
+          "value": 86
+        }
+      ]
+    },
+    {
+      "slug": "aod-9604",
+      "name": "AOD-9604",
+      "descriptorOrFormula": "HGH fragment 176-191",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Fat Burning",
+          "value": 82
+        },
+        {
+          "label": "Blood Sugar Safety",
+          "value": 90
+        },
+        {
+          "label": "Metabolic Support",
+          "value": 78
+        }
+      ]
+    },
+    {
+      "slug": "5-amino-1mq",
+      "name": "5-Amino-1MQ",
+      "descriptorOrFormula": "Small-molecule NNMT inhibitor",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Metabolic Rate",
+          "value": 84
+        },
+        {
+          "label": "Fat Mobilization",
+          "value": 80
+        },
+        {
+          "label": "Convenience",
+          "value": 96
+        }
+      ]
+    },
+    {
+      "slug": "slu-pp-332",
+      "name": "SLU-PP-332",
+      "descriptorOrFormula": "Experimental ERR agonist",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Endurance Mimicry",
+          "value": 76
+        },
+        {
+          "label": "Fat Burning",
+          "value": 72
+        },
+        {
+          "label": "Novelty",
+          "value": 90
+        }
+      ]
+    },
+    {
+      "slug": "ipamorelin",
+      "name": "Ipamorelin",
+      "descriptorOrFormula": "Pentapeptide \u00b7 GH secretagogue",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "GH Release",
+          "value": 84
+        },
+        {
+          "label": "Sleep Quality",
+          "value": 88
+        },
+        {
+          "label": "Side-Effect Profile",
+          "value": 94
+        }
+      ]
+    },
+    {
+      "slug": "cjc-1295",
+      "name": "CJC-1295 (w/o DAC)",
+      "descriptorOrFormula": "GHRH analog (Mod GRF 1-29)",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "GH Amplification",
+          "value": 86
+        },
+        {
+          "label": "Recovery",
+          "value": 84
+        },
+        {
+          "label": "Side-Effect Profile",
+          "value": 88
+        }
+      ]
+    },
+    {
+      "slug": "tesamorelin",
+      "name": "Tesamorelin",
+      "descriptorOrFormula": "GHRH analog",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Visceral Fat Loss",
+          "value": 90
+        },
+        {
+          "label": "GH Release",
+          "value": 84
+        },
+        {
+          "label": "Cognitive Support",
+          "value": 72
+        }
+      ]
+    },
+    {
+      "slug": "cjc-1295-ipamorelin",
+      "name": "CJC-1295 + Ipamorelin",
+      "descriptorOrFormula": "GHRH analog + GH secretagogue combo",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "GH Release",
+          "value": 92
+        },
+        {
+          "label": "Sleep Quality",
+          "value": 90
+        },
+        {
+          "label": "Recovery",
+          "value": 88
+        }
+      ]
+    },
+    {
+      "slug": "sermorelin",
+      "name": "Sermorelin",
+      "descriptorOrFormula": "GHRH(1-29) analog",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "GH Release",
+          "value": 74
+        },
+        {
+          "label": "Sleep Quality",
+          "value": 80
+        },
+        {
+          "label": "Side-Effect Profile",
+          "value": 90
+        }
+      ]
+    },
+    {
+      "slug": "hgh",
+      "name": "HGH",
+      "descriptorOrFormula": "Human Growth Hormone (191 aa)",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Growth & Repair",
+          "value": 96
+        },
+        {
+          "label": "Recovery",
+          "value": 92
+        },
+        {
+          "label": "Fat Loss",
+          "value": 84
+        }
+      ]
+    },
+    {
+      "slug": "somatropin",
+      "name": "Somatropin",
+      "descriptorOrFormula": "Recombinant Human Growth Hormone",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Growth & Repair",
+          "value": 94
+        },
+        {
+          "label": "Consistency",
+          "value": 92
+        },
+        {
+          "label": "Fat Loss",
+          "value": 82
+        }
+      ]
+    },
+    {
+      "slug": "hmg",
+      "name": "HMG",
+      "descriptorOrFormula": "Human Menopausal Gonadotropin (FSH + LH)",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Fertility Support",
+          "value": 84
+        },
+        {
+          "label": "Hormonal Support",
+          "value": 76
+        },
+        {
+          "label": "Consistency",
+          "value": 74
+        }
+      ]
+    },
+    {
+      "slug": "epithalon",
+      "name": "Epithalon",
+      "descriptorOrFormula": "Tetrapeptide (Ala-Glu-Asp-Gly)",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Longevity Support",
+          "value": 84
+        },
+        {
+          "label": "Sleep Quality",
+          "value": 88
+        },
+        {
+          "label": "Antioxidant",
+          "value": 80
+        }
+      ]
+    },
+    {
+      "slug": "nad",
+      "name": "NAD+",
+      "descriptorOrFormula": "Nicotinamide adenine dinucleotide",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Cellular Energy",
+          "value": 90
+        },
+        {
+          "label": "Mental Clarity",
+          "value": 86
+        },
+        {
+          "label": "DNA Repair",
+          "value": 82
+        }
+      ]
+    },
+    {
+      "slug": "ss-31",
+      "name": "SS-31",
+      "descriptorOrFormula": "Elamipretide \u2014 mitochondria-targeted tetrapeptide",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Mitochondrial Support",
+          "value": 88
+        },
+        {
+          "label": "Energy",
+          "value": 82
+        },
+        {
+          "label": "Antioxidant",
+          "value": 84
+        }
+      ]
+    },
+    {
+      "slug": "foxo4-dri",
+      "name": "FOXO4-DRI",
+      "descriptorOrFormula": "FOXO4-p53 interfering peptide",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Senolytic Action",
+          "value": 74
+        },
+        {
+          "label": "Novelty",
+          "value": 92
+        },
+        {
+          "label": "Longevity Potential",
+          "value": 78
+        }
+      ]
+    },
+    {
+      "slug": "glutathione",
+      "name": "Glutathione",
+      "descriptorOrFormula": "Tripeptide (Glu-Cys-Gly)",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Antioxidant Power",
+          "value": 92
+        },
+        {
+          "label": "Detox Support",
+          "value": 86
+        },
+        {
+          "label": "Skin Brightening",
+          "value": 80
+        }
+      ]
+    },
+    {
+      "slug": "semax",
+      "name": "Semax",
+      "descriptorOrFormula": "ACTH(4-10) analog",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Focus & Memory",
+          "value": 88
+        },
+        {
+          "label": "Mood Support",
+          "value": 82
+        },
+        {
+          "label": "Neuroprotection",
+          "value": 80
+        }
+      ]
+    },
+    {
+      "slug": "selank",
+      "name": "Selank",
+      "descriptorOrFormula": "Tuftsin analog",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Anxiety Relief",
+          "value": 88
+        },
+        {
+          "label": "Calm Focus",
+          "value": 84
+        },
+        {
+          "label": "Mood Support",
+          "value": 82
+        }
+      ]
+    },
+    {
+      "slug": "dsip",
+      "name": "DSIP",
+      "descriptorOrFormula": "Delta Sleep-Inducing Peptide (9 aa)",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Sleep Depth",
+          "value": 82
+        },
+        {
+          "label": "Sleep Onset",
+          "value": 76
+        },
+        {
+          "label": "Stress Relief",
+          "value": 70
+        }
+      ]
+    },
+    {
+      "slug": "pt-141",
+      "name": "PT-141",
+      "descriptorOrFormula": "Bremelanotide \u00b7 melanocortin agonist",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Libido Boost",
+          "value": 90
+        },
+        {
+          "label": "Works for M & F",
+          "value": 88
+        },
+        {
+          "label": "Onset Speed",
+          "value": 78
+        }
+      ]
+    },
+    {
+      "slug": "kisspeptin",
+      "name": "Kisspeptin",
+      "descriptorOrFormula": "Kisspeptin-10",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Hormonal Signal",
+          "value": 84
+        },
+        {
+          "label": "Libido Support",
+          "value": 78
+        },
+        {
+          "label": "Natural Pathway",
+          "value": 90
+        }
+      ]
+    },
+    {
+      "slug": "gonadorelin",
+      "name": "Gonadorelin",
+      "descriptorOrFormula": "GnRH (Gonadotropin-Releasing Hormone)",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Testicular Function",
+          "value": 88
+        },
+        {
+          "label": "Fertility Preservation",
+          "value": 86
+        },
+        {
+          "label": "Natural Signal",
+          "value": 90
+        }
+      ]
+    },
+    {
+      "slug": "hcg",
+      "name": "HCG",
+      "descriptorOrFormula": "Human Chorionic Gonadotropin",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Testicular Function",
+          "value": 90
+        },
+        {
+          "label": "Fertility Preservation",
+          "value": 88
+        },
+        {
+          "label": "Well Established",
+          "value": 92
+        }
+      ]
+    },
+    {
+      "slug": "melanotan-1",
+      "name": "Melanotan-1",
+      "descriptorOrFormula": "Afamelanotide \u2014 melanocortin agonist",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Tanning Effect",
+          "value": 86
+        },
+        {
+          "label": "Side-Effect Profile",
+          "value": 78
+        },
+        {
+          "label": "UV Protection",
+          "value": 72
+        }
+      ]
+    },
+    {
+      "slug": "melanotan-2",
+      "name": "Melanotan-2",
+      "descriptorOrFormula": "Melanocortin agonist",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Tanning Effect",
+          "value": 88
+        },
+        {
+          "label": "Libido Boost",
+          "value": 78
+        },
+        {
+          "label": "Side-Effect Profile",
+          "value": 62
+        }
+      ]
+    },
+    {
+      "slug": "snap-8",
+      "name": "SNAP-8",
+      "descriptorOrFormula": "Acetyl octapeptide-3",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Line Softening",
+          "value": 78
+        },
+        {
+          "label": "Ease of Use",
+          "value": 94
+        },
+        {
+          "label": "Gentleness",
+          "value": 90
+        }
+      ]
+    },
+    {
+      "slug": "testosterone",
+      "name": "Testosterone",
+      "descriptorOrFormula": "Androgenic anabolic steroid (esterified)",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Muscle & Strength",
+          "value": 96
+        },
+        {
+          "label": "Well Established",
+          "value": 98
+        },
+        {
+          "label": "Versatility",
+          "value": 92
+        }
+      ]
+    },
+    {
+      "slug": "nandrolone-decanoate",
+      "name": "Nandrolone Decanoate",
+      "descriptorOrFormula": "19-nor anabolic steroid",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Mass Gain",
+          "value": 88
+        },
+        {
+          "label": "Joint Comfort",
+          "value": 90
+        },
+        {
+          "label": "Recovery",
+          "value": 84
+        }
+      ]
+    },
+    {
+      "slug": "primobolan",
+      "name": "Primobolan",
+      "descriptorOrFormula": "Methenolone (enanthate/acetate)",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Muscle Preservation",
+          "value": 86
+        },
+        {
+          "label": "Side-Effect Profile",
+          "value": 80
+        },
+        {
+          "label": "Hardening Effect",
+          "value": 84
+        }
+      ]
+    },
+    {
+      "slug": "trenbolone",
+      "name": "Trenbolone",
+      "descriptorOrFormula": "19-nor anabolic steroid (highly potent)",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Muscle & Strength",
+          "value": 96
+        },
+        {
+          "label": "Fat Loss",
+          "value": 88
+        },
+        {
+          "label": "Side-Effect Severity",
+          "value": 30
+        }
+      ]
+    },
+    {
+      "slug": "ara-290",
+      "name": "ARA-290",
+      "descriptorOrFormula": "Cibinetide \u2014 11-amino-acid EPO-derived peptide",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Nerve Repair",
+          "value": 78
+        },
+        {
+          "label": "Anti-Inflammatory",
+          "value": 74
+        },
+        {
+          "label": "Safety Profile",
+          "value": 82
+        }
+      ]
+    },
+    {
+      "slug": "adamax",
+      "name": "Adamax",
+      "descriptorOrFormula": "Ac-MEHFPGPAG-NH2 \u2014 adamantane-modified Semax analog",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Claimed Cognitive Boost",
+          "value": 55
+        },
+        {
+          "label": "Human Evidence",
+          "value": 15
+        },
+        {
+          "label": "Legal Clarity",
+          "value": 25
+        }
+      ]
+    },
+    {
+      "slug": "glow",
+      "name": "GLOW",
+      "descriptorOrFormula": "BPC-157 + TB-500 + GHK-Cu",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Healing Power",
+          "value": 94
+        },
+        {
+          "label": "Systemic Recovery",
+          "value": 90
+        },
+        {
+          "label": "Tissue Remodeling",
+          "value": 88
+        }
+      ]
+    },
+    {
+      "slug": "klow",
+      "name": "KLOW",
+      "descriptorOrFormula": "BPC-157 + TB-500 + GHK-Cu + KPV",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Healing Power",
+          "value": 94
+        },
+        {
+          "label": "Anti-Inflammatory",
+          "value": 90
+        },
+        {
+          "label": "Gut & Skin Support",
+          "value": 88
+        }
+      ]
+    },
+    {
+      "slug": "wolverine",
+      "name": "Wolverine Stack",
+      "descriptorOrFormula": "BPC-157 + TB-500",
+      "firstThreeSourceMetrics": [
+        {
+          "label": "Healing Power",
+          "value": 96
+        },
+        {
+          "label": "Systemic Recovery",
+          "value": 92
+        },
+        {
+          "label": "Tendon & Joint Repair",
+          "value": 94
+        }
+      ]
+    }
+  ]
+}

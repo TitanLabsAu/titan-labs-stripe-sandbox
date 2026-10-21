@@ -13,6 +13,8 @@ import { researchDetailModel } from "@/lib/research-detail";
 import { ResearchShowcase } from "@/components/ResearchShowcase";
 import { ResearchSubjectiveScorecard } from "@/components/ResearchSubjectiveScorecard";
 import { isResearchReferenceSection } from "@/lib/research-reference-fields";
+import { SourceAttributionNote, SourceCite } from "@/components/ResearchSourceDescription";
+import { researchSubjectiveRatings } from "@/lib/research-subjective-ratings";
 
 export function ResearchEntryView({ entry, entries = [], preview = false }: { entry: ResearchEntry; entries?: ResearchEntry[]; preview?: boolean }) {
   const { products } = useProducts();
@@ -20,6 +22,7 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
   const linkedProducts = researchProducts(entry, products);
   const model = researchDetailModel(entry);
   const source = researchSourceDescription(entry, entries);
+  const borrowed = Boolean(source || researchSubjectiveRatings(entry, entries));
   const related = relatedResearch(entry, preview ? entries : entries.filter(item => item.published));
   const blends = blendsForEntry(entry);
   const pubchem = pubchemUrl(entry.pubchem_cid);
@@ -32,12 +35,12 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
         {source ? <div data-research-source-description className="research-hero-source">
           <p className="research-nickname">“{source.nick}”</p>
           <blockquote>{source.one}</blockquote>
-          <p className="research-source-credit">Donny Optimize source description · Quotation, not a verified Titan finding or endorsement of efficacy, safety or medical approval.</p>
+          <SourceCite />
         </div> : <div className="research-hero-overview"><RichText text={model.overview} /></div>}
         {entry.synonyms.length ? <p className="research-aliases">Also known as {entry.synonyms.join(" · ")}</p> : null}
         {linkedProducts.length ? <div className="research-product-links">{linkedProducts.map(p => <Button asChild variant="outline" key={p.slug}><Link to="/product/$slug" params={{ slug: p.slug }}>Product Info · {p.name}<ArrowRight /></Link></Button>)}</div> : null}
       </div>
-      <ResearchShowcase entry={entry} references={model.counts.references} notes={model.counts.notes} related={related.length} />
+      <ResearchShowcase entry={entry} entries={entries} />
     </header>
     <dl className="research-quick-strip">{model.quick.map(item => <div key={item.label}><dt className="research-mono">{item.label}</dt><dd>{item.value}</dd></div>)}</dl>
 
@@ -61,7 +64,7 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
 
     {model.protocol.length ? <section className="research-numbered-section" aria-labelledby="research-protocol">
       <SectionHeading number="04" eyebrow="PROTOCOL REFERENCE" title="Protocol readout" id="research-protocol" />
-      <div className="research-terminal"><div className="research-terminal-bar research-mono"><span aria-hidden="true">● ● ●</span>{entry.slug}_protocol.cfg</div><dl>{model.protocol.map(item => <div key={item.label}><dt className="research-mono">{item.label}</dt><dd className="whitespace-pre-wrap break-words">{item.value}</dd></div>)}</dl><p className="research-terminal-note">Educational research reference only. Not medical advice.</p></div>
+      <div className="research-terminal"><div className="research-terminal-bar research-mono">Saved reference fields</div><dl>{model.protocol.map(item => <div key={item.label}><dt className="research-mono">{item.label}</dt><dd className="whitespace-pre-wrap break-words">{item.value}</dd></div>)}</dl><p className="research-terminal-note">Educational research reference only. Not medical advice.</p></div>
     </section> : null}
 
     <section className="research-numbered-section" aria-labelledby="research-related">
@@ -85,6 +88,7 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
         </AccordionContent></AccordionItem>
       </Accordion>
       {entry.verification_status === "verified" ? <div className="research-verification"><h3>Source-checked entry</h3><p>{VERIFIED_EXPLANATION}</p></div> : null}
+      {borrowed ? <div className="research-disclaimer"><h3>About editorial opinions</h3><SourceAttributionNote /></div> : null}
       <div className="research-disclaimer"><h3>Research-use information</h3><p>Educational research reference only. Not medical advice. Laboratory and animal findings do not establish effects in humans. Products supplied by Titan Labs Australia are for laboratory research use only and are not for human or animal consumption.</p></div>
       {entry.updated_at ? <p className="research-updated">Last updated {new Date(entry.updated_at).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric", timeZone: "Australia/Sydney" })}</p> : null}
     </section>

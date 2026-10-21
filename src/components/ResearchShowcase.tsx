@@ -1,9 +1,10 @@
 import type { ResearchEntry } from "@/lib/research";
+import { researchShowcaseDescriptor, researchShowcaseStats } from "@/lib/research-showcase";
 
 /** Deliberately schematic: no claim to represent any compound's real structure. */
-export function ResearchShowcase({ entry, references, notes, related }: {
-  entry: ResearchEntry; references: number; notes: number; related: number;
-}) {
+export function ResearchShowcase({ entry, entries }: { entry: ResearchEntry; entries: ResearchEntry[] }) {
+  const stats = researchShowcaseStats(entry, entries);
+  const descriptor = researchShowcaseDescriptor(entry, entries);
   return <div className="research-showcase" aria-label={`${entry.title} reference card`}>
     <div className="research-showcase-top"><span className="research-reference-tag">REFERENCE</span><span className="research-mono">{entry.category || "Research"}</span></div>
     <figure className="research-concept">
@@ -19,8 +20,13 @@ export function ResearchShowcase({ entry, references, notes, related }: {
       <figcaption>Conceptual illustration · not actual verified structure</figcaption>
     </figure>
     <h2>{entry.title}</h2>
-    <p className="research-formula research-mono">{entry.molecular_formula || "Molecular formula not available"}</p>
-    <dl className="research-showcase-stats">{[["References", references], ["Notes", notes], ["Related", related]].map(([label, value]) => <div key={label}><dd>{value}</dd><dt>{label}</dt></div>)}</dl>
+    {descriptor ? <p className="research-formula research-mono">
+      <span className="sr-only">{descriptor.kind === "formula" ? "Formula: " : "Compound descriptor: "}</span>{descriptor.text}
+    </p> : null}
+    {stats.length ? <dl className="research-showcase-stats" aria-label="Editorial opinion scores out of 100">
+      {stats.map(stat => <div key={stat.fullLabel}><dd>{stat.val}</dd><dt><abbr title={stat.fullLabel} aria-label={stat.fullLabel}>{stat.label}</abbr></dt></div>)}
+    </dl> : null}
+    {stats.length ? <p className="research-showcase-note">Editorial opinion scores out of 100; not clinical measurements or safety guidance.</p> : null}
     <div className="research-showcase-footer research-mono"><span>TITAN LABS <span>// AUS</span></span><span>RESEARCH LIBRARY</span></div>
   </div>;
 }
