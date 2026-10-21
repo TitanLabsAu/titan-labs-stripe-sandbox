@@ -11,8 +11,8 @@ export const getRouter = () => {
     context: { queryClient },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
-    dehydrate: () => ({ siteChrome: dehydrateSiteChrome(queryClient) }),
-    hydrate: (state) => { hydrateSiteChrome(queryClient, state.siteChrome); },
+    dehydrate: () => ({ siteChrome: JSON.stringify(dehydrateSiteChrome(queryClient)) }),
+    hydrate: (state) => { hydrateSiteChrome(queryClient, JSON.parse(state.siteChrome)); },
   });
 
   return router;
