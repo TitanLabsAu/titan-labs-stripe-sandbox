@@ -13,8 +13,7 @@ import { researchDetailModel } from "@/lib/research-detail";
 import { ResearchShowcase } from "@/components/ResearchShowcase";
 import { ResearchSubjectiveScorecard } from "@/components/ResearchSubjectiveScorecard";
 import { isResearchReferenceSection } from "@/lib/research-reference-fields";
-import { SourceAttributionNote, SourceCite } from "@/components/ResearchSourceDescription";
-import { researchSubjectiveRatings } from "@/lib/research-subjective-ratings";
+import { SourceCite } from "@/components/ResearchSourceDescription";
 import { ResearchExplanations } from "@/components/ResearchExplanations";
 
 export function ResearchEntryView({ entry, entries = [], preview = false }: { entry: ResearchEntry; entries?: ResearchEntry[]; preview?: boolean }) {
@@ -23,7 +22,6 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
   const linkedProducts = researchProducts(entry, products);
   const model = researchDetailModel(entry);
   const source = researchSourceDescription(entry, entries);
-  const borrowed = Boolean(source || researchSubjectiveRatings(entry, entries));
   const related = relatedResearch(entry, preview ? entries : entries.filter(item => item.published));
   const blends = blendsForEntry(entry);
   const pubchem = pubchemUrl(entry.pubchem_cid);
@@ -74,7 +72,6 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
         </AccordionContent></AccordionItem>
       </Accordion>
       {entry.verification_status === "verified" ? <div className="research-verification"><h3>Source-checked entry</h3><p>{VERIFIED_EXPLANATION}</p></div> : null}
-       {borrowed ? <div className="research-disclaimer"><h3>About editorial opinions</h3><SourceAttributionNote /></div> : null}
       <div className="research-disclaimer"><h3>Research-use information</h3><p>Educational research reference only. Not medical advice. Laboratory and animal findings do not establish effects in humans. Products supplied by Titan Labs Australia are for laboratory research use only and are not for human or animal consumption.</p></div>
       {entry.updated_at ? <p className="research-updated">Last updated {new Date(entry.updated_at).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric", timeZone: "Australia/Sydney" })}</p> : null}
     </section>
