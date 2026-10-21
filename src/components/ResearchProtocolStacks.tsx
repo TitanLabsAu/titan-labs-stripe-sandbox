@@ -5,6 +5,7 @@ import { RichText } from "@/components/RichText";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { PROTOCOL_REFERENCE_FIELDS, PROTOCOL_STACK_GOALS, PROTOCOL_TOPIC_OVERVIEWS, protocolGoal, protocolResearchOverview, publishedProtocolEntry } from "@/lib/research-protocol-stacks";
 import type { ResearchEntry } from "@/lib/research";
+import { ResearchSourceDescription } from "@/components/ResearchSourceDescription";
 
 const goalIcons = [Flame, Dumbbell, Target, Brain, Sparkles, HeartPulse];
 
@@ -57,6 +58,7 @@ export function ResearchProtocolStacks({ entries, goalId }: { entries: ResearchE
                 <span className="shrink-0 rounded border border-primary px-1.5 py-1 font-mono text-[9px] uppercase leading-none text-primary">Reference</span>
               </header>
               <p className="mt-3 text-xs leading-5 text-muted-foreground">{entry ? entry.category || "Research category not available." : "Published research not available."}</p>
+              <ResearchSourceDescription entry={entry} entries={entries} />
               <dl className="mt-4 grid grid-cols-2 rounded-lg border border-border bg-protocol-inset px-3 py-3">
                 {[["Dose", PROTOCOL_REFERENCE_FIELDS.dose], ["Timing", PROTOCOL_REFERENCE_FIELDS.timing]].map(([label, value]) => <div key={label}><dt className="font-mono text-[10px] uppercase text-muted-foreground">{label}</dt><dd className="mt-1 text-sm text-foreground">{value ?? "—"}</dd></div>)}
               </dl>
