@@ -1,5 +1,9 @@
 # Titan Club final validation
 
+## Bank payment copy controls — current project, unpublished
+- [x] Shared PaymentDetails controls cover checkout and order confirmation: account/BSB/number/PayID/amount/reference raw string copying, success-only feedback and denied-copy manual selection. Existing account-name fallback preserved.
+- [x] Dummy-only Playwright checks pass for six values, leading zeros, no submit, blank fields, zero/invalid amounts and mobile themes; 19 payment regressions pass. Automatic build OK; desktop-light/mobile-dark screenshots supplied. Files: PaymentDetails.tsx, scripts/payment-copy.fixture.tsx, scripts/payment-copy.browser-test.py, AGENTS.md, roadmap.md. No settings/data/payment writes or publication.
+
 ## Compact compound explanations — separate unpublished review draft
 - [x] Corrected scorecard cascade/DOM: scoped vertical rows, exact proportional 9px bars, balanced desktop grade panel/140px circle and mobile stack. Six BPC dark/light runs at 1366/1024/390 passed geometry/no-overflow checks; inspected desktop/mobile captures with adjacent headings. 102 tests/766 assertions pass; automatic build OK 21 Oct 10:58:01 UTC. No live writes or acceptance/publication.
 - [x] Read full owner brief, both screenshots and all 44 editorial entries; preserve unrelated work and saved research.
