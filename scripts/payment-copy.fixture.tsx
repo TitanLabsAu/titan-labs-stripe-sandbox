@@ -16,7 +16,7 @@ export function mountBankCopyFixture() {
         <form className="mt-6" onSubmit={(event) => { event.preventDefault(); submissions += 1; }}>
           <PaymentDetails method="payid" amountAud={amount} reference={blank ? "  " : "TL-DEMO-0001"} content={{
             payment_payid_id: blank ? "" : "payments@example.invalid",
-            payment_payid_account: blank ? "" : "Demo Research Supplies",
+            payment_payid_account: blank ? "  " : "Demo Research Supplies",
             payment_payid_bsb: blank ? "" : "012-034",
             payment_payid_account_number: blank ? "" : "000123456",
             payment_payid_instructions: "Use the payment reference shown above.",
