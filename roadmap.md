@@ -65,3 +65,8 @@
 
 - [x] Titan Stack multibuy counts Range only: PriceLine.multibuyEligible (fail-closed) in order-pricing, server priceCheckout derives from stored catalogue_section, client cartPriceLines from catalogue facts; cart/checkout banners use quote.multibuyUnits and clarify pens/equipment don't count; 13 new tests + 117 pricing regressions + typecheck + build pass; preview verified (2 Range + BAC = 10% off Range subtotal only). No publish.
 - Check card-payment-toggle draft completion; report evidence; owner accepts/publishes (no live settings change)
+
+## Admin card payment toggle (draft drft_01m5gmdzskefarvydm105hm4c7) — READY FOR OWNER ACCEPT/PUBLISH
+- [x] payment_card_enabled site_content setting, default enabled; Admin > Payments checkbox uses existing save flow; checkout hides card + auto-reselects; zero-method guard; server blocks NEW Stripe intents when disabled (fail closed on read error); webhook/in-flight intents untouched.
+- [x] 15 focused tests pass (defaults, hiding, reselect, zero-method, server guard, webhook not gated, picker render); 41 related pricing/Stripe regressions pass; typecheck clean; production build OK. Draft includes latest main (902f34b); no merge needed.
+- [x] No live settings changed, card payments remain enabled, no payment attempts/emails. Admin screenshot skipped per owner (no sign-in impersonation).
