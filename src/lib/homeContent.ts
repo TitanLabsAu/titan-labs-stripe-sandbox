@@ -165,6 +165,7 @@ export const PAYMENT_FIELDS: HomeField[] = [
     fallback:
       "Open your Wise payment link, send the order total in AUD and use your order number as the payment reference.",
   },
+  { key: "payment_card_enabled", label: "Show card payment (Stripe) at checkout", align: "left", fallback: "true" },
   { key: "payment_crypto_label", label: "Crypto option name", align: "left", fallback: "Cryptocurrency (10% off)" },
   { key: "payment_card_label", label: "Card option name", align: "left", fallback: "Credit / Debit Card" },
   {
@@ -234,6 +235,38 @@ export function termsVersion(content: Record<string, string> | undefined) {
 }
 
 export type PaymentMethodKey = "payid" | "wise" | "crypto" | "card";
+
+/**
+ * Card payments default to enabled — only an explicit saved "false" hides
+ * them. Disabling never removes Stripe keys, orders or payment history.
+ */
+export function cardPaymentsEnabled(content: Record<string, string> | undefined) {
+  return homeValue(content, "payment_card_enabled") !== "false";
+}
+
+/** Payment methods currently offered at checkout, in display order. */
+export function enabledPaymentMethods(
+  content: Record<string, string> | undefined,
+): PaymentMethodKey[] {
+  return [
+    ...(cardPaymentsEnabled(content) ? (["card"] as const) : []),
+    ...(homeValue(content, "payment_bank_enabled") === "true" ? (["payid"] as const) : []),
+    ...(homeValue(content, "payment_wise_enabled") === "true" ? (["wise"] as const) : []),
+    "crypto" as const,
+  ];
+}
+
+/**
+ * If the chosen method is no longer offered, pick the first available one.
+ * Returns null when no methods remain (checkout must be blocked).
+ */
+export function reselectPaymentMethod(
+  content: Record<string, string> | undefined,
+  current: PaymentMethodKey,
+): PaymentMethodKey | null {
+  const enabled = enabledPaymentMethods(content);
+  return enabled.includes(current) ? current : enabled[0] ?? null;
+}
 
 export function paymentMethodName(
   content: Record<string, string> | undefined,

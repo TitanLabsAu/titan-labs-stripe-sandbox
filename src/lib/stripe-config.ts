@@ -15,6 +15,14 @@ export function secretKeyMode(key: string | undefined | null): StripeKeyMode | n
   return null;
 }
 
+/**
+ * New card payments are allowed unless the saved site_content setting is
+ * exactly "false". A missing setting means enabled (the default behaviour).
+ */
+export function cardPaymentSettingAllowsNew(saved: string | null | undefined): boolean {
+  return (saved ?? "").trim() !== "false";
+}
+
 export type StripePublicConfig =
   | { ok: true; publishableKey: string; mode: StripeKeyMode; source: "runtime" | "build" }
   | { ok: false; reason: "missing" | "invalid" | "mode_mismatch" };

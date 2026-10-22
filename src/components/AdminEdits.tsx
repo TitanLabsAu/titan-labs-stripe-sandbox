@@ -1016,6 +1016,18 @@ export function AdminEdits() {
               <input
                 type="checkbox"
                 className="mt-1"
+                checked={values["payment_card_enabled"] !== "false"}
+                onChange={(event) => setValue("payment_card_enabled", event.target.checked ? "true" : "false")}
+              />
+              <span>
+                <span className="block font-bold">Card Payment (Stripe) at checkout</span>
+                <span className="mt-1 block text-sm text-muted-foreground">Untick and save to hide card payment from checkout. Your Stripe keys, past orders and payment history are kept, and payments already in progress still complete — tick and save again to restore card payments.</span>
+              </span>
+            </label>
+            <label className="mt-3 flex items-start gap-3 rounded-xl border border-primary/25 p-4">
+              <input
+                type="checkbox"
+                className="mt-1"
                 checked={values["payment_bank_enabled"] === "true"}
                 onChange={(event) => setValue("payment_bank_enabled", event.target.checked ? "true" : "false")}
               />
@@ -1038,7 +1050,7 @@ export function AdminEdits() {
             </label>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               {PAYMENT_FIELDS.filter(
-                (f) => f.key !== "payment_crypto_options" && f.key !== "payment_bank_enabled" && f.key !== "payment_wise_enabled" && f.key !== "order_admin_email",
+                (f) => f.key !== "payment_crypto_options" && f.key !== "payment_bank_enabled" && f.key !== "payment_wise_enabled" && f.key !== "payment_card_enabled" && f.key !== "order_admin_email",
               ).map((f) => (
                 <ContentFieldEditor
                   key={f.key}

@@ -32,7 +32,9 @@ import { formatPrice } from "@/lib/products";
 import { useProducts, useSiteContent } from "@/lib/useCatalog";
 import {
   catalogueName,
+  enabledPaymentMethods,
   homeValue,
+  reselectPaymentMethod,
   termsVersion,
   type PaymentMethodKey,
 } from "@/lib/homeContent";
@@ -331,6 +333,15 @@ function CheckoutPage() {
   const [referenceSaved, setReferenceSaved] = useState(false);
   const [acknowledged, setAcknowledged] = useState(false);
   const ackVersion = termsVersion(content);
+
+  // If the chosen method is switched off in Admin (e.g. card payments),
+  // move to another available method; with none left, checkout is blocked.
+  const noPaymentMethods = enabledPaymentMethods(content).length === 0;
+  useEffect(() => {
+    const next = reselectPaymentMethod(content, method);
+    if (next && next !== method) setMethod(next);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [content, method]);
 
   // Pre-fill from the saved profile once we know who is signed in.
   useEffect(() => {
@@ -839,6 +850,17 @@ function CheckoutPage() {
               <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">
                 {homeValue(content, "payment_intro")}
               </p>
+              {noPaymentMethods ? (
+                <div className="mt-4 rounded border border-destructive/40 bg-destructive/5 p-4">
+                  <p className="font-bold uppercase tracking-wide text-foreground">
+                    Checkout is temporarily unavailable
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    No payment methods are available right now. Please check back
+                    soon or contact us to complete your order.
+                  </p>
+                </div>
+              ) : (
               <div className="mt-4">
                 <PaymentMethodPicker
                   value={method}
@@ -846,6 +868,7 @@ function CheckoutPage() {
                   content={content}
                 />
               </div>
+              )}
               <ResearchAcknowledgement
                 className="mt-4"
                 checked={acknowledged}
@@ -1130,7 +1153,12 @@ function CheckoutPage() {
               </div>
 
               {mode ? (
-                method === "card" ? (
+                noPaymentMethods ? (
+                  <p className="mt-6 text-center text-xs text-muted-foreground">
+                    Checkout is temporarily unavailable — no payment method can
+                    be selected.
+                  </p>
+                ) : method === "card" ? (
                   <p className="mt-6 text-center text-xs text-muted-foreground">
                     Complete your secure Stripe payment in the payment section.
                   </p>
