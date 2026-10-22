@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AlertTriangle, Check, Copy, ExternalLink } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -8,34 +8,63 @@ import { getCryptoRates } from "@/lib/crypto.functions";
 import { cardPaymentsEnabled, homeValue, type PaymentMethodKey } from "@/lib/homeContent";
 import { cryptoAmountFor, parseCryptoOptions, CRYPTO_DISCOUNT_PERCENT } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 
 export function CopyLine({ label, value }: { label: string; value: string }) {
-  const [copied, setCopied] = useState(false);
+  const [copiedValue, setCopiedValue] = useState<string | null>(null);
+  const [failedValue, setFailedValue] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+  const valueRef = useRef<HTMLParagraphElement>(null);
+  const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (resetTimer.current) clearTimeout(resetTimer.current);
+  }, []);
+  const copied = copiedValue === value;
   if (!value.trim()) return null;
   return (
     <div className="flex items-start justify-between gap-3 border-b border-border/60 py-2 last:border-b-0">
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
-        <p className="mt-0.5 break-all font-mono text-sm text-foreground">{value}</p>
+        <p ref={valueRef} className="mt-0.5 select-text break-all font-mono text-sm text-foreground">{value}</p>
+        {failedValue === value ? <p role="alert" className="mt-1 text-xs text-destructive">Copy was blocked. Select this value and copy it manually.</p> : null}
       </div>
-      <button
+      <Button
         type="button"
-        className="shrink-0 rounded border border-border p-1.5 text-muted-foreground hover:text-foreground"
+        variant="outline"
+        size="icon"
+        className="shrink-0 text-muted-foreground hover:text-foreground"
         aria-label={`Copy ${label}`}
+        title={copied ? `${label} copied` : `Copy ${label}`}
+        disabled={pending}
         onClick={async () => {
+          setPending(true);
+          setCopiedValue(null);
+          setFailedValue(null);
+          if (resetTimer.current) clearTimeout(resetTimer.current);
           try {
             await navigator.clipboard.writeText(value);
-            setCopied(true);
+            setCopiedValue(value);
             toast.success(`${label} copied`);
-            setTimeout(() => setCopied(false), 1500);
+            resetTimer.current = setTimeout(() => setCopiedValue(null), 1500);
           } catch {
-            toast.error("Could not copy that");
+            setFailedValue(value);
+            const selection = window.getSelection();
+            if (valueRef.current && selection) {
+              const range = document.createRange();
+              range.selectNodeContents(valueRef.current);
+              selection.removeAllRanges();
+              selection.addRange(range);
+            }
+            toast.error(`Could not copy ${label.toLowerCase()}. Copy the selected value manually.`);
+          } finally {
+            setPending(false);
           }
         }}
       >
         {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-      </button>
+        <span className="sr-only" role="status">{copied ? "Copied" : ""}</span>
+      </Button>
     </div>
   );
 }
@@ -61,7 +90,7 @@ export function PaymentDetails({
     const account = value("payment_payid_account");
     const bsb = value("payment_payid_bsb");
     const accountNumber = value("payment_payid_account_number");
-    const hasDetails = Boolean(payid || bsb || accountNumber);
+    const hasDetails = Boolean(payid || account || bsb || accountNumber);
     return (
       <div className={cn("border border-border bg-muted/20 p-4", className)}>
         {hasDetails ? (
@@ -70,13 +99,14 @@ export function PaymentDetails({
             <CopyLine label="Account name" value={account} />
             <CopyLine label="BSB" value={bsb} />
             <CopyLine label="Account number" value={accountNumber} />
-            {reference ? <CopyLine label="Payment reference" value={reference} /> : null}
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">
             Bank transfer details will be sent to you with your order confirmation.
           </p>
         )}
+        {typeof amountAud === "number" && Number.isFinite(amountAud) && amountAud >= 0 ? <CopyLine label="Amount payable (AUD)" value={amountAud.toFixed(2)} /> : null}
+        {reference ? <CopyLine label="Payment reference" value={reference} /> : null}
         <p className="mt-3 whitespace-pre-line text-xs text-muted-foreground">
           {value("payment_payid_instructions")}
         </p>
