@@ -148,7 +148,7 @@ export const createStripeSandboxPayment = createServerFn({
     }
 
     // Refuse to create a payment when the browser key and secret key are in different modes.
-    const { resolveStripePublicConfig } = await import("@/lib/stripe-config");
+    const { resolveStripePublicConfig, cardPaymentSettingAllowsNew } = await import("@/lib/stripe-config");
     const keyCheck = resolveStripePublicConfig({
       runtimeKey: process.env["STRIPE_PUBLISHABLE_KEY"],
       buildKey: import.meta.env["VITE_STRIPE_PUBLISHABLE_KEY"] as string | undefined,
@@ -156,6 +156,20 @@ export const createStripeSandboxPayment = createServerFn({
     });
     if (!keyCheck.ok) {
       throw new Error("Secure card payments are temporarily unavailable. Please choose another payment method.");
+    }
+
+    // Admin → Payments can switch card payments off; this blocks only NEW
+    // intent creation (including stale/direct clients). In-flight intents and
+    // the webhook finalization are deliberately not gated. A missing setting
+    // means enabled (default); a read failure fails closed.
+    const { supabaseAdmin: settingsDb } = await import("@/integrations/supabase/client.server");
+    const { data: cardSetting, error: cardSettingError } = await settingsDb
+      .from("site_content")
+      .select("body")
+      .eq("key", "payment_card_enabled")
+      .maybeSingle();
+    if (cardSettingError || !cardPaymentSettingAllowsNew(cardSetting?.body)) {
+      throw new Error("Card payments are currently unavailable. Please choose another payment method.");
     }
     if (data.expectedStripeMode && data.expectedStripeMode !== keyCheck.mode) {
       throw new Error("Card payment settings were just updated. Please refresh the page and try again.");

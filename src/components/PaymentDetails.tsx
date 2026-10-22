@@ -5,7 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { CryptoQr } from "@/components/CryptoQr";
 import { getCryptoRates } from "@/lib/crypto.functions";
-import { homeValue, type PaymentMethodKey } from "@/lib/homeContent";
+import { cardPaymentsEnabled, homeValue, type PaymentMethodKey } from "@/lib/homeContent";
 import { cryptoAmountFor, parseCryptoOptions, CRYPTO_DISCOUNT_PERCENT } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
 
@@ -243,14 +243,15 @@ export function PaymentMethodPicker({
   onChange: (next: PaymentMethodKey) => void;
   content: Record<string, string> | undefined;
 }) {
+  const cardEnabled = cardPaymentsEnabled(content);
   const bankEnabled = homeValue(content, "payment_bank_enabled") === "true";
   const wiseEnabled = homeValue(content, "payment_wise_enabled") === "true";
   const options: { key: PaymentMethodKey; label: string; hint: string; badge?: string }[] = [
-    {
-      key: "card",
+    ...(cardEnabled ? [{
+      key: "card" as const,
       label: homeValue(content, "payment_card_label"),
       hint: "Pay securely online by credit or debit card via Stripe.",
-    },
+    }] : []),
     ...(bankEnabled ? [{
       key: "payid" as const,
       label: homeValue(content, "payment_payid_label"),
