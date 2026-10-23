@@ -18,12 +18,13 @@ describe("page-scoped themed artwork and layout", () => {
       expect(bytes.subarray(8, 12).toString()).toBe("WEBP");
     }
   });
-  test("all FAQ rows share intrinsic equal heights without fixed clipping", () => {
+  test("Pen Guide rows size naturally with no fixed or equalized heights", () => {
     const css = readFileSync("src/styles.css", "utf8");
     const route = readFileSync("src/routes/pen-guide.tsx", "utf8");
-    expect(css).toContain(".pen-faq-grid { grid-auto-rows: 1fr; align-items: stretch; }");
-    expect(css).toContain(".pen-faq-card { height: 100%; overflow-wrap: anywhere; }");
-    expect(route).toContain('className="pen-faq-card flex h-full min-w-0');
+    expect(css).not.toContain("pen-instruction-step { min-height");
+    expect(css).not.toContain(".pen-faq-grid { grid-auto-rows");
+    expect(route).not.toContain("auto-rows-fr");
+    expect(route).toContain('className="pen-faq-card flex min-w-0');
     expect(route).toContain("<ThemedArt dark={banner.dark} light={banner.light}");
   });
   test("Pen Guide light counterpart is optional and editable without changing dark artwork", () => {

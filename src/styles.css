@@ -736,13 +736,8 @@ html.light .theme-label-light { display: contents !important; }
 }
 .pen-guide-banner-title { color: var(--pen-banner-ink); }
 .pen-guide-banner-shade { background: var(--pen-banner-shade); }
-.pen-guide-page { --pen-instruction-surface: color-mix(in oklab, var(--primary) 7%, var(--background)); }
-.pen-instructions { padding: 1.5rem; background: var(--pen-instruction-surface); border-block: 1px solid var(--border); }
-.pen-instructions :is(h2,h3,h4) { letter-spacing: 0; }
-.pen-instruction-step { min-height: 7.5rem; }
 .light .pen-guide-banner .pen-guide-art.theme-variant-light { object-fit: contain; object-position: right center; }
-.pen-faq-grid { grid-auto-rows: 1fr; align-items: stretch; }
-.pen-faq-card { height: 100%; overflow-wrap: anywhere; }
+.pen-faq-card { overflow-wrap: anywhere; }
 .pen-faq-card:hover { box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 12%, transparent); }
 .pen-guide-page :is(h1, h2, h3, h4, p, li) { overflow-wrap: anywhere; }
 .light .pen-guide-page {
@@ -756,8 +751,6 @@ html.light .theme-label-light { display: contents !important; }
   .pen-guide-banner { padding-bottom: calc((100vw - 34px) / 3 + 1.5rem); }
   .light .pen-guide-banner .pen-guide-art.theme-variant-light { object-position: center bottom; }
   .light .pen-guide-page { --pen-banner-shade: none; }
-  .pen-instructions { padding: 1.25rem; }
-  .pen-instruction-step { min-height: 0; }
 }
 .light .pen-guide-page :is(h1, h2, h3, h4, p, li, p span, li span, svg) { text-shadow: none; }
 .light .pen-guide-page a svg { color: inherit !important; }
