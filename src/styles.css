@@ -737,7 +737,8 @@ html.light .theme-label-light { display: contents !important; }
 .pen-guide-banner-title { color: var(--pen-banner-ink); }
 .pen-guide-banner-shade { background: var(--pen-banner-shade); }
 .light .pen-guide-banner .pen-guide-art.theme-variant-light { object-fit: contain; object-position: right center; }
-.pen-faq-card { overflow-wrap: anywhere; }
+.pen-faq-grid { grid-auto-rows: 1fr; align-items: stretch; }
+.pen-faq-card { height: 100%; overflow-wrap: anywhere; }
 .pen-faq-card:hover { box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 12%, transparent); }
 .pen-compare-grid { grid-auto-rows: 1fr; }
 .pen-compare-card { overflow-wrap: anywhere; }
@@ -754,7 +755,7 @@ html.light .theme-label-light { display: contents !important; }
   .light .pen-guide-banner .pen-guide-art.theme-variant-light { object-position: center bottom; }
   .light .pen-guide-page { --pen-banner-shade: none; }
 }
-.light .pen-guide-page :is(h1, h2, h3, h4, p, li, p span, li span, svg) { text-shadow: none; }
+.light .pen-guide-page :is(h1, h2, h3, h4, p, li, p span, li span, svg) { color: var(--pen-ink) !important; text-shadow: none; }
 .light .pen-guide-page a svg { color: inherit !important; }
 .light .titan-account-card { --account-ink: oklch(0.24 0.02 250); background: var(--background); }
 .light .titan-account-card :is(h1, p) { color: var(--account-ink) !important; text-shadow: none; }
