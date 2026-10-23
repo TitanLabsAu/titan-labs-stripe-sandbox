@@ -55,8 +55,8 @@ function PenGuide() {
             ))}
           </div>
         </section>
-        <div className="mt-7 grid gap-3 sm:grid-cols-2">
-          {learning.comparison.map((row: { topic: string; reusable: string; disposable: string }, i: number) => <section key={i} className="rounded-lg border border-primary/25 bg-card p-5"><h3 className="font-display text-lg font-bold uppercase text-accent">{row.topic}</h3><div className="mt-3 space-y-3 text-sm leading-6"><p><span className="font-bold text-foreground">V2 reusable: </span><span className="text-muted-foreground">{row.reusable}</span></p><p><span className="font-bold text-foreground">Disposable: </span><span className="text-muted-foreground">{row.disposable}</span></p></div></section>)}
+        <div className="pen-compare-grid mt-7 grid gap-3 sm:grid-cols-2">
+          {learning.comparison.map((row: { topic: string; reusable: string; disposable: string }, i: number) => <section key={i} className="pen-compare-card min-w-0 rounded-lg border border-primary/25 bg-card p-5"><h3 className="font-display text-lg font-bold uppercase text-accent">{row.topic}</h3><div className="mt-3 space-y-3 text-sm leading-6"><p><span className="font-bold text-foreground">V2 reusable: </span><span className="text-muted-foreground">{row.reusable}</span></p><p><span className="font-bold text-foreground">Disposable: </span><span className="text-muted-foreground">{row.disposable}</span></p></div></section>)}
         </div>
         <section aria-labelledby="pens-101-heading" className="mt-12">
           <div className="flex items-center gap-3"><BookOpen aria-hidden="true" className="h-7 w-7 text-accent" /><h2 id="pens-101-heading" className="font-display text-3xl font-bold uppercase text-foreground">{learning.faq_title}</h2></div>
