@@ -1,9 +1,11 @@
 # Titan Club final validation
 
 ## Pen Guide — unpublished review
-- [ ] Fix full light-banner composition while preserving artwork, dark composition and other pages.
-- [ ] Reproduce supplied first six steps and two-column layout; retain lower content and CMS overrides without live writes.
-- [ ] Verify exact source, focused regressions, automatic diagnostics and four downloadable desktop/mobile theme screenshots; report missing lower source.
+- [x] Light-only contain fitting and narrower fade preserve full artwork; mobile art below copy with equal theme heights, original dark fitting/position/overlay and neighboring pages retained.
+- [x] Exact first six steps, title/intro/column headings verified against upload; existing 8/7 counts, lower steps and saved CMS precedence retained without writes. Dedicated column titles remain editable.
+- [x] 32 focused tests/143 assertions pass; four desktop/mobile theme browser checks have no page errors/overflow, homepage/catalogue HTTP 200, automatic build OK. Four downloadable screenshots and report supplied; no live writes or publication.
+- [ ] Separate typecheck confirmation: automatic typecheck diagnostic unavailable; not independently verified.
+- [ ] Replacement lower steps: waiting for owner's missing source; existing lower wording remains unchanged.
 
 ## Bank payment copy controls — current project, unpublished
 - [x] Shared PaymentDetails controls cover checkout and order confirmation: account/BSB/number/PayID/amount/reference raw string copying, success-only feedback and denied-copy manual selection. Existing account-name fallback preserved.
