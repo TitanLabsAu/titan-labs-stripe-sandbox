@@ -31,22 +31,22 @@ function PenGuide() {
           {g.intro ? <p className="mt-5 max-w-xl whitespace-pre-wrap text-sm leading-6 text-muted-foreground">{g.intro}</p> : null}
           <Button asChild className="mt-6"><Link to="/range" search={{ section: "pens" }}>{g.shop_label}<ArrowRight aria-hidden="true" /></Link></Button>
         </section>
-         <section className="pen-instructions mt-10" aria-labelledby="pen-comparison-heading">
-           <div className="border-b border-primary/25 pb-6">
-             <h2 id="pen-comparison-heading" className="font-display text-3xl font-bold text-foreground">{learning.title}</h2>
+         <section className="mt-7 overflow-hidden rounded-xl border border-primary/30 bg-card" aria-labelledby="pen-comparison-heading">
+          <div className="border-b border-primary/25 bg-gradient-to-r from-primary/20 to-accent/10 p-6 sm:p-8">
+            <h2 id="pen-comparison-heading" className="font-display text-2xl font-bold uppercase text-foreground">{learning.title}</h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">{learning.intro}</p>
           </div>
-           <div className="pen-instruction-columns mt-6 grid gap-8 md:grid-cols-2">
+           <div className="grid md:grid-cols-2">
             {[
                { title: learning.reusable_title, icon: RotateCcw, steps: learning.reusable_steps },
                { title: learning.disposable_title, icon: PenTool, steps: learning.disposable_steps },
             ].map(({ title, icon: Icon, steps }, si) => (
-               <section key={si} className="min-w-0">
-                 <h3 className="pen-column-heading flex items-center gap-3 border-b border-primary/25 pb-4 font-display text-2xl font-bold"><Icon aria-hidden="true" className="h-6 w-6 shrink-0 text-accent" />{title}</h3>
+               <section key={si} className="min-w-0 p-6 sm:p-8 first:border-b first:border-primary/25 md:first:border-b-0 md:first:border-r">
+                 <h3 className="flex items-center gap-3 font-display text-xl font-bold uppercase"><Icon aria-hidden="true" className="h-6 w-6 shrink-0 text-accent" />{title}</h3>
                  <ol className="mt-6 space-y-5">
                   {steps.map((step: { title: string; body: string }, i: number) => (
-                     <li key={i} className="pen-instruction-step flex gap-4">
-                       <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-primary/30 bg-primary/10 font-display font-bold text-primary">{i + 1}</span>
+                     <li key={i} className="flex gap-4">
+                       <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-primary/30 bg-primary/10 font-display font-bold text-accent">{i + 1}</span>
                       <div><h4 className="text-sm font-bold text-foreground">{step.title}</h4><p className="mt-1 whitespace-pre-line text-sm leading-6 text-muted-foreground">{step.body}</p></div>
                     </li>
                   ))}
@@ -61,8 +61,8 @@ function PenGuide() {
         <section aria-labelledby="pens-101-heading" className="mt-12">
           <div className="flex items-center gap-3"><BookOpen aria-hidden="true" className="h-7 w-7 text-accent" /><h2 id="pens-101-heading" className="font-display text-3xl font-bold uppercase text-foreground">{learning.faq_title}</h2></div>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">{learning.faq_intro}</p>
-          <div className="pen-faq-grid mt-6 grid auto-rows-fr items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {learning.questions.map((q: { title: string; body: string }, i: number) => { const Icon = faqIcons[i % faqIcons.length] ?? BookOpen; return <article key={i} className="pen-faq-card flex h-full min-w-0 flex-col rounded-xl border border-primary/25 bg-card p-5 transition-colors duration-200 hover:border-accent"><span className="mb-4 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10"><Icon aria-hidden="true" className="h-5 w-5 text-primary" /></span><h3 className="text-sm font-bold">{q.title}</h3><p className="mt-3 whitespace-pre-line text-sm leading-6 text-muted-foreground">{q.body}</p></article>; })}
+          <div className="pen-faq-grid mt-6 grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {learning.questions.map((q: { title: string; body: string }, i: number) => { const Icon = faqIcons[i % faqIcons.length] ?? BookOpen; return <article key={i} className="pen-faq-card flex min-w-0 flex-col rounded-xl border border-primary/25 bg-card p-5 transition-colors duration-200 hover:border-accent"><span className="mb-4 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10"><Icon aria-hidden="true" className="h-5 w-5 text-primary" /></span><h3 className="text-sm font-bold">{q.title}</h3><p className="mt-3 whitespace-pre-line text-sm leading-6 text-muted-foreground">{q.body}</p></article>; })}
           </div>
           <div className="mt-6 rounded-xl border border-accent/30 bg-accent/5 p-6"><h3 className="flex items-center gap-3 font-display text-xl font-bold uppercase"><ShieldCheck aria-hidden="true" className="h-5 w-5 text-accent" />{learning.checklist_title}</h3><ul className="mt-4 grid gap-3 sm:grid-cols-2">{learning.checklist.map((item: { text: string }, i: number) => <li key={i} className="flex gap-3 text-sm leading-6 text-muted-foreground"><Check aria-hidden="true" className="mt-1 h-4 w-4 shrink-0 text-primary" />{item.text}</li>)}</ul></div>
         </section>
