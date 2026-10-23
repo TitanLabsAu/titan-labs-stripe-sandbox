@@ -22,7 +22,7 @@ describe("page-scoped themed artwork and layout", () => {
     const css = readFileSync("src/styles.css", "utf8");
     const route = readFileSync("src/routes/pen-guide.tsx", "utf8");
     expect(css).not.toContain("pen-instruction-step { min-height");
-    expect(css).not.toContain("grid-auto-rows: 1fr");
+    expect(css).not.toContain(".pen-faq-grid { grid-auto-rows");
     expect(route).not.toContain("auto-rows-fr");
     expect(route).toContain('className="pen-faq-card flex min-w-0');
     expect(route).toContain("<ThemedArt dark={banner.dark} light={banner.light}");
