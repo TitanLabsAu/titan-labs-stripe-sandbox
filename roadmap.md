@@ -4,7 +4,7 @@
 - [x] Light-only contain fitting and narrower fade preserve full artwork; mobile art below copy with equal theme heights, original dark fitting/position/overlay and neighboring pages retained.
 - [x] Exact first six steps, title/intro/column headings verified against upload; existing 8/7 counts, lower steps and saved CMS precedence retained without writes. Dedicated column titles remain editable.
 - [x] 32 focused tests/143 assertions pass; four desktop/mobile theme browser checks have no page errors/overflow, homepage/catalogue HTTP 200, automatic build OK. Four downloadable screenshots and report supplied; no live writes or publication.
-- [ ] Separate typecheck confirmation: automatic typecheck diagnostic unavailable; not independently verified.
+- [x] Separate typecheck confirmation: `bunx tsgo --noEmit` exit 0 with no diagnostics; changed files confirmed inside tsconfig include scope. No type errors from this change.
 - [ ] Replacement lower steps: waiting for owner's missing source; existing lower wording remains unchanged.
 
 ## Bank payment copy controls — current project, unpublished
