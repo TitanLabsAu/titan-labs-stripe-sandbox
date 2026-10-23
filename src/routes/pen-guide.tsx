@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useSiteContent } from "@/lib/useCatalog";
 import { ThemedArt, themedArtPair } from "@/components/ThemedImage";
 export const Route = createFileRoute("/pen-guide")({
-   head: () => seoHead("Titan V2 & Disposable Pen Guides | Titan Labs Aus", "Compare Titan V2 reusable and disposable pens. Explore pen features, handling guides, common questions and links to the Pens catalogue.", `${SITE_ORIGIN}/pen-guide`),
+  head: () => seoHead("Titan V2 & Disposable Pen Guides | Titan Labs Aus", "Compare Titan V2 reusable and disposable pens. Explore pen features, handling guides, common questions and links to the Pens catalogue.", `${SITE_ORIGIN}/pen-guide`, "/images/titan-catalogue-banner.webp"),
   component: PenGuide,
 });
 
@@ -61,8 +61,8 @@ function PenGuide() {
         <section aria-labelledby="pens-101-heading" className="mt-12">
           <div className="flex items-center gap-3"><BookOpen aria-hidden="true" className="h-7 w-7 text-accent" /><h2 id="pens-101-heading" className="font-display text-3xl font-bold uppercase text-foreground">{learning.faq_title}</h2></div>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">{learning.faq_intro}</p>
-          <div className="pen-faq-grid mt-6 grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {learning.questions.map((q: { title: string; body: string }, i: number) => { const Icon = faqIcons[i % faqIcons.length] ?? BookOpen; return <article key={i} className="pen-faq-card flex min-w-0 flex-col rounded-xl border border-primary/25 bg-card p-5 transition-colors duration-200 hover:border-accent"><span className="mb-4 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10"><Icon aria-hidden="true" className="h-5 w-5 text-primary" /></span><h3 className="text-sm font-bold">{q.title}</h3><p className="mt-3 whitespace-pre-line text-sm leading-6 text-muted-foreground">{q.body}</p></article>; })}
+          <div className="pen-faq-grid mt-6 grid auto-rows-fr items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {learning.questions.map((q: { title: string; body: string }, i: number) => { const Icon = faqIcons[i % faqIcons.length] ?? BookOpen; return <article key={i} className="pen-faq-card flex h-full min-w-0 flex-col rounded-xl border border-primary/25 bg-card p-5 transition-colors duration-200 hover:border-accent"><span className="mb-4 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10"><Icon aria-hidden="true" className="h-5 w-5 text-primary" /></span><h3 className="text-sm font-bold">{q.title}</h3><p className="mt-3 whitespace-pre-line text-sm leading-6 text-muted-foreground">{q.body}</p></article>; })}
           </div>
           <div className="mt-6 rounded-xl border border-accent/30 bg-accent/5 p-6"><h3 className="flex items-center gap-3 font-display text-xl font-bold uppercase"><ShieldCheck aria-hidden="true" className="h-5 w-5 text-accent" />{learning.checklist_title}</h3><ul className="mt-4 grid gap-3 sm:grid-cols-2">{learning.checklist.map((item: { text: string }, i: number) => <li key={i} className="flex gap-3 text-sm leading-6 text-muted-foreground"><Check aria-hidden="true" className="mt-1 h-4 w-4 shrink-0 text-primary" />{item.text}</li>)}</ul></div>
         </section>
