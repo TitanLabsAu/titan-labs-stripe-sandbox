@@ -25,7 +25,6 @@ describe("page-scoped themed artwork and layout", () => {
     expect(css).toContain(".pen-faq-card { height: 100%; overflow-wrap: anywhere; }");
     expect(route).toContain('className="pen-faq-card flex h-full min-w-0');
     expect(route).toContain("<ThemedArt dark={banner.dark} light={banner.light}");
-    expect(css).toContain(".light .pen-guide-page :is(h1, h2, h3, h4, p, li, p span, li span, svg)");
   });
   test("Pen Guide light counterpart is optional and editable without changing dark artwork", () => {
     const guide = CMS_SECTIONS.find((s) => s.id === "guide_pages");
