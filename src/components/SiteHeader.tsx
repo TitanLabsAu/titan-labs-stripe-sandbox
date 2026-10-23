@@ -1,4 +1,4 @@
-import { cmsValues, visibleCmsLinks } from "@/lib/storefrontContent";
+import { cmsValues, guideNavLabel, visibleCmsLinks } from "@/lib/storefrontContent";
 import { CmsLink } from "@/components/CmsLink";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -230,7 +230,7 @@ export function SiteHeader() {
       <ThemeToggle />
       {visibleCmsLinks(cmsValues(content, "nav_header").links).map((l, i) => (
         <Button key={`cms-${i}`} asChild variant="outline" size="sm" className="titan-nav-icon w-auto px-3 text-xs font-bold uppercase">
-          <CmsLink href={l.url}>{l.label}</CmsLink>
+          <CmsLink href={l.url}>{guideNavLabel(l.label, l.url)}</CmsLink>
         </Button>
       ))}
     </nav>

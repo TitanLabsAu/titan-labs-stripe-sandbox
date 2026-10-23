@@ -1,4 +1,4 @@
-import { cmsValues } from "@/lib/storefrontContent";
+import { cmsValues, guideNavLabel } from "@/lib/storefrontContent";
 import { CmsLink } from "@/components/CmsLink";
 import { useSiteContent, useSiteLinks } from "@/lib/useCatalog";
 import { RichText } from "@/components/RichText";
@@ -52,7 +52,7 @@ export function SiteFooter() {
                })}
                <Link to="/reviews" hash="leave-review">{cmsValues(content,"review_submission").cta_label}</Link>
                <Link to="/research/protocol-stacks">Protocol Stacks</Link>
-               {extraLinks.map((l, i) => <CmsLink key={i} href={l.url}>{l.label}</CmsLink>)}
+               {extraLinks.map((l, i) => <CmsLink key={i} href={l.url}>{guideNavLabel(l.label, l.url)}</CmsLink>)}
             </div>
           </div>
           <div><p className="font-display text-xs font-bold uppercase text-accent">{cmsValues(content, "footer_design").support_title}</p>
