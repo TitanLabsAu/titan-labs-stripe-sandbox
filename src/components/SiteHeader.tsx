@@ -4,7 +4,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   CalendarDays,
-  PenTool,
+  BookOpen,
   Calculator,
   FlaskConical,
   Home,
@@ -170,10 +170,10 @@ export function SiteHeader() {
               <Link
                 to="/pen-guide"
                 {...navState("/pen-guide")}
-                aria-label="Titan Pen Guides"
-                title="Titan Pen Guides"
+                aria-label="Titan Guides"
+                title="Titan Guides"
               >
-                {display(tab) === "icon" ? <PenTool /> : <span>Pens</span>}
+                {display(tab) === "icon" ? <BookOpen /> : <span>Guides</span>}
               </Link>
             </Button>
           );

@@ -281,6 +281,31 @@ export const CMS_SECTIONS: CmsSection[] = [
     },
   },
   {
+    id: "guide_documents",
+    group: "Guides",
+    title: "Titan Guides page & kit guides",
+    description: "Page heading, guide tabs and the supplied kit guide documents.",
+    fields: [
+      T("eyebrow", "Small heading", 60), T("title", "Page title", 80), P("intro", "Page introduction", 400),
+      T("pens_tab", "Pen Guides tab label", 40), T("reconstitution_tab", "Reconstitution tab label", 40), T("administration_tab", "Administration tab label", 40),
+      T("reconstitution_title", "Reconstitution guide heading", 80), P("reconstitution_intro", "Reconstitution guide introduction", 400),
+      { key: "reconstitution_image", label: "Reconstitution guide document image", type: "image" },
+      T("administration_title", "Administration guide heading", 80), P("administration_intro", "Administration guide introduction", 400),
+      { key: "administration_image", label: "Administration guide document image", type: "image" },
+    ],
+    defaults: {
+      eyebrow: "Learn • Prepare • Reference", title: "Titan Guides",
+      intro: "Reference guides for Titan pens and kits. Choose a guide below.",
+      pens_tab: "Pen Guides", reconstitution_tab: "Reconstitution Kit", administration_tab: "Administration Kit",
+      reconstitution_title: "Peptide Reconstitution Guide",
+      reconstitution_intro: "The guide supplied with the Titan Reconstitution Kit. Open it full size to read the details.",
+      reconstitution_image: "/__l5e/assets-v1/f8a434e0-f9d9-484a-8c04-e9c5d30b86fd/titan-peptide-reconstitution-guide.png",
+      administration_title: "Administering Kit Usage Guide",
+      administration_intro: "The guide supplied with the Titan Administration Kit. Open it full size to read the details.",
+      administration_image: "/__l5e/assets-v1/5276d310-073e-4c91-9e3c-716b3155ae7c/titan-administering-kit-usage-guide.png",
+    },
+  },
+  {
     id: "guide_pages",
     group: "Guides",
     title: "Pen Guides page",
@@ -511,7 +536,7 @@ export const CMS_SECTIONS: CmsSection[] = [
     fields: [{ key: "links", label: "Links", type: "list", maxItems: 12, itemFields: [{ key: "label", label: "Label", type: "text", max: 40 }, { key: "url", label: "Link", type: "url" }, { key: "visible", label: "Visible", type: "toggle" }] }],
     defaults: {
       links: [
-        { label: "Pen Guides", url: "/pen-guide", visible: true },
+        { label: "Guides", url: "/pen-guide", visible: true },
         { label: "Reviews", url: "/reviews", visible: true },
         { label: "Referral Program", url: "/referrals", visible: true },
         { label: "Certificates", url: "/certificates", visible: true },
