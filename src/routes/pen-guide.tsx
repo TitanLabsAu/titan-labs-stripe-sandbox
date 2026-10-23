@@ -33,7 +33,8 @@ function TitanGuides() {
   }, []);
   const select = (t: Tab, focus = false) => {
     setTab(t);
-    window.history.replaceState(null, "", `#${t}`);
+    // A real history entry, so Back/Forward move between guides via hashchange.
+    if (window.location.hash !== `#${t}`) window.history.pushState(null, "", `#${t}`);
     if (focus) refs.current[t]?.focus();
   };
   const onKey = (e: KeyboardEvent) => {
