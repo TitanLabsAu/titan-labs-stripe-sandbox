@@ -739,6 +739,8 @@ html.light .theme-label-light { display: contents !important; }
 .light .pen-guide-banner .pen-guide-art.theme-variant-light { object-fit: contain; object-position: right center; }
 .pen-faq-card { overflow-wrap: anywhere; }
 .pen-faq-card:hover { box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 12%, transparent); }
+.pen-compare-grid { grid-auto-rows: 1fr; }
+.pen-compare-card { overflow-wrap: anywhere; }
 .pen-guide-page :is(h1, h2, h3, h4, p, li) { overflow-wrap: anywhere; }
 .light .pen-guide-page {
   --pen-ink: oklch(0.24 0.02 250);
