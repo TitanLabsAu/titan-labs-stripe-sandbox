@@ -1,5 +1,12 @@
 # Titan Club final validation
 
+## Pen Guide — unpublished review
+- [x] Light-only contain fitting and narrower fade preserve full artwork; mobile art below copy with equal theme heights, original dark fitting/position/overlay and neighboring pages retained.
+- [x] Exact first six steps, title/intro/column headings verified against upload; existing 8/7 counts, lower steps and saved CMS precedence retained without writes. Dedicated column titles remain editable.
+- [x] 32 focused tests/143 assertions pass; four desktop/mobile theme browser checks have no page errors/overflow, homepage/catalogue HTTP 200, automatic build OK. Four downloadable screenshots and report supplied; no live writes or publication.
+- [ ] Separate typecheck confirmation: automatic typecheck diagnostic unavailable; not independently verified.
+- [ ] Replacement lower steps: waiting for owner's missing source; existing lower wording remains unchanged.
+
 ## Bank payment copy controls — current project, unpublished
 - [x] Shared PaymentDetails controls cover checkout and order confirmation: account/BSB/number/PayID/amount/reference raw string copying, success-only feedback and denied-copy manual selection. Existing account-name fallback preserved.
 - [x] Dummy-only Playwright checks pass for six values, leading zeros, no submit, blank fields, zero/invalid amounts and mobile themes; 19 payment regressions pass. Automatic build OK; desktop-light/mobile-dark screenshots supplied. Files: PaymentDetails.tsx, scripts/payment-copy.fixture.tsx, scripts/payment-copy.browser-test.py, AGENTS.md, roadmap.md. No settings/data/payment writes or publication.
