@@ -1,5 +1,10 @@
 # Titan Club final validation
 
+## Pen Guide — unpublished review
+- [ ] Fix full light-banner composition while preserving artwork, dark composition and other pages.
+- [ ] Reproduce supplied first six steps and two-column layout; retain lower content and CMS overrides without live writes.
+- [ ] Verify exact source, focused regressions, automatic diagnostics and four downloadable desktop/mobile theme screenshots; report missing lower source.
+
 ## Bank payment copy controls — current project, unpublished
 - [x] Shared PaymentDetails controls cover checkout and order confirmation: account/BSB/number/PayID/amount/reference raw string copying, success-only feedback and denied-copy manual selection. Existing account-name fallback preserved.
 - [x] Dummy-only Playwright checks pass for six values, leading zeros, no submit, blank fields, zero/invalid amounts and mobile themes; 19 payment regressions pass. Automatic build OK; desktop-light/mobile-dark screenshots supplied. Files: PaymentDetails.tsx, scripts/payment-copy.fixture.tsx, scripts/payment-copy.browser-test.py, AGENTS.md, roadmap.md. No settings/data/payment writes or publication.
