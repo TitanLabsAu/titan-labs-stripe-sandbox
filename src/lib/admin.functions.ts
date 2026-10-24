@@ -532,14 +532,14 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
       value === null || value === undefined || value === "" || Number.isNaN(Number(value))
         ? null
         : Number(value);
-    const isEquipment = !allowsKit({ catalogue_section: data.catalogue_section });
+    // Kit pricing is retired (10x bulk-kit removed). Included Equipment
+    // (contents) is display-only and allowed for every section.
     const isEquipmentSection = normalizeCatalogueSection(data.catalogue_section) === "equipment";
     const variants = (data.product_variants ?? [])
       .map((v) => ({
         id: String(v.id || crypto.randomUUID()),
         label: String(v.label ?? "").trim(),
         price: Number(v.price ?? 0),
-        kitPrice: optNum(v.kitPrice),
         salePrice: optNum(v.salePrice),
         promoLabel: String(v.promoLabel ?? "").trim().slice(0, 80),
         ...(typeof v.hotProduct === "boolean" ? { hotProduct: v.hotProduct } : {}),
@@ -559,8 +559,7 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
         if (!v.label || !Number.isFinite(v.price) || v.price <= 0)
           throw new Error(`Each option needs a name and a price above $0${v.label ? ` (${v.label})` : ""}.`);
         return true;
-      })
-      .map((v) => (isEquipment ? { ...v, kitPrice: null } : { ...v, contents: [] }));
+      });
     for (const v of variants) {
       if (v.salePrice !== null && (!Number.isFinite(v.salePrice) || v.salePrice <= 0 || v.salePrice >= v.price))
         throw new Error(`Sale price for ${v.label} must be greater than zero and below its regular price.`);
@@ -580,11 +579,6 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
           ? null
           : Number(data.sale_price),
       promo_label: data.promo_label ?? "",
-      kit_price: isEquipment
-        ? null
-        : data.kit_price === null || data.kit_price === undefined || Number.isNaN(Number(data.kit_price))
-          ? null
-          : Number(data.kit_price),
       product_variants: variants,
       recon_vial_mg: data.recon_vial_mg ?? null,
       recon_water_ml: data.recon_water_ml ?? null,
