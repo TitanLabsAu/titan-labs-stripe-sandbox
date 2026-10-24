@@ -7,11 +7,11 @@ import { BookOpen } from "lucide-react";
 import { StarterKitOffer } from "@/components/StarterKitOffer";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
+import { PenCompanionOffer } from "@/components/PenCompanionOffer";
 import {
   allComingSoon,
   bundleSummary,
   packLabel,
-  allowsKit,
   singleLabelFor,
   firstAvailableVariant,
   isComingSoon,
@@ -22,7 +22,6 @@ import {
   totalStockFor,
   variantStockFor,
   type Product,
-  type ProductPack,
 } from "@/lib/products";
 
 export function ProductCard({ product: p }: { product: Product }) {
@@ -31,24 +30,19 @@ export function ProductCard({ product: p }: { product: Product }) {
   const [variantId, setVariantId] = useState<string | null>(
     variants.find(v => v.hotProduct && !isComingSoon(p, v.id) && stockState(variantStockFor(p, v.id)) !== "out")?.id ?? firstAvailableVariant(p)?.id ?? null,
   );
-  const [pack, setPack] = useState<ProductPack>("single");
   const selectedVariant = (p.variants ?? []).find(v => v.id === variantId);
   const promoLabel = selectedVariant ? selectedVariant.promoLabel || (selectedVariant.hotProduct ? "Hot product" : (p.variants ?? []).some(v => typeof v.hotProduct === "boolean") ? "" : p.promoLabel || "") : p.promoLabel;
   const wasPrice = selectedVariant && promotedPrice(selectedVariant.price, selectedVariant.salePrice) < selectedVariant.price ? selectedVariant.price : selectedVariant ? null : p.wasPrice;
-  const singleOption = getProductOption(p, variantId, "single");
-  const kitOption = getProductOption(p, variantId, "kit");
-  const kitAllowed = allowsKit(p);
-  const option = pack === "kit" && kitAllowed ? kitOption : singleOption;
+  const option = getProductOption(p, variantId, "single");
   const stockCount = variantStockFor(p, variantId);
   const stock = stockState(stockCount);
   const allOut = stockState(totalStockFor(p)) === "out";
   const soon = isComingSoon(p, variantId);
   const bannerSoon = allComingSoon(p);
   const inCart = items.find((i) => i.key === option.key);
-  const vialsPer = option.pack === "kit" ? 10 : 1;
   const atMax =
     Boolean(inCart) &&
-    ((stockCount != null && (inCart!.quantity + 1) * vialsPer > stockCount) ||
+    ((stockCount != null && inCart!.quantity + 1 > stockCount) ||
       inCart!.quantity >= 99);
   return (
     <article className="titan-product-card group flex h-full min-w-0 flex-col overflow-hidden rounded-xl border border-primary/25 bg-card transition hover:border-primary/65 hover:shadow-glow">
