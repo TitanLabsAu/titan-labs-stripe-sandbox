@@ -20,7 +20,6 @@ import {
 import { ProductImageGenerator } from "@/components/ProductImageGenerator";
 import {
   formatPrice,
-  kitPriceFor,
   LOW_STOCK_THRESHOLD,
   stockState,
   isUnlimitedStock,
@@ -41,7 +40,6 @@ export type DraftVariant = {
   id: string;
   label: string;
   price: string;
-  kitPrice: string;
   stock: string;
   cost: string;
   comingSoon: boolean;
@@ -56,16 +54,19 @@ export type DraftVariant = {
 
 function BundleEditor({ items, onChange }: { items: BundleItem[]; onChange: (items: BundleItem[]) => void }) {
   const { products } = useProducts();
-  const choices = products.flatMap((p) =>
-    (p.variants ?? []).length
-      ? (p.variants ?? []).map((v) => ({ slug: p.slug, name: `${p.name} ${v.label}` }))
-      : [{ slug: p.slug, name: p.name }],
-  );
+  // Included Equipment links existing Equipment catalogue products only.
+  const choices = products
+    .filter((p) => normalizeCatalogueSection(p.catalogueSection) === "equipment")
+    .flatMap((p) =>
+      (p.variants ?? []).length
+        ? (p.variants ?? []).map((v) => ({ slug: p.slug, name: `${p.name} ${v.label}` }))
+        : [{ slug: p.slug, name: p.name }],
+    );
   const [pick, setPick] = useState("");
   return (
     <div className="mt-2 rounded-md border border-dashed border-input p-2">
       <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-        Bundle contents (optional) — the price above is charged for the whole bundle
+        Included equipment (optional) — shown as included with this option at no extra charge; stock is not deducted for listed items
       </p>
       {items.map((it, j) => (
         <div key={j} className="mt-2 flex items-center gap-2">
