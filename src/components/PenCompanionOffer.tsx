@@ -10,7 +10,7 @@ import {
   v2PenProduct,
 } from "@/lib/pen-companion";
 import { RANGE_STARTER_KIT_SLUG, PEN_STARTER_KIT_SLUG } from "@/lib/starter-kits";
-import { formatPrice, stockState, variantStockFor } from "@/lib/products";
+import { formatPrice, stockState, variantStockFor, type Product } from "@/lib/products";
 import { normalizeCatalogueSection } from "@/lib/catalogue-sections";
 
 /**

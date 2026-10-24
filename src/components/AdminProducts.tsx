@@ -532,7 +532,7 @@ export function ProductEditor({
                       {v.label || "Unnamed option"}
                     </a>
                     {" includes "}
-                    {items.map((it) => `${it.quantity} × ${it.productName}`).join(", ")}
+                    {items.map((it) => `${it.quantity} × ${it.name}`).join(", ")}
                   </li>
                 ))}
               </ul>
