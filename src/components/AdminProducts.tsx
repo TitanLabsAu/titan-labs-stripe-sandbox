@@ -246,7 +246,6 @@ export function toDraft(p: AdminProduct): Draft {
 export function draftToPayload(d: Draft) {
   const num = (v: string) =>
     v.trim() === "" || Number.isNaN(Number(v)) ? null : Number(v);
-  const equipment = d.catalogue_section !== "range";
   const variants = d.variants
     .map((v) => ({
       id: v.id || safeVariantId(v.label),
@@ -284,7 +283,6 @@ export function draftToPayload(d: Draft) {
         : Number(d.price) || 0,
     sale_price: num(d.sale_price),
     promo_label: d.promo_label,
-    kit_price: equipment ? null : num(d.kit_price),
     product_variants: variants,
     image_url: d.image_url,
     alt: d.alt || d.name,
@@ -519,7 +517,7 @@ export function ProductEditor({
             <p className="mt-1 text-xs text-muted-foreground">
               {draft.catalogue_section !== "range"
                 ? draft.catalogue_section === "equipment" ? "Each option is one sellable pack: set items per pack (1 for a single item) and the price for the whole pack. Cart quantity, stock and restocks count packs. " : "Pens are sold as single items. Starter kits are separate products. "
-                : "Add every vial size you sell, even if there is only one. Leave kit price blank to use the automatic 20% off. "}
+                : "Add every vial size you sell, even if there is only one. "}
               Stock is counted per
               size — under {LOW_STOCK_THRESHOLD} shows a low stock warning, 0
               shows out of stock for that size.
@@ -536,7 +534,6 @@ export function ProductEditor({
                     id: crypto.randomUUID(),
                     label: "",
                     price: "",
-                    kitPrice: "",
                     stock: "0",
                     cost: "",
                     comingSoon: false,
