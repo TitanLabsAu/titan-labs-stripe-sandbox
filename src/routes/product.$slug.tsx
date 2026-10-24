@@ -139,13 +139,23 @@ function ProductPage() {
 
         <div className="mt-6 grid gap-8 border-t border-border pt-8 lg:grid-cols-[1fr_0.95fr]">
           <div>
-            <ThemedProductImage
-              slug={product.slug}
-              src={product.image}
-              sizes="(min-width: 1024px) 50vw, 100vw"
-              alt={product.alt}
-              className="w-full rounded-xl border border-border bg-card object-cover"
-            />
+            {selectedVariant?.image ? (
+              <img
+                src={selectedVariant.image}
+                alt={`${product.alt} — ${selectedVariant.label}`}
+                loading="lazy"
+                decoding="async"
+                className="w-full rounded-xl border border-border bg-card object-cover"
+              />
+            ) : (
+              <ThemedProductImage
+                slug={product.slug}
+                src={product.image}
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                alt={product.alt}
+                className="w-full rounded-xl border border-border bg-card object-cover"
+              />
+            )}
           </div>
 
           <div>

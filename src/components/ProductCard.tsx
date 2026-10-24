@@ -57,14 +57,24 @@ export function ProductCard({ product: p }: { product: Product }) {
         params={{ slug: p.slug }}
         className="titan-product-photo relative block aspect-square overflow-hidden border-b border-primary/20 bg-[#030f19] titan-photo-frame"
       >
-        <ThemedProductImage
-          slug={p.slug}
-          src={p.image}
-          sizes="(min-width: 1280px) 320px, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-          alt={p.alt}
-          loading="lazy"
-          className={`h-full w-full object-contain transition duration-300 hover:scale-[1.02] ${allOut ? "opacity-40 grayscale" : ""}`}
-        />
+        {selectedVariant?.image ? (
+          <img
+            src={selectedVariant.image}
+            alt={`${p.alt} — ${selectedVariant.label}`}
+            loading="lazy"
+            decoding="async"
+            className={`h-full w-full object-contain transition duration-300 hover:scale-[1.02] ${allOut ? "opacity-40 grayscale" : ""}`}
+          />
+        ) : (
+          <ThemedProductImage
+            slug={p.slug}
+            src={p.image}
+            sizes="(min-width: 1280px) 320px, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+            alt={p.alt}
+            loading="lazy"
+            className={`h-full w-full object-contain transition duration-300 hover:scale-[1.02] ${allOut ? "opacity-40 grayscale" : ""}`}
+          />
+        )}
         {promoLabel && !bannerSoon ? (
           <span className={`titan-promo-badge ${/^hot\s*products?$/i.test(promoLabel.trim()) ? "titan-promo-ribbon titan-promo-ribbon--hot" : /^flash\s*sale$/i.test(promoLabel.trim()) ? "titan-promo-ribbon titan-promo-ribbon--flash" : /^new\s*products?$/i.test(promoLabel.trim()) ? "titan-promo-ribbon titan-promo-ribbon--new" : "absolute left-2 top-2 px-2 py-1 text-[8px] font-bold uppercase tracking-wider"}`}>
             {promoLabel}
