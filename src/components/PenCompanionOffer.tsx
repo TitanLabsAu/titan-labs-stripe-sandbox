@@ -110,7 +110,14 @@ export function PenCompanionOffer({ product }: { product: Product }) {
             <option value="" disabled>
               Choose a colour…
             </option>
-            {(pen.variants ?? []).map((v) => {
+            {[...(pen.variants ?? [])].sort((a, b) => {
+              const colours = ["blue", "purple", "grey"];
+              const rank = (label: string) => {
+                const index = colours.indexOf(label.trim().toLowerCase());
+                return index < 0 ? colours.length : index;
+              };
+              return rank(a.label) - rank(b.label);
+            }).map((v) => {
               const soldOut = stockState(variantStockFor(pen, v.id)) === "out";
               return (
                 <option key={v.id} value={v.id} disabled={soldOut}>
@@ -122,8 +129,7 @@ export function PenCompanionOffer({ product }: { product: Product }) {
           </select>
           {current ? (
             <p className="mt-2 text-[11px] leading-4 text-muted-foreground">
-              One {pen.name} ({current.variantLabel}) is in your cart. Choosing another colour
-              replaces it; your own pen lines are not changed.
+              {current.variantLabel} pen added to your cart. Choose another colour to change your selection.
             </p>
           ) : null}
         </div>
