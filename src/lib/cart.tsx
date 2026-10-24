@@ -92,9 +92,20 @@ export function coerceCartItems(
   for (const item of items) {
     const product = getProduct(item.slug);
     let line = item;
+    const source = sanitizeSource(item.source);
+    if (source !== (item.source ?? null)) {
+      changed = true;
+      line = { ...line, source };
+    }
     if (product && item.pack === "kit" && effectivePack(product, "kit") === "single") {
       changed = true;
-      line = { ...item, pack: "single", key: cartLineKey(item.slug, item.variantId ?? null, "single") };
+      line = {
+        ...line,
+        pack: "single",
+        key: line.source
+          ? flowLineKey(item.slug, item.variantId ?? null, line.source)
+          : cartLineKey(item.slug, item.variantId ?? null, "single"),
+      };
     }
     const dup = out.find((o) => o.key === line.key);
     if (dup) {
