@@ -989,7 +989,7 @@ function CheckoutPage() {
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {settings.multibuyTiers.map((t) => `${t.units} Range items = ${t.percent}% off`).join(" · ")}
-                  {` · pens and equipment don't count · multi-buy, kit and crypto savings combined are capped at ${settings.combinedCapPercent}%`}
+                  {` · pens and equipment don't count · multi-buy and crypto savings combined are capped at ${settings.combinedCapPercent}%`}
                 </p>
                 <div className="mt-3">
                   <TitanStackBanner units={quote.multibuyUnits} />
@@ -1052,9 +1052,6 @@ function CheckoutPage() {
                   <span>Subtotal</span>
                   <span>{formatPrice(quote.itemsCents / 100)}</span>
                 </div>
-                {quote.kitSavingsCents > 0 ? (
-                  <p className="text-xs text-muted-foreground">Includes {formatPrice(quote.kitSavingsCents / 100)} kit savings (counts toward the {quote.capPercent}% cap).</p>
-                ) : null}
                 {quote.multibuyCents > 0 ? (
                   <div className="flex justify-between font-bold text-accent">
                     <span>Titan Stack {quote.multibuyPercent}% off</span>
