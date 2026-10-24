@@ -16,13 +16,27 @@ export type CartItem = {
   variantId?: string | null;
   variantLabel?: string | null;
   pack?: ProductPack;
+  /** Marks lines owned by an in-page flow (e.g. the V2 pen companion), so they never merge with manual lines. */
+  source?: string | null;
 };
 
 export type CartItemOption = {
   variantId?: string | null;
   variantLabel?: string | null;
   pack?: ProductPack;
+  source?: string | null;
 };
+
+/** Flow-owned lines get a distinct key suffix so they never merge with manually added lines of the same product. */
+export function flowLineKey(slug: string, variantId: string | null | undefined, source: string) {
+  return `${cartLineKey(slug, variantId ?? null, "single")}::flow:${source}`;
+}
+
+const SOURCE_RE = /^[a-z0-9:-]{1,80}$/;
+function sanitizeSource(raw: unknown): string | null {
+  const s = String(raw ?? "").trim();
+  return SOURCE_RE.test(s) ? s : null;
+}
 
 type CartContextValue = {
   items: CartItem[];
