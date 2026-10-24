@@ -81,3 +81,9 @@
 - [x] payment_card_enabled site_content setting, default enabled; Admin > Payments checkbox uses existing save flow; checkout hides card + auto-reselects; zero-method guard; server blocks NEW Stripe intents when disabled (fail closed on read error); webhook/in-flight intents untouched.
 - [x] 15 focused tests pass (defaults, hiding, reselect, zero-method, server guard, webhook not gated, picker render); 41 related pricing/Stripe regressions pass; typecheck clean; production build OK. Draft includes latest main (902f34b); no merge needed.
 - [x] No live settings changed, card payments remain enabled, no payment attempts/emails. Admin screenshot skipped per owner (no sign-in impersonation).
+
+## Two approved tasks (owner authorised build+publish; owner clicks Publish)
+- [ ] TASK1: optional per-variant photo in product Admin (any section), server-validated save/load, storefront detail+card+cart switch instantly with parent fallback; tests
+- [ ] TASK2: native HTML Reconstitution (6 steps) + Administration (7 steps) guides replacing full-sheet embeds; cropped step photos as CDN assets; CMS sections with safe defaults; tabs/keyboard/hash preserved; original files kept as backup links
+- [ ] Prep-pad imagery: use corrected Titan 70% ALCOHOL sachet image for both kit prep-pad photos; brand convention saved to memory
+- [ ] Checks: focused tests, typecheck, full build, screenshots (admin variant field, storefront switching, native guides light/dark/mobile); NO publish from chat
