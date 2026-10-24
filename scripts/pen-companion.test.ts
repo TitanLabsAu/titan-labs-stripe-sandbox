@@ -8,7 +8,8 @@ import {
   v2PenProduct,
 } from "../src/lib/pen-companion";
 import { PEN_STARTER_KIT_SLUG, RANGE_STARTER_KIT_SLUG } from "../src/lib/starter-kits";
-import { cartLineKey, flowLineKey, coerceCartItems, type CartItem } from "../src/lib/cart";
+import { flowLineKey, coerceCartItems, type CartItem } from "../src/lib/cart";
+import { cartLineKey } from "../src/lib/products";
 import { draftToPayload, toDraft, type Draft } from "../src/components/AdminProducts";
 import type { Product } from "../src/lib/products";
 
