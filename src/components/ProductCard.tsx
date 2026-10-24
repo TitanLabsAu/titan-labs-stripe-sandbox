@@ -135,32 +135,7 @@ export function ProductCard({ product: p }: { product: Product }) {
             {singleLabelFor(p)}
           </p>
         )}
-        {kitAllowed ? (
-        <div
-          className="titan-buy-options mt-2 grid grid-cols-2 gap-2"
-          aria-label="Buy option"
-        >
-          {(
-            [
-              ["single", "Single vial", singleOption.unitPrice],
-              ["kit", "10x Kit · 20% off", kitOption.unitPrice],
-            ] as const
-          ).map(([key, label, price]) => (
-            <button
-              key={key}
-              type="button"
-              aria-pressed={pack === key}
-              onClick={() => setPack(key)}
-              className={`rounded-md border border-primary/30 flex flex-col items-center justify-center gap-1 min-h-11 px-2 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition-colors ${pack === key ? "border-accent bg-accent/10 text-foreground shadow-[inset_0_0_0_1px_var(--accent)]" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
-            >
-              <span className="truncate">{label}</span>
-              <span className="sr-only">
-                {formatPrice(price)}
-              </span>
-            </button>
-          ))}
-        </div>
-        ) : null}
+        <PenCompanionOffer product={p} />
         {(() => {
           const items = variants.find((v) => v.id === variantId)?.contents ?? [];
           return items.length ? (
@@ -172,7 +147,7 @@ export function ProductCard({ product: p }: { product: Product }) {
         })()}
         <StarterKitOffer product={p}/>
         <div className="mt-2 flex items-baseline gap-1">
-          {wasPrice && pack === "single" ? (
+          {wasPrice ? (
             <span className="text-xs text-muted-foreground line-through">
               {formatPrice(wasPrice!)}
             </span>
@@ -232,9 +207,7 @@ export function ProductCard({ product: p }: { product: Product }) {
               ? "Coming soon"
               : stock === "out"
                 ? "Out of stock"
-                : option.pack === "kit"
-                  ? "Add kit to order"
-                  : "Add to order"}
+                : "Add to order"}
           </Button>
         )}
       </div>
