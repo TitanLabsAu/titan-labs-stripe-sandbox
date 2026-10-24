@@ -157,22 +157,33 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
               <FreeShippingMeter remaining={quote.remainingForFreeShippingCents / 100} club={quote.clubFreeShipping === true} />
 
               <ul className="space-y-4">
-                {items.map((item) => {
+                 {items.map((item) => {
                   const product = getProduct(item.slug);
                   if (!product) return null;
                   const linePrice = getLinePrice(item);
+                  const lineVariant = (product.variants ?? []).find((v) => v.id === item.variantId);
                   return (
                     <li
                       key={item.key}
                       className="flex gap-3 rounded-xl border border-border bg-card p-3"
                     >
-                      <ThemedProductImage
-                        slug={product.slug}
-                        src={product.image}
-                        sizes="80px"
-                        alt={product.alt}
-                        className="brand-cut h-16 w-16 object-cover"
-                      />
+                      {lineVariant?.image ? (
+                        <img
+                          src={lineVariant.image}
+                          alt={`${product.alt} — ${lineVariant.label}`}
+                          loading="lazy"
+                          decoding="async"
+                          className="brand-cut h-16 w-16 object-cover"
+                        />
+                      ) : (
+                        <ThemedProductImage
+                          slug={product.slug}
+                          src={product.image}
+                          sizes="80px"
+                          alt={product.alt}
+                          className="brand-cut h-16 w-16 object-cover"
+                        />
+                      )}
                       <div className="flex-1">
                         <div className="flex items-start justify-between gap-2">
                           <div>
