@@ -575,7 +575,7 @@ export function visibleCmsLinks(links: unknown): { label: string; url: string }[
 export const isExternalUrl = (v: string) => /^https?:\/\//i.test(v.trim());
 /** Render-only rename of the legacy "Pen Guides" → /pen-guide nav entry to "Guides"; every other label is returned unchanged. */
 export function guideNavLabel(label: string, url: string): string {
-  const path = url.trim().split(/[?#]/)[0].replace(/\/+$/, "");
+  const path = (url.trim().split(/[?#]/)[0] ?? "").replace(/\/+$/, "");
   return path === "/pen-guide" && /^(titan\s+)?pen\s+guides?$/i.test(label.trim()) ? "Guides" : label;
 }
 
