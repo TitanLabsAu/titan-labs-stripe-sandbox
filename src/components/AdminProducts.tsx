@@ -510,6 +510,37 @@ export function ProductEditor({
         </div>
       </div>
 
+      {/* Included Equipment summary — quick overview and jump links to each option's editor */}
+      {(() => {
+        const included = draft.variants
+          .map((v) => ({ v, items: sanitizeBundle(v.contents) }))
+          .filter((x) => x.items.length > 0);
+        return (
+          <div className="rounded-lg border border-border p-3">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+              Included Equipment
+            </p>
+            {included.length === 0 ? (
+              <p className="mt-1 text-xs text-muted-foreground">
+                None yet — open an option below to list equipment included with it at no extra charge.
+              </p>
+            ) : (
+              <ul className="mt-1 space-y-1 text-xs text-muted-foreground">
+                {included.map(({ v, items }) => (
+                  <li key={v.id}>
+                    <a href={`#variant-includes-${v.id}`} className="font-semibold text-primary hover:underline">
+                      {v.label || "Unnamed option"}
+                    </a>
+                    {" includes "}
+                    {items.map((it) => `${it.quantity} × ${it.productName}`).join(", ")}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        );
+      })()}
+
       <div className="space-y-3 rounded-xl border border-primary/20 bg-background/45 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
