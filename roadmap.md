@@ -108,3 +108,8 @@
 - Admin "Included Equipment" (per-option contents) now available for all sections, equipment-only picker, display-only (no charge, no stock deduction), with a summary near the top of the editor.
 - Verified: 467 tests pass, tsgo clean, production build OK, browser flow on /product/tirzepatide (toggle, colours, kit switch/revert, mobile no overflow, no page errors).
 - Still NOT published; nine prep-pad catalogue images remain unserved in pending-catalogue-images/.
+
+## Final pen UI polish — 24 Oct (unpublished)
+- [x] Plain selected-colour feedback and Blue/Purple/Grey companion dropdown order; presentation only, no pricing/stock/cart-policy changes.
+- [x] Actual Range expanded selector + Pen Starter Kit and latest clean-art Guides middle-steps screenshots saved for review; 17 focused tests pass, automatic build OK, browser has no page errors.
+- [x] Read-only V2 saved variants all have empty contents: no Included Equipment invented. Admin redirects to /auth; authenticated editor screenshot unavailable and no sign-in attempted.
