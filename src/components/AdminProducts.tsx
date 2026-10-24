@@ -640,29 +640,7 @@ export function ProductEditor({
                         }
                       />
                     </div>
-                    {draft.catalogue_section === "range" ? (
-                    <div>
-                      <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                        10x kit price
-                      </span>
-                      <Input
-                        type="number"
-                        min={0}
-                        value={variant.kitPrice}
-                        placeholder={
-                          variant.price
-                            ? formatPrice(
-                                kitPriceFor(Number(variant.price) || 0),
-                              )
-                            : "Kit price"
-                        }
-                        aria-label="10x Kit price"
-                        onChange={(e) =>
-                          setVariant(i, { kitPrice: e.target.value })
-                        }
-                      />
-                    </div>
-                    ) : draft.catalogue_section === "equipment" ? (
+                    {draft.catalogue_section === "equipment" ? (
                     <div>
                       <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
                         Items per pack
@@ -767,7 +745,7 @@ export function ProductEditor({
                     </label>
                     <div><Label>Sale price for this size (AUD)</Label><Input type="number" min="0.01" step="0.01" value={variant.salePrice ?? ""} placeholder="No sale" onChange={(e) => setVariant(i, { salePrice: e.target.value })} /></div>
                     <div><Label>Promotion label for this size</Label><Input value={variant.promoLabel ?? ""} placeholder="e.g. Special offer" onChange={(e) => setVariant(i, { promoLabel: e.target.value })} /></div>
-                    <p className="text-xs text-muted-foreground sm:col-span-3">Applies only to {variant.label || "this size"}. Regular prices and promotions for other sizes stay separate. Kit pricing is edited above.</p>
+                    <p className="text-xs text-muted-foreground sm:col-span-3">Applies only to {variant.label || "this size"}. Regular prices and promotions for other sizes stay separate.</p>
                   </div>
                   <div className="rounded-lg border border-border p-3">
                     <Label>Photo for {variant.label || "this option"} (optional)</Label>
@@ -799,18 +777,22 @@ export function ProductEditor({
                       ) : null}
                     </div>
                   </div>
-                  {draft.catalogue_section === "equipment" ? (
+                  <div id={`variant-includes-${variant.id}`}>
                     <BundleEditor
                       items={variant.contents}
                       onChange={(contents) => {
                         setDraft({
                           ...draft,
-                          unlimited_stock: contents.length > 0 ? true : draft.unlimited_stock,
+                          // Equipment bundles sell as one tracked pack; Range/Pens inclusions are display-only.
+                          unlimited_stock:
+                            draft.catalogue_section === "equipment" && contents.length > 0
+                              ? true
+                              : draft.unlimited_stock,
                           variants: draft.variants.map((v, idx) => (idx === i ? { ...v, contents } : v)),
                         });
                       }}
                     />
-                  ) : null}
+                  </div>
                 </div>
               );
             })}
