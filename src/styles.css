@@ -757,6 +757,24 @@ html.light .theme-label-light { display: contents !important; }
 }
 .light .pen-guide-page :is(h1, h2, h3, h4, p, li, p span, li span, svg) { color: var(--pen-ink) !important; text-shadow: none; }
 .light .pen-guide-page a svg { color: inherit !important; }
+
+/* Titan Guides kit panels (approved concept): gold square step numbers, circular kit art,
+   gold-ruled section titles, bullet lists, gold tips/note bands. Tokens keep dark readable. */
+.kit-guide-section-title { display: flex; align-items: center; justify-content: center; gap: 1rem; text-align: center; }
+.kit-guide-section-title::before, .kit-guide-section-title::after { content: ""; height: 2px; flex: 1 1 0%; max-width: 8rem; background: linear-gradient(to right, transparent, var(--accent)); }
+.kit-guide-section-title::after { background: linear-gradient(to left, transparent, var(--accent)); }
+.kit-item-art { display: block; height: 5.5rem; width: 5.5rem; overflow: hidden; border-radius: 9999px; border: 2px solid color-mix(in oklab, var(--primary) 35%, transparent); background: oklch(0.93 0.03 225); }
+.kit-item-art img { height: 100%; width: 100%; object-fit: cover; }
+.kit-step-num { display: flex; height: 2.25rem; width: 2.25rem; flex-shrink: 0; align-items: center; justify-content: center; border-radius: 0.375rem; background: var(--accent); color: oklch(0.2 0.03 250); font-size: 1.125rem; font-weight: 700; line-height: 1; }
+.kit-step-art { height: 11rem; width: 100%; object-fit: cover; border-top: 1px solid color-mix(in oklab, var(--primary) 15%, transparent); }
+@media (min-width: 640px) { .kit-step-art { height: auto; min-height: 100%; border-top: 0; border-left: 1px solid color-mix(in oklab, var(--primary) 15%, transparent); } }
+.kit-bullets li { position: relative; padding-left: 1rem; }
+.kit-bullets li::before { content: ""; position: absolute; left: 0; top: 0.55em; height: 0.375rem; width: 0.375rem; border-radius: 9999px; background: var(--accent); }
+/* Light theme forces page ink with !important above; restore the kit panel accent colours. */
+.light .pen-guide-page .kit-guide :is(.kit-step-title, .kit-item-label, .kit-guide-section-title) { color: var(--primary) !important; }
+.light .pen-guide-page .kit-guide :is(.kit-bullets li, .kit-tips li, .kit-note p) { color: var(--muted-foreground) !important; }
+.light .pen-guide-page .kit-guide :is(.kit-tips svg, .kit-note svg) { color: var(--accent) !important; }
+.light .pen-guide-page .kit-guide .kit-step-num { color: oklch(0.2 0.03 250) !important; }
 .light .titan-account-card { --account-ink: oklch(0.24 0.02 250); background: var(--background); }
 .light .titan-account-card :is(h1, p) { color: var(--account-ink) !important; text-shadow: none; }
 .light .titan-account-card .titan-account-copy { background: linear-gradient(to bottom, transparent, var(--background)); }

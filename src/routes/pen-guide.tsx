@@ -138,15 +138,15 @@ function NativeKitGuide({ data, docUrl, file }: { data: { title: string; intro: 
         ) : null}
         <div className="grid gap-4 md:grid-cols-2">
           {tips.length ? (
-            <div className="rounded-xl border border-accent/30 bg-accent/5 p-6">
+            <div className="kit-tips rounded-xl border border-accent/40 bg-accent/5 p-6">
               <h3 className="flex items-center gap-3 font-display text-xl font-bold uppercase"><ShieldCheck aria-hidden="true" className="h-5 w-5 text-accent" />{data.tips_title}</h3>
               <ul className="mt-4 grid gap-3">
-                {tips.map((tip, i) => <li key={i} className="flex gap-3 text-sm leading-6 text-muted-foreground"><Check aria-hidden="true" className="mt-1 h-4 w-4 shrink-0 text-primary" />{tip.text}</li>)}
+                {tips.map((tip, i) => <li key={i} className="flex gap-3 text-sm leading-6 text-muted-foreground"><Check aria-hidden="true" className="mt-1 h-4 w-4 shrink-0 text-accent" />{tip.text}</li>)}
               </ul>
             </div>
           ) : null}
           {data.note ? (
-            <div className="rounded-xl border border-primary/30 bg-primary/5 p-6">
+            <div className="kit-note rounded-xl border border-accent/40 bg-accent/5 p-6">
               <h3 className="flex items-center gap-3 font-display text-xl font-bold uppercase"><Info aria-hidden="true" className="h-5 w-5 text-accent" />{data.note_title}</h3>
               <p className="mt-4 whitespace-pre-line text-sm leading-6 text-muted-foreground">{data.note}</p>
             </div>
