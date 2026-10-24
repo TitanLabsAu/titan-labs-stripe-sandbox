@@ -123,7 +123,6 @@ export type Draft = {
   price: string;
   sale_price: string;
   promo_label: string;
-  kit_price: string;
   variants: DraftVariant[];
   image_url: string;
   alt: string;
@@ -151,7 +150,6 @@ const emptyDraft: Draft = {
   price: "",
   sale_price: "",
   promo_label: "",
-  kit_price: "",
   variants: [],
   image_url: "",
   alt: "",
@@ -206,7 +204,6 @@ export function toDraft(p: AdminProduct): Draft {
     price: Number(p.price) > 0 ? String(p.price) : "",
     sale_price: p.sale_price == null ? "" : String(p.sale_price),
     promo_label: p.promo_label ?? "",
-    kit_price: p.kit_price == null ? "" : String(p.kit_price),
     variants: (p.product_variants ?? []).map((v) => ({
       id: v.id,
       label: v.label,
@@ -214,7 +211,6 @@ export function toDraft(p: AdminProduct): Draft {
       salePrice: v.salePrice == null ? "" : String(v.salePrice),
       promoLabel: v.promoLabel ?? "",
       hotProduct: v.hotProduct,
-      kitPrice: v.kitPrice == null ? "" : String(v.kitPrice),
       stock: String(v.stock ?? 0),
       cost: v.cost == null ? "" : String(v.cost),
       comingSoon: Boolean(v.comingSoon),
@@ -259,7 +255,6 @@ export function draftToPayload(d: Draft) {
       salePrice: num(v.salePrice ?? ""),
       promoLabel: v.promoLabel ?? "",
       ...(typeof v.hotProduct === "boolean" ? { hotProduct: v.hotProduct } : {}),
-      kitPrice: equipment ? null : num(v.kitPrice),
       stock: Math.max(0, Math.trunc(Number(v.stock)) || 0),
       cost: num(v.cost),
       comingSoon: v.comingSoon,
@@ -268,7 +263,8 @@ export function draftToPayload(d: Draft) {
       reconDoseMg: num(v.reconDoseMg),
       reconNotes: v.reconNotes,
       image: v.image.trim() || null,
-      contents: d.catalogue_section === "equipment" ? sanitizeBundle(v.contents) : [],
+      // Included Equipment is available for every section (display-only, no extra charge).
+      contents: sanitizeBundle(v.contents),
       packSize: d.catalogue_section === "equipment" ? parsePackSizeInput(v.packSize ?? "1", v.label) : 1,
     }))
     .filter((v) => {
