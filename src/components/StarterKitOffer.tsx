@@ -5,13 +5,19 @@ import { useProducts, useSiteContent } from "@/lib/useCatalog";
 import { cmsValues } from "@/lib/storefrontContent";
 import { useCart } from "@/lib/cart";
 import { formatPrice, type Product } from "@/lib/products";
-import { canAddStarterKit, starterKitFor } from "@/lib/starter-kits";
+import { canAddStarterKit } from "@/lib/starter-kits";
+import { kitOfferSource, starterKitSlugFor } from "@/lib/pen-companion";
 
 export function StarterKitOffer({ product }: { product: Product }) {
   const { products } = useProducts();
   const { items, addItem } = useCart();
   const c = cmsValues(useSiteContent().data, "starter_kit");
-  const kit = starterKitFor(product, products);
+  if (product.starterKitEnabled === false) return null;
+  // A flow-owned V2 pen switches a Range product's offer to the Pen Starter Kit.
+  const slug = starterKitSlugFor(product, items);
+  const kit = slug
+    ? products.find((p) => p.slug === slug && p.catalogueSection === "equipment" && !p.variants?.length) ?? null
+    : null;
   if (!kit) return null;
   const available = canAddStarterKit(kit, items);
   return (
@@ -36,7 +42,7 @@ export function StarterKitOffer({ product }: { product: Product }) {
         variant="outline"
         className="mt-2 w-full"
         disabled={!available}
-        onClick={() => addItem(kit.slug, 1, { pack: "single" })}
+        onClick={() => addItem(kit.slug, 1, { pack: "single", source: kitOfferSource(product.slug) })}
       >
         {available ? c.add_label : kit.comingSoon ? c.coming_soon_label : c.unavailable_label}
       </Button>
