@@ -88,7 +88,7 @@ describe("server pricing (authoritative DB flag)", () => {
   test("unlimited Equipment with 0 stock prices real quantity and revenue, no writes", async () => {
     const admin = fakeAdmin([row({ unlimited_stock: true })]);
     const p = await priceCheckout(admin, buyer, order(12));
-    expect(p.lines).toEqual([{ product_slug: "bac-water", product_name: "BAC Water", unit_price: 5, quantity: 12, variant_label: "3ml" }]);
+    expect(p.lines).toEqual([{ product_slug: "bac-water", product_name: "BAC Water", unit_price: 5, quantity: 12, variant_label: "3ml", variant_id: "3ml" }]);
     expect(p.quote.itemsCents).toBe(6000);
     expect(admin.writes).toEqual([]);
   });
