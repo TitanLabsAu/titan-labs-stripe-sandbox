@@ -22,11 +22,32 @@ export type ProductVariant = {
   reconWaterMl?: number | null;
   reconDoseMg?: number | null;
   reconNotes?: string;
+  /** Optional photo for this exact option; empty falls back to the product's main photo. */
+  image?: string | null;
   /** Equipment bundles: display-only contents snapshot chosen by Admin. */
   contents?: BundleItem[];
   /** Equipment only: items in one sellable pack (default 1). Price/stock are per pack. */
   packSize?: number;
 };
+
+/** Optional per-variant photo URL; only safe http(s) or site-relative paths survive. */
+export function sanitizeVariantImage(raw: unknown): string | null {
+  const s = String(raw ?? "").trim();
+  if (!s) return null;
+  if (/[\u0000-\u001f\u007f\s\\<>"'`]/.test(s)) return null;
+  if (s.startsWith("/")) return s.startsWith("//") ? null : s.slice(0, 500);
+  if (!/^https?:\/\/[^/]/i.test(s)) return null;
+  return s.slice(0, 500);
+}
+
+/** Photo for the selected option: its own assigned image, else the product's main photo. */
+export function variantImageFor(
+  product: { image?: string | null; variants?: { id: string; image?: string | null }[] },
+  variantId?: string | null,
+) {
+  const v = (product.variants ?? []).find((x) => x.id === variantId);
+  return (v?.image && String(v.image)) || product.image || "";
+}
 export type ProductPack = "single" | "kit";
 export type BundleItem = { slug: string; name: string; quantity: number };
 

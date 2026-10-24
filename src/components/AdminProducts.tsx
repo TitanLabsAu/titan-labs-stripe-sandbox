@@ -49,6 +49,7 @@ export type DraftVariant = {
   reconWaterMl: string;
   reconDoseMg: string;
   reconNotes: string;
+  image: string;
   contents: BundleItem[];
   packSize?: string;
 };
@@ -220,6 +221,7 @@ export function toDraft(p: AdminProduct): Draft {
       reconWaterMl: v.reconWaterMl == null ? "" : String(v.reconWaterMl),
       reconDoseMg: v.reconDoseMg == null ? "" : String(v.reconDoseMg),
       reconNotes: v.reconNotes ?? "",
+      image: v.image ?? "",
       contents: sanitizeBundle(v.contents),
       packSize: String(v.packSize ?? 1),
     })),
@@ -264,6 +266,7 @@ export function draftToPayload(d: Draft) {
       reconWaterMl: num(v.reconWaterMl),
       reconDoseMg: num(v.reconDoseMg),
       reconNotes: v.reconNotes,
+      image: v.image.trim() || null,
       contents: d.catalogue_section === "equipment" ? sanitizeBundle(v.contents) : [],
       packSize: d.catalogue_section === "equipment" ? parsePackSizeInput(v.packSize ?? "1", v.label) : 1,
     }))
@@ -334,6 +337,7 @@ export function ProductEditor({
 }) {
   const [uploading, setUploading] = useState(false);
   const [linkUploading, setLinkUploading] = useState<number | null>(null);
+  const [variantUploading, setVariantUploading] = useState<number | null>(null);
   const set = (patch: Partial<Draft>) => setDraft({ ...draft, ...patch });
   const toggleCategory = (c: string) =>
     set({
@@ -352,21 +356,25 @@ export function ProductEditor({
       ),
     });
 
-  /** Uploads to storage. Resolves only on success; rejects on failure. */
+  /** Uploads one file to storage and returns its public URL. Rejects on failure. */
+  async function uploadImageFile(file: File): Promise<string> {
+    const path = storagePathFor(file, draft);
+    const { error } = await supabase.storage
+      .from("product-images")
+      .upload(path, file, {
+        upsert: true,
+        contentType: file.type || "application/octet-stream",
+      });
+    if (error) throw error;
+    return `/api/public/product-image?path=${encodeURIComponent(path)}`;
+  }
+
+  /** Uploads the main product photo. Resolves only on success; rejects on failure. */
   async function uploadImage(file: File): Promise<void> {
     setUploading(true);
     try {
-      const path = storagePathFor(file, draft);
-      const { error } = await supabase.storage
-        .from("product-images")
-        .upload(path, file, {
-          upsert: true,
-          contentType: file.type || "application/octet-stream",
-        });
-      if (error) throw error;
-      set({
-        image_url: `/api/public/product-image?path=${encodeURIComponent(path)}`,
-      });
+      const url = await uploadImageFile(file);
+      set({ image_url: url });
       toast.success("Product image uploaded");
     } catch (error) {
       toast.error(
@@ -375,6 +383,20 @@ export function ProductEditor({
       throw error instanceof Error ? error : new Error("Could not upload the image");
     } finally {
       setUploading(false);
+    }
+  }
+
+  /** Uploads a photo for one option/variant; the draft keeps it until Save. */
+  async function uploadVariantImage(i: number, file: File): Promise<void> {
+    setVariantUploading(i);
+    try {
+      const url = await uploadImageFile(file);
+      setVariant(i, { image: url });
+      toast.success("Option photo uploaded — remember to save the product");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not upload the image");
+    } finally {
+      setVariantUploading(null);
     }
   }
 
@@ -524,7 +546,7 @@ export function ProductEditor({
                     reconVialMg: "",
                     reconWaterMl: "",
                     reconDoseMg: "",
-                    reconNotes: "", contents: [], packSize: "1",
+                    reconNotes: "", image: "", contents: [], packSize: "1",
                   },
                 ],
               })
@@ -752,6 +774,36 @@ export function ProductEditor({
                     <div><Label>Sale price for this size (AUD)</Label><Input type="number" min="0.01" step="0.01" value={variant.salePrice ?? ""} placeholder="No sale" onChange={(e) => setVariant(i, { salePrice: e.target.value })} /></div>
                     <div><Label>Promotion label for this size</Label><Input value={variant.promoLabel ?? ""} placeholder="e.g. Special offer" onChange={(e) => setVariant(i, { promoLabel: e.target.value })} /></div>
                     <p className="text-xs text-muted-foreground sm:col-span-3">Applies only to {variant.label || "this size"}. Regular prices and promotions for other sizes stay separate. Kit pricing is edited above.</p>
+                  </div>
+                  <div className="rounded-lg border border-border p-3">
+                    <Label>Photo for {variant.label || "this option"} (optional)</Label>
+                    <p className="mt-1 text-xs text-muted-foreground">Shown when a customer picks this option. Leave empty to use the main product photo.</p>
+                    <div className="mt-2 flex flex-wrap items-center gap-3">
+                      {variant.image ? (
+                        <img src={variant.image} alt={`Preview for ${variant.label || "this option"}`} className="h-16 w-16 rounded-md border border-border object-cover" />
+                      ) : null}
+                      <label className="inline-flex cursor-pointer items-center gap-1 rounded-md border border-border px-3 py-2 text-xs font-bold uppercase text-foreground hover:bg-accent focus-within:ring-2 focus-within:ring-ring">
+                        <Upload className="h-4 w-4" />
+                        {variantUploading === i ? "Uploading…" : variant.image ? "Replace photo" : "Upload photo"}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="sr-only"
+                          disabled={variantUploading !== null}
+                          aria-label={`Upload photo for ${variant.label || "this option"}`}
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            if (f) uploadVariantImage(i, f).catch(() => undefined);
+                            e.target.value = "";
+                          }}
+                        />
+                      </label>
+                      {variant.image ? (
+                        <Button type="button" variant="outline" size="sm" aria-label={`Remove photo for ${variant.label || "this option"}`} onClick={() => setVariant(i, { image: "" })}>
+                          Remove photo
+                        </Button>
+                      ) : null}
+                    </div>
                   </div>
                   {draft.catalogue_section === "equipment" ? (
                     <BundleEditor

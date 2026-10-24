@@ -1,7 +1,7 @@
 import { normalizeCatalogueSection } from "@/lib/catalogue-sections";
 import { sanitizeProductLinks } from "@/lib/product-certificates";
 import { assertResetBase, cmsKey, mergeSectionChanges, validateSection } from "@/lib/storefrontContent";
-import { allowsKit, sanitizeBundle, parsePackSizeInput } from "@/lib/products";
+import { allowsKit, sanitizeBundle, parsePackSizeInput, sanitizeVariantImage } from "@/lib/products";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { parseCatalogueSection, type CatalogueSection } from "@/lib/catalogue-sections";
@@ -475,6 +475,7 @@ export type AdminProductVariant = {
   reconWaterMl?: number | null;
   reconDoseMg?: number | null;
   reconNotes?: string;
+  image?: string | null;
   contents?: { slug: string; name: string; quantity: number }[];
   packSize?: number;
 };
@@ -551,6 +552,7 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
         reconWaterMl: optNum(v.reconWaterMl),
         reconDoseMg: optNum(v.reconDoseMg),
         reconNotes: String(v.reconNotes ?? ""),
+        image: sanitizeVariantImage(v.image),
         contents: sanitizeBundle(v.contents),
         packSize: isEquipmentSection ? parsePackSizeInput(v.packSize ?? 1, String(v.label ?? "")) : 1,
       }))
