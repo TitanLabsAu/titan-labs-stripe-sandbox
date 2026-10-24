@@ -257,11 +257,6 @@ export function formatPrice(amount: number) {
   return new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD" }).format(amount);
 }
 
-export function kitPriceFor(singlePrice: number, explicitKitPrice?: number | null) {
-  if (explicitKitPrice != null && explicitKitPrice > 0) return explicitKitPrice;
-  return singlePrice * 10 * 0.8;
-}
-
 export function cartLineKey(slug: string, variantId?: string | null, pack: ProductPack = "single") {
   return [slug, variantId || "base", pack].join("::");
 }
@@ -273,8 +268,7 @@ export function getProductOption(
 ) {
   const pack = effectivePack(product, requestedPack);
   const variant = (product.variants ?? []).find((v) => v.id === variantId) ?? null;
-  const singlePrice = variant ? promotedPrice(variant.price, variant.salePrice) : product.price;
-  const unitPrice = pack === "kit" ? kitPriceFor(singlePrice, variant?.kitPrice ?? product.kitPrice) : singlePrice;
+  const unitPrice = variant ? promotedPrice(variant.price, variant.salePrice) : product.price;
   const variantLabel = variant ? packLabel(variant.label, variant.packSize) : singleLabelFor(product);
   return {
     key: cartLineKey(product.slug, variant?.id ?? null, pack),
@@ -283,7 +277,7 @@ export function getProductOption(
     pack,
     unitPrice,
     stock: effectiveStock(product, variant ? (variant.stock ?? null) : (product.stock ?? null)),
-    label: pack === "kit" ? `${variantLabel} · 10x Kit` : variantLabel,
+    label: variantLabel,
   };
 }
 
