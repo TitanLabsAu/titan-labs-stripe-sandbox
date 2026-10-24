@@ -70,13 +70,15 @@ function normalizeItem(raw: unknown): CartItem | null {
   if (typeof item.slug !== "string" || !item.slug) return null;
   const pack: ProductPack = item.pack === "kit" ? "kit" : "single";
   const variantId = typeof item.variantId === "string" && item.variantId ? item.variantId : null;
+  const source = sanitizeSource(item.source);
   return {
-    key: typeof item.key === "string" && item.key ? item.key : cartLineKey(item.slug, variantId, pack),
+    key: typeof item.key === "string" && item.key ? item.key : source ? flowLineKey(item.slug, variantId, source) : cartLineKey(item.slug, variantId, pack),
     slug: item.slug,
     quantity: clampQuantity(Number(item.quantity ?? 1)),
     variantId,
     variantLabel: typeof item.variantLabel === "string" ? item.variantLabel : null,
     pack,
+    source,
   };
 }
 
@@ -155,7 +157,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         const product = getProduct(slug);
         const pack = product ? effectivePack(product, option?.pack) : (option?.pack ?? "single");
         const variantId = option?.variantId ?? null;
-        const key = cartLineKey(slug, variantId, pack);
+        const source = sanitizeSource(option?.source);
+        const key = source ? flowLineKey(slug, variantId, source) : cartLineKey(slug, variantId, pack);
         setItems((prev) => {
           const existing = prev.find((i) => i.key === key);
           if (existing) {
@@ -172,6 +175,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
               variantId,
               variantLabel: option?.variantLabel ?? null,
               pack,
+              source,
             },
           ];
         });
