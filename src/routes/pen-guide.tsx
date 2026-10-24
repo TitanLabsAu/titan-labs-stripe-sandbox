@@ -130,7 +130,7 @@ function NativeKitGuide({ data, docUrl, file }: { data: { title: string; intro: 
                     </div>
                     {step.body ? <ul className="kit-bullets mt-3 space-y-1.5 text-sm leading-6 text-muted-foreground">{lines(step.body).map((l, j) => <li key={j}>{l}</li>)}</ul> : null}
                   </div>
-                  {img ? <img src={img} alt={`${data.title} — step ${i + 1}: ${step.title}`} loading="lazy" decoding="async" className="kit-step-art sm:w-2/5" /> : null}
+                  {img ? <img src={img} alt={`${data.title} — step ${i + 1}: ${step.title}`} loading="lazy" decoding="async" className="kit-step-art" /> : null}
                 </li>
               );
             })}
