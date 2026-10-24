@@ -17,21 +17,19 @@ import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { useCart } from "@/lib/cart";
+import { PenCompanionOffer } from "@/components/PenCompanionOffer";
 import {
   cartLineKey,
   firstAvailableVariant,
   formatPrice,
   getProductOption,
   isComingSoon,
-  kitPriceFor,
-  allowsKit,
   singleLabelFor,
   packLabel,
   productBasePrice,
   sortedProductVariants,
   stockState,
   variantStockFor,
-  type ProductPack,
 } from "@/lib/products";
 import { getProductBySlug, getSiteContent } from "@/lib/catalog.functions";
 import { useProducts, useSiteContent } from "@/lib/useCatalog";
@@ -77,10 +75,9 @@ function ProductPage() {
     if (linked && !linked.comingSoon && (linked.stock === null || linked.stock === undefined || linked.stock > 0)) return linked.id;
     return firstAvailableVariant(product)?.id ?? null;
   });
-  const [pack, setPack] = useState<ProductPack>("single");
   const selected = useMemo(
-    () => getProductOption(product, variantId, pack),
-    [product, variantId, pack],
+    () => getProductOption(product, variantId, "single"),
+    [product, variantId],
   );
   const selectedKey = cartLineKey(
     product.slug,
