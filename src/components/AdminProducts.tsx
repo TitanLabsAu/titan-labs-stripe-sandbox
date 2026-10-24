@@ -49,6 +49,7 @@ export type DraftVariant = {
   reconWaterMl: string;
   reconDoseMg: string;
   reconNotes: string;
+  image: string;
   contents: BundleItem[];
   packSize?: string;
 };
@@ -220,6 +221,7 @@ export function toDraft(p: AdminProduct): Draft {
       reconWaterMl: v.reconWaterMl == null ? "" : String(v.reconWaterMl),
       reconDoseMg: v.reconDoseMg == null ? "" : String(v.reconDoseMg),
       reconNotes: v.reconNotes ?? "",
+      image: v.image ?? "",
       contents: sanitizeBundle(v.contents),
       packSize: String(v.packSize ?? 1),
     })),
@@ -264,6 +266,7 @@ export function draftToPayload(d: Draft) {
       reconWaterMl: num(v.reconWaterMl),
       reconDoseMg: num(v.reconDoseMg),
       reconNotes: v.reconNotes,
+      image: v.image.trim() || null,
       contents: d.catalogue_section === "equipment" ? sanitizeBundle(v.contents) : [],
       packSize: d.catalogue_section === "equipment" ? parsePackSizeInput(v.packSize ?? "1", v.label) : 1,
     }))
@@ -334,6 +337,7 @@ export function ProductEditor({
 }) {
   const [uploading, setUploading] = useState(false);
   const [linkUploading, setLinkUploading] = useState<number | null>(null);
+  const [variantUploading, setVariantUploading] = useState<number | null>(null);
   const set = (patch: Partial<Draft>) => setDraft({ ...draft, ...patch });
   const toggleCategory = (c: string) =>
     set({
@@ -352,21 +356,25 @@ export function ProductEditor({
       ),
     });
 
-  /** Uploads to storage. Resolves only on success; rejects on failure. */
+  /** Uploads one file to storage and returns its public URL. Rejects on failure. */
+  async function uploadImageFile(file: File): Promise<string> {
+    const path = storagePathFor(file, draft);
+    const { error } = await supabase.storage
+      .from("product-images")
+      .upload(path, file, {
+        upsert: true,
+        contentType: file.type || "application/octet-stream",
+      });
+    if (error) throw error;
+    return `/api/public/product-image?path=${encodeURIComponent(path)}`;
+  }
+
+  /** Uploads the main product photo. Resolves only on success; rejects on failure. */
   async function uploadImage(file: File): Promise<void> {
     setUploading(true);
     try {
-      const path = storagePathFor(file, draft);
-      const { error } = await supabase.storage
-        .from("product-images")
-        .upload(path, file, {
-          upsert: true,
-          contentType: file.type || "application/octet-stream",
-        });
-      if (error) throw error;
-      set({
-        image_url: `/api/public/product-image?path=${encodeURIComponent(path)}`,
-      });
+      const url = await uploadImageFile(file);
+      set({ image_url: url });
       toast.success("Product image uploaded");
     } catch (error) {
       toast.error(
@@ -375,6 +383,20 @@ export function ProductEditor({
       throw error instanceof Error ? error : new Error("Could not upload the image");
     } finally {
       setUploading(false);
+    }
+  }
+
+  /** Uploads a photo for one option/variant; the draft keeps it until Save. */
+  async function uploadVariantImage(i: number, file: File): Promise<void> {
+    setVariantUploading(i);
+    try {
+      const url = await uploadImageFile(file);
+      setVariant(i, { image: url });
+      toast.success("Option photo uploaded — remember to save the product");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not upload the image");
+    } finally {
+      setVariantUploading(null);
     }
   }
 
