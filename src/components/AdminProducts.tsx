@@ -546,7 +546,7 @@ export function ProductEditor({
                     reconVialMg: "",
                     reconWaterMl: "",
                     reconDoseMg: "",
-                    reconNotes: "", contents: [], packSize: "1",
+                    reconNotes: "", image: "", contents: [], packSize: "1",
                   },
                 ],
               })
@@ -774,6 +774,36 @@ export function ProductEditor({
                     <div><Label>Sale price for this size (AUD)</Label><Input type="number" min="0.01" step="0.01" value={variant.salePrice ?? ""} placeholder="No sale" onChange={(e) => setVariant(i, { salePrice: e.target.value })} /></div>
                     <div><Label>Promotion label for this size</Label><Input value={variant.promoLabel ?? ""} placeholder="e.g. Special offer" onChange={(e) => setVariant(i, { promoLabel: e.target.value })} /></div>
                     <p className="text-xs text-muted-foreground sm:col-span-3">Applies only to {variant.label || "this size"}. Regular prices and promotions for other sizes stay separate. Kit pricing is edited above.</p>
+                  </div>
+                  <div className="rounded-lg border border-border p-3">
+                    <Label>Photo for {variant.label || "this option"} (optional)</Label>
+                    <p className="mt-1 text-xs text-muted-foreground">Shown when a customer picks this option. Leave empty to use the main product photo.</p>
+                    <div className="mt-2 flex flex-wrap items-center gap-3">
+                      {variant.image ? (
+                        <img src={variant.image} alt={`Preview for ${variant.label || "this option"}`} className="h-16 w-16 rounded-md border border-border object-cover" />
+                      ) : null}
+                      <label className="inline-flex cursor-pointer items-center gap-1 rounded-md border border-border px-3 py-2 text-xs font-bold uppercase text-foreground hover:bg-accent focus-within:ring-2 focus-within:ring-ring">
+                        <Upload className="h-4 w-4" />
+                        {variantUploading === i ? "Uploading…" : variant.image ? "Replace photo" : "Upload photo"}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="sr-only"
+                          disabled={variantUploading !== null}
+                          aria-label={`Upload photo for ${variant.label || "this option"}`}
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            if (f) uploadVariantImage(i, f).catch(() => undefined);
+                            e.target.value = "";
+                          }}
+                        />
+                      </label>
+                      {variant.image ? (
+                        <Button type="button" variant="outline" size="sm" aria-label={`Remove photo for ${variant.label || "this option"}`} onClick={() => setVariant(i, { image: "" })}>
+                          Remove photo
+                        </Button>
+                      ) : null}
+                    </div>
                   </div>
                   {draft.catalogue_section === "equipment" ? (
                     <BundleEditor
