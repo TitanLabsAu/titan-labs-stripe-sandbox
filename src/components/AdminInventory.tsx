@@ -196,7 +196,6 @@ export function AdminInventory() {
                     {!r.active && <Badge variant="outline">Hidden</Badge>}
                     {r.comingSoon && <Badge variant="outline">Coming soon</Badge>}
                     {r.unlimited && <Badge variant="outline">Unlimited</Badge>}
-                    {r.supportsKit && <Badge variant="outline">10x kit</Badge>}
                   </div></td>
                   <td className="px-3 py-2 text-right text-muted-foreground">{r.unitCost != null ? formatPrice(r.unitCost) : "—"}</td>
                   <td className="px-3 py-2 text-right text-foreground">{r.value != null ? formatPrice(r.value) : "—"}</td>
@@ -205,7 +204,7 @@ export function AdminInventory() {
               ))}
             </tbody>
           </table>
-          <p className="border-t border-border px-3 py-2 text-xs text-muted-foreground">* default threshold. Range 10x kits draw 10 units from the same size; starter kits are their own Equipment item.</p>
+          <p className="border-t border-border px-3 py-2 text-xs text-muted-foreground">* default threshold. Starter kits are their own Equipment item.</p>
         </div>
       )}
 
@@ -266,10 +265,6 @@ function SkuDrawer({ sku, trackingSince, onSaved }: { sku: InventorySku; trackin
         <Kpi label="Unit cost" value={sku.unitCost != null ? formatPrice(sku.unitCost) : "Not set"} />
         <Kpi label="Value" value={sku.value != null ? formatPrice(sku.value) : "—"} />
       </div>
-      {sku.supportsKit && sku.quantity !== null && (
-        <p className="text-xs text-muted-foreground">Enough for {Math.floor(sku.quantity / 10)} 10x kit(s) from this same stock.</p>
-      )}
-
       {sku.quantity === null ? (
         <p className="rounded-lg border border-dashed border-border p-3 text-sm text-muted-foreground">Unlimited item — quantity isn't tracked, so there's nothing to adjust.</p>
       ) : (
