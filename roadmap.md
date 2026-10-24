@@ -90,6 +90,6 @@
 - [ ] Admin screenshot of the variant photo field: blocked — no auth user matches the owner's sign-in email, so no session could be minted; sign in via the preview to view it
 
 ## Guides redesign — owner-approved concepts, unpublished (owner publishes)
-- [ ] Restore nine pending catalogue kit WebPs to last published bytes; pending edits backed up in unserved pending-catalogue-images/.
-- [ ] Rebuild kit guide panels natively per approved concepts: navy/blue condensed type, gold square step numbers, circular kit art, two-column steps, tips/note bands; exact CMS wording and admin editing preserved.
-- [ ] Verify tests/typecheck/build and desktop/mobile light/dark screenshots. No publish from chat.
+- [x] Restore nine pending catalogue kit WebPs to last published bytes; pending edits backed up in unserved pending-catalogue-images/.
+- [x] Rebuild kit guide panels natively per approved concepts: navy/blue condensed type, gold square step numbers, circular kit art, two-column steps, tips/note bands; exact CMS wording and admin editing preserved.
+- [x] Verify tests/typecheck/build and desktop/mobile light/dark screenshots. No publish from chat.
