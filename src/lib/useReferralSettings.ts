@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getReferralSettings } from "@/lib/referrals.functions";
 import { settingsFromRow, type PriceLine } from "@/lib/order-pricing";
-import { getProductOption, type Product } from "@/lib/products";
+import type { Product } from "@/lib/products";
 
 export function useReferralSettings() {
   const { data, isLoading } = useQuery({
