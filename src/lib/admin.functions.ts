@@ -1,7 +1,7 @@
 import { normalizeCatalogueSection } from "@/lib/catalogue-sections";
 import { sanitizeProductLinks } from "@/lib/product-certificates";
 import { assertResetBase, cmsKey, mergeSectionChanges, validateSection } from "@/lib/storefrontContent";
-import { allowsKit, sanitizeBundle, parsePackSizeInput, sanitizeVariantImage } from "@/lib/products";
+import { sanitizeBundle, parsePackSizeInput, sanitizeVariantImage } from "@/lib/products";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { parseCatalogueSection, type CatalogueSection } from "@/lib/catalogue-sections";
@@ -467,7 +467,6 @@ export type AdminProductVariant = {
   id: string;
   label: string;
   price: number;
-  kitPrice?: number | null;
   stock?: number | null;
   cost?: number | null;
   comingSoon?: boolean;
@@ -487,7 +486,6 @@ export type AdminProduct = {
   price: number;
   sale_price: number | null;
   promo_label: string;
-  kit_price: number | null;
   product_variants: AdminProductVariant[];
   image_url: string;
   alt: string;
@@ -511,7 +509,7 @@ export type AdminProduct = {
 };
 
 const PRODUCT_COLS =
-  "id, slug, name, price, sale_price, promo_label, kit_price, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, active, coming_soon, sort_order, stock_quantity, catalogue_section, starter_kit_enabled, unlimited_stock";
+  "id, slug, name, price, sale_price, promo_label, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, active, coming_soon, sort_order, stock_quantity, catalogue_section, starter_kit_enabled, unlimited_stock";
 
 export const adminListProducts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
