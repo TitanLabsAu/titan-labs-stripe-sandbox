@@ -93,3 +93,4 @@
 - [x] Restore nine pending catalogue kit WebPs to last published bytes; pending edits backed up in unserved pending-catalogue-images/.
 - [x] Rebuild kit guide panels natively per approved concepts: navy/blue condensed type, gold square step numbers, circular kit art, two-column steps, tips/note bands; exact CMS wording and admin editing preserved.
 - [x] Verify tests/typecheck/build and desktop/mobile light/dark screenshots. No publish from chat.
+- [x] Visual correction: replaced all 17 PDF-derived kit/step illustrations with clean standalone text-free assets (approved alcohol-pad art kept); 18 guide tests + tsgo + build OK; middle-steps screenshots verified; no publish.
