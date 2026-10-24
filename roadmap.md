@@ -88,3 +88,8 @@
 - [x] Prep-pad imagery: corrected Titan 70% ALCOHOL sachet used for both kit prep-pad photos; brand convention saved to memory
 - [x] Checks: 17 new + 29 regression tests pass, tsgo clean, full build OK, screenshots verified (guides light/dark desktop/mobile, no overflow, no page errors; V2 pen option switching falls back to parent photo); NO publish from chat
 - [ ] Admin screenshot of the variant photo field: blocked — no auth user matches the owner's sign-in email, so no session could be minted; sign in via the preview to view it
+
+## Guides redesign — owner-approved concepts, unpublished (owner publishes)
+- [x] Restore nine pending catalogue kit WebPs to last published bytes; pending edits backed up in unserved pending-catalogue-images/.
+- [x] Rebuild kit guide panels natively per approved concepts: navy/blue condensed type, gold square step numbers, circular kit art, two-column steps, tips/note bands; exact CMS wording and admin editing preserved.
+- [x] Verify tests/typecheck/build and desktop/mobile light/dark screenshots. No publish from chat.

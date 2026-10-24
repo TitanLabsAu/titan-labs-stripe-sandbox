@@ -89,24 +89,28 @@ function NativeKitGuide({ data, docUrl, file }: { data: { title: string; intro: 
   const kit = (data.kit ?? []).filter((k) => k && k.label);
   const steps = (data.steps ?? []).filter((s) => s && s.title);
   const tips = (data.tips ?? []).filter((t) => t && t.text);
+  // Multi-line CMS text renders as bullets; wording itself is unchanged.
+  const lines = (text: string) => (text ?? "").split("\n").map((l) => l.trim()).filter(Boolean);
   return (
-    <section className="mt-7 overflow-hidden rounded-xl border border-primary/30 bg-card" aria-label={data.title}>
-      <div className="border-b border-primary/25 bg-gradient-to-r from-primary/20 to-accent/10 p-6 sm:p-8">
-        <h2 className="font-display text-2xl font-bold uppercase text-foreground">{data.title}</h2>
-        {data.intro ? <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">{data.intro}</p> : null}
+    <section className="kit-guide mt-7 overflow-hidden rounded-xl border border-primary/30 bg-card" aria-label={data.title}>
+      <div className="border-b border-primary/25 bg-gradient-to-r from-primary/20 to-accent/10 p-6 text-center sm:p-8">
+        <h2 className="font-display text-2xl font-bold uppercase text-foreground sm:text-3xl">{data.title}</h2>
+        {data.intro ? <p className="mx-auto mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">{data.intro}</p> : null}
       </div>
       <div className="space-y-10 p-6 sm:p-8">
         {kit.length ? (
           <div>
-            <h3 className="font-display text-lg font-bold uppercase text-accent">{data.kit_title}</h3>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <h3 className="kit-guide-section-title font-display text-lg font-bold uppercase text-primary">{data.kit_title}</h3>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
               {kit.map((item, i) => {
                 const img = canonicalUrl(item.image ?? "");
                 return (
-                  <div key={i} className="min-w-0 rounded-lg border border-primary/25 bg-background/40 p-4">
-                    {img ? <img src={img} alt={item.label} loading="lazy" decoding="async" className="h-32 w-full rounded-md object-contain" /> : null}
-                    <p className="mt-3 text-sm font-bold text-foreground">{item.label}</p>
-                    {item.body ? <p className="mt-1 whitespace-pre-line text-xs leading-5 text-muted-foreground">{item.body}</p> : null}
+                  <div key={i} className="kit-item flex min-w-0 items-center gap-4 rounded-xl border border-primary/20 bg-background/40 p-4">
+                    {img ? <span className="kit-item-art shrink-0"><img src={img} alt={item.label} loading="lazy" decoding="async" /></span> : null}
+                    <div className="min-w-0">
+                      <p className="kit-item-label font-display text-base font-bold uppercase text-primary">{item.label}</p>
+                      {item.body ? <ul className="kit-bullets mt-1 space-y-1 text-xs leading-5 text-muted-foreground">{lines(item.body).map((l, j) => <li key={j}>{l}</li>)}</ul> : null}
+                    </div>
                   </div>
                 );
               })}
@@ -118,15 +122,15 @@ function NativeKitGuide({ data, docUrl, file }: { data: { title: string; intro: 
             {steps.map((step, i) => {
               const img = canonicalUrl(step.image ?? "");
               return (
-                <li key={i} className="min-w-0 overflow-hidden rounded-lg border border-primary/25 bg-background/40">
-                  {img ? <img src={img} alt={`${data.title} — step ${i + 1}: ${step.title}`} loading="lazy" decoding="async" className="h-44 w-full border-b border-primary/15 object-contain" /> : null}
-                  <div className="flex gap-4 p-5">
-                    <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-primary/30 bg-primary/10 font-display font-bold text-accent">{i + 1}</span>
-                    <div className="min-w-0">
-                      <h4 className="font-display text-base font-bold uppercase text-foreground">{step.title}</h4>
-                      {step.body ? <p className="mt-1 whitespace-pre-line text-sm leading-6 text-muted-foreground">{step.body}</p> : null}
+                <li key={i} className="kit-step flex min-w-0 flex-col overflow-hidden rounded-xl border border-primary/20 bg-background/40 sm:flex-row">
+                  <div className="min-w-0 flex-1 p-5">
+                    <div className="flex items-center gap-3">
+                      <span aria-hidden="true" className="kit-step-num font-display">{i + 1}</span>
+                      <h4 className="kit-step-title font-display text-base font-bold uppercase text-primary">{step.title}</h4>
                     </div>
+                    {step.body ? <ul className="kit-bullets mt-3 space-y-1.5 text-sm leading-6 text-muted-foreground">{lines(step.body).map((l, j) => <li key={j}>{l}</li>)}</ul> : null}
                   </div>
+                  {img ? <img src={img} alt={`${data.title} — step ${i + 1}: ${step.title}`} loading="lazy" decoding="async" className="kit-step-art" /> : null}
                 </li>
               );
             })}
@@ -134,15 +138,15 @@ function NativeKitGuide({ data, docUrl, file }: { data: { title: string; intro: 
         ) : null}
         <div className="grid gap-4 md:grid-cols-2">
           {tips.length ? (
-            <div className="rounded-xl border border-accent/30 bg-accent/5 p-6">
+            <div className="kit-tips rounded-xl border border-accent/40 bg-accent/5 p-6">
               <h3 className="flex items-center gap-3 font-display text-xl font-bold uppercase"><ShieldCheck aria-hidden="true" className="h-5 w-5 text-accent" />{data.tips_title}</h3>
               <ul className="mt-4 grid gap-3">
-                {tips.map((tip, i) => <li key={i} className="flex gap-3 text-sm leading-6 text-muted-foreground"><Check aria-hidden="true" className="mt-1 h-4 w-4 shrink-0 text-primary" />{tip.text}</li>)}
+                {tips.map((tip, i) => <li key={i} className="flex gap-3 text-sm leading-6 text-muted-foreground"><Check aria-hidden="true" className="mt-1 h-4 w-4 shrink-0 text-accent" />{tip.text}</li>)}
               </ul>
             </div>
           ) : null}
           {data.note ? (
-            <div className="rounded-xl border border-primary/30 bg-primary/5 p-6">
+            <div className="kit-note rounded-xl border border-accent/40 bg-accent/5 p-6">
               <h3 className="flex items-center gap-3 font-display text-xl font-bold uppercase"><Info aria-hidden="true" className="h-5 w-5 text-accent" />{data.note_title}</h3>
               <p className="mt-4 whitespace-pre-line text-sm leading-6 text-muted-foreground">{data.note}</p>
             </div>
