@@ -83,7 +83,8 @@
 - [x] No live settings changed, card payments remain enabled, no payment attempts/emails. Admin screenshot skipped per owner (no sign-in impersonation).
 
 ## Two approved tasks (owner authorised build+publish; owner clicks Publish)
-- [ ] TASK1: optional per-variant photo in product Admin (any section), server-validated save/load, storefront detail+card+cart switch instantly with parent fallback; tests
-- [ ] TASK2: native HTML Reconstitution (6 steps) + Administration (7 steps) guides replacing full-sheet embeds; cropped step photos as CDN assets; CMS sections with safe defaults; tabs/keyboard/hash preserved; original files kept as backup links
-- [ ] Prep-pad imagery: use corrected Titan 70% ALCOHOL sachet image for both kit prep-pad photos; brand convention saved to memory
-- [ ] Checks: focused tests, typecheck, full build, screenshots (admin variant field, storefront switching, native guides light/dark/mobile); NO publish from chat
+- [x] TASK1: optional per-variant photo in product Admin (any section), server-validated save/load, storefront detail+card+cart switch instantly with parent fallback; tests
+- [x] TASK2: native HTML Reconstitution (6 steps) + Administration (7 steps) guides replacing full-sheet embeds; cropped step photos as CDN assets; CMS sections with safe defaults; tabs/keyboard/hash preserved; original files kept as backup links
+- [x] Prep-pad imagery: corrected Titan 70% ALCOHOL sachet used for both kit prep-pad photos; brand convention saved to memory
+- [x] Checks: 17 new + 29 regression tests pass, tsgo clean, full build OK, screenshots verified (guides light/dark desktop/mobile, no overflow, no page errors; V2 pen option switching falls back to parent photo); NO publish from chat
+- [ ] Admin screenshot of the variant photo field: blocked — no auth user matches the owner's sign-in email, so no session could be minted; sign in via the preview to view it
