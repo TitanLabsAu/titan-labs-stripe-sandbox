@@ -103,7 +103,7 @@ export async function priceCheckout(
     admin
       .from("products")
       .select(
-        "slug, name, price, sale_price, kit_price, product_variants, catalogue_section, stock_quantity, coming_soon, unlimited_stock",
+        "slug, name, price, sale_price, product_variants, catalogue_section, stock_quantity, coming_soon, unlimited_stock",
       )
       .in("slug", slugs)
       .eq("active", true),
