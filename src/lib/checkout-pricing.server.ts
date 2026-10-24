@@ -1,5 +1,5 @@
 import { promotedPrice } from "@/lib/variant-promotions";
-import { effectivePack, effectiveStock, kitPriceFor, bundleSummary, sanitizeBundle, packLabel, sanitizePackSize } from "@/lib/products";
+import { effectivePack, effectiveStock, bundleSummary, sanitizeBundle, packLabel, sanitizePackSize } from "@/lib/products";
 import type { ShippingMethodKey } from "@/lib/pricing";
 import {
   fromCents,
@@ -103,7 +103,7 @@ export async function priceCheckout(
     admin
       .from("products")
       .select(
-        "slug, name, price, sale_price, kit_price, product_variants, catalogue_section, stock_quantity, coming_soon, unlimited_stock",
+        "slug, name, price, sale_price, product_variants, catalogue_section, stock_quantity, coming_soon, unlimited_stock",
       )
       .in("slug", slugs)
       .eq("active", true),
@@ -136,16 +136,14 @@ export async function priceCheckout(
     const sale = product.sale_price == null ? null : Number(product.sale_price);
     const basePrice = sale != null && sale > 0 && sale < listPrice ? sale : listPrice;
     const singlePrice = variant ? promotedPrice(Number(variant.price), variant.salePrice == null ? null : Number(variant.salePrice)) : basePrice;
-    const pack = effectivePack(product, item.pack);
-    const unitPrice =
-      pack === "kit"
-        ? kitPriceFor(singlePrice, variant?.kitPrice ?? product.kit_price)
-        : singlePrice;
+    // The 10x bulk-kit is retired: every line prices as a single item, so a
+    // crafted pack:"kit" request simply pays the ordinary single price.
+    const unitPrice = singlePrice;
     const quantity = Math.min(99, Math.max(1, Math.floor(item.quantity)));
     if (!Number.isFinite(unitPrice) || unitPrice <= 0)
       throw new Error("One of the product prices is unavailable.");
     const stockKey = `${product.slug}::${variant?.id ?? "base"}`;
-    const units = (requestedStock.get(stockKey) ?? 0) + quantity * (pack === "kit" ? 10 : 1);
+    const units = (requestedStock.get(stockKey) ?? 0) + quantity;
     requestedStock.set(stockKey, units);
     // Unlimited Equipment (DB flag + section, never client input) skips the limit only.
     const stock = effectiveStock(product, variant ? variant.stock : product.stock_quantity);
@@ -167,12 +165,12 @@ export async function priceCheckout(
       product_name: product.name,
       unit_price: unitPrice,
       quantity,
-      variant_label: pack === "kit" ? `${label} · 10x Kit` : label,
+      variant_label: label,
       variant_id: variant ? String(variant.id) : null,
     });
     priceLines.push({
       unitCents: Math.round(unitPrice * 100),
-      baseCents: Math.round((pack === "kit" ? singlePrice * 10 : singlePrice) * 100),
+      baseCents: Math.round(singlePrice * 100),
       quantity,
       // Titan Stack eligibility comes only from the stored catalogue section
       // (never client input); anything that is not exactly "range" fails closed.

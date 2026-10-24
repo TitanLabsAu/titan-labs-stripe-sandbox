@@ -105,7 +105,7 @@ export function settingsFromRow(row: any | null | undefined): PricingSettings {
 export type PriceLine = {
   /** What the customer pays per unit (kits already discounted). */
   unitCents: number;
-  /** Undiscounted reference per unit (10x single price for kits). */
+  /** Undiscounted reference per unit (equals unit price now the 10x kit is retired). */
   baseCents: number;
   quantity: number;
   /**

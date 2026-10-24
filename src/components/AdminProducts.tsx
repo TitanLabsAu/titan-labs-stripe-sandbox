@@ -20,7 +20,6 @@ import {
 import { ProductImageGenerator } from "@/components/ProductImageGenerator";
 import {
   formatPrice,
-  kitPriceFor,
   LOW_STOCK_THRESHOLD,
   stockState,
   isUnlimitedStock,
@@ -41,7 +40,6 @@ export type DraftVariant = {
   id: string;
   label: string;
   price: string;
-  kitPrice: string;
   stock: string;
   cost: string;
   comingSoon: boolean;
@@ -56,16 +54,19 @@ export type DraftVariant = {
 
 function BundleEditor({ items, onChange }: { items: BundleItem[]; onChange: (items: BundleItem[]) => void }) {
   const { products } = useProducts();
-  const choices = products.flatMap((p) =>
-    (p.variants ?? []).length
-      ? (p.variants ?? []).map((v) => ({ slug: p.slug, name: `${p.name} ${v.label}` }))
-      : [{ slug: p.slug, name: p.name }],
-  );
+  // Included Equipment links existing Equipment catalogue products only.
+  const choices = products
+    .filter((p) => normalizeCatalogueSection(p.catalogueSection) === "equipment")
+    .flatMap((p) =>
+      (p.variants ?? []).length
+        ? (p.variants ?? []).map((v) => ({ slug: p.slug, name: `${p.name} ${v.label}` }))
+        : [{ slug: p.slug, name: p.name }],
+    );
   const [pick, setPick] = useState("");
   return (
     <div className="mt-2 rounded-md border border-dashed border-input p-2">
       <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-        Bundle contents (optional) — the price above is charged for the whole bundle
+        Included equipment (optional) — shown as included with this option at no extra charge; stock is not deducted for listed items
       </p>
       {items.map((it, j) => (
         <div key={j} className="mt-2 flex items-center gap-2">
@@ -122,7 +123,6 @@ export type Draft = {
   price: string;
   sale_price: string;
   promo_label: string;
-  kit_price: string;
   variants: DraftVariant[];
   image_url: string;
   alt: string;
@@ -150,7 +150,6 @@ const emptyDraft: Draft = {
   price: "",
   sale_price: "",
   promo_label: "",
-  kit_price: "",
   variants: [],
   image_url: "",
   alt: "",
@@ -205,7 +204,6 @@ export function toDraft(p: AdminProduct): Draft {
     price: Number(p.price) > 0 ? String(p.price) : "",
     sale_price: p.sale_price == null ? "" : String(p.sale_price),
     promo_label: p.promo_label ?? "",
-    kit_price: p.kit_price == null ? "" : String(p.kit_price),
     variants: (p.product_variants ?? []).map((v) => ({
       id: v.id,
       label: v.label,
@@ -213,7 +211,6 @@ export function toDraft(p: AdminProduct): Draft {
       salePrice: v.salePrice == null ? "" : String(v.salePrice),
       promoLabel: v.promoLabel ?? "",
       hotProduct: v.hotProduct,
-      kitPrice: v.kitPrice == null ? "" : String(v.kitPrice),
       stock: String(v.stock ?? 0),
       cost: v.cost == null ? "" : String(v.cost),
       comingSoon: Boolean(v.comingSoon),
@@ -249,7 +246,6 @@ export function toDraft(p: AdminProduct): Draft {
 export function draftToPayload(d: Draft) {
   const num = (v: string) =>
     v.trim() === "" || Number.isNaN(Number(v)) ? null : Number(v);
-  const equipment = d.catalogue_section !== "range";
   const variants = d.variants
     .map((v) => ({
       id: v.id || safeVariantId(v.label),
@@ -258,7 +254,6 @@ export function draftToPayload(d: Draft) {
       salePrice: num(v.salePrice ?? ""),
       promoLabel: v.promoLabel ?? "",
       ...(typeof v.hotProduct === "boolean" ? { hotProduct: v.hotProduct } : {}),
-      kitPrice: equipment ? null : num(v.kitPrice),
       stock: Math.max(0, Math.trunc(Number(v.stock)) || 0),
       cost: num(v.cost),
       comingSoon: v.comingSoon,
@@ -267,7 +262,8 @@ export function draftToPayload(d: Draft) {
       reconDoseMg: num(v.reconDoseMg),
       reconNotes: v.reconNotes,
       image: v.image.trim() || null,
-      contents: d.catalogue_section === "equipment" ? sanitizeBundle(v.contents) : [],
+      // Included Equipment is available for every section (display-only, no extra charge).
+      contents: sanitizeBundle(v.contents),
       packSize: d.catalogue_section === "equipment" ? parsePackSizeInput(v.packSize ?? "1", v.label) : 1,
     }))
     .filter((v) => {
@@ -287,7 +283,6 @@ export function draftToPayload(d: Draft) {
         : Number(d.price) || 0,
     sale_price: num(d.sale_price),
     promo_label: d.promo_label,
-    kit_price: equipment ? null : num(d.kit_price),
     product_variants: variants,
     image_url: d.image_url,
     alt: d.alt || d.name,
@@ -515,6 +510,37 @@ export function ProductEditor({
         </div>
       </div>
 
+      {/* Included Equipment summary — quick overview and jump links to each option's editor */}
+      {(() => {
+        const included = draft.variants
+          .map((v) => ({ v, items: sanitizeBundle(v.contents) }))
+          .filter((x) => x.items.length > 0);
+        return (
+          <div className="rounded-lg border border-border p-3">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+              Included Equipment
+            </p>
+            {included.length === 0 ? (
+              <p className="mt-1 text-xs text-muted-foreground">
+                None yet — open an option below to list equipment included with it at no extra charge.
+              </p>
+            ) : (
+              <ul className="mt-1 space-y-1 text-xs text-muted-foreground">
+                {included.map(({ v, items }) => (
+                  <li key={v.id}>
+                    <a href={`#variant-includes-${v.id}`} className="font-semibold text-primary hover:underline">
+                      {v.label || "Unnamed option"}
+                    </a>
+                    {" includes "}
+                    {items.map((it) => `${it.quantity} × ${it.name}`).join(", ")}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        );
+      })()}
+
       <div className="space-y-3 rounded-xl border border-primary/20 bg-background/45 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -522,7 +548,7 @@ export function ProductEditor({
             <p className="mt-1 text-xs text-muted-foreground">
               {draft.catalogue_section !== "range"
                 ? draft.catalogue_section === "equipment" ? "Each option is one sellable pack: set items per pack (1 for a single item) and the price for the whole pack. Cart quantity, stock and restocks count packs. " : "Pens are sold as single items. Starter kits are separate products. "
-                : "Add every vial size you sell, even if there is only one. Leave kit price blank to use the automatic 20% off. "}
+                : "Add every vial size you sell, even if there is only one. "}
               Stock is counted per
               size — under {LOW_STOCK_THRESHOLD} shows a low stock warning, 0
               shows out of stock for that size.
@@ -539,7 +565,6 @@ export function ProductEditor({
                     id: crypto.randomUUID(),
                     label: "",
                     price: "",
-                    kitPrice: "",
                     stock: "0",
                     cost: "",
                     comingSoon: false,
@@ -646,29 +671,7 @@ export function ProductEditor({
                         }
                       />
                     </div>
-                    {draft.catalogue_section === "range" ? (
-                    <div>
-                      <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                        10x kit price
-                      </span>
-                      <Input
-                        type="number"
-                        min={0}
-                        value={variant.kitPrice}
-                        placeholder={
-                          variant.price
-                            ? formatPrice(
-                                kitPriceFor(Number(variant.price) || 0),
-                              )
-                            : "Kit price"
-                        }
-                        aria-label="10x Kit price"
-                        onChange={(e) =>
-                          setVariant(i, { kitPrice: e.target.value })
-                        }
-                      />
-                    </div>
-                    ) : draft.catalogue_section === "equipment" ? (
+                    {draft.catalogue_section === "equipment" ? (
                     <div>
                       <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
                         Items per pack
@@ -773,7 +776,7 @@ export function ProductEditor({
                     </label>
                     <div><Label>Sale price for this size (AUD)</Label><Input type="number" min="0.01" step="0.01" value={variant.salePrice ?? ""} placeholder="No sale" onChange={(e) => setVariant(i, { salePrice: e.target.value })} /></div>
                     <div><Label>Promotion label for this size</Label><Input value={variant.promoLabel ?? ""} placeholder="e.g. Special offer" onChange={(e) => setVariant(i, { promoLabel: e.target.value })} /></div>
-                    <p className="text-xs text-muted-foreground sm:col-span-3">Applies only to {variant.label || "this size"}. Regular prices and promotions for other sizes stay separate. Kit pricing is edited above.</p>
+                    <p className="text-xs text-muted-foreground sm:col-span-3">Applies only to {variant.label || "this size"}. Regular prices and promotions for other sizes stay separate.</p>
                   </div>
                   <div className="rounded-lg border border-border p-3">
                     <Label>Photo for {variant.label || "this option"} (optional)</Label>
@@ -805,18 +808,22 @@ export function ProductEditor({
                       ) : null}
                     </div>
                   </div>
-                  {draft.catalogue_section === "equipment" ? (
+                  <div id={`variant-includes-${variant.id}`}>
                     <BundleEditor
                       items={variant.contents}
                       onChange={(contents) => {
                         setDraft({
                           ...draft,
-                          unlimited_stock: contents.length > 0 ? true : draft.unlimited_stock,
+                          // Equipment bundles sell as one tracked pack; Range/Pens inclusions are display-only.
+                          unlimited_stock:
+                            draft.catalogue_section === "equipment" && contents.length > 0
+                              ? true
+                              : draft.unlimited_stock,
                           variants: draft.variants.map((v, idx) => (idx === i ? { ...v, contents } : v)),
                         });
                       }}
                     />
-                  ) : null}
+                  </div>
                 </div>
               );
             })}

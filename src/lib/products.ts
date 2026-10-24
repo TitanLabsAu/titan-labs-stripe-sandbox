@@ -147,17 +147,15 @@ export function allComingSoon(product: Product) {
   return vs.length > 0 && vs.every((v) => v.comingSoon);
 }
 
-/** Only Range supports 10x kits; Pens and Equipment are single items. */
-export function allowsKit(product: { catalogueSection?: unknown; catalogue_section?: unknown }) {
-  return normalizeCatalogueSection(product.catalogueSection ?? product.catalogue_section) === "range";
-}
-
-/** Coerce any requested pack to one the product actually supports. */
+/**
+ * The 10x bulk-kit feature is retired: every product sells as single items only.
+ * Kept as a coercion point so stale cart lines and crafted requests degrade to "single".
+ */
 export function effectivePack(
-  product: { catalogueSection?: unknown; catalogue_section?: unknown },
-  pack: unknown,
+  _product: { catalogueSection?: unknown; catalogue_section?: unknown },
+  _pack: unknown,
 ): ProductPack {
-  return pack === "kit" && allowsKit(product) ? "kit" : "single";
+  return "single";
 }
 
 /**
@@ -185,10 +183,11 @@ export function effectiveStock(
 
 /** Label for the size picker / single option, generic for Equipment. */
 export function sizeLabelFor(product: { catalogueSection?: unknown }) {
-  return allowsKit(product) ? "Vial size" : "Size";
+  return normalizeCatalogueSection(product.catalogueSection) === "range" ? "Vial size" : "Size";
 }
 export function singleLabelFor(product: { catalogueSection?: unknown }) {
-  return normalizeCatalogueSection(product.catalogueSection) === "pens" ? "Pre-filled Pen Only" : allowsKit(product) ? "Single vial" : "Single item";
+  const section = normalizeCatalogueSection(product.catalogueSection);
+  return section === "pens" ? "Pre-filled Pen Only" : section === "range" ? "Single vial" : "Single item";
 }
 
 export const LOW_STOCK_THRESHOLD = 7;
@@ -258,11 +257,6 @@ export function formatPrice(amount: number) {
   return new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD" }).format(amount);
 }
 
-export function kitPriceFor(singlePrice: number, explicitKitPrice?: number | null) {
-  if (explicitKitPrice != null && explicitKitPrice > 0) return explicitKitPrice;
-  return singlePrice * 10 * 0.8;
-}
-
 export function cartLineKey(slug: string, variantId?: string | null, pack: ProductPack = "single") {
   return [slug, variantId || "base", pack].join("::");
 }
@@ -274,8 +268,7 @@ export function getProductOption(
 ) {
   const pack = effectivePack(product, requestedPack);
   const variant = (product.variants ?? []).find((v) => v.id === variantId) ?? null;
-  const singlePrice = variant ? promotedPrice(variant.price, variant.salePrice) : product.price;
-  const unitPrice = pack === "kit" ? kitPriceFor(singlePrice, variant?.kitPrice ?? product.kitPrice) : singlePrice;
+  const unitPrice = variant ? promotedPrice(variant.price, variant.salePrice) : product.price;
   const variantLabel = variant ? packLabel(variant.label, variant.packSize) : singleLabelFor(product);
   return {
     key: cartLineKey(product.slug, variant?.id ?? null, pack),
@@ -284,7 +277,7 @@ export function getProductOption(
     pack,
     unitPrice,
     stock: effectiveStock(product, variant ? (variant.stock ?? null) : (product.stock ?? null)),
-    label: pack === "kit" ? `${variantLabel} · 10x Kit` : variantLabel,
+    label: variantLabel,
   };
 }
 

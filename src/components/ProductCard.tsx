@@ -7,11 +7,11 @@ import { BookOpen } from "lucide-react";
 import { StarterKitOffer } from "@/components/StarterKitOffer";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
+import { PenCompanionOffer } from "@/components/PenCompanionOffer";
 import {
   allComingSoon,
   bundleSummary,
   packLabel,
-  allowsKit,
   singleLabelFor,
   firstAvailableVariant,
   isComingSoon,
@@ -22,7 +22,6 @@ import {
   totalStockFor,
   variantStockFor,
   type Product,
-  type ProductPack,
 } from "@/lib/products";
 
 export function ProductCard({ product: p }: { product: Product }) {
@@ -31,24 +30,19 @@ export function ProductCard({ product: p }: { product: Product }) {
   const [variantId, setVariantId] = useState<string | null>(
     variants.find(v => v.hotProduct && !isComingSoon(p, v.id) && stockState(variantStockFor(p, v.id)) !== "out")?.id ?? firstAvailableVariant(p)?.id ?? null,
   );
-  const [pack, setPack] = useState<ProductPack>("single");
   const selectedVariant = (p.variants ?? []).find(v => v.id === variantId);
   const promoLabel = selectedVariant ? selectedVariant.promoLabel || (selectedVariant.hotProduct ? "Hot product" : (p.variants ?? []).some(v => typeof v.hotProduct === "boolean") ? "" : p.promoLabel || "") : p.promoLabel;
   const wasPrice = selectedVariant && promotedPrice(selectedVariant.price, selectedVariant.salePrice) < selectedVariant.price ? selectedVariant.price : selectedVariant ? null : p.wasPrice;
-  const singleOption = getProductOption(p, variantId, "single");
-  const kitOption = getProductOption(p, variantId, "kit");
-  const kitAllowed = allowsKit(p);
-  const option = pack === "kit" && kitAllowed ? kitOption : singleOption;
+  const option = getProductOption(p, variantId, "single");
   const stockCount = variantStockFor(p, variantId);
   const stock = stockState(stockCount);
   const allOut = stockState(totalStockFor(p)) === "out";
   const soon = isComingSoon(p, variantId);
   const bannerSoon = allComingSoon(p);
   const inCart = items.find((i) => i.key === option.key);
-  const vialsPer = option.pack === "kit" ? 10 : 1;
   const atMax =
     Boolean(inCart) &&
-    ((stockCount != null && (inCart!.quantity + 1) * vialsPer > stockCount) ||
+    ((stockCount != null && inCart!.quantity + 1 > stockCount) ||
       inCart!.quantity >= 99);
   return (
     <article className="titan-product-card group flex h-full min-w-0 flex-col overflow-hidden rounded-xl border border-primary/25 bg-card transition hover:border-primary/65 hover:shadow-glow">
@@ -141,32 +135,7 @@ export function ProductCard({ product: p }: { product: Product }) {
             {singleLabelFor(p)}
           </p>
         )}
-        {kitAllowed ? (
-        <div
-          className="titan-buy-options mt-2 grid grid-cols-2 gap-2"
-          aria-label="Buy option"
-        >
-          {(
-            [
-              ["single", "Single vial", singleOption.unitPrice],
-              ["kit", "10x Kit · 20% off", kitOption.unitPrice],
-            ] as const
-          ).map(([key, label, price]) => (
-            <button
-              key={key}
-              type="button"
-              aria-pressed={pack === key}
-              onClick={() => setPack(key)}
-              className={`rounded-md border border-primary/30 flex flex-col items-center justify-center gap-1 min-h-11 px-2 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition-colors ${pack === key ? "border-accent bg-accent/10 text-foreground shadow-[inset_0_0_0_1px_var(--accent)]" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
-            >
-              <span className="truncate">{label}</span>
-              <span className="sr-only">
-                {formatPrice(price)}
-              </span>
-            </button>
-          ))}
-        </div>
-        ) : null}
+        <PenCompanionOffer product={p} />
         {(() => {
           const items = variants.find((v) => v.id === variantId)?.contents ?? [];
           return items.length ? (
@@ -178,7 +147,7 @@ export function ProductCard({ product: p }: { product: Product }) {
         })()}
         <StarterKitOffer product={p}/>
         <div className="mt-2 flex items-baseline gap-1">
-          {wasPrice && pack === "single" ? (
+          {wasPrice ? (
             <span className="text-xs text-muted-foreground line-through">
               {formatPrice(wasPrice!)}
             </span>
@@ -238,9 +207,7 @@ export function ProductCard({ product: p }: { product: Product }) {
               ? "Coming soon"
               : stock === "out"
                 ? "Out of stock"
-                : option.pack === "kit"
-                  ? "Add kit to order"
-                  : "Add to order"}
+                : "Add to order"}
           </Button>
         )}
       </div>

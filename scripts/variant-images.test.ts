@@ -91,8 +91,8 @@ describe("Admin draft round-trip", () => {
   });
   test("a new blank variant row carries an empty photo that saves as null", () => {
     const draft: Draft = {
-      slug: "x", name: "X", price: "10", sale_price: "", promo_label: "", kit_price: "",
-      variants: [{ id: "a", label: "Only", price: "10", kitPrice: "", stock: "1", cost: "", comingSoon: false, reconVialMg: "", reconWaterMl: "", reconDoseMg: "", reconNotes: "", image: "", contents: [], packSize: "1" }],
+      slug: "x", name: "X", price: "10", sale_price: "", promo_label: "",
+      variants: [{ id: "a", label: "Only", price: "10", stock: "1", cost: "", comingSoon: false, reconVialMg: "", reconWaterMl: "", reconDoseMg: "", reconNotes: "", image: "", contents: [], packSize: "1" }],
       image_url: "/m.png", alt: "", blurb: "", description: "", details: "", protocol: "",
       recon_vial_mg: "", recon_water_ml: "", recon_dose_mg: "", recon_notes: "",
       categories: [], links: [], active: true, sort_order: "0", stock_quantity: "1",

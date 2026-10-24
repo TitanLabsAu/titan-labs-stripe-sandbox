@@ -56,10 +56,10 @@ describe("equipment quantity packs", () => {
       expect(() => parsePackSizeInput(bad, "Pins")).toThrow(/Items per pack/);
     }
   });
-  test("range kits are untouched", () => {
+  test("range 10x kits are retired — kit requests price as single", () => {
     const range: Product = { ...pins, catalogueSection: "range", variants: [{ id: "a", label: "5mg", price: 50, stock: 20 }] };
     const kit = getProductOption(range, "a", "kit");
-    expect(kit.pack).toBe("kit");
-    expect(kit.unitPrice).toBe(400);
+    expect(kit.pack).toBe("single");
+    expect(kit.unitPrice).toBe(50);
   });
 });

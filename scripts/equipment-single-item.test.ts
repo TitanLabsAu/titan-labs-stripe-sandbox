@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { allowsKit, effectivePack, getProductOption, singleLabelFor, type Product } from "../src/lib/products";
+import { effectivePack, getProductOption, singleLabelFor, type Product } from "../src/lib/products";
 import { coerceCartItems, type CartItem } from "../src/lib/cart";
 import { cartVariantQuantity, equipmentUpsellState } from "../src/lib/cart-upsell";
 import { resolveCatalogueSection } from "../src/lib/catalogue-sections";
@@ -13,8 +13,6 @@ const range: Product = { ...base, slug: "klow", name: "KLOW", price: 100, catalo
 
 describe("equipment is single-item only", () => {
   test("rule", () => {
-    expect(allowsKit(bac)).toBe(false);
-    expect(allowsKit({ catalogue_section: "equipment" })).toBe(false);
     expect(effectivePack(bac, "kit")).toBe("single");
     expect(singleLabelFor(bac)).toBe("Single item");
   });
@@ -35,15 +33,18 @@ describe("equipment is single-item only", () => {
   });
 });
 
-describe("range kits unchanged", () => {
-  test("kit still allowed at 20% off", () => {
-    expect(allowsKit(range)).toBe(true);
+describe("10x bulk-kit retired for Range too", () => {
+  test("kit requests coerce to single at the ordinary price", () => {
     const o = getProductOption(range, null, "kit");
-    expect(o.pack).toBe("kit");
-    expect(o.unitPrice).toBe(800);
-    expect(o.label).toBe("Single vial · 10x Kit");
+    expect(o.pack).toBe("single");
+    expect(o.unitPrice).toBe(100);
+    expect(o.label).toBe("Single vial");
+  });
+  test("stale range kit cart lines become single", () => {
     const items: CartItem[] = [{ key: "klow::base::kit", slug: "klow", quantity: 1, pack: "kit" }];
-    expect(coerceCartItems(items, () => range)).toBe(items);
+    expect(coerceCartItems(items, () => range)).toEqual([
+      { key: "klow::base::single", slug: "klow", quantity: 1, pack: "single" },
+    ]);
   });
 });
 

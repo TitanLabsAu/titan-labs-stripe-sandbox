@@ -17,21 +17,19 @@ import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { useCart } from "@/lib/cart";
+import { PenCompanionOffer } from "@/components/PenCompanionOffer";
 import {
   cartLineKey,
   firstAvailableVariant,
   formatPrice,
   getProductOption,
   isComingSoon,
-  kitPriceFor,
-  allowsKit,
   singleLabelFor,
   packLabel,
   productBasePrice,
   sortedProductVariants,
   stockState,
   variantStockFor,
-  type ProductPack,
 } from "@/lib/products";
 import { getProductBySlug, getSiteContent } from "@/lib/catalog.functions";
 import { useProducts, useSiteContent } from "@/lib/useCatalog";
@@ -77,10 +75,9 @@ function ProductPage() {
     if (linked && !linked.comingSoon && (linked.stock === null || linked.stock === undefined || linked.stock > 0)) return linked.id;
     return firstAvailableVariant(product)?.id ?? null;
   });
-  const [pack, setPack] = useState<ProductPack>("single");
   const selected = useMemo(
-    () => getProductOption(product, variantId, pack),
-    [product, variantId, pack],
+    () => getProductOption(product, variantId, "single"),
+    [product, variantId],
   );
   const selectedKey = cartLineKey(
     product.slug,
@@ -112,7 +109,6 @@ function ProductPage() {
   const promoLabel = selectedVariant ? selectedVariant.promoLabel || (selectedVariant.hotProduct ? "Hot product" : (product.variants ?? []).some(v => typeof v.hotProduct === "boolean") ? "" : product.promoLabel || "") : product.promoLabel;
   const wasPrice = selectedVariant && promotedPrice(selectedVariant.price, selectedVariant.salePrice) < selectedVariant.price ? selectedVariant.price : selectedVariant ? null : product.wasPrice;
   const singleOption = getProductOption(product, variantId, "single");
-  const kitOption = getProductOption(product, variantId, "kit");
   const total = selected.unitPrice * qty;
   const stockCount = variantStockFor(product, variantId);
   const stock = stockState(stockCount);
@@ -197,9 +193,9 @@ function ProductPage() {
             <div className="mt-6 rounded-xl border border-border bg-card p-5">
               {variants.length > 0 ? (
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
-                    {allowsKit(product) ? "Vial size" : "Size"}
-                  </p>
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
+                  {product.catalogueSection === "range" ? "Vial size" : "Size"}
+                </p>
                   {variants.length >= 4 ? (
                     <select
                       className="mt-3 h-11 w-full rounded-md border border-input bg-background px-3 text-sm font-semibold text-foreground"
@@ -264,36 +260,11 @@ function ProductPage() {
                 </div>
               ) : null}
 
-              {allowsKit(product) ? (
-              <div className={variants.length > 0 ? "mt-5" : ""}>
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
-                  Buy option
-                </p>
-                <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                  <Button
-                    variant={pack === "single" ? "default" : "outline"}
-                    className="h-auto justify-between gap-3 px-4 py-3 font-bold uppercase"
-                    onClick={() => setPack("single")}
-                  >
-                    <span>Single vial</span>
-                    <span>{formatPrice(singleOption.unitPrice)}</span>
-                  </Button>
-                  <Button
-                    variant={pack === "kit" ? "default" : "outline"}
-                    className="h-auto justify-between gap-3 px-4 py-3 font-bold uppercase"
-                    onClick={() => setPack("kit")}
-                  >
-                    <span>10x Kit · 20% off</span>
-                    <span>{formatPrice(kitOption.unitPrice)}</span>
-                  </Button>
-                </div>
-              </div>
-              ) : (
-                <p className={`${variants.length > 0 ? "mt-5" : ""} text-xs font-bold uppercase tracking-[0.2em] text-accent`}>
-                  {singleLabelFor(product)} · {formatPrice(singleOption.unitPrice)}
-                </p>
-              )}
+              <p className={`${variants.length > 0 ? "mt-5" : ""} text-xs font-bold uppercase tracking-[0.2em] text-accent`}>
+                {singleLabelFor(product)} · {formatPrice(singleOption.unitPrice)}
+              </p>
 
+              <PenCompanionOffer product={product} />
               <StarterKitOffer product={product}/>
               <label className="mt-6 block text-xs font-bold uppercase tracking-[0.2em] text-accent">
                 Quantity

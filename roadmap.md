@@ -94,3 +94,17 @@
 - [x] Rebuild kit guide panels natively per approved concepts: navy/blue condensed type, gold square step numbers, circular kit art, two-column steps, tips/note bands; exact CMS wording and admin editing preserved.
 - [x] Verify tests/typecheck/build and desktop/mobile light/dark screenshots. No publish from chat.
 - [x] Visual correction: replaced all 17 PDF-derived kit/step illustrations with clean standalone text-free assets (approved alcohol-pad art kept); 18 guide tests + tsgo + build OK; middle-steps screenshots verified; no publish.
+
+## Approved build scope (preview only, no publish) — 24 Oct
+- [ ] 1. Remove 10x bulk-kit (20% off) feature: public UI, cart/checkout pricing, admin purchase-mode controls, server validation rejects new bulk-kit; keep Stack tiers, Equipment/starter kits, historical orders intact
+- [ ] 2. Range products: "Add V2 Reusable Pen" toggle replacing bulk-kit button — Select Pen dropdown (Blue/Purple/Grey, live V2 prices/images/stock), exactly one flow-owned pen line, colour change replaces it, manual pen lines preserved, off removes it; pen selected switches Range Starter Kit add-on to Pen Starter Kit (no double kits); catalogue + product detail, accessible/mobile/light/dark
+- [ ] 3. Admin: editable Included Equipment for Range/Pens products — reuse bundle/includes model, link existing equipment with qty + display wording, advertised inclusions without cart charges, variant-specific, no double stock deduction, near top of editor
+- [ ] Tests: cart colour change/no-dup, kit switch, server rejects bulk-kit, stack tiers/equipment excluded, inclusion serialization; typecheck/build; screenshots (Range expanded Select Pen, Pen Starter Kit, V2 Included Equipment, admin fields)
+- Prep-pad catalogue artwork stays unserved; no production data writes/emails/publish
+
+## Bulk-kit removal + V2 pen companion + Included Equipment — DONE (unpublished)
+- 10x bulk-kit removed from storefront, cart, checkout, Admin and server pricing; crafted pack:"kit" requests price as single. Titan Stack Range-only tiers unchanged.
+- Range products offer an optional V2 Reusable Pen (Blue/Purple/Grey from live variants, $65) via a flow-owned cart line that never merges with manual lines; selecting a pen switches that product's starter-kit offer to the Pen Starter Kit (and swaps an offer-added kit), removing it reverts.
+- Admin "Included Equipment" (per-option contents) now available for all sections, equipment-only picker, display-only (no charge, no stock deduction), with a summary near the top of the editor.
+- Verified: 467 tests pass, tsgo clean, production build OK, browser flow on /product/tirzepatide (toggle, colours, kit switch/revert, mobile no overflow, no page errors).
+- Still NOT published; nine prep-pad catalogue images remain unserved in pending-catalogue-images/.
