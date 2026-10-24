@@ -101,3 +101,10 @@
 - [ ] 3. Admin: editable Included Equipment for Range/Pens products — reuse bundle/includes model, link existing equipment with qty + display wording, advertised inclusions without cart charges, variant-specific, no double stock deduction, near top of editor
 - [ ] Tests: cart colour change/no-dup, kit switch, server rejects bulk-kit, stack tiers/equipment excluded, inclusion serialization; typecheck/build; screenshots (Range expanded Select Pen, Pen Starter Kit, V2 Included Equipment, admin fields)
 - Prep-pad catalogue artwork stays unserved; no production data writes/emails/publish
+
+## Bulk-kit removal + V2 pen companion + Included Equipment — DONE (unpublished)
+- 10x bulk-kit removed from storefront, cart, checkout, Admin and server pricing; crafted pack:"kit" requests price as single. Titan Stack Range-only tiers unchanged.
+- Range products offer an optional V2 Reusable Pen (Blue/Purple/Grey from live variants, $65) via a flow-owned cart line that never merges with manual lines; selecting a pen switches that product's starter-kit offer to the Pen Starter Kit (and swaps an offer-added kit), removing it reverts.
+- Admin "Included Equipment" (per-option contents) now available for all sections, equipment-only picker, display-only (no charge, no stock deduction), with a summary near the top of the editor.
+- Verified: 467 tests pass, tsgo clean, production build OK, browser flow on /product/tirzepatide (toggle, colours, kit switch/revert, mobile no overflow, no page errors).
+- Still NOT published; nine prep-pad catalogue images remain unserved in pending-catalogue-images/.
