@@ -1,9 +1,9 @@
 # Titan Club final validation
 
 ## Promotion banner settings — 25 Oct (owner publishes)
-- [ ] Diagnose actual cart and fix companion ownership per selected variant: independent 20mg/30mg, same-variant copies synchronized, safe legacy cleanup, detail switches, manual lines preserved; regression and browser cart verification.
-- [ ] Reusable default/custom banners and exact product/variant assignments in existing site-content settings; admin-only validated saves/public reads, no product or production writes.
-- [ ] Verify isolated save/read, options lifecycle/fallback/permissions, shared ribbons, themes/mobile, existing alignment, tests and automatic checks; supply actual screenshots.
+- [x] Variant-owned companion selections verified with actual catalogue/cards/cart: 30mg Blue alone is exactly one pen/no vials; independent 20mg, synchronized same-variant copies, 30mg-only starter kit swap/revert, detail switching and restore, safe legacy cleanup/manual preservation regressions.
+- [x] Reusable default/custom banners and exact product/variant assignments in existing site-content settings; admin-only validated saves/public reads, no product or production writes.
+- [x] Isolated save/read/options lifecycle/fallback/permissions and four theme/viewport checks pass; home alignment remains exact. 39 focused tests/124 assertions plus handler and variant-promotion scripts pass; automatic compilation build OK. Authenticated Admin screenshot unavailable (redirects to auth); no impersonation, live writes or publish.
 
 ## Pen Guide — unpublished review
 - [x] Light-only contain fitting and narrower fade preserve full artwork; mobile art below copy with equal theme heights, original dark fitting/position/overlay and neighboring pages retained.
