@@ -20,6 +20,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AdminStorefrontContent } from "@/components/AdminStorefrontContent";
+import { PromotionBannerEditor } from "@/components/PromotionBannerEditor";
+import { PROMOTION_BANNERS_KEY, parseBannerSettings, serialiseBannerSettings } from "@/lib/promotion-banners";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { AdminLinks } from "@/components/AdminLinks";
@@ -1311,6 +1313,9 @@ export function AdminEdits() {
                 </span>
               ) : null}
             </div>
+
+            <PromotionBannerEditor settings={parseBannerSettings(content?.[PROMOTION_BANNERS_KEY])} selections={featuredProducts.map(p => ({ key: p.selectionKey, name: p.displayName, label: p.displayBadge, sale: p.displaySale != null && p.displaySale > 0 && p.displaySale < p.displayPrice, hot: true }))}
+              onSave={async settings => { await adminSaveContent({ data: { key: PROMOTION_BANNERS_KEY, body: serialiseBannerSettings(settings) } }); refreshContent(); toast.success("Promotion banners saved"); }} />
 
             <div className="mt-4 space-y-3">
               {featuredProducts.length === 0 ? (
