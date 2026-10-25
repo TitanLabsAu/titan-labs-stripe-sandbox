@@ -20,7 +20,7 @@ import { normalizeCatalogueSection } from "@/lib/catalogue-sections";
  * While a pen is selected, the starter-kit offer switches to the Pen Starter
  * Kit; a kit added through this product's offer is swapped, never duplicated.
  */
-export function PenCompanionOffer({ product }: { product: Product }) {
+export function PenCompanionOffer({ product, variantId }: { product: Product; variantId?: string | null | undefined }) {
   const { products } = useProducts();
   const { items, addItem, removeItem } = useCart();
   const selectId = useId();
@@ -30,12 +30,12 @@ export function PenCompanionOffer({ product }: { product: Product }) {
   const pen = v2PenProduct(products);
   if (!pen) return null;
 
-  const source = penCompanionSource(product.slug);
-  const current = flowPenLine(items, product.slug);
+  const source = penCompanionSource(product.slug, variantId);
+  const current = flowPenLine(items, product.slug, variantId);
   const expanded = open || Boolean(current);
 
   const swapFlowKit = (fromSlug: string, toSlug: string | null) => {
-    const kitLine = items.find((i) => i.source === kitOfferSource(product.slug) && i.slug === fromSlug);
+    const kitLine = items.find((i) => i.source === kitOfferSource(product.slug, variantId) && i.slug === fromSlug);
     if (!kitLine) return;
     removeItem(kitLine.key);
     if (toSlug) {
@@ -45,7 +45,7 @@ export function PenCompanionOffer({ product }: { product: Product }) {
           variantId: null,
           variantLabel: kit.name,
           pack: "single",
-          source: kitOfferSource(product.slug),
+          source: kitOfferSource(product.slug, variantId),
         });
     }
   };
@@ -62,6 +62,8 @@ export function PenCompanionOffer({ product }: { product: Product }) {
       pack: "single",
       source,
     });
+    // Selected state comes from the shared cart, so another copy can collapse it.
+    setOpen(false);
     // Pen selected: this product's offer-added Range Starter Kit becomes the Pen Starter Kit.
     swapFlowKit(RANGE_STARTER_KIT_SLUG, PEN_STARTER_KIT_SLUG);
     toast.success(`${pen.name} — ${variant.label} added to cart`);

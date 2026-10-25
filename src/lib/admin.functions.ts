@@ -1,4 +1,5 @@
 import { normalizeCatalogueSection } from "@/lib/catalogue-sections";
+import { PROMOTION_BANNERS_KEY, serialiseBannerSettings } from "@/lib/promotion-banners";
 import { sanitizeProductLinks } from "@/lib/product-certificates";
 import { assertResetBase, cmsKey, mergeSectionChanges, validateSection } from "@/lib/storefrontContent";
 import { sanitizeBundle, parsePackSizeInput, sanitizeVariantImage } from "@/lib/products";
@@ -689,9 +690,10 @@ export const adminSaveContent = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context as any);
     if (data.key === "order_admin_email" || data.key === "order_admin_email_align") throw new Error("This setting is private and cannot be saved as public content");
+    const body = data.key === PROMOTION_BANNERS_KEY ? serialiseBannerSettings(JSON.parse(data.body)) : data.body;
     const { error } = await context.supabase
       .from("site_content")
-      .upsert({ key: data.key, body: data.body }, { onConflict: "key" });
+      .upsert({ key: data.key, body }, { onConflict: "key" });
     if (error) throw error;
     return { ok: true };
   });

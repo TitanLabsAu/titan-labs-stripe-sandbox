@@ -127,8 +127,39 @@ describe("starter kit switching", () => {
   });
 
   test("kit offer source markers are per-product and well-formed", () => {
-    expect(kitOfferSource("klow")).toBe("kit-offer:klow");
+    expect(kitOfferSource("klow")).toBe("kit-offer:klow:base");
     expect(kitOfferSource("klow")).not.toBe(kitOfferSource("reta"));
+  });
+});
+
+describe("variant-owned companion selections", () => {
+  const reta: Product = { ...range, slug: "retatrutide", variants: [{ id: "20", label: "20mg", price: 170 }, { id: "30", label: "30mg", price: 250 }] };
+  const owned = (size: string): CartItem => ({ key: flowLineKey(V2_PEN_SLUG, "blue", penCompanionSource(reta.slug, size)), source: penCompanionSource(reta.slug, size), slug: V2_PEN_SLUG, variantId: "blue", quantity: 1, pack: "single" });
+  test("30mg selection adds exactly one pen and no phantom vial; 20mg stays unselected", () => {
+    const items = [owned("30")];
+    expect(flowPenLine(items, reta.slug, "30")?.quantity).toBe(1);
+    expect(flowPenLine(items, reta.slug, "20")).toBeNull();
+    expect(items.filter(i => i.slug === reta.slug)).toHaveLength(0);
+    expect(items.reduce((n, i) => n + i.quantity, 0)).toBe(1);
+    expect(starterKitSlugFor(reta, items, "30")).toBe(PEN_STARTER_KIT_SLUG);
+    expect(starterKitSlugFor(reta, items, "20")).toBe(RANGE_STARTER_KIT_SLUG);
+  });
+  test("same variant copies resolve same line; different variants/toggle-off remain independent", () => {
+    const items = [owned("20"), owned("30")];
+    expect(flowPenLine(items, reta.slug, "30")).toBe(flowPenLine(items, reta.slug, "30"));
+    expect(kitOfferSource(reta.slug, "20")).not.toBe(kitOfferSource(reta.slug, "30"));
+    const off = items.filter(i => i.key !== flowPenLine(items, reta.slug, "30")?.key);
+    expect(flowPenLine(off, reta.slug, "20")?.quantity).toBe(1);
+    expect(flowPenLine(off, reta.slug, "30")).toBeNull();
+  });
+  test("ambiguous old sources detach safely while manual quantities and new ownership persist", () => {
+    const old: CartItem = { ...owned("30"), source: "pen-companion:retatrutide" };
+    const manual: CartItem = { ...owned("20"), source: null, key: cartLineKey(V2_PEN_SLUG, "blue", "single"), quantity: 2 };
+    const out = coerceCartItems([old, manual, owned("30")], () => pen);
+    expect(out.reduce((n, i) => n + i.quantity, 0)).toBe(4);
+    expect(out.find(i => !i.source)?.quantity).toBe(3);
+    expect(flowPenLine(out, reta.slug, "20")).toBeNull();
+    expect(flowPenLine(out, reta.slug, "30")?.quantity).toBe(1);
   });
 });
 

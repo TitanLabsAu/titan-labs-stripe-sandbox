@@ -1,4 +1,7 @@
 import { promotedPrice } from "@/lib/variant-promotions";
+import { PROMOTION_BANNERS_KEY, parseBannerSettings, resolveBanner } from "@/lib/promotion-banners";
+import { useSiteContent } from "@/lib/useCatalog";
+import { PromotionRibbon } from "@/components/PromotionRibbon";
 import { ThemedProductImage } from "@/components/ThemedImage";
 import { ProductCoaLink } from "./ProductCertificates";
 import { Link } from "@tanstack/react-router";
@@ -37,6 +40,8 @@ export function ProductCard({ product: p, aligned = false }: { product: Product;
   const selectedVariant = (p.variants ?? []).find(v => v.id === variantId);
   const promoLabel = selectedVariant ? selectedVariant.promoLabel || (selectedVariant.hotProduct ? "Hot product" : (p.variants ?? []).some(v => typeof v.hotProduct === "boolean") ? "" : p.promoLabel || "") : p.promoLabel;
   const wasPrice = selectedVariant && promotedPrice(selectedVariant.price, selectedVariant.salePrice) < selectedVariant.price ? selectedVariant.price : selectedVariant ? null : p.wasPrice;
+  const { data: content } = useSiteContent();
+  const banner = resolveBanner(parseBannerSettings(content?.[PROMOTION_BANNERS_KEY]), selectedVariant ? `${p.slug}::${selectedVariant.id}` : p.slug, promoLabel, Boolean(wasPrice), Boolean(selectedVariant?.hotProduct));
   const option = getProductOption(p, variantId, "single");
   const stockCount = variantStockFor(p, variantId);
   const stock = stockState(stockCount);
@@ -73,11 +78,7 @@ export function ProductCard({ product: p, aligned = false }: { product: Product;
             className={`h-full w-full object-contain transition duration-300 hover:scale-[1.02] ${allOut ? "opacity-40 grayscale" : ""}`}
           />
         )}
-        {promoLabel && !bannerSoon ? (
-          <span className={`titan-promo-badge ${/^hot\s*products?$/i.test(promoLabel.trim()) ? "titan-promo-ribbon titan-promo-ribbon--hot" : /^flash\s*sale$/i.test(promoLabel.trim()) ? "titan-promo-ribbon titan-promo-ribbon--flash" : /^new\s*products?$/i.test(promoLabel.trim()) ? "titan-promo-ribbon titan-promo-ribbon--new" : "absolute left-2 top-2 px-2 py-1 text-[8px] font-bold uppercase tracking-wider"}`}>
-            {promoLabel}
-          </span>
-        ) : null}
+        {banner && !bannerSoon ? <PromotionRibbon banner={banner} /> : null}
         {bannerSoon ? (
           <span className="absolute inset-x-0 bottom-0 bg-primary py-1 text-center text-[9px] font-bold uppercase tracking-[0.16em] text-primary-foreground">
             Coming soon
@@ -144,7 +145,7 @@ export function ProductCard({ product: p, aligned = false }: { product: Product;
           </p>
         )}
         </PromotionSlot>
-        <PromotionSlot aligned={aligned} name="pen"><PenCompanionOffer product={p} /></PromotionSlot>
+        <PromotionSlot aligned={aligned} name="pen"><PenCompanionOffer key={variantId || "base"} product={p} variantId={variantId} /></PromotionSlot>
         <PromotionSlot aligned={aligned} name="inclusions">
         {(() => {
           const items = variants.find((v) => v.id === variantId)?.contents ?? [];
@@ -156,7 +157,7 @@ export function ProductCard({ product: p, aligned = false }: { product: Product;
           ) : null;
         })()}
         </PromotionSlot>
-        <PromotionSlot aligned={aligned} name="starter"><StarterKitOffer product={p}/></PromotionSlot>
+        <PromotionSlot aligned={aligned} name="starter"><StarterKitOffer key={variantId || "base"} product={p} variantId={variantId}/></PromotionSlot>
         <div data-promotion-slot={aligned ? "price" : undefined} className="mt-2 flex items-baseline gap-1">
           {wasPrice ? (
             <span className="text-xs text-muted-foreground line-through">

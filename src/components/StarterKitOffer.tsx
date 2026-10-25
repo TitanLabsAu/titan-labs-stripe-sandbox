@@ -8,13 +8,13 @@ import { formatPrice, type Product } from "@/lib/products";
 import { canAddStarterKit } from "@/lib/starter-kits";
 import { kitOfferSource, starterKitSlugFor } from "@/lib/pen-companion";
 
-export function StarterKitOffer({ product }: { product: Product }) {
+export function StarterKitOffer({ product, variantId }: { product: Product; variantId?: string | null | undefined }) {
   const { products } = useProducts();
   const { items, addItem } = useCart();
   const c = cmsValues(useSiteContent().data, "starter_kit");
   if (product.starterKitEnabled === false) return null;
   // A flow-owned V2 pen switches a Range product's offer to the Pen Starter Kit.
-  const slug = starterKitSlugFor(product, items);
+  const slug = starterKitSlugFor(product, items, variantId);
   const kit = slug
     ? products.find((p) => p.slug === slug && p.catalogueSection === "equipment" && !p.variants?.length) ?? null
     : null;
@@ -42,7 +42,7 @@ export function StarterKitOffer({ product }: { product: Product }) {
         variant="outline"
         className="mt-2 w-full"
         disabled={!available}
-        onClick={() => addItem(kit.slug, 1, { pack: "single", source: kitOfferSource(product.slug) })}
+        onClick={() => addItem(kit.slug, 1, { pack: "single", source: kitOfferSource(product.slug, variantId) })}
       >
         {available ? c.add_label : kit.comingSoon ? c.coming_soon_label : c.unavailable_label}
       </Button>
