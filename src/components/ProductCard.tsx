@@ -2,7 +2,7 @@ import { promotedPrice } from "@/lib/variant-promotions";
 import { ThemedProductImage } from "@/components/ThemedImage";
 import { ProductCoaLink } from "./ProductCertificates";
 import { Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { BookOpen } from "lucide-react";
 import { StarterKitOffer } from "@/components/StarterKitOffer";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,11 @@ import {
   type Product,
 } from "@/lib/products";
 
-export function ProductCard({ product: p }: { product: Product }) {
+function PromotionSlot({ aligned, name, children }: { aligned: boolean; name: string; children: ReactNode }) {
+  return aligned ? <div data-promotion-slot={name}>{children}</div> : <>{children}</>;
+}
+
+export function ProductCard({ product: p, aligned = false }: { product: Product; aligned?: boolean }) {
   const { addItem, items, setQuantity } = useCart();
   const variants = sortedProductVariants(p);
   const [variantId, setVariantId] = useState<string | null>(
@@ -81,7 +85,7 @@ export function ProductCard({ product: p }: { product: Product }) {
         ) : null}
       </Link>
       <div className="flex min-w-0 flex-1 flex-col gap-1 p-3">
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
+        <div data-promotion-slot={aligned ? "title" : undefined} className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
           <Link
             to="/product/$slug"
             params={{ slug: p.slug }}
@@ -95,7 +99,8 @@ export function ProductCard({ product: p }: { product: Product }) {
             </span>
           ) : null}
         </div>
-        <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1"><Link to="/product/$slug" params={{slug:p.slug}} className="inline-flex min-h-7 w-fit items-center gap-1 text-xs font-semibold text-primary hover:underline"><BookOpen className="h-3 w-3"/>Product Info</Link><ProductCoaLink product={p}/></div>
+        <div data-promotion-slot={aligned ? "links" : undefined} className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1"><Link to="/product/$slug" params={{slug:p.slug}} className="inline-flex min-h-7 w-fit items-center gap-1 text-xs font-semibold text-primary hover:underline"><BookOpen className="h-3 w-3"/>Product Info</Link><ProductCoaLink product={p}/></div>
+        <PromotionSlot aligned={aligned} name="metadata">
         {soon && !bannerSoon ? (
           <span className="mt-2 inline-flex w-fit items-center border border-primary bg-primary px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-primary-foreground">
             This size coming soon
@@ -109,6 +114,9 @@ export function ProductCard({ product: p }: { product: Product }) {
             Low stock — only {stockCount} left
           </span>
         ) : null}
+        {aligned && variants.length === 0 ? <p className="mt-2 text-[10px] font-semibold text-muted-foreground">{singleLabelFor(p)}</p> : null}
+        </PromotionSlot>
+        <PromotionSlot aligned={aligned} name="size">
         {variants.length > 0 ? (
           <label className="mt-2 grid grid-cols-[3rem_minmax(0,1fr)] items-center gap-3 text-xs font-display uppercase tracking-wide">
           <span>Size</span>
@@ -130,12 +138,14 @@ export function ProductCard({ product: p }: { product: Product }) {
             })}
           </select>
           </label>
-        ) : (
+        ) : aligned ? <span aria-hidden="true" /> : (
           <p className="mt-2 text-[10px] font-semibold text-muted-foreground">
             {singleLabelFor(p)}
           </p>
         )}
-        <PenCompanionOffer product={p} />
+        </PromotionSlot>
+        <PromotionSlot aligned={aligned} name="pen"><PenCompanionOffer product={p} /></PromotionSlot>
+        <PromotionSlot aligned={aligned} name="inclusions">
         {(() => {
           const items = variants.find((v) => v.id === variantId)?.contents ?? [];
           return items.length ? (
@@ -145,8 +155,9 @@ export function ProductCard({ product: p }: { product: Product }) {
             </p>
           ) : null;
         })()}
-        <StarterKitOffer product={p}/>
-        <div className="mt-2 flex items-baseline gap-1">
+        </PromotionSlot>
+        <PromotionSlot aligned={aligned} name="starter"><StarterKitOffer product={p}/></PromotionSlot>
+        <div data-promotion-slot={aligned ? "price" : undefined} className="mt-2 flex items-baseline gap-1">
           {wasPrice ? (
             <span className="text-xs text-muted-foreground line-through">
               {formatPrice(wasPrice!)}
@@ -156,6 +167,7 @@ export function ProductCard({ product: p }: { product: Product }) {
             {formatPrice(option.unitPrice)}
           </span>
         </div>
+        <PromotionSlot aligned={aligned} name="action">
         {inCart && !soon ? (
           <div
             className="mt-auto grid h-10 w-full grid-cols-[2.5rem_minmax(0,1fr)_2.5rem] overflow-hidden border border-primary"
@@ -210,6 +222,7 @@ export function ProductCard({ product: p }: { product: Product }) {
                 : "Add to order"}
           </Button>
         )}
+        </PromotionSlot>
       </div>
     </article>
   );
