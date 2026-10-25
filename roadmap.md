@@ -113,3 +113,7 @@
 - [x] Plain selected-colour feedback and Blue/Purple/Grey companion dropdown order; presentation only, no pricing/stock/cart-policy changes.
 - [x] Actual Range expanded selector + Pen Starter Kit and latest clean-art Guides middle-steps screenshots saved for review; 17 focused tests pass, automatic build OK, browser has no page errors.
 - [x] Read-only V2 saved variants all have empty contents: no Included Equipment invented. Admin redirects to /auth; authenticated editor screenshot unavailable and no sign-in attempted.
+
+## Hot Products alignment — 25 Oct (owner publishes)
+- [ ] Align carousel-only image/title/links/metadata/size/pen/inclusions/starter/price/action rows, including expanded controls; preserve other cards, motion, data and assets.
+- [ ] Verify real mixed cards desktop/tablet/mobile light/dark, row coordinates, expanded controls, screenshots and diagnostics.

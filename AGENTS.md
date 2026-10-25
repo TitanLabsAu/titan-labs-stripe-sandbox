@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 - Homepage promotions: Embla auto-scroll + drag; playback resolves the live plugin and checks current snaps (safe after Fast Refresh/resize).
+- Hot Products alone opts into ProductCard promotion slots and a track-wide CSS subgrid so intrinsic row heights stay aligned when offers expand; other catalogue cards keep their original layout.
 - Theme: light first-visit default, per-device choice in one `useSyncExternalStore` store (`src/lib/site-theme.ts`); themed art renders as CSS-switched dark/light pairs (`ThemedArt`/`ThemedProductImage`, sets in `src/lib/theme-art.ts`) so first paint never depends on hydration. CMS exact-slug art beats bundled defaults; Pen Guide passes its own light-banner fallback and uses equal implicit grid rows.
 - Checkout acknowledgements live in `order_acknowledgements`, linked via `link_order_acknowledgement` — Stripe finalisation untouched.
 - Guest checkout ownership comes only from the hashed guest cookie or verified bearer (`checkout-buyer.server.ts`); posted IDs/emails are never trusted.

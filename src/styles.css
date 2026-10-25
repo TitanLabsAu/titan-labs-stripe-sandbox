@@ -545,6 +545,36 @@
 
 .hot-products-band { border-block: 1px solid color-mix(in oklab, var(--primary) 22%, transparent); background: linear-gradient(150deg, var(--background), color-mix(in oklab, var(--primary) 7%, var(--background))); }
 .hot-products-band article { height: 100%; }
+/* Shared intrinsic rows span the complete Embla track, including expanded offers.
+   Subgrids keep absent controls as non-interactive space, without fixed/clipped heights. */
+.hot-products-band .promotions-track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: min(20rem, calc(100vw - 2rem));
+  grid-template-rows: auto minmax(3.5rem, auto) repeat(8, auto);
+}
+.hot-products-band .promotions-slide,
+.hot-products-band .promotions-slide > article {
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-row: span 10;
+}
+.hot-products-band .promotions-slide > article > div {
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-row: span 9;
+  row-gap: .25rem;
+}
+.hot-products-band [data-promotion-slot] { min-width: 0; }
+.hot-products-band [data-promotion-slot="title"] { align-content: start; }
+.hot-products-band [data-promotion-slot="size"] { display: grid; align-items: start; }
+.hot-products-band [data-promotion-slot="action"] > button {
+  font-size: .9rem;
+  letter-spacing: .1em;
+  border-radius: .4rem;
+  box-shadow: 0 0 14px -9px var(--primary);
+}
+.hot-products-band [data-promotion-slot="action"] > [aria-label="Quantity in order"] { margin-top: .5rem; }
 .titan-promotion { border: 1px solid color-mix(in oklab, var(--primary) 40%, transparent); border-left: 3px solid var(--accent); border-radius: 0.35rem; background: linear-gradient(110deg, color-mix(in oklab, var(--primary) 12%, var(--background)), var(--background) 65%, color-mix(in oklab, var(--accent) 8%, var(--background))); box-shadow: 0 8px 26px -20px var(--primary); }
 .titan-promotion > svg { padding: 0.4rem; width: 2.4rem; height: 2.4rem; border: 1px solid color-mix(in oklab, var(--primary) 45%, transparent); border-radius: 0.35rem; color: var(--primary); }
 .titan-promotion > span a { color: var(--primary); text-decoration: none; }
