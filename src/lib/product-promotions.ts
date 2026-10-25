@@ -22,8 +22,10 @@ export function hotProductSelections(products: Product[], selections: string[] =
     const ids = id ? hotVariantIds(p, selections).filter(v => v === id) : hotVariantIds(p, selections);
     return ids.flatMap(id => {
       const key = promotionKey(p.slug, id); if (seen.has(key)) return []; seen.add(key);
-      const v = p.variants!.find(v => v.id === id)!;
-      return [{ ...p, variants: [{ ...v, hotProduct: true }], promoLabel: v.promoLabel || "Hot product" }];
+      const v = p.variants?.find(v => v.id === id);
+      if (!v) return [];
+      const inherited = /^(flash\s*sale|new\s*products?)$/i.test(p.promoLabel?.trim() ?? "") ? p.promoLabel : "";
+      return [{ ...p, variants: [{ ...v, hotProduct: true, promoLabel: v.promoLabel || inherited || "Hot product" }], promoLabel: v.promoLabel || inherited || "Hot product" }];
     });
   });
 }

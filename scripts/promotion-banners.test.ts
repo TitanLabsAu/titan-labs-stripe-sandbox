@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { DEFAULT_BANNERS, bannerSettingsSchema, contrastRatio, parseBannerSettings, resolveBanner, serialiseBannerSettings, type BannerSettings } from "../src/lib/promotion-banners";
+import { hotProductSelections } from "../src/lib/product-promotions";
 
 const custom = { id: "custom-limited", label: "LIMITED EDITION", background: "#006DA8", text: "#FFFFFF" };
 const empty: BannerSettings = { options: [], assignments: {} };
@@ -14,6 +15,12 @@ describe("promotion banner rules", () => {
     expect(resolveBanner(empty, "reta::20", "New product", true)?.id).toBe("new");
     expect(resolveBanner(empty, "reta::10", "", false, true)?.id).toBe("hot");
     expect(resolveBanner(empty, "reta::10", "") ).toBeNull();
+  });
+  test("hot selection retains original parent flash/new status for its exact variant", () => {
+    for (const label of ["Flash sale", "New product"]) {
+      const result = hotProductSelections([{ slug: "demo", name: "Demo", price: 100, image: "", alt: "", blurb: "", details: [], promoLabel: label, variants: [{ id: "blue", label: "Blue", price: 100, hotProduct: true }] }]);
+      expect(result[0]?.variants?.[0]?.promoLabel).toBe(label);
+    }
   });
   test("save/read/add/edit/soft remove retains exact variant assignment", () => {
     let saved = serialiseBannerSettings({ options: [custom], assignments: { "reta::20": custom.id } });
