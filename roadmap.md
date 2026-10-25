@@ -1,5 +1,9 @@
 # Titan Club final validation
 
+## Promotion banner settings — 25 Oct (owner publishes)
+- [ ] Reusable default/custom banners and exact product/variant assignments in existing site-content settings; admin-only validated saves/public reads, no product or production writes.
+- [ ] Verify isolated save/read, options lifecycle/fallback/permissions, shared ribbons, themes/mobile, existing alignment, tests and automatic checks; supply actual screenshots.
+
 ## Pen Guide — unpublished review
 - [x] Light-only contain fitting and narrower fade preserve full artwork; mobile art below copy with equal theme heights, original dark fitting/position/overlay and neighboring pages retained.
 - [x] Exact first six steps, title/intro/column headings verified against upload; existing 8/7 counts, lower steps and saved CMS precedence retained without writes. Dedicated column titles remain editable.
