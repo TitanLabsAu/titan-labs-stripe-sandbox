@@ -569,7 +569,8 @@
 .hot-products-band [data-promotion-slot] > :is(label, p, span, button) { margin-top: 0; }
 .hot-products-band .titan-pen-companion { margin: 0; padding: 0; border: 0; background: none; }
 .hot-products-band .titan-pen-companion button { min-height: 44px; letter-spacing: 0; }
-.hot-products-band .titan-kit-offer { margin: 0; padding: 0; }
+.hot-products-band .titan-product-card .titan-kit-offer { margin: 0; padding: 0; }
+.hot-products-band [data-promotion-slot="size"]:has(> [aria-hidden="true"]:only-child) { display: none; }
 .hot-products-band .titan-kit-offer summary { min-height: 44px; padding: 10px 12px; line-height: 22px; }
 .hot-products-band .titan-kit-offer > div { padding: 0 12px 12px; }
 .hot-products-band .titan-kit-offer button { min-height: 44px; }
