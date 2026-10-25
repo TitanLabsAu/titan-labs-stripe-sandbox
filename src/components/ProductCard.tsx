@@ -145,7 +145,7 @@ export function ProductCard({ product: p, aligned = false }: { product: Product;
           </p>
         )}
         </PromotionSlot>
-        <PromotionSlot aligned={aligned} name="pen"><PenCompanionOffer product={p} /></PromotionSlot>
+        <PromotionSlot aligned={aligned} name="pen"><PenCompanionOffer key={variantId || "base"} product={p} variantId={variantId} /></PromotionSlot>
         <PromotionSlot aligned={aligned} name="inclusions">
         {(() => {
           const items = variants.find((v) => v.id === variantId)?.contents ?? [];
@@ -157,7 +157,7 @@ export function ProductCard({ product: p, aligned = false }: { product: Product;
           ) : null;
         })()}
         </PromotionSlot>
-        <PromotionSlot aligned={aligned} name="starter"><StarterKitOffer product={p}/></PromotionSlot>
+        <PromotionSlot aligned={aligned} name="starter"><StarterKitOffer key={variantId || "base"} product={p} variantId={variantId}/></PromotionSlot>
         <div data-promotion-slot={aligned ? "price" : undefined} className="mt-2 flex items-baseline gap-1">
           {wasPrice ? (
             <span className="text-xs text-muted-foreground line-through">

@@ -264,8 +264,8 @@ function ProductPage() {
                 {singleLabelFor(product)} · {formatPrice(singleOption.unitPrice)}
               </p>
 
-              <PenCompanionOffer product={product} />
-              <StarterKitOffer product={product}/>
+              <PenCompanionOffer key={variantId || "base"} product={product} variantId={variantId} />
+              <StarterKitOffer key={variantId || "base"} product={product} variantId={variantId}/>
               <label className="mt-6 block text-xs font-bold uppercase tracking-[0.2em] text-accent">
                 Quantity
               </label>

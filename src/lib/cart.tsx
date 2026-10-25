@@ -32,7 +32,7 @@ export function flowLineKey(slug: string, variantId: string | null | undefined, 
   return `${cartLineKey(slug, variantId ?? null, "single")}::flow:${source}`;
 }
 
-const SOURCE_RE = /^[a-z0-9:-]{1,80}$/;
+const SOURCE_RE = /^[a-zA-Z0-9_:-]{1,200}$/;
 function sanitizeSource(raw: unknown): string | null {
   const s = String(raw ?? "").trim();
   return SOURCE_RE.test(s) ? s : null;
@@ -92,11 +92,16 @@ export function coerceCartItems(
   for (const item of items) {
     const product = getProduct(item.slug);
     let line = item;
-    const source = sanitizeSource(item.source);
+    // Legacy product-only ownership cannot identify a size. Preserve the item
+    // as an ordinary cart choice rather than guessing or deleting a purchase.
+    const validSource = sanitizeSource(item.source);
+    const source = validSource && /^(pen-companion|kit-offer):[^:]+$/.test(validSource) ? null : validSource;
     if (source !== (item.source ?? null)) {
       changed = true;
       line = { ...line, source };
     }
+    const canonicalKey = source ? flowLineKey(item.slug, item.variantId, source) : cartLineKey(item.slug, item.variantId, item.pack ?? "single");
+    if (line.key !== canonicalKey) { changed = true; line = { ...line, key: canonicalKey }; }
     if (product && item.pack === "kit" && effectivePack(product, "kit") === "single") {
       changed = true;
       line = {

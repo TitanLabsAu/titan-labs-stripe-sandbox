@@ -7,18 +7,18 @@ import { PEN_STARTER_KIT_SLUG, RANGE_STARTER_KIT_SLUG } from "./starter-kits";
 export const V2_PEN_SLUG = "v2-reusable-pen";
 
 /** Cart-line source marker for a pen added through a Range product's "Add V2 Reusable Pen" flow. */
-export function penCompanionSource(rangeSlug: string) {
-  return `pen-companion:${rangeSlug}`;
+export function penCompanionSource(rangeSlug: string, variantId?: string | null) {
+  return `pen-companion:${rangeSlug}:${variantId || "base"}`;
 }
 
 /** Cart-line source marker for a starter kit added through a product's kit offer. */
-export function kitOfferSource(productSlug: string) {
-  return `kit-offer:${productSlug}`;
+export function kitOfferSource(productSlug: string, variantId?: string | null) {
+  return `kit-offer:${productSlug}:${variantId || "base"}`;
 }
 
 /** The flow-owned V2 pen line for a Range product, if one is in the cart. */
-export function flowPenLine(items: CartItem[], rangeSlug: string): CartItem | null {
-  const source = penCompanionSource(rangeSlug);
+export function flowPenLine(items: CartItem[], rangeSlug: string, variantId?: string | null): CartItem | null {
+  const source = penCompanionSource(rangeSlug, variantId);
   return items.find((i) => i.source === source && i.slug === V2_PEN_SLUG) ?? null;
 }
 
@@ -35,10 +35,10 @@ export function v2PenProduct(products: Product[]): Product | null {
  * flow-owned V2 pen in the cart offers the Pen Starter Kit instead of the
  * Range Starter Kit, so the two kits are never both pushed by the flow.
  */
-export function starterKitSlugFor(product: Product, items: CartItem[]): string | null {
+export function starterKitSlugFor(product: Product, items: CartItem[], variantId?: string | null): string | null {
   const section = normalizeCatalogueSection(product.catalogueSection);
   if (section === "pens") return PEN_STARTER_KIT_SLUG;
   if (section === "range")
-    return flowPenLine(items, product.slug) ? PEN_STARTER_KIT_SLUG : RANGE_STARTER_KIT_SLUG;
+    return flowPenLine(items, product.slug, variantId) ? PEN_STARTER_KIT_SLUG : RANGE_STARTER_KIT_SLUG;
   return null;
 }
