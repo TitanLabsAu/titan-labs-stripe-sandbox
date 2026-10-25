@@ -29,7 +29,7 @@ import { cartPriceLines, useReferralSettings } from "@/lib/useReferralSettings";
 import { useProducts, useSiteContent } from "@/lib/useCatalog";
 import { cmsValues } from "@/lib/storefrontContent";
 
-export function CartSheet({ floating = false }: { floating?: boolean }) {
+export function CartSheet({ floating = false, inline = false }: { floating?: boolean; inline?: boolean }) {
   const upsell = cmsValues(useSiteContent().data, "cart_upsell");
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
@@ -104,14 +104,14 @@ export function CartSheet({ floating = false }: { floating?: boolean }) {
 
   // Mobile floating trigger is hidden on checkout pages — the checkout flow
   // manages its own cart summary there.
-  if (floating && ((!catalogue && count === 0) || pathname.startsWith("/checkout"))) return null;
+  if (floating && (pathname === "/" || (!catalogue && count === 0) || pathname.startsWith("/checkout"))) return null;
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        {floating ? (
+        {floating || inline ? (
           <Button
-            className={`fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] left-1/2 z-40 h-12 max-w-[calc(100vw-2rem)] -translate-x-1/2 gap-3 border-accent bg-foreground px-5 text-background shadow-gold ${catalogue ? "" : "md:hidden"}`}
+            className={inline ? "h-11 w-full gap-3 border-accent bg-foreground text-background shadow-gold" : `fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] left-1/2 z-40 h-12 max-w-[calc(100vw-2rem)] -translate-x-1/2 gap-3 border-accent bg-foreground px-5 text-background shadow-gold ${catalogue ? "" : "md:hidden"}`}
             aria-label={`${catalogue ? copy.label : "View cart"} with ${count} ${count === 1 ? "item" : "items"}`}
           >
             <ShoppingCart className="h-5 w-5" />

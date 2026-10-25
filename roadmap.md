@@ -1,5 +1,9 @@
 # Titan Club final validation
 
+## Compact Hot Products — owner review, no chat publication
+- [ ] Homepage-only natural compact cards, mobile heading price and in-flow cart; preserve variant-owned offers and all other pages.
+- [ ] Before/after measurements, expanded/collapsed controls, existing regressions and desktop/mobile light/dark actual screenshots; check available build diagnostics.
+
 ## Promotion banner settings — 25 Oct (owner publishes)
 - [x] Variant-owned companion selections verified with actual catalogue/cards/cart: 30mg Blue alone is exactly one pen/no vials; independent 20mg, synchronized same-variant copies, 30mg-only starter kit swap/revert, detail switching and restore, safe legacy cleanup/manual preservation regressions.
 - [x] Reusable default/custom banners and exact product/variant assignments in existing site-content settings; admin-only validated saves/public reads, no product or production writes.
