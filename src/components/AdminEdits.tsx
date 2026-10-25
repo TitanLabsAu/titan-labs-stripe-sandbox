@@ -1314,7 +1314,7 @@ export function AdminEdits() {
               ) : null}
             </div>
 
-            <PromotionBannerEditor settings={parseBannerSettings(content?.[PROMOTION_BANNERS_KEY])} selections={featuredProducts.map(p => ({ key: p.selectionKey, name: p.displayName, label: p.displayBadge, sale: p.displaySale != null && p.displaySale > 0 && p.displaySale < p.displayPrice, hot: true }))}
+            <PromotionBannerEditor settings={parseBannerSettings(data?.[PROMOTION_BANNERS_KEY])} selections={featuredProducts.map(p => ({ key: p.selectionKey, name: p.displayName, label: p.displayBadge, sale: p.displaySale != null && p.displaySale > 0 && p.displaySale < p.displayPrice, hot: true }))}
               onSave={async settings => { await adminSaveContent({ data: { key: PROMOTION_BANNERS_KEY, body: serialiseBannerSettings(settings) } }); refreshContent(); toast.success("Promotion banners saved"); }} />
 
             <div className="mt-4 space-y-3">

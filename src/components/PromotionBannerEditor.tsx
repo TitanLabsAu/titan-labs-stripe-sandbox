@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { PromotionRibbon } from "@/components/PromotionRibbon";
 import { bannerOptions, bannerSettingsSchema, contrastRatio, resolveBanner, type BannerOption, type BannerSettings } from "@/lib/promotion-banners";
 
-export type BannerSelection = { key: string; name: string; label?: string; sale?: boolean; hot?: boolean };
+export type BannerSelection = { key: string; name: string; label?: string | undefined; sale?: boolean | undefined; hot?: boolean | undefined };
 export function PromotionBannerEditor({ settings, selections, onSave }: {
   settings: BannerSettings; selections: BannerSelection[]; onSave: (s: BannerSettings) => Promise<void>;
 }) {
@@ -14,7 +14,8 @@ export function PromotionBannerEditor({ settings, selections, onSave }: {
   const [editing, setEditing] = useState<BannerOption | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  useEffect(() => { setDraft(settings); }, [settings]);
+  const savedJson = JSON.stringify(settings);
+  useEffect(() => { setDraft(JSON.parse(savedJson)); }, [savedJson]);
   const options = bannerOptions(draft);
   const check = bannerSettingsSchema.safeParse(draft);
   const dirty = JSON.stringify(settings) !== JSON.stringify(draft);

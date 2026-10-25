@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const PROMOTION_BANNERS_KEY = "promotion_banners";
-export type BannerOption = { id: string; label: string; background: string; text: string; removed?: boolean };
+export type BannerOption = { id: string; label: string; background: string; text: string; removed?: boolean | undefined };
 export type BannerSettings = { options: BannerOption[]; assignments: Record<string, string> };
 export const DEFAULT_BANNERS: BannerOption[] = [
   { id: "hot", label: "HOT PRODUCT", background: "#E9C365", text: "#031321" },
@@ -49,6 +49,7 @@ export function resolveBanner(s: BannerSettings, key: string, label?: string, sa
   const id = /^flash\s*sale$/i.test(original) ? "flash" : /^new\s*products?$/i.test(original) ? "new" : sale ? "flash" : /^hot\s*products?$/i.test(original) || hot ? "hot" : null;
   if (id) return DEFAULT_BANNERS.find(o => o.id === id) ?? null;
   // Preserve non-default legacy labels instead of replacing them with HOT PRODUCT.
-  if (original) return { ...DEFAULT_BANNERS[0], id: "legacy", label: original } as BannerOption;
+  const base = DEFAULT_BANNERS[0];
+  if (original && base) return { ...base, id: "legacy", label: original };
   return null;
 }
