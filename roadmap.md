@@ -1,6 +1,7 @@
 # Titan Club final validation
 
 ## Promotion banner settings — 25 Oct (owner publishes)
+- [ ] Diagnose actual cart and fix companion ownership per selected variant: independent 20mg/30mg, same-variant copies synchronized, safe legacy cleanup, detail switches, manual lines preserved; regression and browser cart verification.
 - [ ] Reusable default/custom banners and exact product/variant assignments in existing site-content settings; admin-only validated saves/public reads, no product or production writes.
 - [ ] Verify isolated save/read, options lifecycle/fallback/permissions, shared ribbons, themes/mobile, existing alignment, tests and automatic checks; supply actual screenshots.
 
