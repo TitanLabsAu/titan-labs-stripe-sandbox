@@ -62,6 +62,8 @@ export function PenCompanionOffer({ product, variantId }: { product: Product; va
       pack: "single",
       source,
     });
+    // Selected state comes from the shared cart, so another copy can collapse it.
+    setOpen(false);
     // Pen selected: this product's offer-added Range Starter Kit becomes the Pen Starter Kit.
     swapFlowKit(RANGE_STARTER_KIT_SLUG, PEN_STARTER_KIT_SLUG);
     toast.success(`${pen.name} — ${variant.label} added to cart`);
