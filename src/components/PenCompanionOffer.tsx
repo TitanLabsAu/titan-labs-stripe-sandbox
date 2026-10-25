@@ -77,7 +77,7 @@ export function PenCompanionOffer({ product, variantId }: { product: Product; va
   };
 
   return (
-    <div className="mt-2 rounded-lg border border-primary/25 bg-primary/5 p-3">
+    <div className="titan-pen-companion mt-2 rounded-lg border border-primary/25 bg-primary/5 p-3">
       <button
         type="button"
         aria-expanded={expanded}

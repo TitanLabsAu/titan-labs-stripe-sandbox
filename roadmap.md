@@ -1,5 +1,9 @@
 # Titan Club final validation
 
+## Compact Hot Products — owner review, no chat publication
+- [x] Homepage-only natural compact cards, mobile heading price and in-flow cart; variant-owned offers, other pages and image assets preserved.
+- [x] Before 687.5px; after mobile Range 522–538px, V2 526.5px, prefilled 465px; desktop/tablet 590px. Collapse returns exactly to closed height. Six theme/viewport browser flows and 54 existing tests pass; automatic build OK. Screenshots/report supplied. Manual tsgo/production build not run because this environment reserves those checks for the automatic harness; no exit codes available.
+
 ## Promotion banner settings — 25 Oct (owner publishes)
 - [x] Variant-owned companion selections verified with actual catalogue/cards/cart: 30mg Blue alone is exactly one pen/no vials; independent 20mg, synchronized same-variant copies, 30mg-only starter kit swap/revert, detail switching and restore, safe legacy cleanup/manual preservation regressions.
 - [x] Reusable default/custom banners and exact product/variant assignments in existing site-content settings; admin-only validated saves/public reads, no product or production writes.

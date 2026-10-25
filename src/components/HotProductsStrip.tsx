@@ -4,6 +4,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import AutoScroll from "embla-carousel-auto-scroll";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/ProductCard";
+import { CartSheet } from "@/components/CartSheet";
 import { RichText } from "@/components/RichText";
 import { homeValue } from "@/lib/homeContent";
 import type { Product } from "@/lib/products";
@@ -68,13 +69,13 @@ export function HotProductsStrip({ products, content }: { products: Product[]; c
   // Repeat short selections so a desktop viewport stays filled throughout the loop.
   const selection = animate ? Array.from({ length: Math.max(1, Math.ceil(4 / products.length)) }, () => products).flat() : products;
   return <section aria-labelledby="hot-products-heading" className="hot-products-band py-14">
-    <div className="page-shell flex flex-wrap items-end justify-between gap-4">
-      <div>
+    <div className="page-shell grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4 sm:flex sm:justify-between">
+      <div className="min-w-0">
         <p className="discovery-eyebrow mb-3"><Flame aria-hidden="true" className="h-5 w-5" />Selected // Current</p>
         <h2 id="hot-products-heading" className="font-display text-3xl font-bold uppercase"><RichText inline text={homeValue(content, "home_featured_title")} /></h2>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground"><RichText inline text={homeValue(content, "home_featured_note")} /></p>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2">
         {animate ? <Button variant="outline" size="sm" onClick={() => setPaused(v => !v)} aria-label={paused ? "Play hot products" : "Pause hot products"} aria-pressed={paused}>{paused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}{paused ? "Play" : "Pause"}</Button> : null}
       </div>
     </div>
@@ -85,5 +86,6 @@ export function HotProductsStrip({ products, content }: { products: Product[]; c
         {selection.map((p, i) => <div key={`${p.slug}-${p.variants?.[0]?.id ?? "base"}-${i}`} className="promotions-slide min-w-0 pl-4"><ProductCard product={p} aligned /></div>)}
       </div>
     </div>
+    <div className="page-shell mt-4 md:hidden"><CartSheet inline /></div>
   </section>;
 }

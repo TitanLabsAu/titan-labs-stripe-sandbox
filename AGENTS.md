@@ -10,7 +10,7 @@
 <!-- LOVABLE:END -->
 
 - Homepage promotions: Embla auto-scroll + drag; playback resolves the live plugin and checks current snaps (safe after Fast Refresh/resize).
-- Hot Products alone opts into ProductCard promotion slots and a track-wide CSS subgrid so intrinsic row heights stay aligned when offers expand; other catalogue cards keep their original layout.
+- Hot Products alone opts into ProductCard layout hooks with natural content and flex footer alignment (mobile heading price); no track-wide row equalization, so absent or collapsed offers cannot retain oversized space. Other catalogue cards keep their original layout.
 - Promotion banners use one validated site-content document for reusable custom options and exact slug/variant assignments; soft retirement falls back to original status without product/price writes, and shared ribbons consume only validated colour tokens.
 - Companion pens and offer-added kits are owned by product slug plus stable selected variant ID; switching views retains explicit variant-owned cart choices, while ambiguous legacy product-only sources detach to ordinary lines without losing quantities.
 - Theme: light first-visit default, per-device choice in one `useSyncExternalStore` store (`src/lib/site-theme.ts`); themed art renders as CSS-switched dark/light pairs (`ThemedArt`/`ThemedProductImage`, sets in `src/lib/theme-art.ts`) so first paint never depends on hydration. CMS exact-slug art beats bundled defaults; Pen Guide passes its own light-banner fallback and uses equal implicit grid rows.
@@ -19,7 +19,7 @@
 - First-purchase offer claims stay held while a Stripe intent is payable; released only after confirmed cancellation.
 - Research Lab: `research_entries` (admin RLS CRUD, public published-only via server fn, `at_a_glance` summaries); `/research-preview` shows drafts to admins only.
 - Research UI: preserve science/held quotes, immutable editorial data, exact unique published mapping and whole-card exclusions; never infer modes. Dosing/Timing/Cycle use only exact saved entry headings. Scoped opinion classes isolate stacked scorecard dl rows from shared grids.
-- Mobile floating cart reuses root-layout `CartSheet`.
+- Mobile cart reuses `CartSheet`: homepage has an in-flow trigger below Hot Products instead of the root floating trigger, so order controls are never covered; other pages retain their existing placement.
 - Catalogue sections use `products.catalogue_section`, separate from scientific `categories`.
 - Reviews: `customer_reviews`, admin-only writes; anonymous submissions only via throttled `submitCustomerReview` (unpublished, unrated); homepage featured block capped at three.
 - AI product photos via admin-checked `/api/admin-generate-image`, stored only after "Use image".
