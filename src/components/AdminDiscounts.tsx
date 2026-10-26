@@ -53,7 +53,7 @@ const EMPTY: Form = {
   code: "",
   code_kind: "referral",
   discount_type: "percent",
-  value: "0",
+  value: "10",
   maxUses: "",
   expires: "",
   userId: "",
@@ -232,9 +232,9 @@ function ProgramSettings() {
   );
 }
 
-export function AdminDiscounts() {
+export function AdminDiscounts({ initialCode, editorOnly = false, onDone }: { initialCode?: AdminDiscountCode; editorOnly?: boolean; onDone?: () => void } = {}) {
   const queryClient = useQueryClient();
-  const [form, setForm] = useState<Form>(EMPTY);
+  const [form, setForm] = useState<Form>(() => initialCode ? toForm(initialCode) : EMPTY);
   const set = <K extends keyof Form>(k: K) => (v: Form[K]) => setForm((f) => ({ ...f, [k]: v }));
 
   const { data, isLoading } = useQuery({ queryKey: ["admin-discounts"], queryFn: () => adminListDiscountCodes({}) });
@@ -249,7 +249,7 @@ export function AdminDiscounts() {
     return m;
   }, [members]);
 
-  const refresh = () => queryClient.invalidateQueries({ queryKey: ["admin-discounts"] });
+  const refresh = () => Promise.all(["admin-discounts", "admin-member-rewards", "my-rewards", "admin-code-usage", "checkout-quote"].map(key => queryClient.invalidateQueries({ queryKey: [key] })));
 
   const save = useMutation({
     mutationFn: () =>
@@ -262,6 +262,7 @@ export function AdminDiscounts() {
           value: Number(form.value) || 0,
           maxUses: form.maxUses.trim() ? Number(form.maxUses) : null,
           expiresAt: form.expires || null,
+          ...(initialCode && form.expires === toForm(initialCode).expires ? { expiresAtISO: initialCode.expires_at } : {}),
           userId: form.userId || null,
           note: form.note || null,
           min_spend: Number(form.minSpend) || 0,
@@ -274,6 +275,7 @@ export function AdminDiscounts() {
       toast.success(`Code ${res.code} ${form.id ? "updated" : "created"}`);
       setForm(EMPTY);
       void refresh();
+      onDone?.();
     },
     onError: (e: any) => toast.error(e?.message ?? "Could not save the code"),
   });
@@ -296,16 +298,14 @@ export function AdminDiscounts() {
 
   return (
     <div className="space-y-6">
-      <ProgramSettings />
-      <AdminMilestones />
-      <AdminTitanClub />
+      {!editorOnly ? <><ProgramSettings /><AdminMilestones /><AdminTitanClub /></> : null}
 
       <div className="rounded-xl border border-border bg-card p-6">
         <h3 className="flex items-center gap-2 text-lg font-extrabold uppercase text-foreground">
           <Tag className="h-5 w-5 text-accent" /> {form.id ? `Edit ${form.code}` : "Create a code"}
         </h3>
         <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-          Each specific referral code is usable once per member on successful payment, signed in (matched by account and normalized email, including historical paid uses of that code).
+          Referral codes start at 10% off, subject to saved code settings, allowed combinations and caps. Admin custom values remain editable. Each specific referral code is usable once per member on successful payment, signed in (matched by account and normalized email, including historical paid uses of that code).
           Existing members may use an unused code. EMMA10 use blocks only EMMA10, not DAVE10; own codes are blocked. Failed or unpaid attempts do not consume a use.
           When linked to a member, every 5 eligible paid orders (discounted or not) earn that member a 10% reward.
           Unlinked referral codes still give the customer discount but earn nobody rewards until you link a member.
@@ -382,14 +382,14 @@ export function AdminDiscounts() {
             {form.id ? "Save changes" : "Create code"}
           </Button>
           {form.id ? (
-            <Button variant="outline" className="font-bold uppercase" onClick={() => setForm(EMPTY)}>
+            <Button variant="outline" className="font-bold uppercase" onClick={() => { setForm(EMPTY); onDone?.(); }}>
               Cancel
             </Button>
           ) : null}
         </div>
       </div>
 
-      <div>
+      {!editorOnly ? <div>
         <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">All codes ({codes.length})</h3>
         {isLoading ? (
           <p className="mt-3 text-sm text-muted-foreground">Loading codes…</p>
@@ -451,7 +451,7 @@ export function AdminDiscounts() {
             })}
           </ul>
         )}
-      </div>
+      </div> : null}
     </div>
   );
 }

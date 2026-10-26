@@ -179,6 +179,7 @@ export type AdminCodeInput = {
   value: number;
   maxUses: number | null;
   expiresAt: string | null;
+  expiresAtISO?: string | null;
   userId: string | null;
   note?: string | null;
   min_spend: number;
@@ -193,6 +194,7 @@ export const adminSaveCode = createServerFn({ method: "POST" })
   .inputValidator((input: AdminCodeInput) => input)
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
+    if (data.expiresAtISO && !Number.isFinite(Date.parse(data.expiresAtISO))) throw new Error("Choose a valid expiry");
     const code = String(data.code ?? "").trim().toUpperCase().replace(/\s+/g, "");
     if (!/^[A-Z0-9_-]{3,32}$/.test(code)) throw new Error("Codes are 3–32 letters, numbers, - or _.");
     const kind = data.code_kind === "member" ? "member" : "referral";
@@ -206,7 +208,7 @@ export const adminSaveCode = createServerFn({ method: "POST" })
       discount_type: type,
       value,
       max_uses: data.maxUses && data.maxUses > 0 ? Math.floor(data.maxUses) : 1000000,
-      expires_at: data.expiresAt ? new Date(`${data.expiresAt}T23:59:59+10:00`).toISOString() : null,
+      expires_at: data.expiresAtISO !== undefined ? data.expiresAtISO : data.expiresAt ? new Date(`${data.expiresAt}T23:59:59+10:00`).toISOString() : null,
       user_id: data.userId || null,
       note: data.note ? String(data.note).slice(0, 200) : null,
       min_spend_cents: Math.max(0, Math.round((Number(data.min_spend) || 0) * 100)),

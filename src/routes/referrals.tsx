@@ -42,7 +42,7 @@ function ReferralsPage() {
       <section className="mt-6 rounded-xl border border-border bg-card p-5 text-sm text-muted-foreground">
         <h2 className="text-lg font-extrabold uppercase text-foreground">Fine print</h2>
         <ul className="mt-2 list-disc space-y-1 pl-5">
-          <li>You can't use your own referral code.</li>
+          <li>Referral codes start at 10% off, subject to the code’s current discount, minimum spend, limits, allowed combinations and discount caps. Your own code cannot be used.</li>
           <li>Each specific referral code is usable once per member on successful payment. Existing members can use a code they haven't used before: using EMMA10 blocks only EMMA10, not an unused DAVE10. Sign in or join to redeem a referral code; guest checkout stays available without one.</li>
           <li>Failed, abandoned and unpaid attempts do not consume a use. Earned member reward vouchers are separate and keep their own rules.</li>
           <li>Referral rewards, multi-buy, kit and crypto savings stack up to a {s.combinedCapPercent}% maximum off a single purchase.</li>
