@@ -3,7 +3,8 @@
 ## Approved first four SEO improvements and descriptions
 - [x] Apply exactly 11 approved saved product descriptions with conflict protection and unchanged-field readback.
 - [x] Verify all 11 public product descriptions, metadata and schema.
-- [ ] Report publication scope and concurrent changes; owner publishes, pending prep-pad art stays unserved.
+- [x] Audit source history and confirm all nine served kit assets byte-match published originals; report exact unpublished-source baseline limitation.
+- [ ] Owner assesses release scope and publishes; no publication from chat.
 
 ## Referral 10% update — separate request/thread, excluded from this run
 - Deferred to its own thread per owner's scope correction; no referral code, data or settings changes in this run.
