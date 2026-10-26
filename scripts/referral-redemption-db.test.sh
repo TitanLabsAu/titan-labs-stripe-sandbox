@@ -34,7 +34,7 @@ el() { q "select public.referral_redemption_eligible('$1',$2)"; }
 
 # 1. New member is eligible; guest (null user) is not
 check "new member eligible" "$(el $U1 "$E1")" t
-check "guest not eligible" "$(el NULL "$E1")" f
+check "guest not eligible" "$(q "select public.referral_redemption_eligible(NULL,$E1)")" f
 
 # 2. Claim holds eligibility; second concurrent claim fails
 C1=$(q "select public.claim_referral_redemption('$U1',$E1,'$CODE',30)")
@@ -77,15 +77,16 @@ check "skipped order excluded from tally" "$(q "select public.referral_paid_orde
 q "UPDATE public.orders SET status='cancelled', payment_confirmed=false WHERE id='$O1'"
 check "cancel releases claim" "$(q "select status from public.referral_redemption_claims where id='$C2'")" released
 check "cancel reverses code use" "$(q "select times_used from public.discount_codes where id='$CODE'")" 0
-check "buyer eligible again after cancel" "$(el $U1 "$E1")" t
+q "UPDATE public.orders SET status='cancelled', payment_confirmed=false WHERE id='$O2'"
+check "buyer eligible again after all cancels" "$(el $U1 "$E1")" t
 
 # 9. Referrer reward at threshold (5 paid first orders) via legacy ensure path
 for i in 1 2 3 4 5; do
   UU="33333333-3333-3333-3333-33333333300$i"
   q "INSERT INTO public.orders(id,user_id,status,payment_confirmed,contact_email_normalized,discount_code_id,discount_code,discount_code_kind,referrer_user_id) VALUES (gen_random_uuid(),'$UU','processing',true,'friend$i@x.com','$CODE','FRIEND10','referral','$REF')"
 done
-check "five friends each consumed once" "$(q "select count(*) from public.referral_redemption_claims where status='consumed'")" 6
-check "referrer tally counts five friends" "$(q "select public.referral_paid_order_count('$REF')")" 6
+check "five friends each consumed once" "$(q "select count(*) from public.referral_redemption_claims where status='consumed'")" 5
+check "referrer tally counts five friends" "$(q "select public.referral_paid_order_count('$REF')")" 5
 check "one reward earned at threshold" "$(q "select coalesce(sum(-units),0) from public.store_credit_ledger where user_id='$REF' and kind='referral_earned'" | sed 's/-//')" 1
 
 # 10. Test-mode (stripe_livemode=false) insert releases the claim
