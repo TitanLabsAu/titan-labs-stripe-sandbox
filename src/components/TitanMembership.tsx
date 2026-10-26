@@ -8,7 +8,7 @@ import { useSiteContent } from "@/lib/useCatalog";
 
 export function TitanMembership() {
   const c = cmsValues(useSiteContent().data, "home_membership");
-  const art = themedArtPair(c.image || "/images/titan-membership-card.webp", c.image_light);
+  const art = themedArtPair(c.image || "/images/titan-membership-card.webp", c.image_light, "/images/titan-membership-card-light.webp");
   if (!c.visible) return null;
   return <section aria-labelledby="titan-membership-heading" className="titan-membership relative isolate overflow-hidden">
     <ThemedArt dark={art.dark} light={art.light} sizes="100vw" alt="" width={1672} height={941} className="membership-art" />
