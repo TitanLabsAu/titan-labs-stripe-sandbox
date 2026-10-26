@@ -7,7 +7,7 @@
 - [ ] Owner assesses release scope and publishes; no publication from chat.
 
 ## Publication coordination
-- [ ] Wait for the SEO thread to complete publication of the verified SEO baseline before any new source or database changes.
+- [x] SEO read-only coordination finished; owner explicitly resumed this separate task.
 - [x] Confirm this referral/photo run has made read-only inspections only; no source, database, storage or settings changes.
 
 ## Separately authorized referral 10% and review photos
@@ -15,7 +15,7 @@
 - [ ] Add full referral-code editing from member profiles with refreshed caches and unchanged per-code eligibility.
 - [ ] Add secure moderated review photos (up to five JPG/PNG/WebP files, 5 MB each), durable storage and Admin/public views.
 - [ ] Verify migration readbacks, tests, automatic build/typecheck diagnostics and actual review form; owner publishes through UI.
-- Paused at read-only inspection pending SEO publication coordination; preserve all concurrent work.
+- Active under renewed owner authorization; preserve all concurrent work and do not publish from chat.
 
 ## Referral correction — once per specific code per member
 - [x] Replace global eligibility and claims with code-scoped history/identity locks and safe paid settlement.
