@@ -432,3 +432,33 @@ export async function claimFirstOffer(admin: any, userId: string, emails: string
   }
   return String(data);
 }
+
+/**
+ * Reserve the one-time referral redemption atomically; throws a customer-safe
+ * message if the buyer is no longer eligible or another checkout holds it.
+ */
+export async function claimReferralRedemption(
+  admin: any,
+  userId: string,
+  emails: string[],
+  codeId: string | null,
+  ttlMinutes: number,
+) {
+  const { data, error } = await admin.rpc("claim_referral_redemption", {
+    _user_id: userId,
+    _emails: emails,
+    _code_id: codeId,
+    _ttl_minutes: ttlMinutes,
+  });
+  if (error || !data) {
+    throw new Error(
+      "That referral code is no longer available for your account — referral codes can only be used on a first successful order. Please refresh your order summary.",
+    );
+  }
+  return String(data);
+}
+
+/** Release a held referral claim (failed/abandoned checkout); safe to repeat. */
+export async function releaseReferralRedemptionForAttempt(admin: any, paymentAttemptId: string) {
+  await admin.rpc("release_referral_redemption_for_attempt", { _payment_attempt_id: paymentAttemptId });
+}
