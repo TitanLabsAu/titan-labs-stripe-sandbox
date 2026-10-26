@@ -189,23 +189,15 @@ export async function priceCheckout(
       .maybeSingle();
     const check = checkCodeRow(row, userId);
     if (!check.ok) codeError = check.error;
-    else {
-      code = {
-        id: row.id,
-        referrerUserId:
-          settings.programEnabled && row.code_kind === "referral" ? check.referrer : null,
-        rule: {
-          id: row.id,
-          code: row.code,
-          kind: row.code_kind,
-          discountType: row.discount_type === "fixed" ? "fixed" : "percent",
-          value: Number(row.value) || 0,
-          minSpendCents: Number(row.min_spend_cents) || 0,
-          combineMultibuy: Boolean(row.combine_multibuy),
-          combineCrypto: Boolean(row.combine_crypto),
-          combineCredit: Boolean(row.combine_credit),
-        },
-      };
+    else if (row.code_kind === "referral") {
+      // Referral codes: signed-in members only, once per buyer on their first
+      // successful purchase, matched by account id AND normalised email
+      // (including guest orders). Guests can still check out without the code.
+      const gate = await referralRedemptionGate(admin, row, buyer);
+      if (gate) codeError = gate;
+      else code = resolvedCode(row, settings, check.referrer);
+    } else {
+      code = resolvedCode(row, settings, check.referrer);
     }
   }
 
