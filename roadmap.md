@@ -1,5 +1,8 @@
 # Titan Club final validation
 
+## Approved safety needle guide update — owner publishes
+- [ ] Extract approved right photo only; update matching Safety Hypodermic Needle(s) descriptions, audit saved catalogue/CMS without historical writes, verify actual guide previews and checks. Preserve compact Hot Products and pending catalogue assets.
+
 ## Compact Hot Products — owner review, no chat publication
 - [x] Homepage-only natural compact cards, mobile heading price and in-flow cart; variant-owned offers, other pages and image assets preserved.
 - [x] Before 687.5px; after mobile Range 522–538px, V2 526.5px, prefilled 465px; desktop/tablet 590px. Collapse returns exactly to closed height. Six theme/viewport browser flows and 54 existing tests pass; automatic build OK. Screenshots/report supplied. Manual tsgo/production build not run because this environment reserves those checks for the automatic harness; no exit codes available.

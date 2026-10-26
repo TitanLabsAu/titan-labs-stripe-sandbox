@@ -6,6 +6,7 @@
  * validator and every storefront reader so rules cannot drift.
  */
 import { z } from "zod";
+import drawBacWaterPhoto from "@/assets/guides/titan-guide-draw-bac-water-safety-photo.webp.asset.json";
 
 export type ListItemField = { key: string; label: string; type: "text" | "textarea" | "url" | "toggle"; max?: number };
 export type CmsField =
@@ -325,15 +326,15 @@ export const CMS_SECTIONS: CmsSection[] = [
       kit_title: "Reconstitution Kit contents",
       kit: [
         { label: "1 × 3 mL Luer Lock Syringe", body: "For measuring and transferring bacteriostatic water.", image: "/__l5e/assets-v1/2b49bde6-f54b-4700-8c8a-ad88670087ee/titan-guide-clean-kit-luer-syringe.png" },
-        { label: "1 × 38 mm Hypodermic Needle", body: "Use to draw bacteriostatic water (BAC) from vial (hold vial upright on a slight angle).", image: "/__l5e/assets-v1/fb9641cd-46a2-4ac7-a57f-9744276895a4/titan-guide-clean-kit-needle-38.png" },
-        { label: "2 × 16 mm Hypodermic Needles", body: "1st needle – transfer BAC water into peptide vial. 2nd needle (optional) – used as a vent needle to assist with negative air pressure.", image: "/__l5e/assets-v1/6c1c75f4-3a05-473b-adcc-b3a4d1d54b16/titan-guide-clean-kit-needles-16.png" },
+        { label: "1 × 38 mm Safety Hypodermic Needle", body: "Use to draw bacteriostatic water (BAC) from vial (hold vial upright on a slight angle).", image: "/__l5e/assets-v1/fb9641cd-46a2-4ac7-a57f-9744276895a4/titan-guide-clean-kit-needle-38.png" },
+        { label: "2 × 16 mm Safety Hypodermic Needles", body: "1st needle – transfer BAC water into peptide vial. 2nd needle (optional) – used as a vent needle to assist with negative air pressure.", image: "/__l5e/assets-v1/6c1c75f4-3a05-473b-adcc-b3a4d1d54b16/titan-guide-clean-kit-needles-16.png" },
         { label: "1 × Alcohol Prep Pad", body: "Used to wipe down vial tops.", image: "/__l5e/assets-v1/d4e5683d-d055-43a0-8ff7-f72c6185ffff/titan-guide-recon-kit-alcohol.png" },
       ],
       steps: [
         { title: "Prepare", body: "Wash and dry your hands.\nEnsure your workspace is clean.\nWipe the rubber stoppers of both the BAC water vial and peptide vial with the alcohol prep pad.\nAllow to air dry for a few seconds.", image: "/__l5e/assets-v1/22e2a727-c123-49bd-a9dd-677ac6bec20e/titan-guide-clean-recon-step-1.png" },
-        { title: "Draw BAC water", body: "Attach the 38 mm needle to the 3 mL syringe (Luer Lock).\nHold the BAC water vial upright on a slight angle.\nInsert the needle and draw the required amount of BAC water (e.g. 1–3 mL as per product instructions).", image: "/__l5e/assets-v1/422de44c-f6bb-4cdc-8742-f91e410ea855/titan-guide-clean-recon-step-2.png" },
-        { title: "Swap needle", body: "Remove the 38 mm needle and safely dispose of it in a sharps container.\nAttach a new 16 mm needle to the syringe.\nDo not touch the sterile needle or tip.", image: "/__l5e/assets-v1/532b20be-2163-4069-91e6-5419178a4e76/titan-guide-clean-recon-step-3.png" },
-        { title: "Transfer to peptide vial", body: "Insert the 16 mm needle through the peptide vial’s rubber stopper.\nSlowly inject the BAC water into the vial.\nIf desired, you can insert a second 16 mm needle as a vent (in a separate spot on the stopper) to help release negative air pressure.\nInject slowly to avoid foaming.", image: "/__l5e/assets-v1/79d40f69-8e31-46d4-a28f-bf2dca2108e8/titan-guide-clean-recon-step-4.png" },
+        { title: "Draw BAC water", body: "Attach the 38 mm Safety Hypodermic Needle to the 3 mL syringe (Luer Lock).\nHold the BAC water vial upright on a slight angle.\nInsert the needle and draw the required amount of BAC water (e.g. 1–3 mL as per product instructions).", image: drawBacWaterPhoto.url },
+        { title: "Swap needle", body: "Remove the 38 mm Safety Hypodermic Needle and safely dispose of it in a sharps container.\nAttach a new 16 mm Safety Hypodermic Needle to the syringe.\nDo not touch the sterile needle or tip.", image: "/__l5e/assets-v1/532b20be-2163-4069-91e6-5419178a4e76/titan-guide-clean-recon-step-3.png" },
+        { title: "Transfer to peptide vial", body: "Insert the 16 mm Safety Hypodermic Needle through the peptide vial’s rubber stopper.\nSlowly inject the BAC water into the vial.\nIf desired, you can insert a second 16 mm Safety Hypodermic Needle as a vent (in a separate spot on the stopper) to help release negative air pressure.\nInject slowly to avoid foaming.", image: "/__l5e/assets-v1/79d40f69-8e31-46d4-a28f-bf2dca2108e8/titan-guide-clean-recon-step-4.png" },
         { title: "Mix gently", body: "Once all the BAC water is added, remove the needle(s).\nGently swirl the vial between your fingers until the powder is fully dissolved.\nDo not shake vigorously.", image: "/__l5e/assets-v1/35f43d81-1b84-4ca8-8378-964ab021b8b8/titan-guide-clean-recon-step-5.png" },
         { title: "Store correctly", body: "Store in the refrigerator (2–8°C).\nTake note of the reconstitution date.\nOn average, the vial is good for 4 to 6 weeks, pending use, storage conditions and frequency of use.", image: "/__l5e/assets-v1/c21d2d22-4be6-4aa6-8b66-7c06cb28a405/titan-guide-clean-recon-step-6.png" },
       ],
@@ -347,7 +348,7 @@ export const CMS_SECTIONS: CmsSection[] = [
         { text: "Keep refrigerated (2–8°C)." },
       ],
       note_title: "Important note",
-      note: "The second 16 mm needle is optional and used as a vent needle to assist with negative air pressure while transferring. Do not leave needles in the vial after reconstitution. Always use sterile technique and single use needles only.",
+      note: "The second 16 mm Safety Hypodermic Needle is optional and used as a vent needle to assist with negative air pressure while transferring. Do not leave needles in the vial after reconstitution. Always use sterile technique and single use needles only.",
     },
   },
   {
