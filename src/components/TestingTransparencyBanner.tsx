@@ -1,3 +1,4 @@
+import { artDelivery } from "@/lib/theme-art";
 import { cmsValues } from "@/lib/storefrontContent";
 import { useSiteContent } from "@/lib/useCatalog";
 import { CmsLink } from "@/components/CmsLink";
@@ -35,7 +36,8 @@ export function TestingTransparencyBanner({
         )}
       >
         <img
-          src={c.image || "/images/titan-testing-emblem.webp"}
+          src={c.image || "/images/titan-testing-emblem-v2-256.webp"}
+          {...artDelivery(c.image || "/images/titan-testing-emblem.webp", compact ? "64px" : "(min-width: 640px) 112px, 80px")}
           alt={c.image_alt}
           width={1254}
           height={1254}
