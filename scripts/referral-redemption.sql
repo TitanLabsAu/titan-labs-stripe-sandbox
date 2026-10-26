@@ -1,3 +1,22 @@
+CREATE OR REPLACE FUNCTION public.release_referral_redemption_for_attempt(_payment_attempt_id uuid)
+RETURNS integer LANGUAGE plpgsql SECURITY DEFINER SET search_path TO 'public' AS $function$
+DECLARE _n integer;
+BEGIN
+  UPDATE public.referral_redemption_claims SET status = 'released', updated_at = now()
+   WHERE payment_attempt_id = _payment_attempt_id AND status = 'reserved' AND order_id IS NULL;
+  GET DIAGNOSTICS _n = ROW_COUNT;
+  RETURN _n;
+END $function$;
+
+CREATE OR REPLACE FUNCTION public.referral_paid_order_count(_user_id uuid)
+RETURNS integer LANGUAGE sql STABLE SECURITY DEFINER SET search_path TO 'public' AS $function$
+  SELECT count(*)::integer FROM public.orders o
+   WHERE o.referrer_user_id = _user_id AND o.referrer_user_id <> o.user_id
+     AND o.payment_confirmed IS TRUE AND o.status <> 'cancelled' AND o.refunded_at IS NULL
+     AND NOT EXISTS (SELECT 1 FROM public.admin_notifications n
+                      WHERE n.order_id = o.id AND n.kind = 'referral-redemption-skipped');
+$function$;
+
 -- Isolated fixture applies the exact corrective SQL over the previous settlement definition.
 CREATE OR REPLACE FUNCTION public.orders_referral_settlement()
 RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path TO 'public' AS $function$
@@ -174,7 +193,7 @@ BEGIN
     AND (r.user_id=_user_id OR r.emails && _e)) THEN RETURN false; END IF;
   IF EXISTS (SELECT 1 FROM public.referral_redemption_claims c WHERE c.code_id=_code_id
     AND (c.user_id=_user_id OR c.emails && _e)
-    AND c.order_id IS DISTINCT FROM _except_order_id
+    AND (_except_order_id IS NULL OR c.order_id IS DISTINCT FROM _except_order_id)
     AND (c.status='consumed' OR (c.status='reserved' AND (c.expires_at IS NULL OR c.expires_at>now())))) THEN RETURN false; END IF;
   RETURN true;
 END $function$;
