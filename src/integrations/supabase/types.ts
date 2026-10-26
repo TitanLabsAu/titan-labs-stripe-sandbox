@@ -1236,6 +1236,30 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_code_redemptions: {
+        Row: {
+          code_id: string
+          created_at: string
+          emails: string[]
+          order_id: string
+          user_id: string
+        }
+        Insert: {
+          code_id: string
+          created_at?: string
+          emails?: string[]
+          order_id: string
+          user_id: string
+        }
+        Update: {
+          code_id?: string
+          created_at?: string
+          emails?: string[]
+          order_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       referral_milestone_awards: {
         Row: {
           created_at: string
@@ -2105,6 +2129,10 @@ export type Database = {
         Args: { _ack_id: string; _order_id: string }
         Returns: boolean
       }
+      lock_referral_code_buyer: {
+        Args: { _code_id: string; _emails: string[]; _user_id: string }
+        Returns: undefined
+      }
       normalize_emails: { Args: { _emails: string[] }; Returns: string[] }
       record_restock_expense: {
         Args: {
@@ -2133,10 +2161,24 @@ export type Database = {
         Returns: Json
       }
       referral_paid_order_count: { Args: { _user_id: string }; Returns: number }
-      referral_redemption_eligible: {
-        Args: { _emails: string[]; _except_order_id?: string; _user_id: string }
-        Returns: boolean
-      }
+      referral_redemption_eligible:
+        | {
+            Args: {
+              _code_id: string
+              _emails: string[]
+              _except_order_id: string
+              _user_id: string
+            }
+            Returns: boolean
+          }
+        | {
+            Args: {
+              _emails: string[]
+              _except_order_id?: string
+              _user_id: string
+            }
+            Returns: boolean
+          }
       release_first_offer: { Args: { _claim_id: string }; Returns: boolean }
       release_first_offer_for_attempt: {
         Args: { _payment_attempt_id: string }

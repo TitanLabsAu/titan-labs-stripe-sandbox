@@ -421,6 +421,13 @@
       "when": 1792995419628,
       "tag": "0059_finalize_checkout_order_restore_ack_link",
       "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "7",
+      "when": 1792997284040,
+      "tag": "0060_referral_once_per_code_per_member",
+      "breakpoints": true
     }
   ]
 }
