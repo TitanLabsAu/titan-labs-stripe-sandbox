@@ -407,6 +407,13 @@
       "when": 1792532207783,
       "tag": "0057_foundation_capacity_25",
       "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "7",
+      "when": 1792995363098,
+      "tag": "0058_referral_first_purchase_redemption",
+      "breakpoints": true
     }
   ]
 }
