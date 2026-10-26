@@ -103,8 +103,8 @@ function resolvedCode(row: any, settings: PricingSettings, referrer: string | nu
 
 /**
  * Referral-code gate beyond checkCodeRow: signed-in buyer, not the referrer's own
- * email, and no prior successful purchase by account id or normalised email
- * (guest orders included). Returns a customer-safe error, or null when allowed.
+ * email, and no successful use of this specific code by account or normalized
+ * email (historical guest uses included). Other purchases/codes do not block it.
  */
 async function referralRedemptionGate(
   admin: any,
@@ -112,7 +112,7 @@ async function referralRedemptionGate(
   buyer: PricingBuyer,
 ): Promise<string | null> {
   if (!buyer.userId) {
-    return "Referral codes are for members' first order — sign in or join to use one. You can still check out as a guest without the code.";
+    return "Sign in or join to use a referral code, once per specific code per member. You can still check out as a guest without the code.";
   }
   if (row.user_id) {
     const { data: owner } = await admin
@@ -128,13 +128,15 @@ async function referralRedemptionGate(
   const { data: eligible, error } = await admin.rpc("referral_redemption_eligible", {
     _user_id: buyer.userId,
     _emails: buyer.emails,
+    _code_id: row.id,
+    _except_order_id: null,
   });
   if (error) {
     console.error("referral_redemption_eligible failed", error.message);
     return "We couldn't confirm your referral eligibility just now. Please try again in a moment.";
   }
   if (eligible !== true) {
-    return "Referral codes can only be used on your first order.";
+    return "You've already used this referral code, or it is held on another checkout. Each specific referral code is usable once per member on successful payment; a different unused code remains eligible.";
   }
   return null;
 }
@@ -246,9 +248,8 @@ export async function priceCheckout(
     const check = checkCodeRow(row, userId);
     if (!check.ok) codeError = check.error;
     else if (row.code_kind === "referral") {
-      // Referral codes: signed-in members only, once per buyer on their first
-      // successful purchase, matched by account id AND normalised email
-      // (including guest orders). Guests can still check out without the code.
+      // Signed-in members: once per specific code, matched by account and email.
+      // Other paid purchases/codes do not block an unused code; guests shop without it.
       const gate = await referralRedemptionGate(admin, row, buyer);
       if (gate) codeError = gate;
       else code = resolvedCode(row, settings, check.referrer);
@@ -452,7 +453,7 @@ export async function claimReferralRedemption(
   });
   if (error || !data) {
     throw new Error(
-      "That referral code is no longer available for your account — referral codes can only be used on a first successful order. Please refresh your order summary.",
+      "That referral code is already used or held on another checkout. Each specific referral code is usable once per member on successful payment. Please refresh your order summary.",
     );
   }
   return String(data);

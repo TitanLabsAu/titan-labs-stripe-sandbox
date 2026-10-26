@@ -209,7 +209,7 @@ export const createStripeSandboxPayment = createServerFn({
       const { claimFirstOffer } = await import("@/lib/checkout-pricing.server");
       claimId = await claimFirstOffer(supabaseAdmin, buyer.userId, emails, 60);
     }
-    // Referral code: atomic one-time claim (first successful purchase only).
+    // Referral code: atomic buyer+specific-code hold; unrelated codes stay eligible.
     let referralClaimId: string | null = null;
     if (payload.pricing?.["discount_code_kind"] === "referral" && buyer.userId) {
       const { claimReferralRedemption } = await import("@/lib/checkout-pricing.server");
