@@ -1,5 +1,6 @@
 import type { Product } from "./products";
 import { stockState, variantStockFor } from "./products";
+import { promotedPrice } from "./variant-promotions";
 export const SITE_ORIGIN = "https://titanlabsaus.com";
 export const productUrl = (slug: string) => `${SITE_ORIGIN}/product/${encodeURIComponent(slug)}`;
 export function absoluteImage(value: string) {
@@ -11,7 +12,7 @@ export function seoHead(title: string, description: string, url: string, image?:
 }
 export function productSchema(p: Product) {
   const url = productUrl(p.slug);
-  const options = p.variants?.length ? p.variants.map(v=>({name:`${p.name} — ${v.label}`,price:v.price,stock:variantStockFor(p,v.id),comingSoon:p.comingSoon||v.comingSoon})) : [{name:p.name,price:p.price,stock:p.stock,comingSoon:p.comingSoon}];
+  const options = p.variants?.length ? p.variants.map(v=>({name:`${p.name} — ${v.label}`,price:promotedPrice(v.price,v.salePrice),stock:variantStockFor(p,v.id),comingSoon:p.comingSoon||v.comingSoon})) : [{name:p.name,price:p.price,stock:p.stock,comingSoon:p.comingSoon}];
   const offers = options.filter(o=>Number.isFinite(o.price)&&o.price>0).map(o=>({"@type":"Offer",name:o.name,url,price:o.price,priceCurrency:"AUD",availability:`https://schema.org/${o.comingSoon||stockState(o.stock)==="out"?"OutOfStock":"InStock"}`}));
   return {"@context":"https://schema.org","@type":"Product",name:p.name,description:p.description||p.blurb, image:absoluteImage(p.image),sku:p.slug,brand:{"@type":"Brand",name:"Titan Labs Aus"},url,...(offers.length?{offers}: {})};
 }

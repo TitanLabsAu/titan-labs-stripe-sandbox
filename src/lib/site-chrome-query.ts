@@ -26,11 +26,11 @@ export async function loadSiteChrome(client: QueryClient) {
   ]);
 }
 
-// Only public chrome is transferred here; member/commerce caches are untouched.
+// Only public chrome and the public active catalogue are transferred; member/commerce caches are untouched.
 export function dehydrateSiteChrome(client: QueryClient) {
   return dehydrate(client, {
     shouldDehydrateQuery: (query) => query.state.status === "success" &&
-      (query.queryKey[0] === "site-content" || query.queryKey[0] === "site-links"),
+      ["site-content", "site-links", "catalog-products"].includes(String(query.queryKey[0])),
   });
 }
 
