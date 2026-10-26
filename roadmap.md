@@ -1,11 +1,10 @@
 # Roadmap
 
-## Referral codes: first-successful-purchase-only (once total per buyer)
-- [ ] Read finalize_stripe_order + webhook + prepareStripeOrder + messaging files
-- [ ] Migration: referral_redemption_claims table + eligibility/claim/release/attach RPCs + orders.referral_claim_id + payment_attempts.referral_claim_id + settlement guard (ensure_referral_redemption, never throws on paid path)
-- [ ] checkout-pricing.server.ts: referral codes require signed-in buyer, self-block by ID+email, eligibility RPC check
-- [ ] Claim wiring: submitOrder (PayID/Wise/crypto), Stripe intent + webhook release paths, Eway create/verify
-- [ ] finalize_stripe_order copies referral_claim_id attempt→order
-- [ ] Messaging: referrals page, checkout notices, member welcome email, AdminDiscounts explanation
-- [ ] Tests: TS unit (pricing gate) + DB fixture script (eligible/returning/same code/different code/guest email/self/retry/concurrency/settlement)
-- [ ] Run tests + tsgo + build; report. NO publish, no real orders/emails/payments.
+## Done — one-time referral redemption (unpublished, awaiting owner review)
+- [x] Migrations 0058/0059: `referral_redemption_claims`, eligibility/claim/attach/release/ensure RPCs, settlement trigger, `finalize_checkout_order` claim copy + restored acknowledgement link
+- [x] Server gate in `checkout-pricing.server.ts` (signed-in required, ID+email history, self-referral by email)
+- [x] Claim/release wiring: submitOrder (PayID/Wise/crypto), Stripe, Eway, Stripe webhook
+- [x] Copy: referrals page, CMS defaults, welcome email, Admin discounts
+- [x] Tests: 29 TS (scripts/referral-redemption.test.ts + regressions), 23 DB lifecycle (scripts/referral-redemption-db.test.sh) — all pass
+- [x] tsgo --noEmit exit 0; bun run build exit 0
+- [ ] Owner review, then publish (owner action only)
