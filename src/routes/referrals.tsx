@@ -43,8 +43,9 @@ function ReferralsPage() {
         <h2 className="text-lg font-extrabold uppercase text-foreground">Fine print</h2>
         <ul className="mt-2 list-disc space-y-1 pl-5">
           <li>You can't use your own referral code.</li>
+          <li>A referral code can be used once per person — on their first successful order. Signing in or joining is required to redeem one; guest checkout stays available without a code.</li>
           <li>Referral rewards, multi-buy, kit and crypto savings stack up to a {s.combinedCapPercent}% maximum off a single purchase.</li>
-          <li>Every paid order placed with your code counts towards your next reward, including discounted orders.</li>
+          <li>Every friend's first paid order placed with your code counts towards your next reward, including discounted orders.</li>
           <li>Each {s.rewardPercent}% reward expires {s.rewardExpiryDays} days after it's earned.</li>
           <li>We may adjust or end the program; credit already earned stays on your account.</li>
         </ul>
