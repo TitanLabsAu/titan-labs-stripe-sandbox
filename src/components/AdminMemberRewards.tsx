@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Gift } from "lucide-react";
+import { Gift, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { adminListDiscountCodes } from "@/lib/admin.functions";
+import { AdminDiscounts } from "@/components/AdminDiscounts";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { adminListDiscountCodes, type AdminDiscountCode } from "@/lib/admin.functions";
 import { adminAdjustCredit, adminGetMemberRewards, adminSaveCode } from "@/lib/referrals.functions";
 
 const KIND_LABEL: Record<string, string> = {
@@ -24,10 +26,12 @@ export function AdminMemberRewards({ userId }: { userId: string }) {
   const [units, setUnits] = useState("1");
   const [reason, setReason] = useState("");
   const [assignId, setAssignId] = useState("");
+  const [editingCode, setEditingCode] = useState<AdminDiscountCode | null>(null);
 
   const refresh = () => {
     void qc.invalidateQueries({ queryKey: key });
     void qc.invalidateQueries({ queryKey: ["admin-discounts"] });
+    void qc.invalidateQueries({ queryKey: ["my-rewards"] });
   };
 
   const adjust = useMutation({
@@ -51,6 +55,7 @@ export function AdminMemberRewards({ userId }: { userId: string }) {
           discount_type: c.discount_type,
           value: Number(c.value),
           maxUses: c.max_uses >= 1000000 ? null : c.max_uses,
+          expiresAtISO: c.expires_at,
           expiresAt: c.expires_at ? new Date(c.expires_at).toLocaleDateString("en-CA", { timeZone: "Australia/Melbourne" }) : null,
           userId: input.userId,
           note: c.note,
@@ -75,6 +80,7 @@ export function AdminMemberRewards({ userId }: { userId: string }) {
 
   return (
     <section className="space-y-4 rounded-xl border border-border bg-card p-4">
+      <Dialog open={Boolean(editingCode)} onOpenChange={open => { if (!open) setEditingCode(null); }}><DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-4xl"><DialogTitle>Edit member code</DialogTitle>{editingCode ? <AdminDiscounts key={editingCode.id} initialCode={editingCode} editorOnly onDone={() => {setEditingCode(null); refresh();}} /> : null}</DialogContent></Dialog>
       <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">
         <Gift className="h-4 w-4 text-accent" /> Referral rewards
       </h3>
@@ -109,6 +115,7 @@ export function AdminMemberRewards({ userId }: { userId: string }) {
                   <strong className="uppercase">{c.code}</strong> · {c.code_kind === "member" ? "member-only" : "referral"} · {c.times_used} paid uses
                   {c.active ? "" : " · disabled"}
                 </span>
+                <Button type="button" size="sm" variant="outline" aria-label={`Edit ${c.code}`} onClick={() => setEditingCode(c)}><Pencil className="h-4 w-4" /> Edit code</Button>
                 {c.code_kind === "referral" ? (
                   <Button size="sm" variant="outline" onClick={() => relink.mutate({ code: c, userId: null })}>
                     Unlink

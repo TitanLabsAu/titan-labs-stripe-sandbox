@@ -22,6 +22,7 @@ import {
   getReferralSettings,
 } from "@/lib/referrals.functions";
 import { settingsFromRow } from "@/lib/order-pricing";
+import { adminCodeSchema } from "@/lib/referral-code-input";
 
 function randomCode() {
   const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ";
@@ -47,13 +48,14 @@ type Form = {
   combine_multibuy: boolean;
   combine_crypto: boolean;
   combine_credit: boolean;
+  active: boolean;
 };
 
 const EMPTY: Form = {
   code: "",
   code_kind: "referral",
   discount_type: "percent",
-  value: "0",
+  value: "10",
   maxUses: "",
   expires: "",
   userId: "",
@@ -62,6 +64,7 @@ const EMPTY: Form = {
   combine_multibuy: true,
   combine_crypto: true,
   combine_credit: true,
+  active: true,
 };
 
 function toForm(c: AdminDiscountCode): Form {
@@ -79,6 +82,7 @@ function toForm(c: AdminDiscountCode): Form {
     combine_multibuy: c.combine_multibuy ?? true,
     combine_crypto: c.combine_crypto ?? true,
     combine_credit: c.combine_credit ?? true,
+    active: c.active,
   };
 }
 
@@ -232,9 +236,9 @@ function ProgramSettings() {
   );
 }
 
-export function AdminDiscounts() {
+export function AdminDiscounts({ initialCode, editorOnly = false, onDone }: { initialCode?: AdminDiscountCode; editorOnly?: boolean; onDone?: () => void } = {}) {
   const queryClient = useQueryClient();
-  const [form, setForm] = useState<Form>(EMPTY);
+  const [form, setForm] = useState<Form>(() => initialCode ? toForm(initialCode) : EMPTY);
   const set = <K extends keyof Form>(k: K) => (v: Form[K]) => setForm((f) => ({ ...f, [k]: v }));
 
   const { data, isLoading } = useQuery({ queryKey: ["admin-discounts"], queryFn: () => adminListDiscountCodes({}) });
@@ -249,12 +253,12 @@ export function AdminDiscounts() {
     return m;
   }, [members]);
 
-  const refresh = () => queryClient.invalidateQueries({ queryKey: ["admin-discounts"] });
+  const refresh = () => Promise.all(["admin-discounts", "admin-member-rewards", "my-rewards", "admin-code-usage", "checkout-quote"].map(key => queryClient.invalidateQueries({ queryKey: [key] })));
 
   const save = useMutation({
     mutationFn: () =>
       adminSaveCode({
-        data: {
+        data: adminCodeSchema.parse({
           ...(form.id ? { id: form.id } : {}),
           code: form.code,
           code_kind: form.code_kind,
@@ -262,18 +266,21 @@ export function AdminDiscounts() {
           value: Number(form.value) || 0,
           maxUses: form.maxUses.trim() ? Number(form.maxUses) : null,
           expiresAt: form.expires || null,
+          ...(initialCode && form.expires === toForm(initialCode).expires ? { expiresAtISO: initialCode.expires_at } : {}),
           userId: form.userId || null,
           note: form.note || null,
           min_spend: Number(form.minSpend) || 0,
           combine_multibuy: form.combine_multibuy,
           combine_crypto: form.combine_crypto,
           combine_credit: form.combine_credit,
-        },
+          active: form.active,
+        }),
       }),
     onSuccess: (res) => {
       toast.success(`Code ${res.code} ${form.id ? "updated" : "created"}`);
       setForm(EMPTY);
       void refresh();
+      onDone?.();
     },
     onError: (e: any) => toast.error(e?.message ?? "Could not save the code"),
   });
@@ -296,16 +303,14 @@ export function AdminDiscounts() {
 
   return (
     <div className="space-y-6">
-      <ProgramSettings />
-      <AdminMilestones />
-      <AdminTitanClub />
+      {!editorOnly ? <><ProgramSettings /><AdminMilestones /><AdminTitanClub /></> : null}
 
       <div className="rounded-xl border border-border bg-card p-6">
         <h3 className="flex items-center gap-2 text-lg font-extrabold uppercase text-foreground">
           <Tag className="h-5 w-5 text-accent" /> {form.id ? `Edit ${form.code}` : "Create a code"}
         </h3>
         <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-          Each specific referral code is usable once per member on successful payment, signed in (matched by account and normalized email, including historical paid uses of that code).
+          Referral codes start at 10% off, subject to saved code settings, allowed combinations and caps. Admin custom values remain editable. Each specific referral code is usable once per member on successful payment, signed in (matched by account and normalized email, including historical paid uses of that code).
           Existing members may use an unused code. EMMA10 use blocks only EMMA10, not DAVE10; own codes are blocked. Failed or unpaid attempts do not consume a use.
           When linked to a member, every 5 eligible paid orders (discounted or not) earn that member a 10% reward.
           Unlinked referral codes still give the customer discount but earn nobody rewards until you link a member.
@@ -371,6 +376,7 @@ export function AdminDiscounts() {
           </div>
         </div>
         <div className="mt-4 flex flex-wrap gap-4">
+          <Check label="Active" checked={form.active} onChange={set("active")} />
           <Check label="Can stack with multi-buy" checked={form.combine_multibuy} onChange={set("combine_multibuy")} />
           <Check label="Can stack with crypto" checked={form.combine_crypto} onChange={set("combine_crypto")} />
           <Check label="Can stack with referral rewards" checked={form.combine_credit} onChange={set("combine_credit")} />
@@ -382,14 +388,14 @@ export function AdminDiscounts() {
             {form.id ? "Save changes" : "Create code"}
           </Button>
           {form.id ? (
-            <Button variant="outline" className="font-bold uppercase" onClick={() => setForm(EMPTY)}>
+            <Button variant="outline" className="font-bold uppercase" onClick={() => { setForm(EMPTY); onDone?.(); }}>
               Cancel
             </Button>
           ) : null}
         </div>
       </div>
 
-      <div>
+      {!editorOnly ? <div>
         <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">All codes ({codes.length})</h3>
         {isLoading ? (
           <p className="mt-3 text-sm text-muted-foreground">Loading codes…</p>
@@ -451,7 +457,7 @@ export function AdminDiscounts() {
             })}
           </ul>
         )}
-      </div>
+      </div> : null}
     </div>
   );
 }

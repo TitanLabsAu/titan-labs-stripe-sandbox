@@ -1284,6 +1284,24 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_discount_rollouts: {
+        Row: {
+          applied_at: string
+          before_rows: Json
+          key: string
+        }
+        Insert: {
+          applied_at?: string
+          before_rows: Json
+          key: string
+        }
+        Update: {
+          applied_at?: string
+          before_rows?: Json
+          key?: string
+        }
+        Relationships: []
+      }
       referral_milestone_awards: {
         Row: {
           created_at: string
@@ -1519,6 +1537,50 @@ export type Database = {
           verification_status?: string
         }
         Relationships: []
+      }
+      review_photo_uploads: {
+        Row: {
+          byte_size: number
+          cleanup_claimed: boolean
+          created_at: string
+          id: string
+          mime_type: string
+          ready: boolean
+          review_id: string | null
+          storage_path: string
+          user_id: string
+        }
+        Insert: {
+          byte_size: number
+          cleanup_claimed?: boolean
+          created_at?: string
+          id?: string
+          mime_type: string
+          ready?: boolean
+          review_id?: string | null
+          storage_path: string
+          user_id: string
+        }
+        Update: {
+          byte_size?: number
+          cleanup_claimed?: boolean
+          created_at?: string
+          id?: string
+          mime_type?: string
+          ready?: boolean
+          review_id?: string | null
+          storage_path?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_photo_uploads_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "customer_reviews"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       site_content: {
         Row: {
@@ -2049,6 +2111,10 @@ export type Database = {
         }
         Returns: string
       }
+      claim_review_photo_cleanup: {
+        Args: { _ids: string[]; _user_id: string }
+        Returns: string[]
+      }
       claim_titan_club_welcome_email_for: {
         Args: { _user_id: string }
         Returns: {
@@ -2247,6 +2313,10 @@ export type Database = {
         }[]
       }
       store_credit_summary: { Args: { _user_id: string }; Returns: Json }
+      submit_member_photo_review: {
+        Args: { _photo_ids: string[]; _review: Json; _user_id: string }
+        Returns: string
+      }
       titan_club_my_benefit: { Args: never; Returns: Json }
     }
     Enums: {

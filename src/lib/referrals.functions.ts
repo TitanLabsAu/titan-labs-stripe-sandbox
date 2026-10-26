@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { adminCodeSchema } from "@/lib/referral-code-input";
 
 async function assertAdmin(context: any) {
   const { data } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
@@ -172,27 +173,29 @@ export const adminSetOrderRefunded = createServerFn({ method: "POST" })
   });
 
 export type AdminCodeInput = {
-  id?: string;
+  id?: string | undefined;
   code: string;
   code_kind: "referral" | "member";
   discount_type: "percent" | "fixed";
   value: number;
   maxUses: number | null;
   expiresAt: string | null;
+  expiresAtISO?: string | null | undefined;
   userId: string | null;
-  note?: string | null;
+  note?: string | null | undefined;
   min_spend: number;
   combine_multibuy: boolean;
   combine_crypto: boolean;
   combine_credit: boolean;
-  active?: boolean;
+  active?: boolean | undefined;
 };
 
 export const adminSaveCode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: AdminCodeInput) => input)
+  .inputValidator((input: AdminCodeInput) => adminCodeSchema.parse(input))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
+    if (data.expiresAtISO && !Number.isFinite(Date.parse(data.expiresAtISO))) throw new Error("Choose a valid expiry");
     const code = String(data.code ?? "").trim().toUpperCase().replace(/\s+/g, "");
     if (!/^[A-Z0-9_-]{3,32}$/.test(code)) throw new Error("Codes are 3–32 letters, numbers, - or _.");
     const kind = data.code_kind === "member" ? "member" : "referral";
@@ -206,7 +209,7 @@ export const adminSaveCode = createServerFn({ method: "POST" })
       discount_type: type,
       value,
       max_uses: data.maxUses && data.maxUses > 0 ? Math.floor(data.maxUses) : 1000000,
-      expires_at: data.expiresAt ? new Date(`${data.expiresAt}T23:59:59+10:00`).toISOString() : null,
+      expires_at: data.expiresAtISO !== undefined ? data.expiresAtISO : data.expiresAt ? new Date(`${data.expiresAt}T23:59:59+10:00`).toISOString() : null,
       user_id: data.userId || null,
       note: data.note ? String(data.note).slice(0, 200) : null,
       min_spend_cents: Math.max(0, Math.round((Number(data.min_spend) || 0) * 100)),

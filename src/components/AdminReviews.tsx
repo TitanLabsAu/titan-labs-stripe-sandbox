@@ -15,6 +15,7 @@ import {
   adminSetReviewFlags,
 } from "@/lib/reviews.functions";
 import type { CustomerReview } from "@/lib/reviews";
+import { ReviewPhotos } from "@/components/ReviewPhotos";
 
 type Draft = { id?: string; reviewer_name: string; review_text: string; location: string; rating: string; published: boolean; sort_order: string; featured: boolean; archived: boolean; review_date: string; product_slug: string };
 const empty: Draft = { reviewer_name: "", review_text: "", location: "", rating: "", published: false, sort_order: "0", featured: false, archived: false, review_date: "", product_slug: "" };
@@ -72,6 +73,7 @@ export function AdminReviews() {
       <div className="space-y-4 rounded-xl border border-border bg-card p-6">
         <h3 className="text-lg font-extrabold uppercase">{draft.id ? "Edit review" : "Add review"}</h3>
         <p className="text-sm text-muted-foreground">Only add genuine reviews you have permission to share.</p>
+        <ReviewPhotos photos={data?.find(r => r.id === draft.id)?.photos} name={draft.reviewer_name} />
         <div className="grid gap-4 sm:grid-cols-2">
           <div><Label htmlFor="review-name">Customer name</Label><Input id="review-name" value={draft.reviewer_name} maxLength={120} onChange={(e) => set({ reviewer_name: e.target.value })} /></div>
           <div><Label>Location (optional)</Label><Input value={draft.location} maxLength={120} placeholder="e.g. Melbourne, VIC" onChange={(e) => set({ location: e.target.value })} /></div>
@@ -110,6 +112,7 @@ export function AdminReviews() {
           <div className="max-w-2xl text-sm">
             <p className="font-extrabold uppercase">{r.reviewer_name}{r.location ? <span className="font-normal normal-case text-muted-foreground"> · {r.location}</span> : null}</p>
             <p className="mt-1 break-words whitespace-pre-wrap text-muted-foreground">{r.review_text}</p>
+            <ReviewPhotos photos={r.photos} name={r.reviewer_name} />
             <p className="mt-1 text-xs uppercase tracking-[0.14em] text-accent">{r.archived ? "Archived" : r.published ? "Published" : "Pending approval"}{r.featured ? " · Featured" : ""} · Order {r.sort_order}</p>
             {r.review_date ? <p className="mt-1 text-xs text-muted-foreground">{r.review_date}</p> : null}
             {r.product_slug ? <p className="mt-1 text-xs text-muted-foreground">{products?.find((p) => p.slug === r.product_slug)?.name ?? r.product_slug}</p> : null}

@@ -435,6 +435,27 @@
       "when": 1792997383415,
       "tag": "0061_referral_durable_history_and_late_payment",
       "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "7",
+      "when": 1793014405577,
+      "tag": "0062_referral_ten_percent_issuance",
+      "breakpoints": true
+    },
+    {
+      "idx": 63,
+      "version": "7",
+      "when": 1793014507623,
+      "tag": "0063_moderated_member_review_photos",
+      "breakpoints": true
+    },
+    {
+      "idx": 64,
+      "version": "7",
+      "when": 1793014635197,
+      "tag": "0064_review_photo_cleanup_retry_safety",
+      "breakpoints": true
     }
   ]
 }
