@@ -16,7 +16,7 @@ describe("native Reconstitution Kit guide defaults", () => {
   });
   test("kit contents, tips and note match the supplied document", () => {
     expect(recon.kit.map((k: { label: string }) => k.label)).toEqual([
-      "1 × 3 mL Luer Lock Syringe", "1 × 38 mm Hypodermic Needle", "2 × 16 mm Hypodermic Needles", "1 × Alcohol Prep Pad",
+      "1 × 3 mL Luer Lock Syringe", "1 × 38 mm Safety Hypodermic Needle", "2 × 16 mm Safety Hypodermic Needles", "1 × Alcohol Prep Pad",
     ]);
     expect(recon.tips).toHaveLength(6);
     expect(recon.note).toContain("vent needle");

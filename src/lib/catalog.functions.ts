@@ -65,7 +65,9 @@ export function toProduct(row: any): Product {
   const onSale = sale !== null && sale > 0 && sale < listPrice;
   return {
     slug: row.slug,
-    name: row.name,
+    name: row.slug === "luer-lock-syringe" && row.name === "3ml Luer Lock Syringe with drawing needle"
+      ? "3ml Luer Lock Syringe with Safety Hypodermic Needle"
+      : row.name,
     price: onSale ? (sale as number) : listPrice,
     wasPrice: onSale ? listPrice : null,
     promoLabel: row.promo_label ?? "",

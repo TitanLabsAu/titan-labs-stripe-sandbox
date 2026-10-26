@@ -1,5 +1,8 @@
 # Titan Club final validation
 
+## Approved safety needle guide update — owner publishes
+- [x] Approved photo-only extraction (731×735, 60,408 bytes), guide 38/16 mm labels/steps/note and exact saved drawing-needle product display/Admin draft name updated. Read-only CMS/catalogue audit found no saved hypodermic text or guide override; kit records contain pen pins/insulin syringes, unchanged. No database/history writes. Four theme/viewport guide checks and actual syringe page pass; 30 tests/154 assertions pass, automatic build OK. Standalone build/typecheck reserved for harness, not run. Hot Products and pending catalogue images untouched.
+
 ## Compact Hot Products — owner review, no chat publication
 - [x] Homepage-only natural compact cards, mobile heading price and in-flow cart; variant-owned offers, other pages and image assets preserved.
 - [x] Before 687.5px; after mobile Range 522–538px, V2 526.5px, prefilled 465px; desktop/tablet 590px. Collapse returns exactly to closed height. Six theme/viewport browser flows and 54 existing tests pass; automatic build OK. Screenshots/report supplied. Manual tsgo/production build not run because this environment reserves those checks for the automatic harness; no exit codes available.

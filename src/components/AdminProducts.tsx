@@ -200,7 +200,9 @@ export function toDraft(p: AdminProduct): Draft {
   return {
     id: p.id,
     slug: p.slug,
-    name: p.name,
+    name: p.slug === "luer-lock-syringe" && p.name === "3ml Luer Lock Syringe with drawing needle"
+      ? "3ml Luer Lock Syringe with Safety Hypodermic Needle"
+      : p.name,
     price: Number(p.price) > 0 ? String(p.price) : "",
     sale_price: p.sale_price == null ? "" : String(p.sale_price),
     promo_label: p.promo_label ?? "",
