@@ -1,3 +1,4 @@
+import { loadCatalogProducts } from "@/lib/useCatalog";
 import { ThemedArt, themedArtPair } from "@/components/ThemedImage";
 import { hotVariantIds, withHotSelections } from "@/lib/product-promotions";
 import { SITE_ORIGIN } from "@/lib/seo";
@@ -46,6 +47,7 @@ import {
 import { TestingTransparencyBanner } from "@/components/TestingTransparencyBanner";
 
 export const Route = createFileRoute("/range")({
+  loader: ({ context }) => loadCatalogProducts(context.queryClient),
   validateSearch: (search: Record<string, unknown>) => ({
     ...(isCatalogueSection(search["section"])
       ? { section: search["section"] }

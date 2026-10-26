@@ -12,7 +12,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { ProductCard } from "@/components/ProductCard";
 import { PageImageBoxes } from "@/components/PageImageBoxes";
 import { RichText } from "@/components/RichText";
-import { useProducts, useSiteContent } from "@/lib/useCatalog";
+import { loadCatalogProducts, useProducts, useSiteContent } from "@/lib/useCatalog";
 import {
   BLOCK_ALIGN_CLASS,
   catalogueName,
@@ -32,7 +32,7 @@ import { DiscoveryWelcome, DiscoveryCatalogue } from "@/components/DiscoveryWelc
 import { TestingTransparencySection } from "@/components/TestingTransparencySection";
 
 export const Route = createFileRoute("/")({
-  loader: async () => ({seo:cmsValues(await getSiteContent().catch(() => ({})),"seo")}),
+  loader: async ({ context }) => { const [content] = await Promise.all([getSiteContent().catch(() => ({})), loadCatalogProducts(context.queryClient)]); return {seo:cmsValues(content,"seo")}; },
   head: ({loaderData}) => {
     const c = loaderData?.seo ?? cmsValues(undefined,"seo");
     return seoHead(c.home_title,c.home_description,`${SITE_ORIGIN}/`,c.home_image);

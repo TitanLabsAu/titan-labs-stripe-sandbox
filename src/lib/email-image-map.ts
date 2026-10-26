@@ -37,5 +37,7 @@ export const EMAIL_IMAGE_MAP: Record<string, string> = {
   "/images/titan-syringe-top-up-kit.webp": "/images/email/titan-syringe-top-up-kit.jpg",
   "/images/titan-testing-emblem.webp": "/images/email/titan-testing-emblem.jpg",
   "/images/titan-testing-laboratory.webp": "/images/email/titan-testing-laboratory.jpg",
+  "/images/titan-testing-laboratory-1254-v2.webp": "/images/email/titan-testing-laboratory.jpg",
+  "/images/titan-testing-emblem-v2-256.webp": "/images/email/titan-testing-emblem.jpg",
   "/images/titan-v2-pen-cartridges.webp": "/images/email/titan-v2-pen-cartridges.jpg"
 };

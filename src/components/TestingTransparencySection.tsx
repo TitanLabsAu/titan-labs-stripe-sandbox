@@ -9,7 +9,7 @@ import { useSiteContent } from "@/lib/useCatalog";
 export function TestingTransparencySection() {
   const { data: content } = useSiteContent();
   const c = cmsValues(content, "home_testing");
-  const image = themedArtPair(c.image || "/images/titan-testing-laboratory.webp", c.image_light, "/images/product-light/testing-laboratory-light.webp");
+  const image = themedArtPair(c.image || "/images/titan-testing-laboratory-1254-v2.webp", c.image_light, "/images/product-light/testing-laboratory-light.webp");
   if (!c.visible) return null;
   const showPrimary = Boolean(c.primary_label?.trim() && canonicalUrl(c.primary_url ?? ""));
   const showSecondary = Boolean(c.secondary_label?.trim() && canonicalUrl(c.secondary_url ?? ""));

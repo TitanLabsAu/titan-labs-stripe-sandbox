@@ -35,7 +35,7 @@ describe("theme store", () => {
 describe("responsive art", () => {
   test("only shipped defaults get srcset, and every candidate exists", () => {
     expect(artDelivery("https://cdn.example/upload.webp", "100vw")).toEqual({});
-    for (const src of ["/images/titan-discovery.webp", "/images/titan-discovery-light.webp", "/images/titan-testing-laboratory.webp", "/images/product-light/testing-laboratory-light.webp", "/images/titan-membership-card.webp", "/images/titan-catalogue-banner.webp"]) {
+    for (const src of ["/images/titan-discovery.webp", "/images/titan-discovery-light.webp", "/images/titan-testing-laboratory.webp", "/images/titan-testing-laboratory-1254-v2.webp", "/images/titan-testing-emblem.webp", "/images/product-light/testing-laboratory-light.webp", "/images/titan-membership-card.webp", "/images/titan-catalogue-banner.webp"]) {
       const d = artDelivery(src, "100vw");
       expect(d.srcSet).toBeTruthy();
       for (const part of d.srcSet!.split(",")) readFileSync(`public${part.trim().split(" ")[0]}`);
