@@ -165,6 +165,7 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
             .is("order_id", null);
           await (supabaseAdmin as any).rpc("release_store_credit_for_attempt", { _payment_attempt_id: attempt.id });
           await (supabaseAdmin as any).rpc("release_first_offer_for_attempt", { _payment_attempt_id: attempt.id });
+          await (supabaseAdmin as any).rpc("release_referral_redemption_for_attempt", { _payment_attempt_id: attempt.id });
 
           return ok({ status: "cancelled" });
         }
@@ -205,6 +206,7 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
             .is("order_id", null);
           await (supabaseAdmin as any).rpc("release_store_credit_for_attempt", { _payment_attempt_id: attempt.id });
           await (supabaseAdmin as any).rpc("release_first_offer_for_attempt", { _payment_attempt_id: attempt.id });
+          await (supabaseAdmin as any).rpc("release_referral_redemption_for_attempt", { _payment_attempt_id: attempt.id });
 
           return ok({ status: "rejected", reason: failure });
         }

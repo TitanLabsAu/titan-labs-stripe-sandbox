@@ -339,6 +339,7 @@ export const createStripeSandboxPayment = createServerFn({
       if (safeToRelease) {
         await (supabaseAdmin as any).rpc("release_store_credit_for_attempt", { _payment_attempt_id: attempt.id });
         await (supabaseAdmin as any).rpc("release_first_offer_for_attempt", { _payment_attempt_id: attempt.id });
+          await (supabaseAdmin as any).rpc("release_referral_redemption_for_attempt", { _payment_attempt_id: attempt.id });
       }
       await (supabaseAdmin as any)
         .from("payment_attempts")
@@ -518,6 +519,7 @@ export const verifyStripeSandboxPayment = createServerFn({
         // The first-offer claim is only released when the intent can never be paid.
         if (!amountMatches || !currencyMatches || !metadataMatches || paymentIntent.status === "canceled") {
           await (supabaseAdmin as any).rpc("release_first_offer_for_attempt", { _payment_attempt_id: attempt.id });
+          await (supabaseAdmin as any).rpc("release_referral_redemption_for_attempt", { _payment_attempt_id: attempt.id });
         }
 
 
@@ -605,5 +607,6 @@ export const cancelStripeCheckout = createServerFn({ method: "POST" })
     await db.from("payment_attempts").update({ status: "cancelled", error_code: "CUSTOMER_CANCELLED" }).eq("id", attempt.id).is("order_id", null);
     await db.rpc("release_store_credit_for_attempt", { _payment_attempt_id: attempt.id });
     await db.rpc("release_first_offer_for_attempt", { _payment_attempt_id: attempt.id });
+    await db.rpc("release_referral_redemption_for_attempt", { _payment_attempt_id: attempt.id });
     return { ok: true };
   });
