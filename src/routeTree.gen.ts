@@ -43,6 +43,7 @@ import { Route as AuthenticatedResearchPreviewIndexRouteImport } from './routes/
 import { Route as AuthenticatedResearchPreviewSlugRouteImport } from './routes/_authenticated/research-preview.$slug'
 import { Route as ApiPublicOrderEmailRetryRouteImport } from './routes/api/public/order-email-retry'
 import { Route as ApiPublicProductImageRouteImport } from './routes/api/public/product-image'
+import { Route as ApiPublicReviewPhotoRouteImport } from './routes/api/public/review-photo'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe-webhook'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
@@ -219,6 +220,11 @@ const ApiPublicProductImageRoute = ApiPublicProductImageRouteImport.update({
   path: '/api/public/product-image',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicReviewPhotoRoute = ApiPublicReviewPhotoRouteImport.update({
+  id: '/api/public/review-photo',
+  path: '/api/public/review-photo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicStripeWebhookRoute = ApiPublicStripeWebhookRouteImport.update({
   id: '/api/public/stripe-webhook',
   path: '/api/public/stripe-webhook',
@@ -264,6 +270,7 @@ export interface FileRoutesByFullPath {
   '/research-preview/$slug': typeof AuthenticatedResearchPreviewSlugRoute
   '/api/public/order-email-retry': typeof ApiPublicOrderEmailRetryRoute
   '/api/public/product-image': typeof ApiPublicProductImageRoute
+  '/api/public/review-photo': typeof ApiPublicReviewPhotoRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/research-preview/': typeof AuthenticatedResearchPreviewIndexRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -301,6 +308,7 @@ export interface FileRoutesByTo {
   '/research-preview/$slug': typeof AuthenticatedResearchPreviewSlugRoute
   '/api/public/order-email-retry': typeof ApiPublicOrderEmailRetryRoute
   '/api/public/product-image': typeof ApiPublicProductImageRoute
+  '/api/public/review-photo': typeof ApiPublicReviewPhotoRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/research-preview': typeof AuthenticatedResearchPreviewIndexRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -340,6 +348,7 @@ export interface FileRoutesById {
   '/_authenticated/research-preview/$slug': typeof AuthenticatedResearchPreviewSlugRoute
   '/api/public/order-email-retry': typeof ApiPublicOrderEmailRetryRoute
   '/api/public/product-image': typeof ApiPublicProductImageRoute
+  '/api/public/review-photo': typeof ApiPublicReviewPhotoRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/_authenticated/research-preview/': typeof AuthenticatedResearchPreviewIndexRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -379,6 +388,7 @@ export interface FileRouteTypes {
     | '/research-preview/$slug'
     | '/api/public/order-email-retry'
     | '/api/public/product-image'
+    | '/api/public/review-photo'
     | '/api/public/stripe-webhook'
     | '/research-preview/'
     | '/lovable/email/transactional/preview'
@@ -416,6 +426,7 @@ export interface FileRouteTypes {
     | '/research-preview/$slug'
     | '/api/public/order-email-retry'
     | '/api/public/product-image'
+    | '/api/public/review-photo'
     | '/api/public/stripe-webhook'
     | '/research-preview'
     | '/lovable/email/transactional/preview'
@@ -454,6 +465,7 @@ export interface FileRouteTypes {
     | '/_authenticated/research-preview/$slug'
     | '/api/public/order-email-retry'
     | '/api/public/product-image'
+    | '/api/public/review-photo'
     | '/api/public/stripe-webhook'
     | '/_authenticated/research-preview/'
     | '/lovable/email/transactional/preview'
@@ -487,6 +499,7 @@ export interface RootRouteChildren {
   ResearchIndexRoute: typeof ResearchIndexRoute
   ApiPublicOrderEmailRetryRoute: typeof ApiPublicOrderEmailRetryRoute
   ApiPublicProductImageRoute: typeof ApiPublicProductImageRoute
+  ApiPublicReviewPhotoRoute: typeof ApiPublicReviewPhotoRoute
   ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
@@ -731,6 +744,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicProductImageRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/review-photo': {
+      id: '/api/public/review-photo'
+      path: '/api/public/review-photo'
+      fullPath: '/api/public/review-photo'
+      preLoaderRoute: typeof ApiPublicReviewPhotoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/stripe-webhook': {
       id: '/api/public/stripe-webhook'
       path: '/api/public/stripe-webhook'
@@ -800,6 +820,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResearchIndexRoute: ResearchIndexRoute,
   ApiPublicOrderEmailRetryRoute: ApiPublicOrderEmailRetryRoute,
   ApiPublicProductImageRoute: ApiPublicProductImageRoute,
+  ApiPublicReviewPhotoRoute: ApiPublicReviewPhotoRoute,
   ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }

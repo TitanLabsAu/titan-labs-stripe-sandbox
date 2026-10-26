@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { cmsValues } from "@/lib/storefrontContent";
 import { useSiteContent } from "@/lib/useCatalog";
+import { ReviewPhotos } from "@/components/ReviewPhotos";
 
 export function usePublishedReviews() {
   return useQuery({ queryKey: ["published-reviews"], queryFn: () => listPublishedReviews(), staleTime: 30_000, refetchInterval: 30_000 });
@@ -19,6 +20,7 @@ export function ReviewCard({ review, className }: { review: CustomerReview; clas
       <div>
         <Quote className="h-6 w-6 text-[color:var(--review-gold)]" aria-hidden />
         <blockquote className="mt-3 break-words whitespace-pre-wrap text-sm leading-6">“{review.review_text}”</blockquote>
+        <ReviewPhotos photos={review.photos} name={review.reviewer_name} />
       </div>
       <figcaption className="mt-5 border-t border-[color:var(--review-line)] pt-4">
         <p className="font-display break-words text-sm font-black uppercase tracking-wide">{review.reviewer_name}</p>

@@ -41,6 +41,8 @@ export const listPublishedReviews = createServerFn({ method: "GET" }).handler(
       return [];
     }
     const rows = (data ?? []) as CustomerReview[];
+    const { data: photos } = await publicClient().from("review_photo_uploads").select("id,review_id").eq("ready", true).in("review_id", rows.map(r => r.id));
+    for (const row of rows) row.photos = (photos ?? []).filter(p => p.review_id === row.id).map(p => ({ id: p.id, url: `/api/public/review-photo?id=${p.id}` }));
     const slugs = [...new Set(rows.flatMap((r) => r.product_slug ? [r.product_slug] : []))];
     if (!slugs.length) return rows;
     const { data: products } = await publicClient().from("products").select("slug, name").eq("active", true).in("slug", slugs);
@@ -58,7 +60,16 @@ export const adminListReviews = createServerFn({ method: "POST" })
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false });
     if (error) throw error;
-    return (data ?? []) as CustomerReview[];
+    const rows = (data ?? []) as CustomerReview[];
+    const { data: photos, error: photoError } = await context.supabase.from("review_photo_uploads").select("id,review_id,storage_path").eq("ready", true).in("review_id", rows.map(r => r.id));
+    if (photoError) throw photoError;
+    for (const row of rows) {
+      row.photos = await Promise.all((photos ?? []).filter(p => p.review_id === row.id).map(async p => {
+        const { data: signed } = await context.supabase.storage.from("review-photos").createSignedUrl(p.storage_path, 300);
+        return { id: p.id, url: signed?.signedUrl ?? "" };
+      }));
+    }
+    return rows;
   });
 
 export const adminSaveReview = createServerFn({ method: "POST" })

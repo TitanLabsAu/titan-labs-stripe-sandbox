@@ -12,6 +12,7 @@ export type CustomerReview = {
   review_date: string | null;
   product_slug: string | null;
   product_name?: string | null;
+  photos?: import("./review-photos").ReviewPhoto[];
 };
 
 export type ReviewInput = {
