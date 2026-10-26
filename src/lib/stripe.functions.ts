@@ -268,6 +268,12 @@ export const createStripeSandboxPayment = createServerFn({
         _payment_attempt_id: attempt.id,
       });
     }
+    if (referralClaimId) {
+      await (supabaseAdmin as any).rpc("attach_referral_redemption_claim", {
+        _claim_id: referralClaimId,
+        _payment_attempt_id: attempt.id,
+      });
+    }
     if (reservationId) {
       await (supabaseAdmin as any).rpc("attach_store_credit_reservation", {
         _reservation_id: reservationId,
