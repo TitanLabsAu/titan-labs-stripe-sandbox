@@ -305,9 +305,10 @@ export function AdminDiscounts() {
           <Tag className="h-5 w-5 text-accent" /> {form.id ? `Edit ${form.code}` : "Create a code"}
         </h3>
         <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-          Referral codes can be shared; when linked to a member, every 5 paid orders (discounted or not) earn that member a 10% reward.
+          Referral codes can be shared; each customer can redeem one once — on their first successful order, signed in (matched by account and email, including past guest orders).
+          When linked to a member, every 5 paid first orders (discounted or not) earn that member a 10% reward.
           Unlinked referral codes still give the customer discount but earn nobody rewards until you link a member.
-          Member-only codes work only for the linked member.
+          Member-only codes work only for the linked member and are not affected by the first-order rule.
         </p>
 
         <div className="mt-5 grid gap-4 sm:grid-cols-3">
