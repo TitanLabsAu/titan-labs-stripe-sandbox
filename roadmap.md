@@ -1,13 +1,12 @@
 # Roadmap
 
-## Approved descriptions and referral 10% update
+## Approved first four SEO improvements and descriptions
 - [x] Apply exactly 11 approved saved product descriptions with conflict protection and unchanged-field readback.
-- [ ] Verify all 11 public product descriptions, metadata and schema.
-- [ ] Set current referral-only codes to 10% once; preserve all other fields/history.
-- [ ] Set all automatic referral generation paths to explicit percent/10 and preserve custom Admin edits.
-- [ ] Provide member-profile rename/edit access and refresh affected caches.
-- [ ] Verify per-code eligibility/rename, rewards preservation, focused tests and automatic build evidence.
-- [ ] Report safe publication scope; owner publishes, pending prep-pad art stays unserved.
+- [x] Verify all 11 public product descriptions, metadata and schema.
+- [ ] Report publication scope and concurrent changes; owner publishes, pending prep-pad art stays unserved.
+
+## Referral 10% update — separate request/thread, excluded from this run
+- Deferred to its own thread per owner's scope correction; no referral code, data or settings changes in this run.
 
 ## Referral correction — once per specific code per member
 - [x] Replace global eligibility and claims with code-scoped history/identity locks and safe paid settlement.
