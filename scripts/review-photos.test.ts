@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { photoIdsSchema, photoUploadSchema, REVIEW_PHOTO_MAX_BYTES, validatePhotoBytes, validateSelectedPhotos } from "../src/lib/review-photos";
 import { DEFAULT_PRICING_SETTINGS, quoteOrder } from "../src/lib/order-pricing";
+import { adminCodeSchema } from "../src/lib/referral-code-input";
 
 describe("member review photo validation", () => {
   test("allows five photos and rejects six", () => {
@@ -37,6 +38,15 @@ describe("member review photo validation", () => {
 });
 
 describe("10% referral default preserves independent rewards", () => {
+  test("full Admin custom edit keeps ID, fixed amount, exact expiry and combination flags", () => {
+    const id="aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+    const input={id,code:"Renamed_Code",code_kind:"referral",discount_type:"fixed",value:17,maxUses:42,expiresAt:"2026-12-01",expiresAtISO:"2026-12-01T12:13:14.000Z",userId:null,note:"custom",min_spend:150,combine_multibuy:false,combine_crypto:true,combine_credit:false,active:false};
+    expect(adminCodeSchema.parse(input)).toEqual({...input,code:"RENAMED_CODE"});
+    expect(() => adminCodeSchema.parse({...input,id:"../victim"})).toThrow();
+    expect(() => adminCodeSchema.parse({...input,value:Infinity})).toThrow();
+    expect(() => adminCodeSchema.parse({...input,discount_type:"percent",value:101})).toThrow();
+    expect(() => adminCodeSchema.parse({...input,code_kind:"member",userId:null})).toThrow();
+  });
   test("10% customer code produces concrete discount without changing reward threshold", () => {
     const quote = quoteOrder({shippingMethod:"standard",paymentMethod:"payid",lines:[{unitCents:10000,baseCents:10000,quantity:1}],code:{code:"CUSTOM10",kind:"referral",discountType:"percent",value:10,minSpendCents:0,combineMultibuy:true,combineCrypto:true,combineCredit:true}}, DEFAULT_PRICING_SETTINGS);
     expect(quote.codeCents).toBe(1000);

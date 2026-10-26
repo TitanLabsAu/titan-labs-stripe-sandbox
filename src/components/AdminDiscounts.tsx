@@ -22,6 +22,7 @@ import {
   getReferralSettings,
 } from "@/lib/referrals.functions";
 import { settingsFromRow } from "@/lib/order-pricing";
+import { adminCodeSchema } from "@/lib/referral-code-input";
 
 function randomCode() {
   const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ";
@@ -257,7 +258,7 @@ export function AdminDiscounts({ initialCode, editorOnly = false, onDone }: { in
   const save = useMutation({
     mutationFn: () =>
       adminSaveCode({
-        data: {
+        data: adminCodeSchema.parse({
           ...(form.id ? { id: form.id } : {}),
           code: form.code,
           code_kind: form.code_kind,
@@ -273,7 +274,7 @@ export function AdminDiscounts({ initialCode, editorOnly = false, onDone }: { in
           combine_crypto: form.combine_crypto,
           combine_credit: form.combine_credit,
           active: form.active,
-        },
+        }),
       }),
     onSuccess: (res) => {
       toast.success(`Code ${res.code} ${form.id ? "updated" : "created"}`);

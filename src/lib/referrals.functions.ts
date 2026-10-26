@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { adminCodeSchema } from "@/lib/referral-code-input";
 
 async function assertAdmin(context: any) {
   const { data } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
@@ -191,7 +192,7 @@ export type AdminCodeInput = {
 
 export const adminSaveCode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: AdminCodeInput) => input)
+  .inputValidator((input: AdminCodeInput) => adminCodeSchema.parse(input))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     if (data.expiresAtISO && !Number.isFinite(Date.parse(data.expiresAtISO))) throw new Error("Choose a valid expiry");

@@ -47,6 +47,10 @@ check "pending photos private from anon" "$(q "set role anon; select count(*) fr
 check "owner reads pending photo" "$(q "set role authenticated; set test.uid='$U'; select count(*) from review_photo_uploads")" 1
 check "other member cannot read pending photo" "$(q "set role authenticated; set test.uid='$OTHER'; select count(*) from review_photo_uploads")" 0
 check "admin reads pending photo" "$(q "set role authenticated; set test.uid='99999999-9999-4999-8999-999999999999'; select count(*) from review_photo_uploads")" 1
+q "insert into storage.objects values('review-photos','$U/$I.png')"
+check "owner private storage access" "$(q "set role authenticated; set test.uid='$U'; select count(*) from storage.objects")" 1
+check "other member private storage denied" "$(q "set role authenticated; set test.uid='$OTHER'; select count(*) from storage.objects")" 0
+check "admin private storage access" "$(q "set role authenticated; set test.uid='99999999-9999-4999-8999-999999999999'; select count(*) from storage.objects")" 1
 REVIEW='{"reviewer_name":"Isolated test","review_text":"Isolated database validation only","location":""}'
 check "other member cannot link owned upload" "$(q "select submit_member_photo_review('$OTHER','$REVIEW',ARRAY['$I'::uuid])" 2>/dev/null || echo REJECTED)" REJECTED
 R=$(q "select submit_member_photo_review('$U','$REVIEW',ARRAY['$I'::uuid])")
@@ -67,4 +71,8 @@ check "other owner cleanup rejected" "$(q "select count(*) from claim_review_pho
 check "orphan cleanup claimed" "$(q "select count(*) from claim_review_photo_cleanup('$U',ARRAY['$J'::uuid])")" 1
 check "storage failure cleanup remains retryable" "$(q "select count(*) from claim_review_photo_cleanup('$U',ARRAY['$J'::uuid])")" 1
 check "cleanup claim prevents late linkage" "$(q "select submit_member_photo_review('$U','$REVIEW',ARRAY['$J'::uuid])" 2>/dev/null || echo REJECTED)" REJECTED
+q "INSERT INTO review_photo_uploads(id,user_id,storage_path,mime_type,byte_size,ready) SELECT x,'$U','$U/'||x::text||'.png','image/png',1,true FROM (SELECT gen_random_uuid() x FROM generate_series(1,6)) s"
+IDS=$(q "select string_agg(quote_literal(id::text)||'::uuid',',') from review_photo_uploads where review_id is null and not cleanup_claimed")
+check "six-photo linkage rejected atomically" "$(q "select submit_member_photo_review('$U','$REVIEW',ARRAY[$IDS])" 2>/dev/null || echo REJECTED)" REJECTED
+check "failed linkage creates no extra review" "$(q 'select count(*) from customer_reviews')" 1
 echo 'Isolated referral and photo database checks passed; no project reviews created.'
