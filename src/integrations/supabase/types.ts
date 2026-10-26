@@ -1284,6 +1284,24 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_discount_rollouts: {
+        Row: {
+          applied_at: string
+          before_rows: Json
+          key: string
+        }
+        Insert: {
+          applied_at?: string
+          before_rows: Json
+          key: string
+        }
+        Update: {
+          applied_at?: string
+          before_rows?: Json
+          key?: string
+        }
+        Relationships: []
+      }
       referral_milestone_awards: {
         Row: {
           created_at: string
