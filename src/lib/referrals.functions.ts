@@ -173,21 +173,21 @@ export const adminSetOrderRefunded = createServerFn({ method: "POST" })
   });
 
 export type AdminCodeInput = {
-  id?: string;
+  id?: string | undefined;
   code: string;
   code_kind: "referral" | "member";
   discount_type: "percent" | "fixed";
   value: number;
   maxUses: number | null;
   expiresAt: string | null;
-  expiresAtISO?: string | null;
+  expiresAtISO?: string | null | undefined;
   userId: string | null;
-  note?: string | null;
+  note?: string | null | undefined;
   min_spend: number;
   combine_multibuy: boolean;
   combine_crypto: boolean;
   combine_credit: boolean;
-  active?: boolean;
+  active?: boolean | undefined;
 };
 
 export const adminSaveCode = createServerFn({ method: "POST" })

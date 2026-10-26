@@ -24,8 +24,8 @@ export const uploadReviewPhoto = createServerFn({ method: "POST" }).middleware([
       if (readyError) throw readyError;
       return { id };
     } catch {
-      await db.storage.from("review-photos").remove([path]);
-      await db.from("review_photo_uploads").delete().eq("id", id).eq("user_id", context.userId).is("review_id", null);
+      const { error: cleanupError } = await db.storage.from("review-photos").remove([path]);
+      if (!cleanupError) await db.from("review_photo_uploads").delete().eq("id", id).eq("user_id", context.userId).is("review_id", null);
       throw new Error("Photo upload failed. Please try again");
     }
   });
@@ -39,7 +39,8 @@ export const cleanupReviewPhotos = createServerFn({ method: "POST" }).middleware
     if (paths?.length) {
       const { error: storageError } = await db.storage.from("review-photos").remove(paths);
       if (storageError) throw new Error("Photo cleanup could not finish. Please retry");
-      await db.from("review_photo_uploads").delete().eq("user_id", context.userId).in("id", data).is("review_id", null).eq("cleanup_claimed", true);
+      const { error: deleteError } = await db.from("review_photo_uploads").delete().eq("user_id", context.userId).in("id", data).is("review_id", null).eq("cleanup_claimed", true);
+      if (deleteError) throw new Error("Photo cleanup could not finish. Please retry");
     }
     return { ok: true };
   });
