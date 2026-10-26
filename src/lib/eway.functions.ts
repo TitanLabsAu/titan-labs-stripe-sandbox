@@ -245,6 +245,7 @@ export const createEwaySandboxPayment = createServerFn({ method: "POST" })
       return { accessCode: String(eway.AccessCode), sharedPaymentUrl: String(eway.SharedPaymentUrl) };
     } catch (error) {
       await (supabaseAdmin as any).rpc("release_store_credit_for_attempt", { _payment_attempt_id: attempt.id });
+      await (supabaseAdmin as any).rpc("release_referral_redemption_for_attempt", { _payment_attempt_id: attempt.id });
       await (supabaseAdmin as any).from("payment_attempts").update({ status: "failed" }).eq("id", attempt.id);
       throw error;
     }
@@ -293,6 +294,7 @@ export const verifyEwaySandboxPayment = createServerFn({ method: "POST" })
       const failure = !amountMatches ? "AMOUNT_MISMATCH" : String(result.ResponseMessage || result.Errors || "DECLINED");
       await (supabaseAdmin as any).from("payment_attempts").update({ status: "failed", error_code: failure, transaction_id: transactionId }).eq("id", attempt.id);
       await (supabaseAdmin as any).rpc("release_store_credit_for_attempt", { _payment_attempt_id: attempt.id });
+      await (supabaseAdmin as any).rpc("release_referral_redemption_for_attempt", { _payment_attempt_id: attempt.id });
       throw new Error(amountMatches ? "The card payment was not approved." : "The payment amount could not be verified.");
     }
 
@@ -316,6 +318,7 @@ export const verifyEwaySandboxPayment = createServerFn({ method: "POST" })
         contact_phone: payload.customer.phone,
         shipping_address: payload.customer.shippingAddress,
         notes: payload.notes,
+        referral_claim_id: attempt.referral_claim_id ?? null,
         ...pricingColumns(payload.pricing, context.userId),
       })
       .select("id, order_number")
