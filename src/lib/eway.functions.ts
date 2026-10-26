@@ -113,7 +113,7 @@ async function prepareCardOrder(data: CardCheckoutInput, userId: string): Promis
   const shippingMethod: ShippingMethodKey = data.shippingMethod === "standard" ? "standard" : "express";
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { priceCheckout, pricingNote, pricingSnapshot, discountDollars } = await import("@/lib/checkout-pricing.server");
-  const priced = await priceCheckout(supabaseAdmin, { userId, emails: [], emailVerified: false }, {
+  const priced = await priceCheckout(supabaseAdmin, { userId, emails: [email], emailVerified: false }, {
     items: data.items,
     shippingMethod,
     paymentMethod: "card",
@@ -154,26 +154,48 @@ export const createEwaySandboxPayment = createServerFn({ method: "POST" })
     if (amountCents <= 0) throw new Error("This order total is $0 — please submit it using the PayID option instead.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // Referral code: atomic one-time claim (first successful purchase only).
+    let referralClaimId: string | null = null;
+    if (payload.pricing?.["discount_code_kind"] === "referral") {
+      const { claimReferralRedemption } = await import("@/lib/checkout-pricing.server");
+      referralClaimId = await claimReferralRedemption(
+        supabaseAdmin,
+        context.userId,
+        [payload.customer.email],
+        payload.pricing?.["discount_code_id"] ?? null,
+        2880,
+      );
+    }
+    const releaseReferral = async () => {
+      if (referralClaimId) await (supabaseAdmin as any).rpc("release_referral_redemption", { _claim_id: referralClaimId });
+    };
     let reservationId: string | null = null;
     if (creditUnits > 0) {
       const { data: rid, error: reserveError } = await (supabaseAdmin as any).rpc("reserve_store_credit", {
         _user_id: context.userId, _units: creditUnits, _payment_attempt_id: null, _ttl_minutes: 2880,
       });
-      if (reserveError) throw new Error("Your store credit balance changed. Please review your order.");
+      if (reserveError) {
+        await releaseReferral();
+        throw new Error("Your store credit balance changed. Please review your order.");
+      }
       reservationId = String(rid);
       payload.pricing = { ...(payload.pricing ?? {}), credit_reservation_id: reservationId };
     }
     const { data: attempt, error: attemptError } = await (supabaseAdmin as any)
       .from("payment_attempts")
-      .insert({ user_id: context.userId, amount_cents: amountCents, order_payload: payload })
+      .insert({ user_id: context.userId, amount_cents: amountCents, order_payload: payload, referral_claim_id: referralClaimId })
       .select("id")
       .single();
     if (attemptError) {
       if (reservationId) await (supabaseAdmin as any).rpc("release_store_credit", { _reservation_id: reservationId });
+      await releaseReferral();
       throw attemptError;
     }
     if (reservationId) {
       await (supabaseAdmin as any).rpc("attach_store_credit_reservation", { _reservation_id: reservationId, _payment_attempt_id: attempt.id });
+    }
+    if (referralClaimId) {
+      await (supabaseAdmin as any).rpc("attach_referral_redemption_claim", { _claim_id: referralClaimId, _payment_attempt_id: attempt.id });
     }
 
     const request = getRequest();
