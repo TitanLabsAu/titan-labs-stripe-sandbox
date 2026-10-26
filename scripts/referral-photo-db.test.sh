@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-if [ "$(id -u)" = 0 ]; then exec setpriv --reuid=7777 --regid=7777 --clear-groups env HOME=/tmp bash "$0"; fi
+if [ "$(id -u)" = 0 ]; then exec setpriv --reuid=1000 --regid=1000 --clear-groups env HOME=/tmp bash "$0"; fi
 DIR=$(mktemp -d); PORT=55438
 unset PGHOST PGPORT PGUSER PGPASSWORD PGDATABASE PGSSLMODE
 initdb -D "$DIR" -U postgres >/dev/null

@@ -56,6 +56,11 @@ describe("referral code per-code member gate", () => {
     expect(blocked.code).toBeNull();
     expect(allowed.code?.id).toBe("code-2");
   });
+  test("renaming the same ID does not reset paid history", async () => {
+    const renamed = await priceCheckout(mockAdmin({ codeRow: referralRow({ code: "RENAMED10" }), usedCodeId: "code-1" }), member, { ...input, code: "RENAMED10" });
+    expect(renamed.code).toBeNull();
+    expect(renamed.codeError).toMatch(/already used/i);
+  });
   test("guest cannot redeem a referral code but is not blocked from checkout", async () => {
     const r = await priceCheckout(mockAdmin({ codeRow: referralRow() }), { userId: null, emails: ["g@x.com"], emailVerified: false }, input);
     expect(r.codeError).toMatch(/sign in or join/i);

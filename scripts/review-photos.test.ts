@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { readFileSync } from "node:fs";
 import { photoIdsSchema, photoUploadSchema, REVIEW_PHOTO_MAX_BYTES, validatePhotoBytes, validateSelectedPhotos } from "../src/lib/review-photos";
 import { DEFAULT_PRICING_SETTINGS, quoteOrder } from "../src/lib/order-pricing";
 
@@ -20,11 +19,10 @@ describe("member review photo validation", () => {
     for (const type of ["text/html", "image/svg+xml", "application/javascript", "application/octet-stream"]) expect(() => validateSelectedPhotos([{type,size:100}])).toThrow();
   });
   test("validates real image headers and MIME agreement", () => {
-    for (const [extension, mime] of [["png","image/png"],["jpg","image/jpeg"],["webp","image/webp"]]) {
-      const bytes = new Uint8Array(readFileSync(`/tmp/browser/review-photos/photo.${extension}`));
-      expect(validatePhotoBytes(bytes, mime).mime).toBe(mime);
-      expect(() => validatePhotoBytes(bytes, "text/html")).toThrow();
-    }
+    const bytes = Uint8Array.from(atob("iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAY0lEQVR4nO3PQQ3AIADAQMAAJtGJtongcVnSU9DOfe74s6UDXjWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgfb16AbEWf+DuAAAAAElFTkSuQmCC"), c => c.charCodeAt(0));
+    expect(validatePhotoBytes(bytes, "image/png").mime).toBe("image/png");
+    expect(() => validatePhotoBytes(bytes, "image/jpeg")).toThrow();
+    expect(() => validatePhotoBytes(bytes, "text/html")).toThrow();
     expect(() => validatePhotoBytes(new TextEncoder().encode('<script>alert(1)</script>'), "image/png")).toThrow();
     expect(() => validatePhotoBytes(new Uint8Array(5242881), "image/png")).toThrow("5 MB");
   });

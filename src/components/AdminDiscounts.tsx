@@ -47,6 +47,7 @@ type Form = {
   combine_multibuy: boolean;
   combine_crypto: boolean;
   combine_credit: boolean;
+  active: boolean;
 };
 
 const EMPTY: Form = {
@@ -62,6 +63,7 @@ const EMPTY: Form = {
   combine_multibuy: true,
   combine_crypto: true,
   combine_credit: true,
+  active: true,
 };
 
 function toForm(c: AdminDiscountCode): Form {
@@ -79,6 +81,7 @@ function toForm(c: AdminDiscountCode): Form {
     combine_multibuy: c.combine_multibuy ?? true,
     combine_crypto: c.combine_crypto ?? true,
     combine_credit: c.combine_credit ?? true,
+    active: c.active,
   };
 }
 
@@ -269,6 +272,7 @@ export function AdminDiscounts({ initialCode, editorOnly = false, onDone }: { in
           combine_multibuy: form.combine_multibuy,
           combine_crypto: form.combine_crypto,
           combine_credit: form.combine_credit,
+          active: form.active,
         },
       }),
     onSuccess: (res) => {
@@ -371,6 +375,7 @@ export function AdminDiscounts({ initialCode, editorOnly = false, onDone }: { in
           </div>
         </div>
         <div className="mt-4 flex flex-wrap gap-4">
+          <Check label="Active" checked={form.active} onChange={set("active")} />
           <Check label="Can stack with multi-buy" checked={form.combine_multibuy} onChange={set("combine_multibuy")} />
           <Check label="Can stack with crypto" checked={form.combine_crypto} onChange={set("combine_crypto")} />
           <Check label="Can stack with referral rewards" checked={form.combine_credit} onChange={set("combine_credit")} />
