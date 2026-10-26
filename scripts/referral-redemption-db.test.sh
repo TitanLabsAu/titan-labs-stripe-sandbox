@@ -15,7 +15,9 @@ CREATE TABLE public.profiles(id uuid PRIMARY KEY, email text);
 CREATE TYPE public.order_status AS ENUM ('processing','shipped','delivered','cancelled','pending_payment');
 CREATE FUNCTION public.normalize_emails(_e text[]) RETURNS text[] LANGUAGE sql AS $$ SELECT coalesce(array_agg(DISTINCT lower(trim(x))),'{}') FROM unnest(_e) x $$;
 CREATE TABLE public.referral_redemption_claims(id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid, emails text[], code_id uuid, status text, payment_attempt_id uuid, order_id uuid, expires_at timestamptz, created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now());
-CREATE TABLE public.orders(id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid, status order_status NOT NULL DEFAULT 'pending_payment', payment_confirmed boolean NOT NULL DEFAULT false, refunded_at timestamptz, contact_email_normalized text, referral_claim_id uuid, discount_code_id uuid, discount_code text, discount_code_kind text, referrer_user_id uuid, credit_units int NOT NULL DEFAULT 0, credit_reservation_id uuid, pricing_snapshot jsonb, stripe_livemode boolean, payment_transaction_id text, order_number bigint DEFAULT 1);
+CREATE TABLE public.orders(id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid, status order_status NOT NULL DEFAULT 'pending_payment', payment_confirmed boolean NOT NULL DEFAULT false, refunded_at timestamptz, contact_email_normalized text, referral_claim_id uuid, discount_code_id uuid, discount_code text, discount_code_kind text, referrer_user_id uuid, credit_units int NOT NULL DEFAULT 0, credit_reservation_id uuid, pricing_snapshot jsonb, stripe_livemode boolean, payment_confirmed_at timestamptz, payment_transaction_id text, order_number bigint DEFAULT 1);
+CREATE TABLE public.payment_attempts(id uuid,order_id uuid,status text,stripe_livemode boolean);
+CREATE TABLE public.order_checkpoint_email_queue(order_id uuid,kind text);
 CREATE TABLE public.discount_codes(id uuid PRIMARY KEY DEFAULT gen_random_uuid(), code text, code_kind text DEFAULT 'referral', user_id uuid, max_uses int DEFAULT 1000000, times_used int NOT NULL DEFAULT 0);
 CREATE TABLE public.store_credit_ledger(id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid, kind text, units int, unit_cents int DEFAULT 0, order_id uuid, reason text, expires_at timestamptz);
 CREATE TABLE public.store_credit_reservations(id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid, status text, order_id uuid, expires_at timestamptz);
@@ -92,4 +94,20 @@ check "earned member voucher untouched" "$(q "select times_used from public.disc
 q "UPDATE public.discount_codes SET max_uses=times_used WHERE id='$CODE2'; INSERT INTO public.orders(user_id,status,payment_confirmed,discount_code_id,discount_code_kind) VALUES ('$U4','processing',true,'$CODE2','referral')"
 check "global limit preserved" "$(q "select times_used=max_uses from public.discount_codes where id='$CODE2'")" t
 check "no-code obsolete RPC fails closed" "$(q "select public.referral_redemption_eligible('$U1',$E1)")" f
+# Released late payment with no competing use settles normally.
+U5=55555555-5555-5555-5555-555555555555
+C5=$(q "select public.claim_referral_redemption('$U5',ARRAY['late@x.com'],'$CODE',30)")
+q "UPDATE public.referral_redemption_claims SET status='released' WHERE id='$C5'; INSERT INTO public.orders(user_id,status,payment_confirmed,contact_email_normalized,referral_claim_id,discount_code_id,discount_code_kind) VALUES ('$U5','processing',true,'late@x.com','$C5','$CODE','referral')"
+check "late successful released hold consumed" "$(q "select status from public.referral_redemption_claims where id='$C5'")" consumed
+# Stale released claim AFTER another successful same-code purchase is suppressed.
+U6=66666666-6666-6666-6666-666666666666
+C6=$(q "select public.claim_referral_redemption('$U6',ARRAY['stale@x.com'],'$CODE',30)")
+q "UPDATE public.referral_redemption_claims SET status='released' WHERE id='$C6'; INSERT INTO public.orders(user_id,status,payment_confirmed,contact_email_normalized,discount_code_id,discount_code_kind) VALUES ('$U6','processing',true,'stale@x.com','$CODE','referral')"
+BEFORE=$(q "select times_used from public.discount_codes where id='$CODE'")
+q "INSERT INTO public.orders(user_id,status,payment_confirmed,contact_email_normalized,referral_claim_id,discount_code_id,discount_code_kind) VALUES ('$U6','processing',true,'stale@x.com','$C6','$CODE','referral')"
+check "stale released duplicate suppressed" "$(q "select times_used from public.discount_codes where id='$CODE'")" "$BEFORE"
+# Historical paid-but-now-unconfirmed guest remains in durable email history.
+q "INSERT INTO public.referral_code_success_history(order_id,user_id,code_id,emails) VALUES(gen_random_uuid(),NULL,'$CODE',ARRAY['past-paid@x.com'])"
+check "historical successful guest remains blocked" "$(el $U2 "ARRAY[' PAST-PAID@X.COM ']")" f
+check "historical success only blocks its code" "$(el $U2 "ARRAY['past-paid@x.com']" $CODE2)" t
 if [ "$fail" = 0 ]; then echo "ALL REFERRAL REDEMPTION DB TESTS PASSED"; else exit 1; fi
