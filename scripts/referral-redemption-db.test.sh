@@ -25,6 +25,11 @@ CREATE TABLE public.referral_settings(id int PRIMARY KEY, reward_every_referrals
 INSERT INTO public.referral_settings(id) VALUES (1);
 CREATE TABLE public.admin_notifications(id uuid PRIMARY KEY DEFAULT gen_random_uuid(), order_id uuid, title text, body text, kind text, email_sent boolean, payload jsonb);
 CREATE FUNCTION public.store_credit_available_units(_u uuid) RETURNS int LANGUAGE sql AS $$ SELECT 0 $$;
+-- Retained checkpoint evidence: successful guest order later cancelled/unconfirmed.
+INSERT INTO public.orders(id,status,payment_confirmed,contact_email_normalized,discount_code_id,discount_code_kind)
+VALUES('bbbbbbbb-0000-0000-0000-0000000000bb','cancelled',false,'past-paid@x.com','cccccccc-0000-0000-0000-000000000001','referral');
+INSERT INTO public.order_checkpoint_email_queue(order_id,kind)
+VALUES('bbbbbbbb-0000-0000-0000-0000000000bb','payment-confirmed');
 S
 $P -f "$MIG"
 $P -c "CREATE TRIGGER t AFTER INSERT OR UPDATE ON public.orders FOR EACH ROW EXECUTE FUNCTION public.orders_referral_settlement()"
@@ -107,7 +112,6 @@ BEFORE=$(q "select times_used from public.discount_codes where id='$CODE'")
 q "INSERT INTO public.orders(user_id,status,payment_confirmed,contact_email_normalized,referral_claim_id,discount_code_id,discount_code_kind) VALUES ('$U6','processing',true,'stale@x.com','$C6','$CODE','referral')"
 check "stale released duplicate suppressed" "$(q "select times_used from public.discount_codes where id='$CODE'")" "$BEFORE"
 # Historical paid-but-now-unconfirmed guest remains in durable email history.
-q "INSERT INTO public.referral_code_success_history(order_id,user_id,code_id,emails) VALUES(gen_random_uuid(),NULL,'$CODE',ARRAY['past-paid@x.com'])"
 check "historical successful guest remains blocked" "$(el $U2 "ARRAY[' PAST-PAID@X.COM ']")" f
 check "historical success only blocks its code" "$(el $U2 "ARRAY['past-paid@x.com']" $CODE2)" t
 if [ "$fail" = 0 ]; then echo "ALL REFERRAL REDEMPTION DB TESTS PASSED"; else exit 1; fi
