@@ -1,7 +1,7 @@
 # Titan Club final validation
 
 ## Approved safety needle guide update — owner publishes
-- [ ] Extract approved right photo only; update matching Safety Hypodermic Needle(s) descriptions, audit saved catalogue/CMS without historical writes, verify actual guide previews and checks. Preserve compact Hot Products and pending catalogue assets.
+- [x] Approved photo-only extraction (731×735, 60,408 bytes), guide 38/16 mm labels/steps/note and exact saved drawing-needle product display/Admin draft name updated. Read-only CMS/catalogue audit found no saved hypodermic text or guide override; kit records contain pen pins/insulin syringes, unchanged. No database/history writes. Four theme/viewport guide checks and actual syringe page pass; 30 tests/154 assertions pass, automatic build OK. Standalone build/typecheck reserved for harness, not run. Hot Products and pending catalogue images untouched.
 
 ## Compact Hot Products — owner review, no chat publication
 - [x] Homepage-only natural compact cards, mobile heading price and in-flow cart; variant-owned offers, other pages and image assets preserved.
