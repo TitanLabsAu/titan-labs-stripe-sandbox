@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Referral first-purchase redemption lifecycle tests on a throwaway LOCAL Postgres (never the project database).
 set -euo pipefail
-if [ "$(id -u)" = 0 ]; then cp scripts/referral-redemption.sql /tmp/rr-mig.sql; chmod 644 /tmp/rr-mig.sql; exec setpriv --reuid=7777 --regid=7777 --clear-groups env HOME=/tmp bash "$0" /tmp/rr-mig.sql; fi
+if [ "$(id -u)" = 0 ]; then cp scripts/referral-redemption.sql /tmp/rr-mig.sql; chmod 644 /tmp/rr-mig.sql; exec setpriv --reuid=65534 --regid=65534 --clear-groups env HOME=/tmp bash "$0" /tmp/rr-mig.sql; fi
 MIG="${1:-scripts/referral-redemption.sql}"
 DIR=$(mktemp -d); PORT=55434
 unset PGHOST PGPORT PGUSER PGPASSWORD PGDATABASE PGSSLMODE
