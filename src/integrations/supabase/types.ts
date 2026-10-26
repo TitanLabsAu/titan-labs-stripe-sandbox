@@ -1541,6 +1541,7 @@ export type Database = {
       review_photo_uploads: {
         Row: {
           byte_size: number
+          cleanup_claimed: boolean
           created_at: string
           id: string
           mime_type: string
@@ -1551,6 +1552,7 @@ export type Database = {
         }
         Insert: {
           byte_size: number
+          cleanup_claimed?: boolean
           created_at?: string
           id?: string
           mime_type: string
@@ -1561,6 +1563,7 @@ export type Database = {
         }
         Update: {
           byte_size?: number
+          cleanup_claimed?: boolean
           created_at?: string
           id?: string
           mime_type?: string
