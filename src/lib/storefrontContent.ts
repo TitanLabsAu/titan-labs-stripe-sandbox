@@ -484,8 +484,8 @@ export const CMS_SECTIONS: CmsSection[] = [
       intro: "",
       steps: [
         { title: "Get your code", body: "Members can request a personal referral code. You'll see it in My Profile once it's linked to your account." },
-        { title: "Share it", body: "Friends enter your code at checkout. Some codes also give them a discount — shown before they pay." },
-        { title: "Earn rewards", body: "Every {every} paid orders placed with your code earns you {reward} off your next purchase. Discounted orders count too — repeat customers and repeat orders all count. Cancelled, failed or refunded orders don't count." },
+        { title: "Share it", body: "Friends enter your code at checkout. Some codes also give them a discount — shown before they pay. A referral code can be used once per person, on their first successful order, and they'll need to sign in or join to use it." },
+        { title: "Earn rewards", body: "Every {every} paid first orders placed with your code earns you {reward} off your next purchase. Discounted orders count too. Cancelled, failed or refunded orders don't count." },
         { title: "Use them", body: "Use up to {max_credits} rewards on one order. They stack with your other discounts up to a maximum of {cap} off a single purchase. Rewards expire {expiry_days} days after they're earned and have no cash value." },
       ],
     },

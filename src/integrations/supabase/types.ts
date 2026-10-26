@@ -880,6 +880,7 @@ export type Database = {
           payment_reference: string | null
           payment_transaction_id: string | null
           pricing_snapshot: Json | null
+          referral_claim_id: string | null
           referrer_user_id: string | null
           refunded_at: string | null
           shipping: number
@@ -925,6 +926,7 @@ export type Database = {
           payment_reference?: string | null
           payment_transaction_id?: string | null
           pricing_snapshot?: Json | null
+          referral_claim_id?: string | null
           referrer_user_id?: string | null
           refunded_at?: string | null
           shipping?: number
@@ -970,6 +972,7 @@ export type Database = {
           payment_reference?: string | null
           payment_transaction_id?: string | null
           pricing_snapshot?: Json | null
+          referral_claim_id?: string | null
           referrer_user_id?: string | null
           refunded_at?: string | null
           shipping?: number
@@ -1016,6 +1019,7 @@ export type Database = {
           order_id: string | null
           order_payload: Json
           provider: string
+          referral_claim_id: string | null
           status: string
           stripe_livemode: boolean | null
           transaction_id: string | null
@@ -1036,6 +1040,7 @@ export type Database = {
           order_id?: string | null
           order_payload: Json
           provider?: string
+          referral_claim_id?: string | null
           status?: string
           stripe_livemode?: boolean | null
           transaction_id?: string | null
@@ -1056,6 +1061,7 @@ export type Database = {
           order_id?: string | null
           order_payload?: Json
           provider?: string
+          referral_claim_id?: string | null
           status?: string
           stripe_livemode?: boolean | null
           transaction_id?: string | null
@@ -1261,6 +1267,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      referral_redemption_claims: {
+        Row: {
+          code_id: string | null
+          created_at: string
+          emails: string[]
+          expires_at: string | null
+          id: string
+          order_id: string | null
+          payment_attempt_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          code_id?: string | null
+          created_at?: string
+          emails?: string[]
+          expires_at?: string | null
+          id?: string
+          order_id?: string | null
+          payment_attempt_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          code_id?: string | null
+          created_at?: string
+          emails?: string[]
+          expires_at?: string | null
+          id?: string
+          order_id?: string | null
+          payment_attempt_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       referral_settings: {
         Row: {
@@ -1914,6 +1959,10 @@ export type Database = {
         Args: { _claim_id: string; _payment_attempt_id: string }
         Returns: undefined
       }
+      attach_referral_redemption_claim: {
+        Args: { _claim_id: string; _payment_attempt_id: string }
+        Returns: undefined
+      }
       attach_store_credit_reservation: {
         Args: { _payment_attempt_id: string; _reservation_id: string }
         Returns: undefined
@@ -1941,6 +1990,16 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      claim_referral_redemption: {
+        Args: {
+          _code_id: string
+          _emails: string[]
+          _except_order_id?: string
+          _ttl_minutes: number
+          _user_id: string
+        }
+        Returns: string
       }
       claim_titan_club_welcome_email_for: {
         Args: { _user_id: string }
@@ -1983,6 +2042,10 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      ensure_referral_redemption: {
+        Args: { _order_id: string }
+        Returns: boolean
       }
       finalize_checkout_order: {
         Args: {
@@ -2070,8 +2133,20 @@ export type Database = {
         Returns: Json
       }
       referral_paid_order_count: { Args: { _user_id: string }; Returns: number }
+      referral_redemption_eligible: {
+        Args: { _emails: string[]; _except_order_id?: string; _user_id: string }
+        Returns: boolean
+      }
       release_first_offer: { Args: { _claim_id: string }; Returns: boolean }
       release_first_offer_for_attempt: {
+        Args: { _payment_attempt_id: string }
+        Returns: number
+      }
+      release_referral_redemption: {
+        Args: { _claim_id: string }
+        Returns: boolean
+      }
+      release_referral_redemption_for_attempt: {
         Args: { _payment_attempt_id: string }
         Returns: number
       }

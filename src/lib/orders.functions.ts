@@ -91,7 +91,7 @@ export const submitOrder = createServerFn({ method: "POST" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const db = supabaseAdmin as any;
-    const { priceCheckout, pricingNote, pricingSnapshot, discountDollars, claimFirstOffer } = await import(
+    const { priceCheckout, pricingNote, pricingSnapshot, discountDollars, claimFirstOffer, claimReferralRedemption } = await import(
       "@/lib/checkout-pricing.server"
     );
     if (buyer.userId) {
@@ -124,6 +124,17 @@ export const submitOrder = createServerFn({ method: "POST" })
     let claimId: string | null = null;
     if (q.firstOfferApplied && buyer.userId) claimId = await claimFirstOffer(db, buyer.userId, emails, 30);
 
+    // Referral codes are one-time per buyer: hold an atomic claim while the order awaits payment.
+    let referralClaimId: string | null = null;
+    if (priced.code?.rule.kind === "referral" && buyer.userId) {
+      try {
+        referralClaimId = await claimReferralRedemption(db, buyer.userId, emails, priced.code.id, 30);
+      } catch (error) {
+        if (claimId) await db.rpc("release_first_offer", { _claim_id: claimId });
+        throw error;
+      }
+    }
+
     let reservationId: string | null = null;
     if (q.creditUnits > 0 && buyer.userId) {
       const { data: rid, error: reserveError } = await db.rpc("reserve_store_credit", {
@@ -131,6 +142,7 @@ export const submitOrder = createServerFn({ method: "POST" })
       });
       if (reserveError) {
         if (claimId) await db.rpc("release_first_offer", { _claim_id: claimId });
+        if (referralClaimId) await db.rpc("release_referral_redemption", { _claim_id: referralClaimId });
         throw new Error("Your store credit balance changed. Please review your order.");
       }
       reservationId = String(rid);
@@ -162,12 +174,14 @@ export const submitOrder = createServerFn({ method: "POST" })
         pricing_snapshot: snapshot,
         first_purchase_offer: snapshot.first_purchase_offer,
         first_offer_claim_id: claimId,
+        referral_claim_id: referralClaimId,
       })
       .select("id, order_number")
       .single();
     if (error) {
       if (reservationId) await db.rpc("release_store_credit", { _reservation_id: reservationId });
       if (claimId) await db.rpc("release_first_offer", { _claim_id: claimId });
+      if (referralClaimId) await db.rpc("release_referral_redemption", { _claim_id: referralClaimId });
       throw error;
     }
 

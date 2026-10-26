@@ -83,6 +83,62 @@ export function checkCodeRow(
   return { ok: true, referrer: row.user_id ?? null };
 }
 
+function resolvedCode(row: any, settings: PricingSettings, referrer: string | null): ResolvedCode {
+  return {
+    id: row.id,
+    referrerUserId: settings.programEnabled && row.code_kind === "referral" ? referrer : null,
+    rule: {
+      id: row.id,
+      code: row.code,
+      kind: row.code_kind,
+      discountType: row.discount_type === "fixed" ? "fixed" : "percent",
+      value: Number(row.value) || 0,
+      minSpendCents: Number(row.min_spend_cents) || 0,
+      combineMultibuy: Boolean(row.combine_multibuy),
+      combineCrypto: Boolean(row.combine_crypto),
+      combineCredit: Boolean(row.combine_credit),
+    },
+  };
+}
+
+/**
+ * Referral-code gate beyond checkCodeRow: signed-in buyer, not the referrer's own
+ * email, and no prior successful purchase by account id or normalised email
+ * (guest orders included). Returns a customer-safe error, or null when allowed.
+ */
+async function referralRedemptionGate(
+  admin: any,
+  row: any,
+  buyer: PricingBuyer,
+): Promise<string | null> {
+  if (!buyer.userId) {
+    return "Referral codes are for members' first order — sign in or join to use one. You can still check out as a guest without the code.";
+  }
+  if (row.user_id) {
+    const { data: owner } = await admin
+      .from("profiles")
+      .select("email")
+      .eq("id", row.user_id)
+      .maybeSingle();
+    const ownerEmail = String(owner?.email ?? "").trim().toLowerCase();
+    if (ownerEmail && buyer.emails.map((e) => String(e).trim().toLowerCase()).includes(ownerEmail)) {
+      return "You can't use your own referral code.";
+    }
+  }
+  const { data: eligible, error } = await admin.rpc("referral_redemption_eligible", {
+    _user_id: buyer.userId,
+    _emails: buyer.emails,
+  });
+  if (error) {
+    console.error("referral_redemption_eligible failed", error.message);
+    return "We couldn't confirm your referral eligibility just now. Please try again in a moment.";
+  }
+  if (eligible !== true) {
+    return "Referral codes can only be used on your first order.";
+  }
+  return null;
+}
+
 export async function priceCheckout(
   admin: any,
   buyer: PricingBuyer,
@@ -189,23 +245,15 @@ export async function priceCheckout(
       .maybeSingle();
     const check = checkCodeRow(row, userId);
     if (!check.ok) codeError = check.error;
-    else {
-      code = {
-        id: row.id,
-        referrerUserId:
-          settings.programEnabled && row.code_kind === "referral" ? check.referrer : null,
-        rule: {
-          id: row.id,
-          code: row.code,
-          kind: row.code_kind,
-          discountType: row.discount_type === "fixed" ? "fixed" : "percent",
-          value: Number(row.value) || 0,
-          minSpendCents: Number(row.min_spend_cents) || 0,
-          combineMultibuy: Boolean(row.combine_multibuy),
-          combineCrypto: Boolean(row.combine_crypto),
-          combineCredit: Boolean(row.combine_credit),
-        },
-      };
+    else if (row.code_kind === "referral") {
+      // Referral codes: signed-in members only, once per buyer on their first
+      // successful purchase, matched by account id AND normalised email
+      // (including guest orders). Guests can still check out without the code.
+      const gate = await referralRedemptionGate(admin, row, buyer);
+      if (gate) codeError = gate;
+      else code = resolvedCode(row, settings, check.referrer);
+    } else {
+      code = resolvedCode(row, settings, check.referrer);
     }
   }
 
@@ -383,4 +431,34 @@ export async function claimFirstOffer(admin: any, userId: string, emails: string
     );
   }
   return String(data);
+}
+
+/**
+ * Reserve the one-time referral redemption atomically; throws a customer-safe
+ * message if the buyer is no longer eligible or another checkout holds it.
+ */
+export async function claimReferralRedemption(
+  admin: any,
+  userId: string,
+  emails: string[],
+  codeId: string | null,
+  ttlMinutes: number,
+) {
+  const { data, error } = await admin.rpc("claim_referral_redemption", {
+    _user_id: userId,
+    _emails: emails,
+    _code_id: codeId,
+    _ttl_minutes: ttlMinutes,
+  });
+  if (error || !data) {
+    throw new Error(
+      "That referral code is no longer available for your account — referral codes can only be used on a first successful order. Please refresh your order summary.",
+    );
+  }
+  return String(data);
+}
+
+/** Release a held referral claim (failed/abandoned checkout); safe to repeat. */
+export async function releaseReferralRedemptionForAttempt(admin: any, paymentAttemptId: string) {
+  await admin.rpc("release_referral_redemption_for_attempt", { _payment_attempt_id: paymentAttemptId });
 }
