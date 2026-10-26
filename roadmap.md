@@ -6,8 +6,16 @@
 - [x] Audit source history and confirm all nine served kit assets byte-match published originals; report exact unpublished-source baseline limitation.
 - [ ] Owner assesses release scope and publishes; no publication from chat.
 
-## Referral 10% update — separate request/thread, excluded from this run
-- Deferred to its own thread per owner's scope correction; no referral code, data or settings changes in this run.
+## Publication coordination
+- [ ] Wait for the SEO thread to complete publication of the verified SEO baseline before any new source or database changes.
+- [x] Confirm this referral/photo run has made read-only inspections only; no source, database, storage or settings changes.
+
+## Separately authorized referral 10% and review photos
+- [ ] Update existing referral codes once in place and future issuance to 10%, preserving history and Admin custom edits.
+- [ ] Add full referral-code editing from member profiles with refreshed caches and unchanged per-code eligibility.
+- [ ] Add secure moderated review photos (up to five JPG/PNG/WebP files, 5 MB each), durable storage and Admin/public views.
+- [ ] Verify migration readbacks, tests, automatic build/typecheck diagnostics and actual review form; owner publishes through UI.
+- Paused at read-only inspection pending SEO publication coordination; preserve all concurrent work.
 
 ## Referral correction — once per specific code per member
 - [x] Replace global eligibility and claims with code-scoped history/identity locks and safe paid settlement.
