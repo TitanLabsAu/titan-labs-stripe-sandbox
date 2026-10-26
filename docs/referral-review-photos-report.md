@@ -28,7 +28,7 @@
 - `bun test scripts`: **500 passed, 0 failed**, 5,556 assertions, 54 files, exit **0**.
 - `bash scripts/referral-photo-db.test.sh`: **30 isolated PostgreSQL checks passed**, exit **0**. Covers in-place preservation, repeat-rollout/custom edits, future defaults, voucher preservation, owner/other/Admin reads and storage policies, linkage/moderation, six-file atomic rejection, path/type/size constraints and cleanup race/retry safety.
 - Existing per-code lifecycle/concurrency suite: **33 checks passed**, exit **0**. Includes normalized email, own codes, same/different-code concurrency, retry/late/stale/manual payment settlement and vouchers.
-- Latest automatic build/typecheck diagnostic: **build OK at 2026-10-26 11:42:24 UTC**. Earlier introduced type errors were corrected.
+- Latest automatic build/typecheck diagnostic: **build OK at 2026-10-26 11:43:48 UTC**. Earlier introduced type errors were corrected; no build/typecheck command remained running.
 - Standalone `bunx tsgo --noEmit` and `bun run build` were **not run**: this environment's instructions prohibit manual project build/typecheck commands. No standalone exit codes or new full production bundle are claimed.
 - Actual browser `/reviews`: Add Image signed-out notice, 64px natural-width local preview, removal, six-file rejection, SVG rejection, mobile no horizontal overflow and no page errors. Invalid/missing public image IDs returned 404.
 - Browser scripts directly attached a local file only to test client previews; this was **not authenticated upload verification** and made no storage/review writes.
@@ -38,4 +38,4 @@
 - No Publish action, orders/payments/emails, product changes, SEO changes or served/pending prep-pad artwork changes.
 - New source scope: AdminDiscounts/AdminMemberRewards, LeaveReviewForm/AdminReviews/ReviewsStrip/ReviewPhotos; referral input/functions/welcome copy/referral page; review model/functions/photo validation/photo functions/public photo endpoint. Package dependency `image-size`, generated route/types, migrations, tests and notes are included.
 - Reviewed SEO source is preserved; pending prep-pad assets remain unserved and untouched. Publish ships the full current application snapshot, not a selective feature subset.
-- Outstanding verification: authenticated photo flow and Admin editing; standalone production build evidence. Owner retains publication control.
+- Owner accepted authenticated browser QA as a nonblocking limitation; authenticated photo/Admin flows and standalone production build evidence remain unverified. Owner retains publication control.

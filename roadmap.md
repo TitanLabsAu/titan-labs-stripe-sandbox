@@ -15,9 +15,10 @@
 - [x] Add full referral-code editing from member profiles with refreshed caches and unchanged per-code eligibility.
 - [x] Add secure moderated review photos (up to five JPG/PNG/WebP files, 5 MB each), durable storage and Admin/public views.
 - [x] Verify migration readbacks, 500 tests, 63 isolated database checks, automatic diagnostics and actual review form.
-- [ ] Verify authenticated upload/submission and Admin save/readback — blocked on owner preview sign-in; no impersonation or fabricated reviews.
-- [ ] Obtain standalone production build/typecheck evidence — manual project checks prohibited by environment; latest automatic diagnostic is build OK.
-- Active under renewed owner authorization; preserve all concurrent work and do not publish from chat.
+- [x] Report authenticated browser QA as unverified, accepted by owner as nonblocking; isolated tests cover permissions/lifecycle without real reviews.
+- [x] Report standalone production build/typecheck exit codes unavailable because manual checks are prohibited; no command running and latest automatic diagnostic is build OK.
+- [x] Return final implementation, migrations/readbacks and verification report; no accounts/reviews/orders/emails or publication from chat.
+- Complete under owner authorization; preserve all concurrent work. Publication remains the owner's action.
 
 ## Referral correction — once per specific code per member
 - [x] Replace global eligibility and claims with code-scoped history/identity locks and safe paid settlement.
