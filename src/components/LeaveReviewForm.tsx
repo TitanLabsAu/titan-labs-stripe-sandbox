@@ -20,12 +20,15 @@ export function LeaveReviewForm() {
   const [photos, setPhotos] = useState<{ file: File; url: string }[]>([]);
   const [photoError, setPhotoError] = useState("");
   const [progress, setProgress] = useState(0);
+  const [cleanupIds, setCleanupIds] = useState<string[]>([]);
+  const photoRef = useRef(photos);
+  photoRef.current = photos;
   const inputRef = useRef<HTMLInputElement>(null);
   const upload = useServerFn(uploadReviewPhoto);
   const cleanup = useServerFn(cleanupReviewPhotos);
   const submitPhotos = useServerFn(submitMemberPhotoReview);
   const submitText = useServerFn(submitCustomerReview);
-  useEffect(() => () => photos.forEach(p => URL.revokeObjectURL(p.url)), [photos]);
+  useEffect(() => () => photoRef.current.forEach(p => URL.revokeObjectURL(p.url)), []);
   const submit=useMutation({mutationFn:async()=>{
     validatePublicReview(form);
     if (!photos.length) return submitText({data:form});
@@ -38,9 +41,9 @@ export function LeaveReviewForm() {
         setProgress(Math.round(ids.length / photos.length * 100));
       }
       const result = await submitPhotos({data:{review:form,photoIds:ids}});
-      setPhotos([]); return result;
+      photos.forEach(p => URL.revokeObjectURL(p.url)); setPhotos([]); return result;
     } catch (error) {
-      if (ids.length) { try { await cleanup({data:ids}); } catch { setPhotoError("Unused photos could not be removed. Please try again later."); } }
+      if (ids.length) { try { await cleanup({data:ids}); } catch { setCleanupIds(ids); setPhotoError("Unused photos could not be removed. Please retry cleanup."); } }
       throw error;
     }
   }});
@@ -61,7 +64,8 @@ export function LeaveReviewForm() {
           }} />
           <Button type="button" variant="outline" disabled={photos.length >= 5} onClick={async () => { const {data} = await supabase.auth.getUser(); if (!data.user) {setPhotoError("Sign in to attach delivery or product photos."); return;} inputRef.current?.click(); }}><ImagePlus className="mr-2 h-4 w-4" /> Add Image</Button>
           <p className="mt-2 text-xs text-muted-foreground">Up to 5 JPG, PNG or WebP photos, 5 MB each. Photos appear publicly only after review approval.</p>
-          <div className="mt-3 flex flex-wrap gap-3">{photos.map((p,i) => <div key={p.url} className="relative h-24 w-24"><img src={p.url} alt={`Selected review photo ${i+1}`} className="h-full w-full rounded-md object-cover" /><Button type="button" size="icon" variant="secondary" className="absolute right-0 top-0 h-7 w-7" aria-label={`Remove photo ${i+1}`} onClick={() => setPhotos(list => list.filter(x => x !== p))}><X className="h-4 w-4" /></Button></div>)}</div>
+          <div className="mt-3 flex flex-wrap gap-3">{photos.map((p,i) => <div key={p.url} className="relative h-24 w-24"><img src={p.url} alt={`Selected review photo ${i+1}`} className="h-full w-full rounded-md object-cover" /><Button type="button" size="icon" variant="secondary" className="absolute right-0 top-0 h-7 w-7" aria-label={`Remove photo ${i+1}`} onClick={() => {URL.revokeObjectURL(p.url); setPhotos(list => list.filter(x => x !== p));}}><X className="h-4 w-4" /></Button></div>)}</div>
+          {cleanupIds.length ? <Button type="button" variant="outline" onClick={async () => {try {await cleanup({data:cleanupIds}); setCleanupIds([]); setPhotoError("");} catch {setPhotoError("Cleanup could not finish. Please retry.");}}}>Retry photo cleanup</Button> : null}
           {photoError ? <p role="alert" className="mt-2 text-sm text-destructive">{photoError}{photoError.startsWith("Sign in") ? <a href="/auth" className="ml-2 underline">Sign in</a> : null}</p> : null}
           {submit.isPending && photos.length ? <div className="mt-3" role="status"><progress aria-label="Photo upload progress" className="w-full" max={100} value={progress} /><p className="text-xs text-muted-foreground">Photos uploaded: {progress}%</p></div> : null}
         </div>

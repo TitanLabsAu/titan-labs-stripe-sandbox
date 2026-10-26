@@ -23,6 +23,8 @@
 - Mobile cart reuses `CartSheet`: homepage has an in-flow trigger below Hot Products instead of the root floating trigger, so order controls are never covered; other pages retain their existing placement.
 - Catalogue sections use `products.catalogue_section`, separate from scientific `categories`.
 - Reviews: `customer_reviews`, admin-only writes; anonymous submissions only via throttled `submitCustomerReview` (unpublished, unrated); homepage featured block capped at three.
+- Member photo submissions use authenticated server validation and atomic owned-upload linkage; private review-photo storage is served publicly only through a non-cached endpoint that rechecks review moderation, so unpublishing revokes public access.
+- Referral default rollouts use a durable one-time ledger and separate data operation; the welcome allocator reuses existing codes, while shared Admin editing keeps the same code ID and exact unchanged expiry to preserve custom settings and redemption identity.
 - AI product photos via admin-checked `/api/admin-generate-image`, stored only after "Use image".
 - Pack rules via `allowsKit`/`effectivePack` (`src/lib/products.ts`) in UI, cart restore and every server price path: only Range has 10x kits. Starter kits are normal Equipment products toggled by `products.starter_kit_enabled`; no client-only surcharges.
 - Member Calendar: `member_calendar_entries`, owner-only RLS, no supplied dosing protocols.

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import type { ReviewPhoto } from "@/lib/review-photos";
 
-export function ReviewPhotos({ photos = [], name }: { photos?: ReviewPhoto[]; name: string }) {
+export function ReviewPhotos({ photos = [], name }: { photos?: ReviewPhoto[] | undefined; name: string }) {
   const [selected, setSelected] = useState<ReviewPhoto | null>(null);
   if (!photos.length) return null;
   return <div className="mt-4">

@@ -39,12 +39,13 @@ export const cleanupReviewPhotos = createServerFn({ method: "POST" }).middleware
     if (paths?.length) {
       const { error: storageError } = await db.storage.from("review-photos").remove(paths);
       if (storageError) throw new Error("Photo cleanup could not finish. Please retry");
+      await db.from("review_photo_uploads").delete().eq("user_id", context.userId).in("id", data).is("review_id", null).eq("cleanup_claimed", true);
     }
     return { ok: true };
   });
 
 export const submitMemberPhotoReview = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
-  .inputValidator((input: { review: unknown; photoIds: string[] }) => ({ review: validatePublicReview(input.review), photoIds: photoIdsSchema.min(1).parse(input.photoIds) }))
+  .inputValidator((input: { review: unknown; photoIds: string[] }) => ({ review: validatePublicReview(input.review), photoIds: photoIdsSchema.refine(ids => ids.length > 0, "Choose a photo").parse(input.photoIds) }))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin: db } = await import("@/integrations/supabase/client.server");
     const { data: id, error } = await db.rpc("submit_member_photo_review", { _user_id: context.userId, _review: data.review, _photo_ids: data.photoIds });
