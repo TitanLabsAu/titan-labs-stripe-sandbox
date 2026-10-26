@@ -92,7 +92,7 @@ export function welcomeCopy(s: WelcomeSettings) {
     s.combined_cap_percent > 0 ? `Combined discounts are capped at ${s.combined_cap_percent}% per order, and not every discount combines with every other.` : null,
   ].filter(Boolean) as string[];
   const referral = s.program_enabled
-    ? `Share your code with friends who are new to Titan Labs Aus. Your code is for them to use, not for your own orders. Each friend can use a referral code once, on their first successful order. For every ${s.reward_every_referrals} paid first orders placed with your code, you earn a ${s.reward_percent}% reward${s.reward_expiry_days > 0 ? ` that expires after ${s.reward_expiry_days} days` : ""}.`
+    ? `Share your code with friends. Your code is for them to use, not for your own orders. Each specific referral code is usable once per member on successful payment, including by existing members who haven't used that code. A different unused referral code remains eligible. Sign in or join to redeem one; earned member reward vouchers are separate. For every ${s.reward_every_referrals} eligible paid orders placed with your code, you earn a ${s.reward_percent}% reward${s.reward_expiry_days > 0 ? ` that expires after ${s.reward_expiry_days} days` : ""}.`
     : null;
   return { offer, discounts, referral };
 }

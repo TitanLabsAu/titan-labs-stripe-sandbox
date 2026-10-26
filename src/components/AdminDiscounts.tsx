@@ -305,10 +305,11 @@ export function AdminDiscounts() {
           <Tag className="h-5 w-5 text-accent" /> {form.id ? `Edit ${form.code}` : "Create a code"}
         </h3>
         <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-          Referral codes can be shared; each customer can redeem one once — on their first successful order, signed in (matched by account and email, including past guest orders).
-          When linked to a member, every 5 paid first orders (discounted or not) earn that member a 10% reward.
+          Each specific referral code is usable once per member on successful payment, signed in (matched by account and normalized email, including historical paid uses of that code).
+          Existing members may use an unused code. EMMA10 use blocks only EMMA10, not DAVE10; own codes are blocked. Failed or unpaid attempts do not consume a use.
+          When linked to a member, every 5 eligible paid orders (discounted or not) earn that member a 10% reward.
           Unlinked referral codes still give the customer discount but earn nobody rewards until you link a member.
-          Member-only codes work only for the linked member and are not affected by the first-order rule.
+          Member-only reward vouchers work only for the linked member and keep their separate rules. Per-code global limits still apply.
         </p>
 
         <div className="mt-5 grid gap-4 sm:grid-cols-3">

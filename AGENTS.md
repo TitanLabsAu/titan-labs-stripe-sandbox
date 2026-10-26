@@ -16,6 +16,7 @@
 - Theme: light first-visit default, per-device choice in one `useSyncExternalStore` store (`src/lib/site-theme.ts`); themed art renders as CSS-switched dark/light pairs (`ThemedArt`/`ThemedProductImage`, sets in `src/lib/theme-art.ts`) so first paint never depends on hydration. CMS exact-slug art beats bundled defaults; Pen Guide passes its own light-banner fallback and uses equal implicit grid rows.
 - Checkout acknowledgements live in `order_acknowledgements`, linked via `link_order_acknowledgement` — Stripe finalisation untouched.
 - Guest checkout ownership comes only from the hashed guest cookie or verified bearer (`checkout-buyer.server.ts`); posted IDs/emails are never trusted.
+- Referral redemption uses code-scoped account/email locks and a durable buyer+code redemption identity; all providers share the gate and nonfatal paid-order settlement to prevent duplicate rewards without losing captured payments.
 - First-purchase offer claims stay held while a Stripe intent is payable; released only after confirmed cancellation.
 - Research Lab: `research_entries` (admin RLS CRUD, public published-only via server fn, `at_a_glance` summaries); `/research-preview` shows drafts to admins only.
 - Research UI: preserve science/held quotes, immutable editorial data, exact unique published mapping and whole-card exclusions; never infer modes. Dosing/Timing/Cycle use only exact saved entry headings. Scoped opinion classes isolate stacked scorecard dl rows from shared grids.

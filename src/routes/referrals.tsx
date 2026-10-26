@@ -13,7 +13,7 @@ export const Route = createFileRoute("/referrals")({
       { title: "Referral Program | Titan Labs Australia" },
       { name: "description", content: "How Titan Labs Australia referral codes and 10% referral rewards work." },
       { property: "og:title", content: "Referral Program | Titan Labs Australia" },
-      { property: "og:description", content: "Share your code — every 5 paid referral orders earns 10% off your next purchase." },
+      { property: "og:description", content: "Each specific referral code is usable once per member. Every 5 paid referrals earns a 10% reward." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -43,9 +43,10 @@ function ReferralsPage() {
         <h2 className="text-lg font-extrabold uppercase text-foreground">Fine print</h2>
         <ul className="mt-2 list-disc space-y-1 pl-5">
           <li>You can't use your own referral code.</li>
-          <li>A referral code can be used once per person — on their first successful order. Signing in or joining is required to redeem one; guest checkout stays available without a code.</li>
+          <li>Each specific referral code is usable once per member on successful payment. Existing members can use a code they haven't used before: using EMMA10 blocks only EMMA10, not an unused DAVE10. Sign in or join to redeem a referral code; guest checkout stays available without one.</li>
+          <li>Failed, abandoned and unpaid attempts do not consume a use. Earned member reward vouchers are separate and keep their own rules.</li>
           <li>Referral rewards, multi-buy, kit and crypto savings stack up to a {s.combinedCapPercent}% maximum off a single purchase.</li>
-          <li>Every friend's first paid order placed with your code counts towards your next reward, including discounted orders.</li>
+          <li>Every friend's successful eligible use of your code counts towards your next reward, including discounted orders.</li>
           <li>Each {s.rewardPercent}% reward expires {s.rewardExpiryDays} days after it's earned.</li>
           <li>We may adjust or end the program; credit already earned stays on your account.</li>
         </ul>
