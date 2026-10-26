@@ -174,12 +174,14 @@ export const submitOrder = createServerFn({ method: "POST" })
         pricing_snapshot: snapshot,
         first_purchase_offer: snapshot.first_purchase_offer,
         first_offer_claim_id: claimId,
+        referral_claim_id: referralClaimId,
       })
       .select("id, order_number")
       .single();
     if (error) {
       if (reservationId) await db.rpc("release_store_credit", { _reservation_id: reservationId });
       if (claimId) await db.rpc("release_first_offer", { _claim_id: claimId });
+      if (referralClaimId) await db.rpc("release_referral_redemption", { _claim_id: referralClaimId });
       throw error;
     }
 
