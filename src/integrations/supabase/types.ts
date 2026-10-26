@@ -1260,6 +1260,30 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_code_success_history: {
+        Row: {
+          code_id: string
+          created_at: string
+          emails: string[]
+          order_id: string
+          user_id: string | null
+        }
+        Insert: {
+          code_id: string
+          created_at?: string
+          emails?: string[]
+          order_id: string
+          user_id?: string | null
+        }
+        Update: {
+          code_id?: string
+          created_at?: string
+          emails?: string[]
+          order_id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       referral_milestone_awards: {
         Row: {
           created_at: string
