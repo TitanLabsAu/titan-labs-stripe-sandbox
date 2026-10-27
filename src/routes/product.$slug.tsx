@@ -24,7 +24,6 @@ import {
   formatPrice,
   getProductOption,
   isComingSoon,
-  singleLabelFor,
   subDescriptionFor,
   packLabel,
   productBasePrice,

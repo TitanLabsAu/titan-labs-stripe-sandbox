@@ -891,7 +891,7 @@ export function ProductEditor({
             onChange={(e) => set({ sub_description: e.target.value })}
           />
         </div>
-        <div>
+        <div className="sm:col-span-2">
           <Label>Full description</Label>
           <Textarea
             rows={6}
