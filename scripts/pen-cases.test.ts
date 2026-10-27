@@ -102,5 +102,26 @@ describe("V2 pen cases", () => {
     expect(out.find((i) => i.slug === "v2-travel")?.variantId).toBe("tb");
     expect(kitOfferSource("klow", null)).toBe("kit-offer:klow:base");
   });
-  test("server pricing is defined", () => { expect(typeof priceCheckout).toBe("function"); });
+  const stubAdmin = (products: any[]) => ({
+    from(table: string) {
+      const chain: any = { select: () => chain, eq: () => chain, in: () => chain, maybeSingle: async () => ({ data: null, error: null }), then: undefined };
+      if (table === "products") chain.eq = () => Promise.resolve({ data: products, error: null });
+      return chain;
+    },
+    rpc: async () => ({ data: 0, error: null }),
+  });
+  const rows = [
+    { slug: "klow", name: "KLOW", price: 100, sale_price: null, product_variants: [], catalogue_section: "range", stock_quantity: 50, coming_soon: false, unlimited_stock: false },
+    { slug: V2_PEN_SLUG, name: "V2", price: 65, sale_price: null, product_variants: [{ id: "b", label: "Blue", price: 65, stock: 1 }], catalogue_section: "pens", stock_quantity: 1, coming_soon: false, unlimited_stock: false },
+    { slug: "pen-starter-kit", name: "Pen Starter Kit", price: 20, sale_price: null, product_variants: [], catalogue_section: "equipment", stock_quantity: 0, coming_soon: false, unlimited_stock: true },
+  ];
+  const buyer = { userId: null, emails: [], emailVerified: false };
+  test("server prices case colour + Pen Starter Kit from stored rows; client prices and stock overflow are not trusted", async () => {
+    const q = await priceCheckout(stubAdmin(rows) as any, buyer as any, { items: [
+      { slug: "klow", quantity: 1 }, { slug: V2_PEN_SLUG, variantId: "b", quantity: 1, price: 1 }, { slug: "pen-starter-kit", quantity: 1 },
+    ], shippingMethod: "express", paymentMethod: "payid" } as any);
+    expect(q.quote.itemsCents).toBe(18500);
+    expect(q.quote.multibuyUnits).toBe(1);
+    await expect(priceCheckout(stubAdmin(rows) as any, buyer as any, { items: [{ slug: V2_PEN_SLUG, variantId: "b", quantity: 2 }], shippingMethod: "express", paymentMethod: "payid" } as any)).rejects.toThrow(/stock/);
+  });
 });
