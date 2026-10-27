@@ -158,5 +158,5 @@ export function equipmentOptionAvailability(kit: Product, variantId: string | nu
   const unpriced = !(getProductOption(kit, variantId, "single").unitPrice > 0);
   const soldOut = stockState(stock) === "out" || unpriced;
   const atLimit = inCart >= 99 || (stock != null && inCart >= stock);
-  return { comingSoon, soldOut, canAdd: !comingSoon && !soldOut && !atLimit };
+  return { comingSoon, soldOut, unpriced, canAdd: !comingSoon && !soldOut && !atLimit };
 }
