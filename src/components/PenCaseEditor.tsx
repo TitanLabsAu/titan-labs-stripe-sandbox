@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useProducts } from "@/lib/useCatalog";
 import { normalizeCatalogueSection } from "@/lib/catalogue-sections";
 import { formatPrice } from "@/lib/products";
-import { penCaseSettingsSchema, resolvePenCases, type PenCase, type PenCaseSettings } from "@/lib/pen-cases";
+import { caseFromPrice, penCaseSettingsSchema, resolvePenCases, type PenCase, type PenCaseSettings } from "@/lib/pen-cases";
 
 /**
  * Admin editor for the V2 pen case choices on Range products. Each case maps
@@ -61,6 +61,12 @@ export function PenCaseEditor({ settings, onSave }: { settings: PenCaseSettings;
                 <option value="">No product yet (not available)</option>
                 {candidates.map((p) => <option key={p.slug} value={p.slug}>{p.name}</option>)}
               </select>
+              <select aria-label={`Separate pen product for ${c.name}`} className="h-8 min-w-0 flex-1 rounded-md border border-input bg-background px-2"
+                value={c.penSlug ?? ""} onChange={(e) => patch(i, { penSlug: e.target.value || null, penVariantIds: null })}>
+                <option value="">Case product is the pen (no separate pen)</option>
+                {candidates.filter((p) => normalizeCatalogueSection(p.catalogueSection) === "pens" && p.slug !== c.productSlug)
+                  .map((p) => <option key={p.slug} value={p.slug}>+ pen: {p.name}</option>)}
+              </select>
               <label className="flex items-center gap-1"><input type="checkbox" checked={c.active} onChange={(e) => patch(i, { active: e.target.checked })} />Visible</label>
             </div>
             {allColours.length ? (
@@ -84,8 +90,33 @@ export function PenCaseEditor({ settings, onSave }: { settings: PenCaseSettings;
                 </div>
               </fieldset>
             ) : null}
+            {(() => {
+              const pen = products.find((p) => p.slug === c.penSlug);
+              const penColours = pen?.variants ?? [];
+              if (!c.penSlug || !penColours.length) return null;
+              return (
+                <fieldset>
+                  <legend className="text-muted-foreground">Pen colours offered</legend>
+                  <div className="flex flex-wrap gap-x-3">
+                    {penColours.map((v) => {
+                      const cur = c.penVariantIds ?? penColours.map((x) => x.id);
+                      const on = cur.includes(v.id);
+                      return (
+                        <label key={v.id} className="flex items-center gap-1">
+                          <input type="checkbox" checked={on} onChange={() => {
+                            const next = on ? cur.filter((x) => x !== v.id) : [...cur, v.id];
+                            if (next.length) patch(i, { penVariantIds: next });
+                          }} />
+                          {v.label} · {formatPrice(v.price)}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+              );
+            })()}
             <p className="text-muted-foreground">
-              Customer sees: {r?.status === "available" ? `available — ${r.colours.map((v) => v.label).join(", ")}` : r?.status === "sold-out" ? "sold out" : "Not yet available"}
+              {c.penSlug ? "Pen + case pair: customers choose pen and case colours separately. " : ""}Customer sees: {r?.status === "available" ? `available — ${(r.pen ? `pen ${r.pen.colours.map((v) => v.label).join("/")}, case ${r.colours.map((v) => v.label).join("/")}` : r.colours.map((v) => v.label).join(", "))}${r.colours.length ? ` from ${formatPrice(caseFromPrice(r) ?? 0)}` : ""}` : r?.status === "sold-out" ? "sold out" : "Not yet available"}
             </p>
           </div>
         );
