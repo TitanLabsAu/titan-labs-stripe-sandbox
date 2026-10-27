@@ -129,6 +129,8 @@ export type Product = {
   comingSoon?: boolean;
   /** Storefront section: range, pens or equipment. */
   catalogueSection?: CatalogueSection;
+  /** Extra storefront listings (display only; pricing follows catalogueSection). */
+  extraSections?: CatalogueSection[];
   /** Disable the universal starter-kit offer for this product. */
   starterKitEnabled?: boolean;
   /** Admin-chosen ordered add-ons; null/undefined keeps the built-in starter-kit default. */
@@ -188,6 +190,21 @@ export function effectiveStock(
 }
 
 /** Label for the size picker / single option, generic for Equipment. */
+/**
+ * Warm the browser cache for a product's colour/option photos after first
+ * paint so switching options shows the new photo immediately.
+ */
+export function preloadVariantImages(product: Pick<Product, "variants">) {
+  if (typeof window === "undefined") return () => {};
+  const urls = [...new Set((product.variants ?? []).map((v) => v.image).filter((u): u is string => Boolean(u)))];
+  if (urls.length < 2) return () => {};
+  const run = () => { for (const u of urls) { const img = new Image(); img.decoding = "async"; img.src = u; } };
+  const w = window as Window & { requestIdleCallback?: (cb: () => void) => number; cancelIdleCallback?: (id: number) => void };
+  if (w.requestIdleCallback) { const id = w.requestIdleCallback(run); return () => w.cancelIdleCallback?.(id); }
+  const t = window.setTimeout(run, 300);
+  return () => window.clearTimeout(t);
+}
+
 export function sizeLabelFor(product: { catalogueSection?: unknown }) {
   return normalizeCatalogueSection(product.catalogueSection) === "range" ? "Vial size" : "Size";
 }

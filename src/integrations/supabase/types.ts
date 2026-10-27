@@ -1103,6 +1103,7 @@ export type Database = {
           created_at: string
           description: string
           details: string[]
+          extra_catalogue_sections: string[]
           id: string
           image_url: string
           kit_price: number | null
@@ -1138,6 +1139,7 @@ export type Database = {
           created_at?: string
           description?: string
           details?: string[]
+          extra_catalogue_sections?: string[]
           id?: string
           image_url?: string
           kit_price?: number | null
@@ -1173,6 +1175,7 @@ export type Database = {
           created_at?: string
           description?: string
           details?: string[]
+          extra_catalogue_sections?: string[]
           id?: string
           image_url?: string
           kit_price?: number | null

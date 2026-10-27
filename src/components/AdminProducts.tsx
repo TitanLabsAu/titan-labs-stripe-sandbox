@@ -11,12 +11,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { CATEGORIES } from "@/lib/categories";
 import { useProducts } from "@/lib/useCatalog";
 import { OptionalEquipmentEditor } from "@/components/OptionalEquipmentEditor";
+import { BulkOptionalEquipment } from "@/components/BulkOptionalEquipment";
 import { sanitizeOptionalEquipment, type OptionalEquipmentEntry } from "@/lib/optional-equipment";
 import { sanitizeBundle, parsePackSizeInput, isValidPackSizeInput, type BundleItem } from "@/lib/products";
 import {
   CATALOGUE_SECTIONS,
   CATALOGUE_SECTION_LABELS,
   normalizeCatalogueSection,
+  sanitizeExtraSections,
   type CatalogueSection,
 } from "@/lib/catalogue-sections";
 import { ProductImageGenerator } from "@/components/ProductImageGenerator";
@@ -143,6 +145,8 @@ export type Draft = {
   sort_order: string;
   stock_quantity: string;
   catalogue_section: CatalogueSection;
+  /** Extra listing sections (display only). */
+  extra_catalogue_sections: CatalogueSection[];
   starter_kit_enabled: boolean;
   unlimited_stock: boolean;
   /** null = built-in starter-kit default (unchanged until edited). */
@@ -174,6 +178,7 @@ const emptyDraft: Draft = {
   sort_order: "0",
   stock_quantity: "0",
   catalogue_section: "range",
+  extra_catalogue_sections: [],
   starter_kit_enabled: true,
   unlimited_stock: false,
   optional_equipment: null,
@@ -250,6 +255,7 @@ export function toDraft(p: AdminProduct): Draft {
     sort_order: String(p.sort_order),
     stock_quantity: String(p.stock_quantity ?? 0),
     catalogue_section: normalizeCatalogueSection(p.catalogue_section),
+    extra_catalogue_sections: sanitizeExtraSections((p as { extra_catalogue_sections?: unknown }).extra_catalogue_sections, p.catalogue_section),
     starter_kit_enabled: p.starter_kit_enabled !== false,
     optional_equipment: sanitizeOptionalEquipment(p.optional_equipment),
     v2_pen_offer_enabled: p.v2_pen_offer_enabled !== false,
@@ -323,6 +329,7 @@ export function draftToPayload(d: Draft) {
         ? variants.reduce((sum, v) => sum + v.stock, 0)
         : Math.max(0, Math.trunc(Number(d.stock_quantity)) || 0),
     catalogue_section: d.catalogue_section,
+    ...(d.extra_catalogue_sections ? { extra_catalogue_sections: d.extra_catalogue_sections.filter((s) => s !== d.catalogue_section) } : {}),
     starter_kit_enabled: d.starter_kit_enabled,
     optional_equipment: d.optional_equipment,
     v2_pen_offer_enabled: d.v2_pen_offer_enabled,
@@ -510,6 +517,20 @@ export function ProductEditor({
               </option>
             ))}
           </select>
+          <fieldset className="mt-2 text-sm">
+            <legend className="text-xs text-muted-foreground">Also list in (same product, variants, prices and stock; pricing rules follow the main section)</legend>
+            <div className="mt-1 flex flex-wrap gap-x-4">
+              {CATALOGUE_SECTIONS.filter((s) => s !== draft.catalogue_section).map((s) => (
+                <label key={s} className="flex items-center gap-1">
+                  <input type="checkbox" checked={draft.extra_catalogue_sections.includes(s)}
+                    onChange={(e) => set({ extra_catalogue_sections: e.target.checked
+                      ? [...draft.extra_catalogue_sections, s]
+                      : draft.extra_catalogue_sections.filter((x) => x !== s) })} />
+                  {CATALOGUE_SECTION_LABELS[s]}
+                </label>
+              ))}
+            </div>
+          </fieldset>
           {draft.catalogue_section === "equipment" ? (
             <label className="mt-3 flex items-start gap-2 text-sm">
               <input
@@ -1144,6 +1165,7 @@ export function AdminProducts() {
 
   return (
     <div className="space-y-4">
+      <BulkOptionalEquipment products={(data ?? []) as any} onDone={refresh} />
       <div className="flex justify-end">
         <Button
           className="font-bold uppercase"

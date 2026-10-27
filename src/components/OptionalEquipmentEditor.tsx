@@ -4,15 +4,12 @@ import { Button } from "@/components/ui/button";
 import { useProducts } from "@/lib/useCatalog";
 import { normalizeCatalogueSection } from "@/lib/catalogue-sections";
 import { formatPrice } from "@/lib/products";
-import { MAX_OPTIONAL_EQUIPMENT, type OptionalEquipmentEntry } from "@/lib/optional-equipment";
-import { PEN_STARTER_KIT_SLUG, RANGE_STARTER_KIT_SLUG } from "@/lib/starter-kits";
+import { MAX_OPTIONAL_EQUIPMENT, defaultOptionalEquipmentList, type OptionalEquipmentEntry } from "@/lib/optional-equipment";
 import type { Draft } from "@/components/AdminProducts";
 
 /** Starting list that reproduces the built-in default exactly. */
 export function defaultEquipmentList(draft: Pick<Draft, "catalogue_section" | "starter_kit_enabled">): OptionalEquipmentEntry[] {
-  if (!draft.starter_kit_enabled) return [];
-  const slug = draft.catalogue_section === "pens" ? PEN_STARTER_KIT_SLUG : RANGE_STARTER_KIT_SLUG;
-  return [{ slug, variantIds: null, parentVariantIds: null }];
+  return defaultOptionalEquipmentList(draft.catalogue_section, draft.starter_kit_enabled);
 }
 
 function toggle(list: string[] | null, all: string[], id: string): string[] | null {

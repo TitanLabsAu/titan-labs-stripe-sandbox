@@ -8,6 +8,7 @@ import {
   type Product,
 } from "./products";
 import { useProducts } from "./useCatalog";
+import { linkedLineKeys, repairPairedLines } from "./pen-companion";
 
 export type CartItem = {
   key: string;
@@ -87,15 +88,16 @@ export function coerceCartItems(
   items: CartItem[],
   getProduct: (slug: string) => Product | null | undefined,
 ): CartItem[] {
-  let changed = false;
+  const repaired = repairPairedLines(items);
+  let changed = repaired !== items;
   const out: CartItem[] = [];
-  for (const item of items) {
+  for (const item of repaired) {
     const product = getProduct(item.slug);
     let line = item;
     // Legacy product-only ownership cannot identify a size. Preserve the item
     // as an ordinary cart choice rather than guessing or deleting a purchase.
     const validSource = sanitizeSource(item.source);
-    const source = validSource && /^(pen-companion|kit-offer):[^:]+$/.test(validSource) ? null : validSource;
+    const source = validSource && /^(pen-companion|pen-case|kit-offer):[^:]+$/.test(validSource) ? null : validSource;
     if (source !== (item.source ?? null)) {
       changed = true;
       line = { ...line, source };
@@ -196,13 +198,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
           ];
         });
       },
+      // A paired V2 pen and its case are linked: quantity and removal apply to both.
       setQuantity: (key, quantity) =>
-        setItems((prev) =>
-          quantity <= 0
-            ? prev.filter((i) => i.key !== key)
-            : prev.map((i) => (i.key === key ? { ...i, quantity: clampQuantity(quantity) } : i)),
-        ),
-      removeItem: (key) => setItems((prev) => prev.filter((i) => i.key !== key)),
+        setItems((prev) => {
+          const keys = linkedLineKeys(prev, key);
+          return quantity <= 0
+            ? prev.filter((i) => !keys.includes(i.key))
+            : prev.map((i) => (keys.includes(i.key) ? { ...i, quantity: clampQuantity(quantity) } : i));
+        }),
+      removeItem: (key) => setItems((prev) => { const keys = linkedLineKeys(prev, key); return prev.filter((i) => !keys.includes(i.key)); }),
       clear: () => setItems([]),
       getLinePrice,
       getLineLabel,

@@ -6,7 +6,7 @@ import { sanitizeProductLinks } from "@/lib/product-certificates";
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
-import { normalizeCatalogueSection } from "@/lib/catalogue-sections";
+import { normalizeCatalogueSection, sanitizeExtraSections } from "@/lib/catalogue-sections";
 import { isUnlimitedStock, sanitizeBundle, sanitizePackSize, sanitizeVariantImage, type Product, type ProductLink, type ProductVariant } from "@/lib/products";
 
 export type SiteLink = { id: string; label: string; url: string; sort_order: number };
@@ -90,6 +90,7 @@ export function toProduct(row: any): Product {
     stock: unlimited ? null : row.stock_quantity === null || row.stock_quantity === undefined ? null : Number(row.stock_quantity),
     comingSoon: Boolean(row.coming_soon),
     catalogueSection: normalizeCatalogueSection(row.catalogue_section),
+    extraSections: sanitizeExtraSections(row.extra_catalogue_sections, row.catalogue_section),
     starterKitEnabled: row.starter_kit_enabled !== false,
     optionalEquipment: sanitizeOptionalEquipment(row.optional_equipment),
     v2PenOfferEnabled: row.v2_pen_offer_enabled !== false,
@@ -98,7 +99,7 @@ export function toProduct(row: any): Product {
 }
 
 export const PRODUCT_COLUMNS =
-  "slug, name, price, sale_price, promo_label, sub_description, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, stock_quantity, coming_soon, catalogue_section, starter_kit_enabled, unlimited_stock, optional_equipment, v2_pen_offer_enabled";
+  "slug, name, price, sale_price, promo_label, sub_description, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, stock_quantity, coming_soon, catalogue_section, starter_kit_enabled, unlimited_stock, optional_equipment, v2_pen_offer_enabled, extra_catalogue_sections";
 
 export const listProducts = createServerFn({ method: "GET" }).handler(
   async (): Promise<Product[]> => {

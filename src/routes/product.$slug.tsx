@@ -10,7 +10,8 @@ import { StarterKitOffer } from "@/components/StarterKitOffer";
 import { TitanPageHeading } from "@/components/TitanPageHeading";
 import { FlaskConical } from "lucide-react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { preloadVariantImages } from "@/lib/products";
 import { toast } from "sonner";
 import { Minus, Plus, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -69,6 +70,7 @@ function ProductPage() {
   const pp = cmsValues(content, "product_page");
   const { addItem, items } = useCart();
   const variants = sortedProductVariants(product);
+  useEffect(() => preloadVariantImages(product), [product]);
   const { variant: linkedVariant } = Route.useSearch();
   const [variantId, setVariantId] = useState<string | null>(() => {
     const linked = (product.variants ?? []).find((v) => v.id === linkedVariant);
