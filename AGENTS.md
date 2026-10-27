@@ -42,3 +42,4 @@
 - Bank instruction values use shared PaymentDetails CopyLine controls across checkout and confirmation; clipboard copies remain strings and AUD amounts use fixed decimals so bank formatting and leading zeros survive.
 - Pen Guide replacement text lives in CMS defaults with dedicated guide-learning column titles; saved overrides always win, so review changes never require live content writes. Light-only contain fitting preserves original art; mobile artwork clearance is shared for equal theme dimensions.
 - Guide photo replacements use immutable asset pointers in CMS defaults; existing saved overrides remain authoritative and are audited before any targeted content write, keeping historical receipt/order snapshots untouched.
+- Product subtitle is `products.sub_description` (display-only, empty renders nothing); cart/order line labels keep using `singleLabelFor` so editing copy never changes saved order lines.
