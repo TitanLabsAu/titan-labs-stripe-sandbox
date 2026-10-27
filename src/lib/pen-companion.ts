@@ -16,10 +16,14 @@ export function kitOfferSource(productSlug: string, variantId?: string | null) {
   return `kit-offer:${productSlug}:${variantId || "base"}`;
 }
 
-/** The flow-owned V2 pen line for a Range product, if one is in the cart. */
+/**
+ * The flow-owned pen line (any configured case product) for a Range product
+ * option, if one is in the cart. Ownership is the source marker alone, so the
+ * Hard Case and Travel Case share one slot and never both sit in the flow.
+ */
 export function flowPenLine(items: CartItem[], rangeSlug: string, variantId?: string | null): CartItem | null {
   const source = penCompanionSource(rangeSlug, variantId);
-  return items.find((i) => i.source === source && i.slug === V2_PEN_SLUG) ?? null;
+  return items.find((i) => i.source === source) ?? null;
 }
 
 /** The live V2 pen product with orderable colour variants, or null when unavailable. */

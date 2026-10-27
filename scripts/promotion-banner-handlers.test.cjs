@@ -2,7 +2,7 @@ const fs=require('node:fs'), vm=require('node:vm'), ts=require('typescript'), as
 function compile(file,mocks){const exports={};vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{exports,Error,JSON,require:p=>{if(p in mocks)return mocks[p];throw Error(p)}});return exports;}
 const banners=compile('src/lib/promotion-banners.ts',{'zod':require('zod')});
 const gate={};const builder=()=>{let validator=x=>x,protectedFn=false;const b={middleware(ms){protectedFn=ms.includes(gate);return b},inputValidator(fn){validator=fn;return b},handler(fn){return async args=>{if(protectedFn&&!args.context?.userId)throw Error('Unauthenticated');return fn({...args,data:validator(args.data)})}}};return b};
-const mocks={'@tanstack/react-start':{createServerFn:builder},'@/integrations/supabase/auth-middleware':{requireSupabaseAuth:gate},'@/lib/promotion-banners':banners};
+const mocks={'@tanstack/react-start':{createServerFn:builder},'@/integrations/supabase/auth-middleware':{requireSupabaseAuth:gate},'@/lib/promotion-banners':banners,'@/lib/pen-cases':{PEN_CASES_KEY:'pen_case_options',serialisePenCases:JSON.stringify,validatePenCasesAgainst:s=>s,parsePenCases:()=>({cases:[]})}};
 for(const p of ['@/lib/catalogue-sections','@/lib/product-certificates','@/lib/storefrontContent','@/lib/products','@/lib/order-reference','@/lib/manual-payment','@/lib/optional-equipment','@/integrations/supabase/types'])mocks[p]={};
 const fn=compile('src/lib/admin.functions.ts',mocks).adminSaveContent;
 let stored, writes=0;

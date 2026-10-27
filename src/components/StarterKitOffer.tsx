@@ -110,7 +110,7 @@ function EquipmentRow({
               return (
                 <option key={id} value={id} disabled={!s.canAdd && chosen !== id}>
                   {v.label} — {formatPrice(getProductOption(kit, id, "single").unitPrice)}
-                  {s.comingSoon ? " · Coming soon" : s.soldOut ? " · Sold out" : ""}
+                  {s.comingSoon ? " · Coming soon" : s.unpriced ? " · Unavailable" : s.soldOut ? " · Sold out" : ""}
                 </option>
               );
             })}
@@ -137,7 +137,7 @@ function EquipmentRow({
         >
           {isStarterKit
             ? state.canAdd ? labels.add_label : state.comingSoon ? labels.coming_soon_label : labels.unavailable_label
-            : state.canAdd ? `Add ${kit.name}` : state.comingSoon ? "Coming soon" : "Sold out"}
+            : state.canAdd ? `Add ${kit.name}` : state.comingSoon ? "Coming soon" : state.unpriced ? "Unavailable" : "Sold out"}
         </Button>
       )}
     </li>

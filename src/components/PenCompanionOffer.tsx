@@ -2,87 +2,80 @@ import { useId, useState } from "react";
 import { PenTool } from "lucide-react";
 import { toast } from "sonner";
 import { useCart } from "@/lib/cart";
-import { useProducts } from "@/lib/useCatalog";
-import {
-  flowPenLine,
-  kitOfferSource,
-  penCompanionSource,
-  v2PenProduct,
-} from "@/lib/pen-companion";
+import { useProducts, useSiteContent } from "@/lib/useCatalog";
+import { flowPenLine, kitOfferSource, penCompanionSource } from "@/lib/pen-companion";
 import { RANGE_STARTER_KIT_SLUG, PEN_STARTER_KIT_SLUG } from "@/lib/starter-kits";
-import { formatPrice, stockState, variantStockFor, type Product } from "@/lib/products";
+import { formatPrice } from "@/lib/products";
 import { normalizeCatalogueSection } from "@/lib/catalogue-sections";
+import { PEN_CASES_KEY, canChooseColour, caseForLine, parsePenCases, resolvePenCases } from "@/lib/pen-cases";
+import type { Product } from "@/lib/products";
 
 /**
- * Range products: "Add V2 Reusable Pen" toggle with a labelled colour picker.
- * The pen line is flow-owned (source marker + distinct cart key), so changing
- * the colour replaces only this line and manually added pens are untouched.
- * While a pen is selected, the starter-kit offer switches to the Pen Starter
- * Kit; a kit added through this product's offer is swapped, never duplicated.
+ * Range products: "Add V2 Reusable Pen" with a two-step chooser — case first
+ * (Admin-configured, mapped to real catalogue products), then colour. The pen
+ * line is flow-owned (source marker + distinct cart key), so changing case or
+ * colour replaces only this line and manually added pens are untouched. While
+ * a pen is selected the offer's Range Starter Kit becomes the Pen Starter Kit,
+ * and pen-only add-ons are removed again when the pen is removed.
  */
 export function PenCompanionOffer({ product, variantId }: { product: Product; variantId?: string | null | undefined }) {
   const { products } = useProducts();
+  const content = useSiteContent().data;
   const { items, addItem, removeItem } = useCart();
-  const selectId = useId();
+  const baseId = useId();
   const [open, setOpen] = useState(false);
+  const [pendingCase, setPendingCase] = useState<string | null>(null);
 
   if (normalizeCatalogueSection(product.catalogueSection) !== "range") return null;
   if (product.v2PenOfferEnabled === false) return null;
-  const pen = v2PenProduct(products);
-  if (!pen) return null;
+  const cases = resolvePenCases(parsePenCases(content?.[PEN_CASES_KEY]), products);
+  if (!cases.some((c) => c.available)) return null;
 
   const source = penCompanionSource(product.slug, variantId);
+  const offerSource = kitOfferSource(product.slug, variantId);
   const current = flowPenLine(items, product.slug, variantId);
+  const currentCase = current ? caseForLine(cases, current.slug, current.variantId) : null;
   const expanded = open || Boolean(current);
+  const selectedCase =
+    cases.find((c) => c.id === pendingCase && c.available) ?? currentCase ?? cases.find((c) => c.available) ?? null;
+  const penOnly = new Set((product.optionalEquipment ?? []).filter((e) => e.whenPen).map((e) => e.slug));
 
   const swapFlowKit = (fromSlug: string, toSlug: string | null) => {
-    const kitLine = items.find((i) => i.source === kitOfferSource(product.slug, variantId) && i.slug === fromSlug);
+    const kitLine = items.find((i) => i.source === offerSource && i.slug === fromSlug);
     if (!kitLine) return;
     removeItem(kitLine.key);
-    if (toSlug) {
-      const kit = products.find((p) => p.slug === toSlug);
-      if (kit)
-        addItem(kit.slug, kitLine.quantity, {
-          variantId: null,
-          variantLabel: kit.name,
-          pack: "single",
-          source: kitOfferSource(product.slug, variantId),
-        });
-    }
+    const kit = toSlug ? products.find((p) => p.slug === toSlug) : null;
+    if (kit) addItem(kit.slug, kitLine.quantity, { variantId: null, variantLabel: kit.name, pack: "single", source: offerSource });
   };
 
-  const choose = (variantId: string) => {
-    if (!variantId) return;
-    const variant = (pen.variants ?? []).find((v) => v.id === variantId);
-    if (!variant) return;
-    if (stockState(variantStockFor(pen, variant.id)) === "out") return;
+  const chooseColour = (colourId: string) => {
+    if (!selectedCase?.product || !canChooseColour(selectedCase, colourId)) return;
+    const pen = selectedCase.product;
+    const colour = selectedCase.colours.find((v) => v.id === colourId)!;
     if (current) removeItem(current.key);
-    addItem(pen.slug, 1, {
-      variantId: variant.id,
-      variantLabel: variant.label,
-      pack: "single",
-      source,
-    });
-    // Selected state comes from the shared cart, so another copy can collapse it.
+    addItem(pen.slug, 1, { variantId: colour.id, variantLabel: colour.label, pack: "single", source });
     setOpen(false);
-    // Pen selected: this product's offer-added Range Starter Kit becomes the Pen Starter Kit.
-    swapFlowKit(RANGE_STARTER_KIT_SLUG, PEN_STARTER_KIT_SLUG);
-    toast.success(`${pen.name} — ${variant.label} added to cart`);
+    setPendingCase(null);
+    if (!current) swapFlowKit(RANGE_STARTER_KIT_SLUG, PEN_STARTER_KIT_SLUG);
+    toast.success(`${selectedCase.name} — ${colour.label} added to cart`);
   };
 
   const turnOff = () => {
     if (current) removeItem(current.key);
-    // Pen removed: revert this product's offer-added Pen Starter Kit to the Range Starter Kit.
     swapFlowKit(PEN_STARTER_KIT_SLUG, RANGE_STARTER_KIT_SLUG);
+    for (const line of items) if (line.source === offerSource && penOnly.has(line.slug)) removeItem(line.key);
     setOpen(false);
+    setPendingCase(null);
   };
+
+  const colourValue = current && currentCase && selectedCase?.id === currentCase.id ? current.variantId ?? "" : "";
 
   return (
     <div className="titan-pen-companion mt-2 rounded-lg border border-primary/25 bg-primary/5 p-3">
       <button
         type="button"
         aria-expanded={expanded}
-        aria-controls={`${selectId}-panel`}
+        aria-controls={`${baseId}-panel`}
         onClick={() => (expanded ? turnOff() : setOpen(true))}
         className={`flex min-h-11 w-full items-center justify-between gap-2 rounded-md border px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition-colors ${
           current
@@ -97,42 +90,57 @@ export function PenCompanionOffer({ product, variantId }: { product: Product; va
         <span aria-hidden="true">{expanded ? "−" : "+"}</span>
       </button>
       {expanded ? (
-        <div id={`${selectId}-panel`} className="pt-3">
-          <label
-            htmlFor={selectId}
-            className="block text-xs font-bold uppercase tracking-[0.16em] text-accent"
-          >
-            Select Pen
-          </label>
-          <select
-            id={selectId}
-            className="mt-2 h-11 w-full rounded-md border border-input bg-background px-2 text-[11px] font-semibold text-foreground"
-            value={current?.variantId ?? ""}
-            onChange={(e) => choose(e.target.value)}
-          >
-            <option value="" disabled>
-              Choose a colour…
-            </option>
-            {[...(pen.variants ?? [])].sort((a, b) => {
-              const colours = ["blue", "purple", "grey"];
-              const rank = (label: string) => {
-                const index = colours.indexOf(label.trim().toLowerCase());
-                return index < 0 ? colours.length : index;
-              };
-              return rank(a.label) - rank(b.label);
-            }).map((v) => {
-              const soldOut = stockState(variantStockFor(pen, v.id)) === "out";
-              return (
-                <option key={v.id} value={v.id} disabled={soldOut}>
-                  {v.label} — {formatPrice(v.salePrice != null && v.salePrice > 0 && v.salePrice < v.price ? v.salePrice : v.price)}
-                  {soldOut ? " · Sold out" : ""}
-                </option>
-              );
-            })}
-          </select>
+        <div id={`${baseId}-panel`} className="space-y-3 pt-3">
+          <fieldset>
+            <legend className="block text-xs font-bold uppercase tracking-[0.16em] text-accent">1. Select case</legend>
+            <div className="mt-2 grid gap-2">
+              {cases.map((c) => {
+                const selected = selectedCase?.id === c.id;
+                const from = c.colours.length ? Math.min(...c.colours.map((v) => v.price)) : null;
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    aria-pressed={selected}
+                    disabled={!c.available}
+                    onClick={() => setPendingCase(c.id)}
+                    className={`flex min-h-10 w-full items-center justify-between gap-2 rounded-md border px-3 py-2 text-left text-[11px] font-semibold disabled:cursor-not-allowed disabled:opacity-60 ${
+                      selected ? "border-accent bg-accent/10 text-foreground" : "border-input bg-background text-foreground hover:bg-muted"
+                    }`}
+                  >
+                    <span>{c.name}</span>
+                    <span className="shrink-0 text-muted-foreground">
+                      {c.status === "pending-setup" ? "Not yet available" : c.status === "sold-out" ? "Sold out" : from != null ? formatPrice(from) : ""}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+          {selectedCase?.available ? (
+            <div>
+              <label htmlFor={`${baseId}-colour`} className="block text-xs font-bold uppercase tracking-[0.16em] text-accent">
+                2. Select colour
+              </label>
+              <select
+                id={`${baseId}-colour`}
+                className="mt-2 h-11 w-full rounded-md border border-input bg-background px-2 text-[11px] font-semibold text-foreground"
+                value={colourValue}
+                onChange={(e) => chooseColour(e.target.value)}
+              >
+                <option value="" disabled>Choose a colour…</option>
+                {selectedCase.colours.map((v) => (
+                  <option key={v.id} value={v.id} disabled={v.soldOut || v.comingSoon}>
+                    {v.label} — {formatPrice(v.price)}
+                    {v.comingSoon ? " · Coming soon" : v.soldOut ? " · Sold out" : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : null}
           {current ? (
-            <p className="mt-2 text-[11px] leading-4 text-muted-foreground">
-              {current.variantLabel} pen added to your cart. Choose another colour to change your selection.
+            <p className="text-[11px] leading-4 text-muted-foreground">
+              {currentCase ? `${currentCase.name} — ` : ""}{current.variantLabel} added to your cart. Choose another case or colour to change your selection.
             </p>
           ) : null}
         </div>

@@ -1,5 +1,5 @@
 import { normalizeCatalogueSection } from "./catalogue-sections";
-import { effectiveStock, isComingSoon, stockState, variantStockFor, type Product } from "./products";
+import { effectiveStock, getProductOption, isComingSoon, stockState, variantStockFor, type Product } from "./products";
 import type { CartItem } from "./cart";
 import { flowPenLine, kitOfferSource, starterKitSlugFor } from "./pen-companion";
 import { PEN_STARTER_KIT_SLUG, RANGE_STARTER_KIT_SLUG } from "./starter-kits";
@@ -13,6 +13,8 @@ export type OptionalEquipmentEntry = {
   slug: string;
   variantIds: string[] | null;
   parentVariantIds: string[] | null;
+  /** Range only: offered only while a V2 pen case is selected for this option. */
+  whenPen?: boolean;
 };
 
 export const MAX_OPTIONAL_EQUIPMENT = 12;
@@ -30,10 +32,12 @@ export function sanitizeOptionalEquipment(raw: unknown): OptionalEquipmentEntry[
   const out: OptionalEquipmentEntry[] = [];
   for (const r of raw) {
     if (!r || typeof r !== "object") continue;
-    const e = r as { slug?: unknown; variantIds?: unknown; parentVariantIds?: unknown };
+    const e = r as { slug?: unknown; variantIds?: unknown; parentVariantIds?: unknown; whenPen?: unknown };
     const slug = String(e.slug ?? "").trim();
     if (!SLUG_RE.test(slug) || out.some((o) => o.slug === slug)) continue;
-    out.push({ slug, variantIds: idList(e.variantIds), parentVariantIds: idList(e.parentVariantIds) });
+    const entry: OptionalEquipmentEntry = { slug, variantIds: idList(e.variantIds), parentVariantIds: idList(e.parentVariantIds) };
+    if (e.whenPen === true) entry.whenPen = true;
+    out.push(entry);
     if (out.length >= MAX_OPTIONAL_EQUIPMENT) break;
   }
   return out;
@@ -75,7 +79,9 @@ export function validateOptionalEquipment(
       if (!parentVariantIds.length) continue;
       if (parentVariantIds.length === parent.variantIds.length) parentVariantIds = null;
     }
-    out.push({ slug: e.slug, variantIds, parentVariantIds });
+    const saved: OptionalEquipmentEntry = { slug: e.slug, variantIds, parentVariantIds };
+    if (e.whenPen && section === "range") saved.whenPen = true;
+    out.push(saved);
   }
   return out;
 }
@@ -114,6 +120,7 @@ export function optionalEquipmentFor(
   const out: ResolvedEquipmentOption[] = [];
   for (const entry of config) {
     if (entry.parentVariantIds && !entry.parentVariantIds.includes(parentVariantId || "")) continue;
+    if (entry.whenPen && !penSwitch) continue;
     let slug = entry.slug;
     if (penSwitch && slug === RANGE_STARTER_KIT_SLUG && products.some((p) => p.slug === PEN_STARTER_KIT_SLUG)) {
       slug = PEN_STARTER_KIT_SLUG;
@@ -147,7 +154,9 @@ export function equipmentOptionAvailability(kit: Product, variantId: string | nu
   const inCart = items
     .filter((i) => i.slug === kit.slug && (i.variantId ?? null) === (variantId ?? null))
     .reduce((s, i) => s + i.quantity, 0);
-  const soldOut = stockState(stock) === "out";
+  // A $0 / unpriced item is still being set up and is never offered as purchasable.
+  const unpriced = !(getProductOption(kit, variantId, "single").unitPrice > 0);
+  const soldOut = stockState(stock) === "out" || unpriced;
   const atLimit = inCart >= 99 || (stock != null && inCart >= stock);
-  return { comingSoon, soldOut, canAdd: !comingSoon && !soldOut && !atLimit };
+  return { comingSoon, soldOut, unpriced, canAdd: !comingSoon && !soldOut && !atLimit };
 }

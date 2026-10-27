@@ -22,6 +22,8 @@ import { Label } from "@/components/ui/label";
 import { AdminStorefrontContent } from "@/components/AdminStorefrontContent";
 import { PromotionBannerEditor } from "@/components/PromotionBannerEditor";
 import { PROMOTION_BANNERS_KEY, parseBannerSettings, serialiseBannerSettings } from "@/lib/promotion-banners";
+import { PEN_CASES_KEY, parsePenCases, serialisePenCases } from "@/lib/pen-cases";
+import { PenCaseEditor } from "@/components/PenCaseEditor";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { AdminLinks } from "@/components/AdminLinks";
@@ -1316,6 +1318,9 @@ export function AdminEdits() {
 
             <PromotionBannerEditor settings={parseBannerSettings(data?.[PROMOTION_BANNERS_KEY])} selections={featuredProducts.map(p => ({ key: p.selectionKey, name: p.displayName, label: p.displayBadge, sale: p.displaySale != null && p.displaySale > 0 && p.displaySale < p.displayPrice, hot: true }))}
               onSave={async settings => { await adminSaveContent({ data: { key: PROMOTION_BANNERS_KEY, body: serialiseBannerSettings(settings) } }); refreshContent(); toast.success("Promotion banners saved"); }} />
+
+            <PenCaseEditor settings={parsePenCases(data?.[PEN_CASES_KEY])}
+              onSave={async settings => { await adminSaveContent({ data: { key: PEN_CASES_KEY, body: serialisePenCases(settings) } }); refreshContent(); }} />
 
             <div className="mt-4 space-y-3">
               {featuredProducts.length === 0 ? (
