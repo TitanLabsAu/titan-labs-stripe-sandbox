@@ -36,3 +36,9 @@
 - [x] Two-step case → colour chooser (Hard Case = existing V2 variants; Travel Case shown "Not yet available" until Admin maps a real product); Admin editor; pen-only add-ons; dropdown fix.
 - [ ] Travel Case product, photos and prices — owner supplies/approves separately (not invented here).
 - [ ] Owner publishes (not from chat).
+
+## V2 travel pair, bulk add-ons, Pens alignment, shared sections
+- [x] Travel Case - Soft Case = Titan V2 Reusable Pen + Travel Case with Ice Pack, independent colours, linked lines.
+- [x] Admin bulk optional equipment (review → apply, additive).
+- [x] Pens row alignment, faster colour photos, products in several sections (Titan V2 Reusable Pen in Pens + Equipment).
+- [ ] Owner publishes (not from chat).
