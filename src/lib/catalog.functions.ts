@@ -71,6 +71,7 @@ export function toProduct(row: any): Product {
     price: onSale ? (sale as number) : listPrice,
     wasPrice: onSale ? listPrice : null,
     promoLabel: row.promo_label ?? "",
+    subDescription: String(row.sub_description ?? "").trim(),
     variants,
     image: optimizedProductImage(row.image_url),
     alt: row.alt || row.name,
@@ -93,7 +94,7 @@ export function toProduct(row: any): Product {
 }
 
 export const PRODUCT_COLUMNS =
-  "slug, name, price, sale_price, promo_label, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, stock_quantity, coming_soon, catalogue_section, starter_kit_enabled, unlimited_stock";
+  "slug, name, price, sale_price, promo_label, sub_description, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, stock_quantity, coming_soon, catalogue_section, starter_kit_enabled, unlimited_stock";
 
 export const listProducts = createServerFn({ method: "GET" }).handler(
   async (): Promise<Product[]> => {

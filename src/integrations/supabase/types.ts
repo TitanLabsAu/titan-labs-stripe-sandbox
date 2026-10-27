@@ -1122,6 +1122,7 @@ export type Database = {
           sort_order: number
           starter_kit_enabled: boolean
           stock_quantity: number
+          sub_description: string
           unlimited_stock: boolean
           updated_at: string
         }
@@ -1154,6 +1155,7 @@ export type Database = {
           sort_order?: number
           starter_kit_enabled?: boolean
           stock_quantity?: number
+          sub_description?: string
           unlimited_stock?: boolean
           updated_at?: string
         }
@@ -1186,6 +1188,7 @@ export type Database = {
           sort_order?: number
           starter_kit_enabled?: boolean
           stock_quantity?: number
+          sub_description?: string
           unlimited_stock?: boolean
           updated_at?: string
         }

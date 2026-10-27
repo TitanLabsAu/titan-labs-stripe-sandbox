@@ -487,6 +487,7 @@ export type AdminProduct = {
   price: number;
   sale_price: number | null;
   promo_label: string;
+  sub_description?: string;
   product_variants: AdminProductVariant[];
   image_url: string;
   alt: string;
@@ -510,7 +511,7 @@ export type AdminProduct = {
 };
 
 const PRODUCT_COLS =
-  "id, slug, name, price, sale_price, promo_label, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, active, coming_soon, sort_order, stock_quantity, catalogue_section, starter_kit_enabled, unlimited_stock";
+  "id, slug, name, price, sale_price, promo_label, sub_description, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, active, coming_soon, sort_order, stock_quantity, catalogue_section, starter_kit_enabled, unlimited_stock";
 
 export const adminListProducts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -580,6 +581,7 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
           ? null
           : Number(data.sale_price),
       promo_label: data.promo_label ?? "",
+      sub_description: String(data.sub_description ?? "").replace(/\s+/g, " ").trim().slice(0, 120),
       product_variants: variants,
       recon_vial_mg: data.recon_vial_mg ?? null,
       recon_water_ml: data.recon_water_ml ?? null,
