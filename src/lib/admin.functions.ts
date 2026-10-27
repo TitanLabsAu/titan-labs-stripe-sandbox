@@ -8,7 +8,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { validateOptionalEquipment, type OptionalEquipmentEntry } from "@/lib/optional-equipment";
 import type { Json } from "@/integrations/supabase/types";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { parseCatalogueSection, type CatalogueSection } from "@/lib/catalogue-sections";
+import { parseCatalogueSection, sanitizeExtraSections, type CatalogueSection } from "@/lib/catalogue-sections";
 import { orderReference } from "@/lib/order-reference";
 import { canMarkManualPaid, canArchiveOrder, countsTowardSpend } from "@/lib/manual-payment";
 

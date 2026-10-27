@@ -6,7 +6,7 @@ import { sanitizeProductLinks } from "@/lib/product-certificates";
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
-import { normalizeCatalogueSection } from "@/lib/catalogue-sections";
+import { normalizeCatalogueSection, sanitizeExtraSections } from "@/lib/catalogue-sections";
 import { isUnlimitedStock, sanitizeBundle, sanitizePackSize, sanitizeVariantImage, type Product, type ProductLink, type ProductVariant } from "@/lib/products";
 
 export type SiteLink = { id: string; label: string; url: string; sort_order: number };
