@@ -17,6 +17,7 @@ import {
   CATALOGUE_SECTIONS,
   CATALOGUE_SECTION_LABELS,
   normalizeCatalogueSection,
+  sanitizeExtraSections,
   type CatalogueSection,
 } from "@/lib/catalogue-sections";
 import { ProductImageGenerator } from "@/components/ProductImageGenerator";
