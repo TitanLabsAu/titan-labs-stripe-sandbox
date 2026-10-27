@@ -34,9 +34,9 @@ function PensPage() {
         <Button asChild variant="outline" className="mt-4">
           <Link to="/pen-guide">View pen guides</Link>
         </Button>
-        <div className="mt-7 grid gap-4 lg:grid-cols-2">
+        <div className="titan-row-aligned mt-7 grid gap-4 lg:grid-cols-2">
           {pens.map((p) => (
-            <ProductCard key={p.slug} product={p} />
+            <ProductCard key={p.slug} product={p} aligned />
           ))}
         </div>
         {isLoading ? (
