@@ -11,6 +11,47 @@ export function penCompanionSource(rangeSlug: string, variantId?: string | null)
   return `pen-companion:${rangeSlug}:${variantId || "base"}`;
 }
 
+/** Cart-line source marker for the case line of a paired pen + case choice. */
+export function penCaseSource(rangeSlug: string, variantId?: string | null) {
+  return `pen-case:${rangeSlug}:${variantId || "base"}`;
+}
+
+/** The flow-owned case line that pairs with the flow pen, if any. */
+export function flowCaseLine(items: CartItem[], rangeSlug: string, variantId?: string | null): CartItem | null {
+  const source = penCaseSource(rangeSlug, variantId);
+  return items.find((i) => i.source === source) ?? null;
+}
+
+/**
+ * Keys of every line linked to `key`: a paired pen line and its case line
+ * share one Range option, so quantity changes and removal apply to both.
+ */
+export function linkedLineKeys(items: CartItem[], key: string): string[] {
+  const line = items.find((i) => i.key === key);
+  const m = line?.source?.match(/^(pen-companion|pen-case):(.+)$/);
+  if (!m) return [key];
+  const partner = `${m[1] === "pen-companion" ? "pen-case" : "pen-companion"}:${m[2]}`;
+  return [key, ...items.filter((i) => i.source === partner).map((i) => i.key)];
+}
+
+/**
+ * Restored-cart repair: a case line whose pen line is missing becomes an
+ * ordinary (still honestly priced) case line, and a paired case always
+ * matches its pen's quantity. Returns the same array when unchanged.
+ */
+export function repairPairedLines(items: CartItem[]): CartItem[] {
+  let changed = false;
+  const out = items.map((i) => {
+    const m = i.source?.match(/^pen-case:(.+)$/);
+    if (!m) return i;
+    const pen = items.find((x) => x.source === `pen-companion:${m[1]}`);
+    if (!pen) { changed = true; return { ...i, source: null, key: `__detach__${i.key}` }; }
+    if (pen.quantity !== i.quantity) { changed = true; return { ...i, quantity: pen.quantity }; }
+    return i;
+  });
+  return changed ? out : items;
+}
+
 /** Cart-line source marker for a starter kit added through a product's kit offer. */
 export function kitOfferSource(productSlug: string, variantId?: string | null) {
   return `kit-offer:${productSlug}:${variantId || "base"}`;

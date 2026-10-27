@@ -718,7 +718,7 @@ export const adminSaveContent = createServerFn({ method: "POST" })
     let body = data.key === PROMOTION_BANNERS_KEY ? serialiseBannerSettings(JSON.parse(data.body)) : data.body;
     if (data.key === PEN_CASES_KEY) {
       const parsed = JSON.parse(serialisePenCases(JSON.parse(data.body)));
-      const slugs = parsed.cases.map((c: { productSlug: string | null }) => c.productSlug).filter(Boolean);
+      const slugs = parsed.cases.flatMap((c: { productSlug: string | null; penSlug?: string | null }) => [c.productSlug, c.penSlug ?? null]).filter(Boolean);
       const { data: rows, error: rowsError } = slugs.length
         ? await context.supabase.from("products").select("slug, catalogue_section, product_variants").in("slug", slugs)
         : { data: [], error: null };
