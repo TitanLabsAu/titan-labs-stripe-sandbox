@@ -26,3 +26,8 @@
 - [x] Run isolated pricing, concurrent database and provider regressions; verify acknowledgement link.
 - [x] Verify actual preview, automatic build diagnostics, and scoped diff; report standalone-check limitation if applicable.
 - [ ] Owner review/publication (owner action only; never publish from chat).
+
+## Optional Equipment add-ons
+- [x] Per-product ordered Equipment add-ons with variant and parent-option scope; default keeps existing starter-kit behaviour; separate V2 pen offer switch.
+- [x] Customer add/remove panel, server-validated saves, tests (518 pass), typecheck, browser check.
+- [ ] Owner publishes (not from chat).

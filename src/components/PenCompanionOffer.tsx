@@ -27,6 +27,7 @@ export function PenCompanionOffer({ product, variantId }: { product: Product; va
   const [open, setOpen] = useState(false);
 
   if (normalizeCatalogueSection(product.catalogueSection) !== "range") return null;
+  if (product.v2PenOfferEnabled === false) return null;
   const pen = v2PenProduct(products);
   if (!pen) return null;
 

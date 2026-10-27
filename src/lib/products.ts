@@ -131,6 +131,10 @@ export type Product = {
   catalogueSection?: CatalogueSection;
   /** Disable the universal starter-kit offer for this product. */
   starterKitEnabled?: boolean;
+  /** Admin-chosen ordered add-ons; null/undefined keeps the built-in starter-kit default. */
+  optionalEquipment?: import("./optional-equipment").OptionalEquipmentEntry[] | null;
+  /** Range only: show the "Add V2 Reusable Pen" offer (default on). */
+  v2PenOfferEnabled?: boolean;
   /** Equipment only: quantity is not tracked (server-derived, never trusted from a client). */
   unlimitedStock?: boolean;
 };

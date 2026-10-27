@@ -4,6 +4,8 @@ import { sanitizeProductLinks } from "@/lib/product-certificates";
 import { assertResetBase, cmsKey, mergeSectionChanges, validateSection } from "@/lib/storefrontContent";
 import { sanitizeBundle, parsePackSizeInput, sanitizeVariantImage } from "@/lib/products";
 import { createServerFn } from "@tanstack/react-start";
+import { validateOptionalEquipment, type OptionalEquipmentEntry } from "@/lib/optional-equipment";
+import type { Json } from "@/integrations/supabase/types";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { parseCatalogueSection, type CatalogueSection } from "@/lib/catalogue-sections";
 import { orderReference } from "@/lib/order-reference";
@@ -508,10 +510,12 @@ export type AdminProduct = {
   catalogue_section?: CatalogueSection;
   starter_kit_enabled?: boolean;
   unlimited_stock?: boolean;
+  optional_equipment?: OptionalEquipmentEntry[] | null;
+  v2_pen_offer_enabled?: boolean;
 };
 
 const PRODUCT_COLS =
-  "id, slug, name, price, sale_price, promo_label, sub_description, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, active, coming_soon, sort_order, stock_quantity, catalogue_section, starter_kit_enabled, unlimited_stock";
+  "id, slug, name, price, sale_price, promo_label, sub_description, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, active, coming_soon, sort_order, stock_quantity, catalogue_section, starter_kit_enabled, unlimited_stock, optional_equipment, v2_pen_offer_enabled";
 
 export const adminListProducts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -604,12 +608,30 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
       unlimited_stock:
         data.unlimited_stock === true && parseCatalogueSection(data.catalogue_section) === "equipment",
     };
+    // Optional add-ons: validated against stored Equipment rows; undefined leaves the saved value untouched.
+    let optionalEquipment: OptionalEquipmentEntry[] | null | undefined = undefined;
+    if (data.optional_equipment !== undefined) {
+      const { data: rows, error: rowsError } = await context.supabase
+        .from("products")
+        .select("slug, catalogue_section, product_variants");
+      if (rowsError) throw rowsError;
+      optionalEquipment = validateOptionalEquipment(
+        data.optional_equipment,
+        { slug: row.slug, section: row.catalogue_section, variantIds: variants.map((v) => v.id) },
+        (rows ?? []) as { slug: string; catalogue_section: unknown; product_variants: unknown }[],
+      );
+    }
+    const fullRow = {
+      ...row,
+      ...(optionalEquipment !== undefined ? { optional_equipment: optionalEquipment as unknown as Json } : {}),
+      ...(typeof data.v2_pen_offer_enabled === "boolean" ? { v2_pen_offer_enabled: data.v2_pen_offer_enabled } : {}),
+    };
     if (!row.image_url.trim() && !data.id) throw new Error("A product photo is required");
     if (data.id) {
-      const { error } = await context.supabase.from("products").update(row).eq("id", data.id);
+      const { error } = await context.supabase.from("products").update(fullRow).eq("id", data.id);
       if (error) throw error;
     } else {
-      const { error } = await context.supabase.from("products").insert(row);
+      const { error } = await context.supabase.from("products").insert(fullRow);
       if (error) throw error;
     }
     return { ok: true };
