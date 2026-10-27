@@ -107,3 +107,26 @@ export function canChooseColour(c: ResolvedPenCase, variantId: string) {
   const v = c.colours.find((x) => x.id === variantId);
   return Boolean(c.product && v && !v.soldOut && !v.comingSoon);
 }
+
+type StoredRow = { slug: string; catalogue_section?: unknown; product_variants?: unknown };
+
+/**
+ * Server save check against stored catalogue rows: a case may only point at a
+ * Pens/Equipment product with colour variants, and only at its real variant
+ * IDs. An invalid mapping is saved as "pending setup" (no product), never as
+ * a purchasable option.
+ */
+export function validatePenCasesAgainst(settings: PenCaseSettings, rows: StoredRow[]): PenCaseSettings {
+  return {
+    cases: settings.cases.map((c) => {
+      const row = c.productSlug ? rows.find((r) => r.slug === c.productSlug) : undefined;
+      const section = row ? normalizeCatalogueSection(row.catalogue_section) : null;
+      const ids = (Array.isArray(row?.product_variants) ? row!.product_variants as unknown[] : [])
+        .map((v) => String((v as { id?: unknown })?.id ?? "")).filter(Boolean);
+      if (!row || (section !== "pens" && section !== "equipment") || !ids.length) return { ...c, productSlug: null, variantIds: null };
+      if (!c.variantIds) return c;
+      const kept = c.variantIds.filter((id) => ids.includes(id));
+      return { ...c, variantIds: kept.length ? kept : null };
+    }),
+  };
+}

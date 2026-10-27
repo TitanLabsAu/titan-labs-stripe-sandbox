@@ -1,6 +1,7 @@
 import { sanitizeOptionalEquipment } from "./optional-equipment";
 import { optimizedProductImage } from "./product-image-delivery";
 import { PROMOTION_BANNERS_KEY, parseBannerSettings, serialiseBannerSettings } from "@/lib/promotion-banners";
+import { PEN_CASES_KEY, parsePenCases, serialisePenCases } from "@/lib/pen-cases";
 import { sanitizeProductLinks } from "@/lib/product-certificates";
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
@@ -140,7 +141,11 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
     const { data, error } = await publicClient().from("site_content").select("key, body");
     if (error) throw error;
     const out: Record<string, string> = {};
-    for (const row of data ?? []) out[(row as any).key] = (row as any).key === PROMOTION_BANNERS_KEY ? serialiseBannerSettings(parseBannerSettings((row as any).body)) : (row as any).body ?? "";
+    for (const row of data ?? []) {
+      const key = (row as any).key, body = (row as any).body ?? "";
+      out[key] = key === PROMOTION_BANNERS_KEY ? serialiseBannerSettings(parseBannerSettings(body))
+        : key === PEN_CASES_KEY ? serialisePenCases(parsePenCases(body)) : body;
+    }
     return out;
   },
 );

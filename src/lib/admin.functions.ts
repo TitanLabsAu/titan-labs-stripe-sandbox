@@ -1,5 +1,6 @@
 import { normalizeCatalogueSection } from "@/lib/catalogue-sections";
 import { PROMOTION_BANNERS_KEY, serialiseBannerSettings } from "@/lib/promotion-banners";
+import { PEN_CASES_KEY, serialisePenCases, validatePenCasesAgainst } from "@/lib/pen-cases";
 import { sanitizeProductLinks } from "@/lib/product-certificates";
 import { assertResetBase, cmsKey, mergeSectionChanges, validateSection } from "@/lib/storefrontContent";
 import { sanitizeBundle, parsePackSizeInput, sanitizeVariantImage } from "@/lib/products";
@@ -714,7 +715,16 @@ export const adminSaveContent = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context as any);
     if (data.key === "order_admin_email" || data.key === "order_admin_email_align") throw new Error("This setting is private and cannot be saved as public content");
-    const body = data.key === PROMOTION_BANNERS_KEY ? serialiseBannerSettings(JSON.parse(data.body)) : data.body;
+    let body = data.key === PROMOTION_BANNERS_KEY ? serialiseBannerSettings(JSON.parse(data.body)) : data.body;
+    if (data.key === PEN_CASES_KEY) {
+      const parsed = JSON.parse(serialisePenCases(JSON.parse(data.body)));
+      const slugs = parsed.cases.map((c: { productSlug: string | null }) => c.productSlug).filter(Boolean);
+      const { data: rows, error: rowsError } = slugs.length
+        ? await context.supabase.from("products").select("slug, catalogue_section, product_variants").in("slug", slugs)
+        : { data: [], error: null };
+      if (rowsError) throw rowsError;
+      body = serialisePenCases(validatePenCasesAgainst(parsed, (rows ?? []) as any[]));
+    }
     const { error } = await context.supabase
       .from("site_content")
       .upsert({ key: data.key, body }, { onConflict: "key" });
