@@ -1024,6 +1024,7 @@ html.light .theme-label-light { display: contents !important; }
 @supports (grid-template-rows: subgrid) {
   .titan-row-aligned > .titan-product-card { display: grid; grid-row: span 10; grid-template-rows: subgrid; row-gap: 0; }
   .titan-row-aligned > .titan-product-card > div:last-child { display: contents; }
+  .titan-row-aligned > .titan-product-card > a:first-child { width: 100%; height: auto; align-self: start; }
   .titan-row-aligned > .titan-product-card [data-promotion-slot] { min-width: 0; padding-inline: 0.75rem; }
   .titan-row-aligned > .titan-product-card [data-promotion-slot="title"] { padding-top: 0.75rem; align-content: start; }
   .titan-row-aligned > .titan-product-card [data-promotion-slot="price"] { align-self: end; }
