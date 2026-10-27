@@ -90,6 +90,13 @@ export function OptionalEquipmentEditor({ draft, set }: { draft: Draft; set: (pa
                 </div>
               </fieldset>
             ) : null}
+            {draft.catalogue_section === "range" ? (
+              <label className="mt-1 flex items-center gap-1">
+                <input type="checkbox" checked={entry.whenPen === true}
+                  onChange={(e) => update(list.map((x, k) => (k === i ? (e.target.checked ? { ...x, whenPen: true } : { slug: x.slug, variantIds: x.variantIds, parentVariantIds: x.parentVariantIds }) : x)))} />
+                Only while a V2 pen case is selected
+              </label>
+            ) : null}
             {parentOptions.length > 1 ? (
               <fieldset className="mt-1">
                 <legend className="text-muted-foreground">Show with this product's options</legend>
