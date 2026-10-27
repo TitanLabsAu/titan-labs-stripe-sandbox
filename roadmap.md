@@ -31,3 +31,8 @@
 - [x] Per-product ordered Equipment add-ons with variant and parent-option scope; default keeps existing starter-kit behaviour; separate V2 pen offer switch.
 - [x] Customer add/remove panel, server-validated saves, tests (518 pass), typecheck, browser check.
 - [ ] Owner publishes (not from chat).
+
+## V2 pen case chooser
+- [x] Two-step case → colour chooser (Hard Case = existing V2 variants; Travel Case shown "Not yet available" until Admin maps a real product); Admin editor; pen-only add-ons; dropdown fix.
+- [ ] Travel Case product, photos and prices — owner supplies/approves separately (not invented here).
+- [ ] Owner publishes (not from chat).
