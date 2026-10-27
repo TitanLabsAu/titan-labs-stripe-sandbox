@@ -5,7 +5,7 @@ import { PromotionRibbon } from "@/components/PromotionRibbon";
 import { ThemedProductImage } from "@/components/ThemedImage";
 import { ProductCoaLink } from "./ProductCertificates";
 import { Link } from "@tanstack/react-router";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { BookOpen } from "lucide-react";
 import { StarterKitOffer } from "@/components/StarterKitOffer";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import {
   subDescriptionFor,
   firstAvailableVariant,
   isComingSoon,
+  preloadVariantImages,
   formatPrice,
   getProductOption,
   sortedProductVariants,
@@ -37,6 +38,7 @@ export function ProductCard({ product: p, aligned = false }: { product: Product;
   const [variantId, setVariantId] = useState<string | null>(
     variants.find(v => v.hotProduct && !isComingSoon(p, v.id) && stockState(variantStockFor(p, v.id)) !== "out")?.id ?? firstAvailableVariant(p)?.id ?? null,
   );
+  useEffect(() => preloadVariantImages(p), [p]);
   const selectedVariant = (p.variants ?? []).find(v => v.id === variantId);
   const promoLabel = selectedVariant ? selectedVariant.promoLabel || (selectedVariant.hotProduct ? "Hot product" : (p.variants ?? []).some(v => typeof v.hotProduct === "boolean") ? "" : p.promoLabel || "") : p.promoLabel;
   const wasPrice = selectedVariant && promotedPrice(selectedVariant.price, selectedVariant.salePrice) < selectedVariant.price ? selectedVariant.price : selectedVariant ? null : p.wasPrice;

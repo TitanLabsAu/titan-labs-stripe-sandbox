@@ -19,7 +19,13 @@ export const Route = createFileRoute("/api/public/product-image")({
           return new Response("Image not found", { status: 404 });
         }
 
-        return Response.redirect(data.signedUrl, 302);
+        // Public catalogue photos: let browsers/CDN reuse the redirect (well
+        // inside the 60-minute signature) so colour switches don't re-sign
+        // and re-download a fresh unique URL every time.
+        return new Response(null, {
+          status: 302,
+          headers: { Location: data.signedUrl, "Cache-Control": "public, max-age=1800" },
+        });
       },
     },
   },
