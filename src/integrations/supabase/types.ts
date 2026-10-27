@@ -1107,6 +1107,7 @@ export type Database = {
           image_url: string
           kit_price: number | null
           name: string
+          optional_equipment: Json | null
           price: number
           product_links: Json
           product_variants: Json
@@ -1125,6 +1126,7 @@ export type Database = {
           sub_description: string
           unlimited_stock: boolean
           updated_at: string
+          v2_pen_offer_enabled: boolean
         }
         Insert: {
           active?: boolean
@@ -1140,6 +1142,7 @@ export type Database = {
           image_url?: string
           kit_price?: number | null
           name: string
+          optional_equipment?: Json | null
           price?: number
           product_links?: Json
           product_variants?: Json
@@ -1158,6 +1161,7 @@ export type Database = {
           sub_description?: string
           unlimited_stock?: boolean
           updated_at?: string
+          v2_pen_offer_enabled?: boolean
         }
         Update: {
           active?: boolean
@@ -1173,6 +1177,7 @@ export type Database = {
           image_url?: string
           kit_price?: number | null
           name?: string
+          optional_equipment?: Json | null
           price?: number
           product_links?: Json
           product_variants?: Json
@@ -1191,6 +1196,7 @@ export type Database = {
           sub_description?: string
           unlimited_stock?: boolean
           updated_at?: string
+          v2_pen_offer_enabled?: boolean
         }
         Relationships: []
       }

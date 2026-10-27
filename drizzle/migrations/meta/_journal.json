@@ -463,6 +463,13 @@
       "when": 1793086264013,
       "tag": "0065_product_sub_description",
       "breakpoints": true
+    },
+    {
+      "idx": 66,
+      "version": "7",
+      "when": 1793097358845,
+      "tag": "0066_product_optional_equipment",
+      "breakpoints": true
     }
   ]
 }
