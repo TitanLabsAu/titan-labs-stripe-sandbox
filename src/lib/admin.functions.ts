@@ -4,6 +4,8 @@ import { sanitizeProductLinks } from "@/lib/product-certificates";
 import { assertResetBase, cmsKey, mergeSectionChanges, validateSection } from "@/lib/storefrontContent";
 import { sanitizeBundle, parsePackSizeInput, sanitizeVariantImage } from "@/lib/products";
 import { createServerFn } from "@tanstack/react-start";
+import { validateOptionalEquipment, type OptionalEquipmentEntry } from "@/lib/optional-equipment";
+import type { Json } from "@/integrations/supabase/types";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { parseCatalogueSection, type CatalogueSection } from "@/lib/catalogue-sections";
 import { orderReference } from "@/lib/order-reference";
