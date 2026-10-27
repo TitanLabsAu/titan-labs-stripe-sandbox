@@ -54,7 +54,7 @@ function EquipmentRow({
   option: ResolvedEquipmentOption;
   parent: Product;
   parentVariantId: string | null;
-  labels: Record<string, string>;
+  labels: { add_label: string; coming_soon_label: string; unavailable_label: string };
 }) {
   const { items, addItem, removeItem } = useCart();
   const selectId = useId();

@@ -30,7 +30,7 @@ export function sanitizeOptionalEquipment(raw: unknown): OptionalEquipmentEntry[
   const out: OptionalEquipmentEntry[] = [];
   for (const r of raw) {
     if (!r || typeof r !== "object") continue;
-    const e = r as Record<string, unknown>;
+    const e = r as { slug?: unknown; variantIds?: unknown; parentVariantIds?: unknown };
     const slug = String(e.slug ?? "").trim();
     if (!SLUG_RE.test(slug) || out.some((o) => o.slug === slug)) continue;
     out.push({ slug, variantIds: idList(e.variantIds), parentVariantIds: idList(e.parentVariantIds) });
