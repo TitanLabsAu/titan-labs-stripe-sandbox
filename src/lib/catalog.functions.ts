@@ -1,3 +1,4 @@
+import { sanitizeOptionalEquipment } from "./optional-equipment";
 import { optimizedProductImage } from "./product-image-delivery";
 import { PROMOTION_BANNERS_KEY, parseBannerSettings, serialiseBannerSettings } from "@/lib/promotion-banners";
 import { sanitizeProductLinks } from "@/lib/product-certificates";
@@ -89,12 +90,14 @@ export function toProduct(row: any): Product {
     comingSoon: Boolean(row.coming_soon),
     catalogueSection: normalizeCatalogueSection(row.catalogue_section),
     starterKitEnabled: row.starter_kit_enabled !== false,
+    optionalEquipment: sanitizeOptionalEquipment(row.optional_equipment),
+    v2PenOfferEnabled: row.v2_pen_offer_enabled !== false,
     links: links.filter((l) => l && l.url),
   };
 }
 
 export const PRODUCT_COLUMNS =
-  "slug, name, price, sale_price, promo_label, sub_description, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, stock_quantity, coming_soon, catalogue_section, starter_kit_enabled, unlimited_stock";
+  "slug, name, price, sale_price, promo_label, sub_description, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, stock_quantity, coming_soon, catalogue_section, starter_kit_enabled, unlimited_stock, optional_equipment, v2_pen_offer_enabled";
 
 export const listProducts = createServerFn({ method: "GET" }).handler(
   async (): Promise<Product[]> => {
