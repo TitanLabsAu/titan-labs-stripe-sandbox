@@ -3,11 +3,11 @@ import { PenTool } from "lucide-react";
 import { toast } from "sonner";
 import { useCart } from "@/lib/cart";
 import { useProducts, useSiteContent } from "@/lib/useCatalog";
-import { flowPenLine, kitOfferSource, penCompanionSource } from "@/lib/pen-companion";
+import { flowCaseLine, flowPenLine, kitOfferSource, penCaseSource, penCompanionSource } from "@/lib/pen-companion";
 import { RANGE_STARTER_KIT_SLUG, PEN_STARTER_KIT_SLUG } from "@/lib/starter-kits";
 import { formatPrice } from "@/lib/products";
 import { normalizeCatalogueSection } from "@/lib/catalogue-sections";
-import { PEN_CASES_KEY, canChooseColour, caseForLine, parsePenCases, resolvePenCases } from "@/lib/pen-cases";
+import { PEN_CASES_KEY, canChooseColour, canChoosePenColour, caseForLine, caseFromPrice, parsePenCases, resolvePenCases, type ResolvedPenCase } from "@/lib/pen-cases";
 import type { Product } from "@/lib/products";
 
 /**
@@ -25,6 +25,7 @@ export function PenCompanionOffer({ product, variantId }: { product: Product; va
   const baseId = useId();
   const [open, setOpen] = useState(false);
   const [pendingCase, setPendingCase] = useState<string | null>(null);
+  const [pick, setPick] = useState<{ pen: string; case: string }>({ pen: "", case: "" });
 
   if (normalizeCatalogueSection(product.catalogueSection) !== "range") return null;
   if (product.v2PenOfferEnabled === false) return null;
@@ -34,6 +35,7 @@ export function PenCompanionOffer({ product, variantId }: { product: Product; va
   const source = penCompanionSource(product.slug, variantId);
   const offerSource = kitOfferSource(product.slug, variantId);
   const current = flowPenLine(items, product.slug, variantId);
+  const currentCaseLine = flowCaseLine(items, product.slug, variantId);
   const currentCase = current ? caseForLine(cases, current.slug, current.variantId) : null;
   const expanded = open || Boolean(current);
   const selectedCase =
@@ -58,6 +60,31 @@ export function PenCompanionOffer({ product, variantId }: { product: Product; va
     setPendingCase(null);
     if (!current) swapFlowKit(RANGE_STARTER_KIT_SLUG, PEN_STARTER_KIT_SLUG);
     toast.success(`${selectedCase.name} — ${colour.label} added to cart`);
+  };
+
+  // Paired case (separate pen + case products): two linked exact-variant lines.
+  const commitPair = (c: ResolvedPenCase, penId: string, caseId: string) => {
+    if (!c.pen || !c.product || !canChoosePenColour(c, penId) || !canChooseColour(c, caseId)) return;
+    const penColour = c.pen.colours.find((v) => v.id === penId)!;
+    const caseColour = c.colours.find((v) => v.id === caseId)!;
+    const qty = current?.quantity ?? 1;
+    if (current) removeItem(current.key);
+    addItem(c.pen.product.slug, qty, { variantId: penColour.id, variantLabel: penColour.label, pack: "single", source });
+    addItem(c.product.slug, qty, { variantId: caseColour.id, variantLabel: caseColour.label, pack: "single", source: penCaseSource(product.slug, variantId) });
+    setOpen(false);
+    setPendingCase(null);
+    setPick({ pen: "", case: "" });
+    if (!current) swapFlowKit(RANGE_STARTER_KIT_SLUG, PEN_STARTER_KIT_SLUG);
+    toast.success(`${c.name} — ${penColour.label} pen, ${caseColour.label} case added to cart`);
+  };
+  const pairedCurrent = Boolean(current && currentCase && selectedCase?.id === currentCase.id && selectedCase.paired);
+  const penValue = pick.pen || (pairedCurrent ? current?.variantId ?? "" : "");
+  const caseValue = pick.case || (pairedCurrent ? currentCaseLine?.variantId ?? "" : "");
+  const choosePair = (kind: "pen" | "case", id: string) => {
+    if (!selectedCase) return;
+    const next = { pen: kind === "pen" ? id : penValue, case: kind === "case" ? id : caseValue };
+    setPick(next);
+    if (next.pen && next.case) commitPair(selectedCase, next.pen, next.case);
   };
 
   const turnOff = () => {
@@ -96,14 +123,14 @@ export function PenCompanionOffer({ product, variantId }: { product: Product; va
             <div className="mt-2 grid gap-2">
               {cases.map((c) => {
                 const selected = selectedCase?.id === c.id;
-                const from = c.colours.length ? Math.min(...c.colours.map((v) => v.price)) : null;
+                const from = caseFromPrice(c);
                 return (
                   <button
                     key={c.id}
                     type="button"
                     aria-pressed={selected}
                     disabled={!c.available}
-                    onClick={() => setPendingCase(c.id)}
+                    onClick={() => { setPendingCase(c.id); setPick({ pen: "", case: "" }); }}
                     className={`flex min-h-10 w-full items-center justify-between gap-2 rounded-md border px-3 py-2 text-left text-[11px] font-semibold disabled:cursor-not-allowed disabled:opacity-60 ${
                       selected ? "border-accent bg-accent/10 text-foreground" : "border-input bg-background text-foreground hover:bg-muted"
                     }`}
@@ -117,7 +144,35 @@ export function PenCompanionOffer({ product, variantId }: { product: Product; va
               })}
             </div>
           </fieldset>
-          {selectedCase?.available ? (
+          {selectedCase?.available && selectedCase.pen ? (
+            <div className="grid gap-2">
+              {([
+                ["pen", "2. Select pen colour", selectedCase.pen.colours, penValue],
+                ["case", "3. Select case colour", selectedCase.colours, caseValue],
+              ] as const).map(([kind, label, colours, value]) => (
+                <div key={kind}>
+                  <label htmlFor={`${baseId}-${kind}`} className="block text-xs font-bold uppercase tracking-[0.16em] text-accent">{label}</label>
+                  <select
+                    id={`${baseId}-${kind}`}
+                    className="mt-2 h-11 w-full rounded-md border border-input bg-background px-2 text-[11px] font-semibold text-foreground"
+                    value={value}
+                    onChange={(e) => choosePair(kind, e.target.value)}
+                  >
+                    <option value="" disabled>Choose a colour…</option>
+                    {colours.map((v) => (
+                      <option key={v.id} value={v.id} disabled={v.soldOut || v.comingSoon}>
+                        {v.label} — {formatPrice(v.price)}
+                        {v.comingSoon ? " · Coming soon" : v.soldOut ? " · Sold out" : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ))}
+              <p className="text-[11px] leading-4 text-muted-foreground">
+                Pen and case are added together as two linked cart items.
+              </p>
+            </div>
+          ) : selectedCase?.available ? (
             <div>
               <label htmlFor={`${baseId}-colour`} className="block text-xs font-bold uppercase tracking-[0.16em] text-accent">
                 2. Select colour
@@ -140,7 +195,7 @@ export function PenCompanionOffer({ product, variantId }: { product: Product; va
           ) : null}
           {current ? (
             <p className="text-[11px] leading-4 text-muted-foreground">
-              {currentCase ? `${currentCase.name} — ` : ""}{current.variantLabel} added to your cart. Choose another case or colour to change your selection.
+              {currentCase ? `${currentCase.name} — ` : ""}{current.variantLabel}{currentCase?.paired && currentCaseLine ? ` pen, ${currentCaseLine.variantLabel} case` : ""} added to your cart. Choose another case or colour to change your selection.
             </p>
           ) : null}
         </div>
