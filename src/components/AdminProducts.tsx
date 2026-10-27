@@ -1164,6 +1164,7 @@ export function AdminProducts() {
 
   return (
     <div className="space-y-4">
+      <BulkOptionalEquipment products={(data ?? []) as any} onDone={refresh} />
       <div className="flex justify-end">
         <Button
           className="font-bold uppercase"
