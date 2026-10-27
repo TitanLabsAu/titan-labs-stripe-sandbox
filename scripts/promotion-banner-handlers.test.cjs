@@ -3,7 +3,7 @@ function compile(file,mocks){const exports={};vm.runInNewContext(ts.transpileMod
 const banners=compile('src/lib/promotion-banners.ts',{'zod':require('zod')});
 const gate={};const builder=()=>{let validator=x=>x,protectedFn=false;const b={middleware(ms){protectedFn=ms.includes(gate);return b},inputValidator(fn){validator=fn;return b},handler(fn){return async args=>{if(protectedFn&&!args.context?.userId)throw Error('Unauthenticated');return fn({...args,data:validator(args.data)})}}};return b};
 const mocks={'@tanstack/react-start':{createServerFn:builder},'@/integrations/supabase/auth-middleware':{requireSupabaseAuth:gate},'@/lib/promotion-banners':banners};
-for(const p of ['@/lib/catalogue-sections','@/lib/product-certificates','@/lib/storefrontContent','@/lib/products','@/lib/order-reference','@/lib/manual-payment'])mocks[p]={};
+for(const p of ['@/lib/catalogue-sections','@/lib/product-certificates','@/lib/storefrontContent','@/lib/products','@/lib/order-reference','@/lib/manual-payment','@/lib/optional-equipment','@/integrations/supabase/types'])mocks[p]={};
 const fn=compile('src/lib/admin.functions.ts',mocks).adminSaveContent;
 let stored, writes=0;
 const db=admin=>({rpc:async()=>({data:admin,error:null}),from(table){assert.equal(table,'site_content');return {upsert:async row=>{writes++;stored=row;return {error:null}}}}});
