@@ -509,6 +509,7 @@ export type AdminProduct = {
   sort_order: number;
   stock_quantity: number;
   catalogue_section?: CatalogueSection;
+  extra_catalogue_sections?: CatalogueSection[];
   starter_kit_enabled?: boolean;
   unlimited_stock?: boolean;
   optional_equipment?: OptionalEquipmentEntry[] | null;
@@ -516,7 +517,7 @@ export type AdminProduct = {
 };
 
 const PRODUCT_COLS =
-  "id, slug, name, price, sale_price, promo_label, sub_description, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, active, coming_soon, sort_order, stock_quantity, catalogue_section, starter_kit_enabled, unlimited_stock, optional_equipment, v2_pen_offer_enabled";
+  "id, slug, name, price, sale_price, promo_label, sub_description, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, active, coming_soon, sort_order, stock_quantity, catalogue_section, starter_kit_enabled, unlimited_stock, optional_equipment, v2_pen_offer_enabled, extra_catalogue_sections";
 
 export const adminListProducts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -604,6 +605,9 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
       sort_order: Number(data.sort_order ?? 0),
       stock_quantity: totalStock,
       catalogue_section: parseCatalogueSection(data.catalogue_section),
+      ...(data.extra_catalogue_sections !== undefined
+        ? { extra_catalogue_sections: sanitizeExtraSections(data.extra_catalogue_sections, parseCatalogueSection(data.catalogue_section)) }
+        : {}),
       starter_kit_enabled: data.starter_kit_enabled ?? true,
       // Server enforces Equipment-only; Range/Pens always remain tracked.
       unlimited_stock:

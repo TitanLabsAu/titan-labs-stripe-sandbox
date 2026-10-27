@@ -129,6 +129,8 @@ export type Product = {
   comingSoon?: boolean;
   /** Storefront section: range, pens or equipment. */
   catalogueSection?: CatalogueSection;
+  /** Extra storefront listings (display only; pricing follows catalogueSection). */
+  extraSections?: CatalogueSection[];
   /** Disable the universal starter-kit offer for this product. */
   starterKitEnabled?: boolean;
   /** Admin-chosen ordered add-ons; null/undefined keeps the built-in starter-kit default. */
