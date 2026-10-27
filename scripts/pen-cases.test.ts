@@ -38,7 +38,7 @@ describe("V2 pen cases", () => {
     expect(t!.colours).toEqual([]);
   });
   test("sold-out colour cannot be chosen; mapped travel product becomes selectable with its own prices", () => {
-    const s = { cases: [DEFAULT_PEN_CASES[0]!, { ...DEFAULT_PEN_CASES[1]!, productSlug: "v2-travel" }] };
+    const s = { cases: [DEFAULT_PEN_CASES[0]!, { ...DEFAULT_PEN_CASES[1]!, productSlug: "v2-travel", penSlug: null }] };
     const [h, t] = resolvePenCases(s, cat);
     expect(canChooseColour(h!, "p")).toBe(false);
     expect(canChooseColour(h!, "b")).toBe(true);

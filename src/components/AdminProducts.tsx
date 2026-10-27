@@ -329,7 +329,7 @@ export function draftToPayload(d: Draft) {
         ? variants.reduce((sum, v) => sum + v.stock, 0)
         : Math.max(0, Math.trunc(Number(d.stock_quantity)) || 0),
     catalogue_section: d.catalogue_section,
-    extra_catalogue_sections: d.extra_catalogue_sections.filter((s) => s !== d.catalogue_section),
+    ...(d.extra_catalogue_sections ? { extra_catalogue_sections: d.extra_catalogue_sections.filter((s) => s !== d.catalogue_section) } : {}),
     starter_kit_enabled: d.starter_kit_enabled,
     optional_equipment: d.optional_equipment,
     v2_pen_offer_enabled: d.v2_pen_offer_enabled,
