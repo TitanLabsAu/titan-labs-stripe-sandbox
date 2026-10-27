@@ -107,6 +107,8 @@ export type Product = {
   /** Original price, present only when the product is on sale. */
   wasPrice?: number | null;
   promoLabel?: string;
+  /** Optional Admin subtitle; empty/whitespace renders nothing. */
+  subDescription?: string;
   kitPrice?: number | null;
   variants?: ProductVariant[];
   image: string;
@@ -188,6 +190,11 @@ export function sizeLabelFor(product: { catalogueSection?: unknown }) {
 export function singleLabelFor(product: { catalogueSection?: unknown }) {
   const section = normalizeCatalogueSection(product.catalogueSection);
   return section === "pens" ? "Pre-filled Pen Only" : section === "range" ? "Single vial" : "Single item";
+}
+
+/** Display-only subtitle; never used for cart/order line labels. */
+export function subDescriptionFor(product: { subDescription?: unknown }) {
+  return typeof product.subDescription === "string" ? product.subDescription.trim() : "";
 }
 
 export const LOW_STOCK_THRESHOLD = 7;

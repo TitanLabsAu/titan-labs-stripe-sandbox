@@ -127,6 +127,7 @@ export type Draft = {
   image_url: string;
   alt: string;
   blurb: string;
+  sub_description: string;
   description: string;
   details: string;
   protocol: string;
@@ -154,6 +155,7 @@ const emptyDraft: Draft = {
   image_url: "",
   alt: "",
   blurb: "",
+  sub_description: "",
   description: "",
   details: "",
   protocol: "",
@@ -227,6 +229,7 @@ export function toDraft(p: AdminProduct): Draft {
     image_url: p.image_url,
     alt: p.alt,
     blurb: p.blurb,
+    sub_description: p.sub_description ?? "",
     description: p.description,
     details: (p.details ?? []).join("\n"),
     protocol: p.protocol ?? "",
@@ -289,6 +292,7 @@ export function draftToPayload(d: Draft) {
     image_url: d.image_url,
     alt: d.alt || d.name,
     blurb: d.blurb,
+    sub_description: d.sub_description,
     description: d.description,
     details: d.details
       .split("\n")
@@ -879,6 +883,15 @@ export function ProductEditor({
           />
         </div>
         <div className="sm:col-span-2">
+          <Label>Sub-description (optional, e.g. Pre-filled Pen Only)</Label>
+          <Input
+            value={draft.sub_description}
+            maxLength={120}
+            placeholder="Leave blank to show nothing"
+            onChange={(e) => set({ sub_description: e.target.value })}
+          />
+        </div>
+        <div>
           <Label>Full description</Label>
           <Textarea
             rows={6}

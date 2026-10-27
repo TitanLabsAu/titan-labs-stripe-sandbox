@@ -15,7 +15,7 @@ import {
   allComingSoon,
   bundleSummary,
   packLabel,
-  singleLabelFor,
+  subDescriptionFor,
   firstAvailableVariant,
   isComingSoon,
   formatPrice,
@@ -115,7 +115,7 @@ export function ProductCard({ product: p, aligned = false }: { product: Product;
             Low stock — only {stockCount} left
           </span>
         ) : null}
-        {aligned && variants.length === 0 ? <p className="mt-2 text-[10px] font-semibold text-muted-foreground">{singleLabelFor(p)}</p> : null}
+        {subDescriptionFor(p) ? <p className="mt-2 text-[10px] font-semibold text-muted-foreground">{subDescriptionFor(p)}</p> : null}
         </PromotionSlot>
         <PromotionSlot aligned={aligned} name="size">
         {variants.length > 0 ? (
@@ -139,11 +139,7 @@ export function ProductCard({ product: p, aligned = false }: { product: Product;
             })}
           </select>
           </label>
-        ) : aligned ? <span aria-hidden="true" /> : (
-          <p className="mt-2 text-[10px] font-semibold text-muted-foreground">
-            {singleLabelFor(p)}
-          </p>
-        )}
+        ) : aligned ? <span aria-hidden="true" /> : null}
         </PromotionSlot>
         <PromotionSlot aligned={aligned} name="pen"><PenCompanionOffer key={variantId || "base"} product={p} variantId={variantId} /></PromotionSlot>
         <PromotionSlot aligned={aligned} name="inclusions">

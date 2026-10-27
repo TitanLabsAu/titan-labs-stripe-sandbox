@@ -25,6 +25,7 @@ import {
   getProductOption,
   isComingSoon,
   singleLabelFor,
+  subDescriptionFor,
   packLabel,
   productBasePrice,
   sortedProductVariants,
@@ -261,7 +262,7 @@ function ProductPage() {
               ) : null}
 
               <p className={`${variants.length > 0 ? "mt-5" : ""} text-xs font-bold uppercase tracking-[0.2em] text-accent`}>
-                {singleLabelFor(product)} · {formatPrice(singleOption.unitPrice)}
+                {subDescriptionFor(product) ? `${subDescriptionFor(product)} · ` : ""}{formatPrice(singleOption.unitPrice)}
               </p>
 
               <PenCompanionOffer key={`pen-${variantId || "base"}`} product={product} variantId={variantId} />
