@@ -99,8 +99,8 @@ describe("cart ownership", () => {
     const source = kitOfferSource("klow", "10mg");
     const owned: CartItem = { key: flowLineKey("pen-pins", "6mm", source), slug: "pen-pins", quantity: 1, variantId: "6mm", pack: "single", source };
     const manual: CartItem = { key: cartLineKey("pen-pins", "6mm"), slug: "pen-pins", quantity: 2, variantId: "6mm", pack: "single" };
-    expect(ownedEquipmentLine([manual, owned], "klow", "10mg")?.key).toBe(owned.key);
-    expect(ownedEquipmentLine([manual, owned], "klow", "20mg")).toBeNull();
+    expect(ownedEquipmentLine([manual, owned], "klow", "10mg", "pen-pins")?.key).toBe(owned.key);
+    expect(ownedEquipmentLine([manual, owned], "klow", "20mg", "pen-pins")).toBeNull();
     const out = coerceCartItems([manual, owned], () => needles);
     expect(out).toHaveLength(2);
     expect(out.find((i) => i.source)?.variantId).toBe("6mm");
