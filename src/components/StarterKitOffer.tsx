@@ -1,4 +1,4 @@
-import { useId } from "react";
+import { useId, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { PackagePlus } from "lucide-react";
 import { toast } from "sonner";
@@ -64,7 +64,12 @@ function EquipmentRow({
   const hasVariants = option.variantIds.length > 0;
   const firstAvailable =
     option.variantIds.find((id) => equipmentOptionAvailability(kit, id, items).canAdd) ?? option.variantIds[0] ?? null;
-  const chosen = hasVariants ? (owned?.variantId && option.variantIds.includes(owned.variantId) ? owned.variantId : firstAvailable) : null;
+  const [picked, setPicked] = useState<string | null>(null);
+  const chosen = hasVariants
+    ? owned?.variantId && option.variantIds.includes(owned.variantId)
+      ? owned.variantId
+      : picked && option.variantIds.includes(picked) ? picked : firstAvailable
+    : null;
   const opt = getProductOption(kit, chosen, "single");
   const variant = (kit.variants ?? []).find((v) => v.id === chosen);
   const contents = bundleSummary(variant?.contents) || kit.details.join(" · ");
@@ -77,7 +82,7 @@ function EquipmentRow({
   };
   const switchVariant = (vid: string) => {
     if (!option.variantIds.includes(vid)) return;
-    if (!owned) return;
+    if (!owned) { setPicked(vid); return; }
     if (!equipmentOptionAvailability(kit, vid, items).canAdd) return;
     removeItem(owned.key);
     add(vid);
@@ -97,14 +102,13 @@ function EquipmentRow({
             id={selectId}
             className="mt-2 h-9 w-full rounded-md border border-input bg-background px-2 text-[11px] font-semibold text-foreground"
             value={chosen ?? ""}
-            disabled={!owned}
             onChange={(e) => switchVariant(e.target.value)}
           >
             {option.variantIds.map((id) => {
               const v = (kit.variants ?? []).find((x) => x.id === id)!;
               const s = equipmentOptionAvailability(kit, id, items);
               return (
-                <option key={id} value={id} disabled={!s.canAdd && owned?.variantId !== id}>
+                <option key={id} value={id} disabled={!s.canAdd && chosen !== id}>
                   {v.label} — {formatPrice(getProductOption(kit, id, "single").unitPrice)}
                   {s.comingSoon ? " · Coming soon" : s.soldOut ? " · Sold out" : ""}
                 </option>
