@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { CATEGORIES } from "@/lib/categories";
 import { useProducts } from "@/lib/useCatalog";
 import { OptionalEquipmentEditor } from "@/components/OptionalEquipmentEditor";
+import { BulkOptionalEquipment } from "@/components/BulkOptionalEquipment";
 import { sanitizeOptionalEquipment, type OptionalEquipmentEntry } from "@/lib/optional-equipment";
 import { sanitizeBundle, parsePackSizeInput, isValidPackSizeInput, type BundleItem } from "@/lib/products";
 import {
