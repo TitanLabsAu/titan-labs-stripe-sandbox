@@ -10,6 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { CATEGORIES } from "@/lib/categories";
 import { useProducts } from "@/lib/useCatalog";
+import { OptionalEquipmentEditor } from "@/components/OptionalEquipmentEditor";
+import { sanitizeOptionalEquipment, type OptionalEquipmentEntry } from "@/lib/optional-equipment";
 import { sanitizeBundle, parsePackSizeInput, isValidPackSizeInput, type BundleItem } from "@/lib/products";
 import {
   CATALOGUE_SECTIONS,
@@ -143,6 +145,9 @@ export type Draft = {
   catalogue_section: CatalogueSection;
   starter_kit_enabled: boolean;
   unlimited_stock: boolean;
+  /** null = built-in starter-kit default (unchanged until edited). */
+  optional_equipment: OptionalEquipmentEntry[] | null;
+  v2_pen_offer_enabled: boolean;
 };
 
 const emptyDraft: Draft = {
@@ -171,6 +176,8 @@ const emptyDraft: Draft = {
   catalogue_section: "range",
   starter_kit_enabled: true,
   unlimited_stock: false,
+  optional_equipment: null,
+  v2_pen_offer_enabled: true,
 };
 
 function safeVariantId(label: string) {
@@ -244,6 +251,8 @@ export function toDraft(p: AdminProduct): Draft {
     stock_quantity: String(p.stock_quantity ?? 0),
     catalogue_section: normalizeCatalogueSection(p.catalogue_section),
     starter_kit_enabled: p.starter_kit_enabled !== false,
+    optional_equipment: sanitizeOptionalEquipment(p.optional_equipment),
+    v2_pen_offer_enabled: p.v2_pen_offer_enabled !== false,
     unlimited_stock: Boolean(p.unlimited_stock) && normalizeCatalogueSection(p.catalogue_section) === "equipment",
   };
 }
@@ -315,6 +324,8 @@ export function draftToPayload(d: Draft) {
         : Math.max(0, Math.trunc(Number(d.stock_quantity)) || 0),
     catalogue_section: d.catalogue_section,
     starter_kit_enabled: d.starter_kit_enabled,
+    optional_equipment: d.optional_equipment,
+    v2_pen_offer_enabled: d.v2_pen_offer_enabled,
     unlimited_stock: d.catalogue_section === "equipment" && d.unlimited_stock,
   };
 }
@@ -479,7 +490,9 @@ export function ProductEditor({
         </div>
         <div>
           <Label htmlFor="catalogue-section">Catalogue section</Label>
-          {draft.catalogue_section !== "equipment" ? <label className="my-3 flex items-center gap-2 text-sm"><input type="checkbox" checked={draft.starter_kit_enabled} onChange={e=>set({starter_kit_enabled:e.target.checked})}/>Offer starter kit with this product</label> : null}
+          {draft.catalogue_section !== "equipment" && draft.optional_equipment === null ? <label className="my-3 flex items-center gap-2 text-sm"><input type="checkbox" checked={draft.starter_kit_enabled} onChange={e=>set({starter_kit_enabled:e.target.checked})}/>Offer starter kit with this product</label> : null}
+          {draft.catalogue_section === "range" ? <label className="my-3 flex items-center gap-2 text-sm"><input type="checkbox" checked={draft.v2_pen_offer_enabled} onChange={e=>set({v2_pen_offer_enabled:e.target.checked})}/>Offer “Add V2 Reusable Pen” with this product</label> : null}
+          {draft.catalogue_section !== "equipment" ? <OptionalEquipmentEditor draft={draft} set={set} /> : null}
           <p className="mb-3 text-xs text-muted-foreground">Edit “Range Starter Kit” or “Pen Starter Kit” in Equipment to change kit price, contents, photo, stock or visibility. Disabling a kit hides its offer everywhere.</p>
           <select
             id="catalogue-section"
