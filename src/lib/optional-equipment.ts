@@ -160,3 +160,49 @@ export function equipmentOptionAvailability(kit: Product, variantId: string | nu
   const atLimit = inCart >= 99 || (stock != null && inCart >= stock);
   return { comingSoon, soldOut, unpriced, canAdd: !comingSoon && !soldOut && !atLimit };
 }
+
+/** Starting list that reproduces the built-in starter-kit default exactly. */
+export function defaultOptionalEquipmentList(section: unknown, starterKitEnabled: boolean): OptionalEquipmentEntry[] {
+  if (!starterKitEnabled) return [];
+  const s = normalizeCatalogueSection(section);
+  if (s !== "range" && s !== "pens") return [];
+  return [{ slug: s === "pens" ? PEN_STARTER_KIT_SLUG : RANGE_STARTER_KIT_SLUG, variantIds: null, parentVariantIds: null }];
+}
+
+export type BulkTarget = {
+  id: string;
+  slug: string;
+  name: string;
+  catalogue_section: unknown;
+  starter_kit_enabled: boolean | null;
+  optional_equipment: unknown;
+};
+export type BulkPlanRow = {
+  id: string;
+  slug: string;
+  name: string;
+  action: "add" | "already-offered" | "limit" | "not-eligible";
+  before: OptionalEquipmentEntry[];
+  after: OptionalEquipmentEntry[];
+};
+
+/**
+ * Additive bulk plan: append one Equipment add-on to each target's current
+ * list (an unsaved/default list is first materialised as the exact built-in
+ * default, so existing offers are kept). Existing entries for the same
+ * Equipment product, and every per-product scope/override, are never changed.
+ */
+export function planBulkOptionalEquipment(
+  entry: { slug: string; variantIds: string[] | null },
+  targets: BulkTarget[],
+): BulkPlanRow[] {
+  return targets.map((t) => {
+    const section = normalizeCatalogueSection(t.catalogue_section);
+    const before = sanitizeOptionalEquipment(t.optional_equipment) ?? defaultOptionalEquipmentList(section, t.starter_kit_enabled !== false);
+    const row = { id: t.id, slug: t.slug, name: t.name, before, after: before };
+    if ((section !== "range" && section !== "pens") || t.slug === entry.slug) return { ...row, action: "not-eligible" as const };
+    if (before.some((e) => e.slug === entry.slug)) return { ...row, action: "already-offered" as const };
+    if (before.length >= MAX_OPTIONAL_EQUIPMENT) return { ...row, action: "limit" as const };
+    return { ...row, action: "add" as const, after: [...before, { slug: entry.slug, variantIds: entry.variantIds, parentVariantIds: null }] };
+  });
+}
