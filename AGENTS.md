@@ -44,6 +44,6 @@
 - Guide photo replacements use immutable asset pointers in CMS defaults; saved overrides stay authoritative, so historical snapshots are untouched.
 - Product subtitle is `products.sub_description` (display-only, empty renders nothing); cart/order line labels keep using `singleLabelFor` so editing copy never changes saved order lines.
 - Optional equipment add-ons: `products.optional_equipment` (NULL = starter-kit default incl. pen-case kit switch, `whenPen` = pen-only) via `src/lib/optional-equipment.ts`; V2 pen cases: validated `pen_case_options` site content (`src/lib/pen-cases.ts`) mapped to real products. Server-validated saves; unpriced/unmapped never purchasable, priced only as ordinary lines.
-- Paired V2 cases (`penSlug` on a `pen_case_options` case) add two linked flow lines (`pen-companion:` pen + `pen-case:` case); cart quantity/removal cascade via `linkedLineKeys`, orphaned case lines detach to ordinary lines — so each product is priced/stock-settled on its own SKU.
+- Paired V2 cases (`penSlug`) add linked `pen-companion:`/`pen-case:` lines cascading via `linkedLineKeys`; orphan cases detach — each SKU priced/settled alone.
 - `products.extra_catalogue_sections` only adds listings (`filterBySection`); pricing, discounts and offers always follow the primary `catalogue_section`.
-- Bulk optional equipment (`adminBulkOptionalEquipment`) is preview-then-apply, additive only, CAS on `updated_at`, and materialises NULL defaults first so existing offers are kept.
+- Bulk optional equipment: preview→apply, additive, CAS on `updated_at`, NULL defaults materialised first to keep offers.
