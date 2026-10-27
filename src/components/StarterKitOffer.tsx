@@ -8,6 +8,7 @@ import { cmsValues } from "@/lib/storefrontContent";
 import { useCart } from "@/lib/cart";
 import { bundleSummary, formatPrice, getProductOption, type Product } from "@/lib/products";
 import { kitOfferSource } from "@/lib/pen-companion";
+import { PEN_STARTER_KIT_SLUG, RANGE_STARTER_KIT_SLUG } from "@/lib/starter-kits";
 import {
   equipmentOptionAvailability,
   optionalEquipmentFor,
@@ -68,6 +69,7 @@ function EquipmentRow({
   const variant = (kit.variants ?? []).find((v) => v.id === chosen);
   const contents = bundleSummary(variant?.contents) || kit.details.join(" · ");
   const state = equipmentOptionAvailability(kit, chosen, items);
+  const isStarterKit = kit.slug === RANGE_STARTER_KIT_SLUG || kit.slug === PEN_STARTER_KIT_SLUG;
 
   const add = (vid: string | null) => {
     const v = (kit.variants ?? []).find((x) => x.id === vid);
@@ -129,7 +131,9 @@ function EquipmentRow({
             toast.success(`${kit.name}${variant ? ` — ${variant.label}` : ""} added to cart`);
           }}
         >
-          {state.canAdd ? labels.add_label : state.comingSoon ? labels.coming_soon_label : labels.unavailable_label}
+          {isStarterKit
+            ? state.canAdd ? labels.add_label : state.comingSoon ? labels.coming_soon_label : labels.unavailable_label
+            : state.canAdd ? `Add ${kit.name}` : state.comingSoon ? "Coming soon" : "Sold out"}
         </Button>
       )}
     </li>
