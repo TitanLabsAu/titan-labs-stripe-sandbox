@@ -24,9 +24,9 @@ export type PenCase = {
    * two linked exact-variant cart lines are added. Null = the case product is
    * itself the pen (e.g. the Titan Case hard-case pen product).
    */
-  penSlug?: string | null;
+  penSlug?: string | null | undefined;
   /** Ordered pen colour variant IDs for a paired case; null = all variants. */
-  penVariantIds?: string[] | null;
+  penVariantIds?: string[] | null | undefined;
 };
 export type PenCaseSettings = { cases: PenCase[] };
 
