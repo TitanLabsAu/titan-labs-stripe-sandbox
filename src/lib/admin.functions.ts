@@ -5,7 +5,7 @@ import { sanitizeProductLinks } from "@/lib/product-certificates";
 import { assertResetBase, cmsKey, mergeSectionChanges, validateSection } from "@/lib/storefrontContent";
 import { sanitizeBundle, parsePackSizeInput, sanitizeVariantImage } from "@/lib/products";
 import { createServerFn } from "@tanstack/react-start";
-import { validateOptionalEquipment, type OptionalEquipmentEntry } from "@/lib/optional-equipment";
+import { planBulkOptionalEquipment, validateOptionalEquipment, type BulkPlanRow, type OptionalEquipmentEntry } from "@/lib/optional-equipment";
 import type { Json } from "@/integrations/supabase/types";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { parseCatalogueSection, sanitizeExtraSections, type CatalogueSection } from "@/lib/catalogue-sections";
@@ -640,6 +640,70 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
       if (error) throw error;
     }
     return { ok: true };
+  });
+
+/**
+ * Bulk optional equipment: preview (apply=false) or additively apply one
+ * Equipment add-on to all Pens, all Range products or selected products.
+ * Writes are compare-and-set on `updated_at`, so a product edited since the
+ * preview is reported as a conflict and left untouched.
+ */
+export const adminBulkOptionalEquipment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: {
+    equipmentSlug: string;
+    variantIds: string[] | null;
+    target: "pens" | "range" | "selected";
+    slugs?: string[];
+    apply: boolean;
+    expected?: Record<string, string>;
+  }) => {
+    if (!/^[a-z0-9-]{1,120}$/.test(String(input?.equipmentSlug ?? ""))) throw new Error("Choose an equipment item");
+    if (!["pens", "range", "selected"].includes(input.target)) throw new Error("Choose which products to update");
+    const slugs = Array.isArray(input.slugs) ? input.slugs.filter((x) => /^[a-z0-9-]{1,120}$/.test(String(x))).slice(0, 500) : [];
+    if (input.target === "selected" && !slugs.length) throw new Error("Select at least one product");
+    const variantIds = Array.isArray(input.variantIds) ? input.variantIds.map(String).filter((x) => /^[A-Za-z0-9_-]{1,120}$/.test(x)) : null;
+    const expected: Record<string, string> = {};
+    for (const [k, v] of Object.entries(input.expected ?? {})) if (typeof v === "string") expected[String(k)] = v;
+    return { equipmentSlug: input.equipmentSlug, variantIds: variantIds?.length ? variantIds : null, target: input.target, slugs, apply: input.apply === true, expected };
+  })
+  .handler(async ({ data, context }): Promise<{ rows: (BulkPlanRow & { updatedAt: string; result?: "applied" | "conflict" })[] }> => {
+    await assertAdmin(context as any);
+    const { data: all, error } = await context.supabase
+      .from("products")
+      .select("id, slug, name, catalogue_section, starter_kit_enabled, optional_equipment, product_variants, updated_at");
+    if (error) throw error;
+    const rows = (all ?? []) as any[];
+    const kit = rows.find((r) => r.slug === data.equipmentSlug);
+    if (!kit || normalizeCatalogueSection(kit.catalogue_section) !== "equipment") throw new Error("That item is not an Equipment product");
+    const targets = rows.filter((r) => {
+      const s = normalizeCatalogueSection(r.catalogue_section);
+      if (data.target === "selected") return data.slugs.includes(r.slug);
+      return s === data.target;
+    });
+    const plan = planBulkOptionalEquipment({ slug: data.equipmentSlug, variantIds: data.variantIds }, targets);
+    const out: (BulkPlanRow & { updatedAt: string; result?: "applied" | "conflict" })[] = [];
+    for (const p of plan) {
+      const t = targets.find((x) => x.id === p.id)!;
+      const row = { ...p, updatedAt: String(t.updated_at) };
+      if (!data.apply || p.action !== "add") { out.push(row); continue; }
+      // Only rows the Admin reviewed, unchanged since review.
+      if (data.expected[p.id] !== row.updatedAt) { out.push({ ...row, result: "conflict" }); continue; }
+      const validated = validateOptionalEquipment(
+        p.after,
+        { slug: t.slug, section: t.catalogue_section, variantIds: (Array.isArray(t.product_variants) ? t.product_variants : []).map((v: any) => String(v?.id ?? "")).filter(Boolean) },
+        rows,
+      );
+      const { data: updated, error: upErr } = await context.supabase
+        .from("products")
+        .update({ optional_equipment: validated as unknown as Json })
+        .eq("id", p.id)
+        .eq("updated_at", t.updated_at)
+        .select("id");
+      if (upErr) throw upErr;
+      out.push({ ...row, after: validated ?? [], result: updated?.length ? "applied" : "conflict" });
+    }
+    return { rows: out };
   });
 
 export const adminSetProductFlags = createServerFn({ method: "POST" })
