@@ -1,4 +1,4 @@
-/* Decorative layers only: never intercept input, change layout, or replace photos. */
+/* Photographic overlays remain separate from saved photos and never intercept input. */
 .christmas-chrome,
 .christmas-hero-decor,
 .christmas-product-decor,
@@ -8,35 +8,35 @@
   user-select: none;
 }
 .christmas-chrome {
-  position: fixed;
+  position: absolute;
   inset: 0 0 auto;
-  height: 105px;
-  z-index: 35;
+  height: calc(100% + 140px);
   overflow: hidden;
+  z-index: 2;
 }
 .christmas-corner {
   position: absolute;
-  width: 90px;
+  width: clamp(180px, 23vw, 310px);
   height: auto;
-  top: -4px;
+  top: -65px;
 }
 .christmas-corner-left {
-  left: -16px;
+  left: -70px;
 }
 .christmas-corner-right {
-  right: -16px;
+  right: -70px;
   transform: scaleX(-1);
 }
 .christmas-subtle .christmas-corner {
-  width: 70px;
-  top: 0;
+  width: clamp(80px, 9vw, 140px);
 }
 .christmas-lights {
   position: absolute;
-  top: 65px;
-  width: 100%;
-  height: 26px;
-  filter: drop-shadow(0 0 3px #e6bb5f66);
+  top: calc(100% - 160px);
+  left: 5%;
+  width: 90%;
+  height: 46px;
+  object-fit: fill;
 }
 .christmas-hero-decor {
   position: absolute;
@@ -45,17 +45,17 @@
 }
 .christmas-helmet-hat {
   position: absolute;
-  width: 25%;
-  max-width: 370px;
-  right: 8%;
-  top: -4%;
-  transform: rotate(12deg);
+  width: 23%;
+  right: 10%;
+  top: 0;
+  height: auto;
+  filter: drop-shadow(0 6px 5px #07182744);
 }
 .christmas-hero-pine {
   position: absolute;
-  bottom: 0;
-  right: -10px;
-  width: 140px;
+  bottom: -18px;
+  right: -28px;
+  width: clamp(150px, 24vw, 360px);
   transform: rotate(180deg);
 }
 .christmas-product-decor {
@@ -65,24 +65,36 @@
 }
 .christmas-card-hat {
   position: absolute;
-  width: clamp(40px, 18%, 65px);
-  right: 0;
-  top: 0;
-  transform: rotate(10deg);
+  width: clamp(62px, 30%, 110px);
+  right: -10px;
+  top: -30px;
+  transform: rotate(9deg);
+  height: auto;
+  filter: drop-shadow(0 3px 2px #07182733);
 }
 .christmas-card-pine {
   position: absolute;
-  width: 68px;
-  bottom: -16px;
-  right: -17px;
+  width: clamp(65px, 27%, 105px);
+  bottom: -20px;
+  right: -12px;
   transform: rotate(180deg);
+  height: auto;
+}
+.titan-product-detail-photo:has(.christmas-product-decor),
+.titan-product-card:has(.christmas-product-decor),
+.titan-product-photo:has(.christmas-product-decor) {
+  overflow: visible;
+}
+.titan-product-photo:has(.christmas-product-decor) > img {
+  border-radius: 0.7rem 0.7rem 0 0;
 }
 .christmas-catalogue-wreath {
   position: absolute;
-  top: 8px;
-  right: 5%;
-  width: 100px;
-  height: 100px;
+  top: 12px;
+  right: 8%;
+  width: clamp(100px, 17vw, 230px);
+  height: auto;
+  filter: drop-shadow(0 6px 5px #07182722);
 }
 .christmas-flight {
   position: fixed;
@@ -138,32 +150,34 @@
   }
 }
 @media (max-width: 767px) {
-  .christmas-chrome {
-    height: 90px;
-  }
   .christmas-corner,
   .christmas-subtle .christmas-corner {
-    width: 64px;
-    top: -4px;
+    width: 100px;
+    top: -10px;
+  }
+  .christmas-corner-left {
+    left: -55px;
+  }
+  .christmas-corner-right {
+    right: -55px;
   }
   .christmas-lights {
-    top: 60px;
-    height: 18px;
+    height: 25px;
+    top: calc(100% - 152px);
   }
   .christmas-helmet-hat {
-    width: 150px;
+    width: 145px;
     max-width: 36%;
-    right: 5%;
+    right: 4%;
     top: 0;
   }
   .christmas-hero-pine {
-    width: 80px;
+    width: 140px;
   }
   .christmas-catalogue-wreath {
-    width: 48px;
-    height: 48px;
-    right: 8px;
-    top: 4px;
+    width: 70px;
+    right: 12px;
+    top: 6px;
   }
   .christmas-flight-team {
     width: 230px;

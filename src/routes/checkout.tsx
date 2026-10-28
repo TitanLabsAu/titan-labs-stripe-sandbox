@@ -1,3 +1,4 @@
+import { ThemedProductImage } from "@/components/ThemedImage";
 import { cmsValues } from "@/lib/storefrontContent";
 import { cancelAndRefreshQuote, isVerifiedQuote } from "@/lib/checkout-quote-refresh";
 import { TitanPageHeading } from "@/components/TitanPageHeading";
@@ -957,10 +958,13 @@ function CheckoutPage() {
                   const product = getProduct(item.slug);
                   if (!product) return null;
                   const linePrice = getLinePrice(item);
+                  const imageVariant = product.variants?.find(v => v.id === item.variantId);
                   return (
                     <li key={item.key} className="flex items-center gap-4 py-4">
-                      <img
-                        src={product.image}
+                      <ThemedProductImage
+                        slug={product.slug}
+                        variantId={imageVariant?.image ? imageVariant.id : undefined}
+                        src={imageVariant?.image || product.image}
                         alt={product.alt}
                         className="h-14 w-14 shrink-0 rounded object-cover"
                       />
@@ -1211,3 +1215,4 @@ function CheckoutPage() {
     </div>
   );
 }
+

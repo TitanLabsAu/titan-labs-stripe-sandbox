@@ -9,7 +9,7 @@ import {
   parseChristmas,
   type ChristmasSettings,
 } from "@/lib/christmas";
-import { SantaHat, PineSprig, Wreath } from "./ChristmasArt";
+import { SantaHat, PineSprig, Wreath, FairyLights } from "./ChristmasArt";
 
 const ChristmasContext = createContext<ChristmasSettings>({
   ...CHRISTMAS_DEFAULTS,
@@ -25,7 +25,6 @@ export function ChristmasProvider({ children }: { children: ReactNode }) {
   return (
     <ChristmasContext.Provider value={settings}>
       {children}
-      <ChristmasChrome />
       <SantaFlight settings={settings} />
     </ChristmasContext.Provider>
   );
@@ -64,7 +63,7 @@ export function ChristmasCatalogueWreath() {
     <Wreath className="christmas-catalogue-wreath" />
   ) : null;
 }
-function ChristmasChrome() {
+export function ChristmasHeaderDecor() {
   const s = useContext(ChristmasContext);
   if (!s.enabled) return null;
   return (
@@ -72,40 +71,7 @@ function ChristmasChrome() {
       className={`christmas-chrome christmas-${s.density}`}
       aria-hidden="true"
     >
-      {s.lights ? (
-        <svg
-          className="christmas-lights"
-          viewBox="0 0 1200 32"
-          preserveAspectRatio="none"
-          focusable="false"
-        >
-          <path
-            d="M0 5Q60 30 120 5T240 5T360 5T480 5T600 5T720 5T840 5T960 5T1080 5T1200 5"
-            fill="none"
-            stroke="#a98945"
-            strokeWidth="1.5"
-          />
-          {Array.from({ length: 31 }, (_, i) => (
-            <g key={i}>
-              <ellipse
-                cx={i * 40}
-                cy={i % 3 === 0 ? 9 : 19}
-                rx="8"
-                ry="10"
-                fill="#e6bb5f"
-                opacity=".18"
-              />
-              <ellipse
-                cx={i * 40}
-                cy={i % 3 === 0 ? 9 : 19}
-                rx="2.5"
-                ry="4"
-                fill="#fff0b9"
-              />
-            </g>
-          ))}
-        </svg>
-      ) : null}
+      {s.lights ? <FairyLights className="christmas-lights" /> : null}
       {s.greenery ? (
         <>
           <PineSprig className="christmas-corner christmas-corner-left" />

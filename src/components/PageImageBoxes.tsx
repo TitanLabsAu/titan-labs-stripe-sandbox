@@ -1,3 +1,4 @@
+import { ThemedContentImage } from "@/components/ThemedImage";
 import { RichText } from "@/components/RichText";
 import { FLEX_ALIGN_CLASS, TEXT_ALIGN_CLASS, type TextAlign } from "@/lib/homeContent";
 import { cn } from "@/lib/utils";
@@ -18,7 +19,7 @@ export function PageImageBoxes({ images }: { images: PageImage[] }) {
       {images.map((image) => (
         <figure key={image.key} className={cn("space-y-3", TEXT_ALIGN_CLASS[image.align])}>
           <div className={cn("flex", FLEX_ALIGN_CLASS[image.align])}>
-            <img
+            <ThemedContentImage
               src={image.url}
               alt={image.alt}
               className="brand-cut aspect-video w-full max-w-3xl border border-border object-cover shadow-gold"

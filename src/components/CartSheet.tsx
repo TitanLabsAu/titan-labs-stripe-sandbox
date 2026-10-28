@@ -168,7 +168,7 @@ export function CartSheet({ floating = false, inline = false }: { floating?: boo
                       className="flex gap-3 rounded-xl border border-border bg-card p-3"
                     >
                       {lineVariant?.image ? (
-                        <img
+                        <ThemedProductImage slug={product.slug} variantId={lineVariant.id}
                           src={lineVariant.image}
                           alt={`${product.alt} — ${lineVariant.label}`}
                           loading="lazy"
@@ -403,3 +403,4 @@ export function CartSheet({ floating = false, inline = false }: { floating?: boo
     </Sheet>
   );
 }
+

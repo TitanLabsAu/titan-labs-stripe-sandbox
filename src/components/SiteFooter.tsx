@@ -1,3 +1,4 @@
+import { ThemedContentImage } from "@/components/ThemedImage";
 import { cmsValues, guideNavLabel } from "@/lib/storefrontContent";
 import { CmsLink } from "@/components/CmsLink";
 import { useSiteContent, useSiteLinks } from "@/lib/useCatalog";
@@ -22,7 +23,7 @@ export function SiteFooter() {
 
   return (
     <footer className="titan-site-footer relative overflow-hidden border-t border-primary/30 bg-background text-xs text-muted-foreground">
-      {brand.footer_image ? <img src={brand.footer_image} alt="" width={1920} height={768} loading="lazy" className="titan-future-art titan-future-art-footer absolute inset-0 h-full w-full object-cover" /> : null}
+      {brand.footer_image ? <ThemedContentImage src={brand.footer_image} alt="" width={1920} height={768} loading="lazy" className="titan-future-art titan-future-art-footer absolute inset-0 h-full w-full object-cover" /> : null}
        <div className="titan-footer-surface absolute inset-0" />
        <div className="relative mx-auto max-w-7xl px-5 py-12 sm:px-6 sm:py-16">
         <div className="grid gap-10 border-b border-primary/25 pb-10 md:grid-cols-[1fr_1.2fr_1fr]">
@@ -75,5 +76,6 @@ export function SiteFooter() {
     </footer>
   );
 }
+
 
 

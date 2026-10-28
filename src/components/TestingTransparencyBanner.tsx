@@ -1,3 +1,4 @@
+import { ThemedContentImage } from "@/components/ThemedImage";
 import { artDelivery } from "@/lib/theme-art";
 import { cmsValues } from "@/lib/storefrontContent";
 import { useSiteContent } from "@/lib/useCatalog";
@@ -35,7 +36,7 @@ export function TestingTransparencyBanner({
           compact ? "gap-3" : "gap-4 sm:gap-6",
         )}
       >
-        <img
+        <ThemedContentImage
           src={c.image || "/images/titan-testing-emblem-v2-256.webp"}
           {...artDelivery(c.image || "/images/titan-testing-emblem.webp", compact ? "64px" : "(min-width: 640px) 112px, 80px")}
           alt={c.image_alt}

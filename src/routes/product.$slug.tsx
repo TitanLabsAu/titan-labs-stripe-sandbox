@@ -137,10 +137,10 @@ function ProductPage() {
         </Link>
 
         <div className="mt-6 grid gap-8 border-t border-border pt-8 lg:grid-cols-[1fr_0.95fr]">
-          <div className="relative self-start overflow-hidden rounded-xl">
+          <div className="titan-product-detail-photo relative self-start overflow-hidden rounded-xl">
             <ProductChristmasDecor />
             {selectedVariant?.image ? (
-              <img
+              <ThemedProductImage slug={product.slug} variantId={selectedVariant.id}
                 src={selectedVariant.image}
                 alt={`${product.alt} — ${selectedVariant.label}`}
                 loading="lazy"

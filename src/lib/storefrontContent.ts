@@ -39,10 +39,13 @@ const B = (key: string, label: string, help?: string): CmsField => ({ key, label
 
 export const CMS_SECTIONS: CmsSection[] = [
   {
-    id: "theme_artwork", group: "Homepage", title: "Theme artwork (light product photos)",
-    description: "Optional light-theme photos for individual products. Enter the product slug (from its URL) and a real light photo of that same product. Products without an entry keep their original photo in a light frame. Dark theme photos are never changed.",
-    fields: [{ key: "products", label: "Light product photos", type: "list", maxItems: 200, itemFields: [{ key: "slug", label: "Product slug (from its URL)", type: "text", max: 160 }, { key: "image", label: "Light photo URL", type: "url" }] }],
-    defaults: { products: [] },
+    id: "theme_artwork", group: "Homepage", title: "Theme artwork (products, variants & pages)",
+    description: "Optional light-theme photos for individual products. Enter the product slug (from its URL) and a real light photo of that same product. Products without an entry keep their original photo in a light frame. New Admin uploads keep their latest photo in both modes until you add a matching light photo. Variant and page pairings are tied to the exact source URL. Dark theme photos are never changed.",
+    fields: [{ key: "products", label: "Light product photos", type: "list", maxItems: 200, itemFields: [{ key: "slug", label: "Product slug (from its URL)", type: "text", max: 160 }, { key: "image", label: "Light photo URL", type: "url" }] },
+      {key: "variants", label: "Colour variant light photos", type: "list", maxItems: 200, itemFields: [{key:"slug",label:"Product slug",type:"text",max:160},{key:"variant_id",label:"Variant ID",type:"text",max:160},{key:"source",label:"Current variant photo URL",type:"url"},{key:"image",label:"Matching light photo URL",type:"url"}]},
+      {key:"images",label:"Page and other image pairs",type:"list",maxItems:200,itemFields:[{key:"source",label:"Current photo URL",type:"url"},{key:"image",label:"Matching light photo URL",type:"url"}]}
+    ],
+    defaults: { products: [], variants: [], images: [] },
   },
   {
     id: "seo", group: "SEO", title: "Search & social previews",
@@ -762,3 +765,4 @@ export function assertResetBase(id: string, currentRaw: string | undefined, base
     }
   }
 }
+
