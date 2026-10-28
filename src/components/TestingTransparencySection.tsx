@@ -1,3 +1,4 @@
+import { ChristmasSectionDecor } from "@/components/christmas/ChristmasTheme";
 import { ArrowRight, ArrowUpRight, FileText } from "lucide-react";
 import { ThemedArt, themedArtPair } from "@/components/ThemedImage";
 import { Button } from "@/components/ui/button";
@@ -95,6 +96,7 @@ export function TestingTransparencySection() {
           ) : null}
         </div>
       </div>
+    <ChristmasSectionDecor />
     </section>
   );
 }

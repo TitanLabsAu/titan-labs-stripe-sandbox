@@ -1,3 +1,4 @@
+import { ChristmasPageDecor, ChristmasSectionDecor } from "@/components/christmas/ChristmasTheme";
 import { cmsValues } from "@/lib/storefrontContent";
 import { useSiteContent } from "@/lib/useCatalog";
 import { createFileRoute } from "@tanstack/react-router";
@@ -55,8 +56,11 @@ const frequencyLabel: Record<Frequency, string> = {
   monthly: "Monthly",
 };
 function CalendarPage() {
+  const {user}=Route.useRouteContext();
+  return <CalendarView user={user}/>;
+}
+export function CalendarView({user}:{user:{id:string;email?:string}}) {
   const intro = cmsValues(useSiteContent().data, "page_intros");
-  const { user } = Route.useRouteContext();
   const [entries, setEntries] = useState<CalendarEntry[]>([]);
   const [form, setForm] = useState(initialForm);
   const [editId, setEditId] = useState<string | null>(null);
@@ -149,6 +153,7 @@ function CalendarPage() {
     <div className="bg-hero min-h-screen">
       <SiteHeader />
       <main className="page-shell py-8 sm:py-12">
+        <ChristmasPageDecor/>
         <ProfileMenu email={user.email} />
         <TitanPageHeading
           as="h1"
@@ -416,8 +421,10 @@ function CalendarPage() {
             </section>
           </div>
         </div>
+        <ChristmasSectionDecor compact/>
       </main>
       <SiteFooter />
     </div>
   );
 }
+

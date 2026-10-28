@@ -1,3 +1,4 @@
+import { allowsEquipmentAddOns } from "@/lib/optional-equipment";
 import { ProductThemePhotoEditor } from "./ProductThemePhotoEditor";
 import { ProductInformationEditor } from "./ProductInformationEditor";
 import { isPenGallery } from "@/lib/product-gallery";
@@ -509,7 +510,7 @@ export function ProductEditor({
           <Label htmlFor="catalogue-section">Catalogue section</Label>
           {draft.catalogue_section !== "equipment" && draft.optional_equipment === null ? <label className="my-3 flex items-center gap-2 text-sm"><input type="checkbox" checked={draft.starter_kit_enabled} onChange={e=>set({starter_kit_enabled:e.target.checked})}/>Offer starter kit with this product</label> : null}
           {draft.catalogue_section === "range" ? <label className="my-3 flex items-center gap-2 text-sm"><input type="checkbox" checked={draft.v2_pen_offer_enabled} onChange={e=>set({v2_pen_offer_enabled:e.target.checked})}/>Offer “Add V2 Reusable Pen” with this product</label> : null}
-          {draft.catalogue_section !== "equipment" ? <OptionalEquipmentEditor draft={draft} set={set} /> : null}
+          {allowsEquipmentAddOns(draft.catalogue_section, draft.slug) ? <OptionalEquipmentEditor draft={draft} set={set} /> : null}
           <p className="mb-3 text-xs text-muted-foreground">Edit “Range Starter Kit” or “Pen Starter Kit” in Equipment to change kit price, contents, photo, stock or visibility. Disabling a kit hides its offer everywhere.</p>
           <select
             id="catalogue-section"

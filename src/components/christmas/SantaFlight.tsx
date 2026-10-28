@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { randomDelay, type ChristmasSettings } from "@/lib/christmas";
+import { randomSantaPath, santaFlightPose } from "@/lib/santa-flight";
 import { SantaSleigh, SANTA_ARTWORK } from "./ChristmasArt";
 
 export function SantaFlight({
@@ -71,7 +72,8 @@ export function SantaFlight({
       setFlying(true);
       const width = el.clientWidth,
         height = el.clientHeight,
-        teamWidth = sleigh.getBoundingClientRect().width;
+        teamWidth = sleigh.offsetWidth,
+        teamHeight = sleigh.offsetHeight;
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
@@ -79,7 +81,7 @@ export function SantaFlight({
       ctx?.setTransform(dpr, 0, 0, dpr, 0, 0);
       const start = performance.now(),
         duration = s.flightSeconds * 1000;
-      const top = preview ? 18 : Math.min(110, Math.max(78, height * 0.12));
+      const path = randomSantaPath(width, height, teamWidth);
       let previous = start,
         lastSpawn = start;
       const tick = (now: number) => {
@@ -87,17 +89,17 @@ export function SantaFlight({
         const dt = Math.min(50, now - previous);
         previous = now;
         const p = Math.min(1, (now - start) / duration);
-        const x = -teamWidth + (width + teamWidth + 20) * p;
-        const y = top + Math.sin(p * Math.PI * 2) * 12;
-        sleigh.style.transform = `translate3d(${x}px,${y}px,0)`;
+        const pose = santaFlightPose(path, p);
+        const { x, y } = pose;
+        sleigh.style.transform = `translate3d(${x - teamWidth / 2}px,${y - teamHeight / 2}px,0) rotate(${pose.tilt}deg) scaleX(${pose.facing})`;
         if (s.snowEnabled && p < 1 && now - lastSpawn > 60) {
           lastSpawn = now;
           const count =
             s.snowAmount === "heavy" ? 5 : s.snowAmount === "medium" ? 3 : 1;
           for (let i = 0; i < count; i++)
             flakes.push({
-              x: x + teamWidth * 0.07,
-              y: y + teamWidth * 0.36,
+              x: x - pose.ux * teamWidth * 0.4,
+              y: y - pose.uy * teamWidth * 0.4 + teamHeight * 0.12,
               age: 0,
               life: 1100 + Math.random() * 800,
               radius: 1 + Math.random() * 1.7,

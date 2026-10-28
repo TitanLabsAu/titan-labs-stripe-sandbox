@@ -163,3 +163,14 @@ describe("server pricing and stock stay authoritative for add-on lines", () => {
     await expect(priceCheckout(stubAdmin(rows), buyer, { items: [{ slug: "pen-pins", variantId: "evil", quantity: 1 }], shippingMethod: "express", paymentMethod: "payid" } as any)).rejects.toThrow();
   });
 });
+
+
+test("stand-alone V2 in Equipment offers Travel Case colours without changing its catalogue ownership",()=>{
+  const standalone={...v2,slug:"titan-v2-reusable-pen",catalogueSection:"equipment",optionalEquipment:null,starterKitEnabled:true} as Product;
+  const travel={...rangeKit,slug:"travel-case-with-ice-pack",name:"Travel Case",variants:[{id:"blue",label:"Blue",price:25,stock:10,image:"/blue.webp"},{id:"purple",label:"Purple",price:25,stock:10,image:"/purple.webp"}]} as Product;
+  expect(optionalEquipmentFor(standalone,[standalone,travel],[])).toEqual([{product:travel,variantIds:["blue","purple"]}]);
+  expect(optionalEquipmentFor({...standalone,optionalEquipment:[]},[standalone,travel],[])).toEqual([]);
+  expect(optionalEquipmentFor({...standalone,starterKitEnabled:false},[standalone,travel],[])).toEqual([]);
+  expect(optionalEquipmentFor({...standalone,slug:"ordinary-equipment"},[travel],[])).toEqual([]);
+  expect(validateOptionalEquipment([{slug:travel.slug,variantIds:null,parentVariantIds:null}],{slug:standalone.slug,section:"equipment",variantIds:["blue"]},[{slug:travel.slug,catalogue_section:"equipment",product_variants:travel.variants}])).toEqual([{slug:travel.slug,variantIds:null,parentVariantIds:null}]);
+});

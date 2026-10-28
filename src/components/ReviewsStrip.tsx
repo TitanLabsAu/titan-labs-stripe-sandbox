@@ -1,3 +1,4 @@
+import { ChristmasSectionDecor } from "@/components/christmas/ChristmasTheme";
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -81,6 +82,8 @@ export function ReviewsStrip() {
           ) : null}
         </div>
       </div>
+    <ChristmasSectionDecor />
     </section>
   );
 }
+

@@ -1,3 +1,4 @@
+import { ChristmasSectionDecor } from "@/components/christmas/ChristmasTheme";
 import { ArrowRight } from "lucide-react";
 import { ThemedArt, themedArtPair } from "@/components/ThemedImage";
 import { Button } from "@/components/ui/button";
@@ -24,5 +25,7 @@ export function TitanMembership() {
         {c.help ? <p className="mt-8 max-w-lg whitespace-pre-line text-xs leading-5 text-muted-foreground">{c.help}</p> : null}
       </div>
     </div>
-  </section>;
+  <ChristmasSectionDecor />
+    </section>;
 }
+

@@ -8,8 +8,8 @@ import { MAX_OPTIONAL_EQUIPMENT, defaultOptionalEquipmentList, type OptionalEqui
 import type { Draft } from "@/components/AdminProducts";
 
 /** Starting list that reproduces the built-in default exactly. */
-export function defaultEquipmentList(draft: Pick<Draft, "catalogue_section" | "starter_kit_enabled">): OptionalEquipmentEntry[] {
-  return defaultOptionalEquipmentList(draft.catalogue_section, draft.starter_kit_enabled);
+export function defaultEquipmentList(draft: Pick<Draft, "catalogue_section" | "starter_kit_enabled"> & {slug?:string}): OptionalEquipmentEntry[] {
+  return defaultOptionalEquipmentList(draft.catalogue_section, draft.starter_kit_enabled, draft.slug);
 }
 
 function toggle(list: string[] | null, all: string[], id: string): string[] | null {
@@ -30,7 +30,7 @@ export function OptionalEquipmentEditor({ draft, set }: { draft: Draft; set: (pa
     return (
       <div className="my-3 rounded-md border border-dashed border-input p-3 text-xs">
         <p className="font-bold uppercase tracking-[0.14em] text-muted-foreground">Optional equipment add-ons</p>
-        <p className="mt-1 text-muted-foreground">Using the standard starter-kit offer. Customise to choose and order several Equipment products.</p>
+        <p className="mt-1 text-muted-foreground">Using the standard equipment offer. Customise to choose and order several Equipment products.</p>
         <Button type="button" size="sm" variant="outline" className="mt-2" onClick={() => update(defaultEquipmentList(draft))}>
           Customise add-ons
         </Button>
@@ -131,3 +131,4 @@ export function OptionalEquipmentEditor({ draft, set }: { draft: Draft; set: (pa
     </div>
   );
 }
+

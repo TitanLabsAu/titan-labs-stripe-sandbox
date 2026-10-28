@@ -9,6 +9,7 @@ export function PhotoColourSelector({
   onChange,
   compact = false,
   disableUnavailable = false,
+  disabledIds = [],
 }: {
   product: Product;
   variants: ProductVariant[];
@@ -16,6 +17,7 @@ export function PhotoColourSelector({
   onChange: (id: string) => void;
   compact?: boolean;
   disableUnavailable?: boolean;
+  disabledIds?: readonly string[];
 }) {
   const name = useId();
   return (
@@ -38,7 +40,7 @@ export function PhotoColourSelector({
               <input
                 className="sr-only"
                 type="radio"
-                disabled={disableUnavailable && Boolean(out || unavailable)}
+                disabled={disabledIds.includes(v.id) || (disableUnavailable && Boolean(out || unavailable))}
                 name={name}
                 value={v.id}
                 checked={value === v.id}
