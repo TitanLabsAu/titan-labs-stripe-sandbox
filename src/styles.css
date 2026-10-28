@@ -1093,3 +1093,11 @@ html.light .theme-label-light { display: contents !important; }
 .titan-home .discovery-copy { min-height:0; padding-bottom:.75rem; }
 .titan-home .discovery-shipping { margin-top:1rem; padding-block:.5rem; }
 .titan-home > .hot-products-band { padding-top:1rem; }
+
+/* Contain the cart count within its own tab so it cannot cover Admin or clip above the bar. */
+.titan-site-header .titan-header-cart-trigger { isolation:isolate; }
+.titan-site-header .titan-header-cart-count {
+  top:1px; right:1px; min-width:12px; height:12px; padding-inline:2px;
+  font-size:7px; line-height:12px; letter-spacing:0; pointer-events:none;
+}
+.titan-site-header .titan-header-nav .titan-nav-icon:hover { box-shadow:none; }

@@ -125,12 +125,12 @@ export function CartSheet({ floating = false, inline = false }: { floating?: boo
           <Button
             variant="outline"
             size="icon"
-            className="titan-nav-icon relative"
+            className="titan-nav-icon titan-header-cart-trigger relative"
             aria-label="View cart"
           >
             <ShoppingCart className="h-5 w-5" />
             {count > 0 && (
-              <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-xs font-bold text-accent-foreground">
+              <span className="titan-header-cart-count absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-xs font-bold text-accent-foreground">
                 {count}
               </span>
             )}
