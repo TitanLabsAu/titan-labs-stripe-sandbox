@@ -80,11 +80,6 @@
   transform: rotate(180deg);
   height: auto;
 }
-.titan-product-detail-photo:has(.christmas-product-decor),
-.titan-product-card:has(.christmas-product-decor),
-.titan-product-photo:has(.christmas-product-decor) {
-  overflow: visible;
-}
 .titan-product-photo:has(.christmas-product-decor) > img {
   border-radius: 0.7rem 0.7rem 0 0;
 }
@@ -190,4 +185,129 @@
   .christmas-realistic-sleigh {
     animation: none !important;
   }
+}
+
+/* Organic v3: natural aspect ratios, two independently framed corners and grounded arrangements. */
+.christmas-organic-corner {
+  position: absolute;
+  top: -28px;
+  width: 240px;
+  height: auto;
+}
+.christmas-organic-corner-left {
+  left: -130px;
+}
+.christmas-organic-corner-right {
+  right: -130px;
+}
+.christmas-organic-garland {
+  position: absolute;
+  top: calc(100% - 158px);
+  left: 7%;
+  width: 86%;
+  height: auto;
+}
+.christmas-subtle .christmas-organic-corner {
+  width: 190px;
+}
+.christmas-subtle .christmas-organic-corner-left {
+  left: -110px;
+}
+.christmas-subtle .christmas-organic-corner-right {
+  right: -110px;
+}
+.christmas-subtle .christmas-organic-garland {
+  opacity: 0.85;
+}
+.christmas-card-pine {
+  width: clamp(75px, 32%, 125px);
+  right: 0;
+  bottom: 0;
+  transform: none;
+}
+.christmas-hero-pine {
+  width: clamp(200px, 30vw, 440px);
+  right: -14px;
+  bottom: 0;
+  transform: none;
+}
+.christmas-chrome {
+  height: calc(100% + 210px);
+}
+.christmas-organic-garland {
+  top: calc(100% - 224px);
+}
+.titan-site-header:has(.christmas-chrome) .page-shell {
+  padding-inline: clamp(2.8rem, 5vw, 5rem);
+}
+@media (max-width: 767px) {
+  .christmas-organic-corner {
+    width: 165px;
+    top: -15px;
+  }
+  .christmas-organic-corner-left {
+    left: -110px;
+  }
+  .christmas-organic-corner-right {
+    right: -110px;
+  }
+  .christmas-subtle .christmas-organic-corner {
+    width: 140px;
+  }
+  .christmas-subtle .christmas-organic-corner-left {
+    left: -100px;
+  }
+  .christmas-subtle .christmas-organic-corner-right {
+    right: -100px;
+  }
+  .christmas-organic-garland {
+    left: 4%;
+    width: 92%;
+    top: calc(100% - 217px);
+  }
+  .christmas-hero-pine {
+    width: 170px;
+    right: -20px;
+  }
+  .titan-site-header:has(.christmas-chrome) .page-shell {
+    padding-inline: 1rem;
+  }
+}
+
+.titan-product-gallery-photo .christmas-card-pine {
+  width: clamp(110px, 28%, 210px);
+}
+.christmas-organic-corner-left {
+  left: -80px;
+}
+.christmas-organic-corner-right {
+  right: -80px;
+}
+.titan-site-header:has(.christmas-chrome) .page-shell {
+  z-index: 3;
+}
+@media (max-width: 767px) {
+  .christmas-organic-corner-left {
+    left: -100px;
+  }
+  .christmas-organic-corner-right {
+    right: -100px;
+  }
+}
+
+.titan-site-header:has(.christmas-chrome) ~ .product-page-main {
+  padding-top: 7rem;
+}
+@media (max-width: 767px) {
+  .titan-site-header:has(.christmas-chrome) ~ .product-page-main {
+    padding-top: 3rem;
+  }
+}
+
+.christmas-chrome {
+  transition: opacity 120ms ease;
+}
+.christmas-chrome[data-scrolled="true"] {
+  opacity: 0;
+  visibility: hidden;
 }

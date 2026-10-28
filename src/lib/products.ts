@@ -100,6 +100,7 @@ export function packLabel(label: string, packSize?: number | null) {
 }
 
 export type Product = {
+  id?: string;
   slug: string;
   name: string;
   /** Price the customer pays (already the sale price when one is set). */
@@ -350,4 +351,5 @@ export function getReconFor(product: Product, variantId?: string | null) {
     notes: (variant?.reconNotes || product.reconNotes || "").trim(),
   };
 }
+
 

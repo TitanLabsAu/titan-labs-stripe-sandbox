@@ -39,6 +39,11 @@ const B = (key: string, label: string, help?: string): CmsField => ({ key, label
 
 export const CMS_SECTIONS: CmsSection[] = [
   {
+    id:"product_galleries",group:"Homepage",title:"Product highlight galleries",
+    description:"Exactly three highlight photos per product or colour. Edit beside the product in Admin > Products. Empty slots show authentic close-ups of that product’s current photo. Colour galleries never reuse another colour’s images.",
+    fields:[{key:"items",label:"Product galleries",type:"list",maxItems:200,itemFields:[{key:"product",label:"Product ID",type:"text",max:160},{key:"variant",label:"Variant ID (blank for main product)",type:"text",max:160},{key:"image1",label:"Full product photo",type:"url"},{key:"image2",label:"Dial / product close-up",type:"url"},{key:"image3",label:"Logo / product detail",type:"url"}]}],defaults:{items:[]}
+  },
+  {
     id: "theme_artwork", group: "Homepage", title: "Theme artwork (products, variants & pages)",
     description: "Optional light-theme photos for individual products. Enter the product slug (from its URL) and a real light photo of that same product. Products without an entry keep their original photo in a light frame. New Admin uploads keep their latest photo in both modes until you add a matching light photo. Variant and page pairings are tied to the exact source URL. Dark theme photos are never changed.",
     fields: [{ key: "products", label: "Light product photos", type: "list", maxItems: 200, itemFields: [{ key: "slug", label: "Product slug (from its URL)", type: "text", max: 160 }, { key: "image", label: "Light photo URL", type: "url" }] },

@@ -1,3 +1,5 @@
+import { PhotoColourSelector } from "./PhotoColourSelector";
+import { hasPhotoColourOptions } from "@/lib/product-gallery";
 import { ProductChristmasDecor } from "@/components/christmas/ChristmasTheme";
 import { promotedPrice } from "@/lib/variant-promotions";
 import { PROMOTION_BANNERS_KEY, parseBannerSettings, resolveBanner } from "@/lib/promotion-banners";
@@ -122,7 +124,7 @@ export function ProductCard({ product: p, aligned = false }: { product: Product;
         {subDescriptionFor(p) ? <p className="mt-2 text-[10px] font-semibold text-muted-foreground">{subDescriptionFor(p)}</p> : null}
         </PromotionSlot>
         <PromotionSlot aligned={aligned} name="size">
-        {variants.length > 0 ? (
+        {hasPhotoColourOptions(variants) ? <PhotoColourSelector product={p} variants={variants} value={variantId} onChange={setVariantId} compact/> : variants.length > 0 ? (
           <label className="mt-2 grid grid-cols-[3rem_minmax(0,1fr)] items-center gap-3 text-xs font-display uppercase tracking-wide">
           <span>Size</span>
           <select

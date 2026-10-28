@@ -1,4 +1,7 @@
-import { ProductChristmasDecor } from "@/components/christmas/ChristmasTheme";
+import { ProductGallery } from "@/components/ProductGallery";
+import { PhotoColourSelector } from "@/components/PhotoColourSelector";
+import { hasPhotoColourOptions, isPenGallery } from "@/lib/product-gallery";
+import { Accordion,AccordionItem,AccordionTrigger,AccordionContent } from "@/components/ui/accordion";
 import { promotedPrice } from "@/lib/variant-promotions";
 import { ThemedProductImage } from "@/components/ThemedImage";
 import { seoHead, productUrl, productSchema, jsonLd } from "@/lib/seo";
@@ -8,9 +11,7 @@ import { CmsLink } from "@/components/CmsLink";
 import { cmsValues } from "@/lib/storefrontContent";
 import { DisposablePenGuide } from "@/components/DisposablePenGuide";
 import { StarterKitOffer } from "@/components/StarterKitOffer";
-import { TitanPageHeading } from "@/components/TitanPageHeading";
-import { FlaskConical } from "lucide-react";
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useLocation } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { preloadVariantImages } from "@/lib/products";
 import { toast } from "sonner";
@@ -65,7 +66,16 @@ export const Route = createFileRoute("/product/$slug")({
 });
 
 function ProductPage() {
+  const {product}=Route.useLoaderData();
+  return <ProductPageBody key={product.slug}/>;
+}
+
+function ProductPageBody() {
   const { product } = Route.useLoaderData();
+  const hash = useLocation({select: location=>location.hash});
+  const [openInformation,setOpenInformation]=useState<string[]>([]);
+  useEffect(()=>{if(hash.replace(/^#/,"")==="certificates") setOpenInformation(v=>v.includes("documents")?v:[...v,"documents"]);},[hash]);
+  useEffect(()=>{if(hash.replace(/^#/,"")==="certificates"&&openInformation.includes("documents")){const frame=requestAnimationFrame(()=>document.getElementById("certificates")?.scrollIntoView({block:"start"}));return()=>cancelAnimationFrame(frame);}return undefined;},[hash,openInformation]);
   const { products } = useProducts();
   const { data: content } = useSiteContent();
   const pp = cmsValues(content, "product_page");
@@ -122,13 +132,7 @@ function ProductPage() {
     <div className="bg-hero min-h-screen">
       <SiteHeader />
 
-      <main className="page-shell py-8 sm:py-12">
-        <TitanPageHeading
-          icon={FlaskConical}
-          eyebrow="Research product catalogue"
-          title="Product details"
-        />
-        <div className="h-4" />
+      <main className="product-page-main page-shell py-8 sm:py-12">
         <Link
           to="/range"
           className="text-sm text-muted-foreground hover:text-accent"
@@ -137,26 +141,7 @@ function ProductPage() {
         </Link>
 
         <div className="mt-6 grid gap-8 border-t border-border pt-8 lg:grid-cols-[1fr_0.95fr]">
-          <div className="titan-product-detail-photo relative self-start overflow-hidden rounded-xl">
-            <ProductChristmasDecor />
-            {selectedVariant?.image ? (
-              <ThemedProductImage slug={product.slug} variantId={selectedVariant.id}
-                src={selectedVariant.image}
-                alt={`${product.alt} — ${selectedVariant.label}`}
-                loading="lazy"
-                decoding="async"
-                className="w-full rounded-xl border border-border bg-card object-cover"
-              />
-            ) : (
-              <ThemedProductImage
-                slug={product.slug}
-                src={product.image}
-                sizes="(min-width: 1024px) 50vw, 100vw"
-                alt={product.alt}
-                className="w-full rounded-xl border border-border bg-card object-cover"
-              />
-            )}
-          </div>
+          <ProductGallery key={`${product.slug}:${variantId||"base"}`} product={product} variant={selectedVariant}/>
 
           <div>
             <h1 className="titan-hero-heading">{product.name}</h1>
@@ -197,10 +182,10 @@ function ProductPage() {
             <div className="mt-6 rounded-xl border border-border bg-card p-5">
               {variants.length > 0 ? (
                 <div>
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
+                {!hasPhotoColourOptions(variants)?<p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
                   {product.catalogueSection === "range" ? "Vial size" : "Size"}
-                </p>
-                  {variants.length >= 4 ? (
+                </p>:null}
+                  {hasPhotoColourOptions(variants) ? <PhotoColourSelector product={product} variants={variants} value={variantId} onChange={setVariantId}/> : variants.length >= 4 ? (
                     <select
                       className="mt-3 h-11 w-full rounded-md border border-input bg-background px-3 text-sm font-semibold text-foreground"
                       aria-label="Choose option"
@@ -349,61 +334,30 @@ function ProductPage() {
               </p>
             </div>
 
-            {product.description ? (
-              <p className="mt-6 whitespace-pre-wrap text-base leading-7 text-foreground">
-                {product.description}
-              </p>
-            ) : null}
-            <ul className="mt-5 space-y-2 text-sm text-muted-foreground">
-              {product.details.map((d) => (
-                <li key={d}>★ {d}</li>
-              ))}
-            </ul>
-
-            {(product.categories ?? []).length > 0 ? (
-              <p className="mt-5 flex flex-wrap gap-2">
-                {(product.categories ?? []).map((c) => (
-                  <span
-                    key={c}
-                    className="brand-cut border border-accent/50 px-3 py-1 text-[10px] font-bold uppercase text-accent"
-                  >
-                    {c}
-                  </span>
-                ))}
-              </p>
-            ) : null}
-
-            {product.catalogueSection === "pens" ? (
-              <div className="mt-6"><DisposablePenGuide /></div>
-            ) : null}
-
-            {product.protocol ? (
-              <div className="mt-6 rounded-xl border border-border bg-card p-5">
-                <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
-                  {pp.usage_heading}
-                </h2>
-                <p className="mt-3 whitespace-pre-wrap text-sm text-muted-foreground">
-                  {product.protocol}
-                </p>
-              </div>
-            ) : null}
-
-            <ProductCertificates product={product}/>
-            {sanitizeProductLinks(product.links).filter(l=>!isCertificate(l)).length > 0 ? (
-              <div className="mt-5 flex flex-wrap gap-3">
-                {sanitizeProductLinks(product.links).filter(l=>!isCertificate(l)).map((l) => (
-                  <CmsLink
-                    key={l.url}
-                    href={l.url}
-                    className="brand-cut border border-accent px-4 py-2 text-xs font-bold uppercase text-accent hover:bg-accent/10"
-                  >
-                    {l.label || pp.link_fallback}
-                  </CmsLink>
-                ))}
-              </div>
-            ) : null}
           </div>
         </div>
+
+        <Accordion type="multiple" value={openInformation} onValueChange={setOpenInformation} className="product-information mt-8 space-y-3">
+          <AccordionItem value="details" className="rounded-lg border border-primary/25 bg-card px-5"><AccordionTrigger className="font-display font-bold uppercase">Product details</AccordionTrigger><AccordionContent>
+            {product.description?<p className="whitespace-pre-wrap leading-7">{product.description}</p>:null}
+            {product.details.length?<ul className="mt-3 space-y-2">{product.details.map(d=><li key={d}>• {d}</li>)}</ul>:null}
+            {(product.categories||[]).length?<p className="mt-3 text-xs text-muted-foreground">{product.categories!.join(" · ")}</p>:null}
+          </AccordionContent></AccordionItem>
+          <AccordionItem value="included" className="rounded-lg border border-primary/25 bg-card px-5"><AccordionTrigger className="font-display font-bold uppercase">What's included</AccordionTrigger><AccordionContent>
+            <p>{selected.variantLabel || product.name}</p>
+            {selectedVariant?.contents?.length?<ul className="mt-2 space-y-1">{selectedVariant.contents.map((it,i)=><li key={i}>{it.quantity} × {it.name}</li>)}</ul>:null}
+          </AccordionContent></AccordionItem>
+          {(product.protocol || isPenGallery(product)) ? <AccordionItem value="care" className="rounded-lg border border-primary/25 bg-card px-5"><AccordionTrigger className="font-display font-bold uppercase">{isPenGallery(product)?"Compatibility & care":pp.usage_heading}</AccordionTrigger><AccordionContent>
+            {product.protocol?<p className="whitespace-pre-wrap leading-7">{product.protocol}</p>:null}
+            {product.catalogueSection==="pens"?<DisposablePenGuide/>:<Link to="/pen-guide" className="mt-3 inline-block text-primary underline">View the Pen Guide for setup and care information</Link>}
+          </AccordionContent></AccordionItem>:null}
+          <AccordionItem value="documents" className="rounded-lg border border-primary/25 bg-card px-5"><AccordionTrigger className="font-display font-bold uppercase">Documents & certificates</AccordionTrigger><AccordionContent>
+            <ProductCertificates product={product}/>
+            {sanitizeProductLinks(product.links).filter(l=>!isCertificate(l)).map(l=><CmsLink key={l.url} href={l.url} className="mt-3 inline-block text-primary underline">{l.label || pp.link_fallback}</CmsLink>)}
+          </AccordionContent></AccordionItem>
+          <AccordionItem value="shipping" className="rounded-lg border border-primary/25 bg-card px-5"><AccordionTrigger className="font-display font-bold uppercase">Shipping & returns</AccordionTrigger><AccordionContent><p>Delivered Australia wide. Every order is covered by our 100% delivery guarantee.</p><Link to="/terms" className="mt-3 inline-block text-primary underline">View shipping and returns terms</Link></AccordionContent></AccordionItem>
+        </Accordion>
+
 
         <section className="mt-16">
           <h2 className="font-display text-2xl font-black uppercase tracking-[0.08em] text-foreground">

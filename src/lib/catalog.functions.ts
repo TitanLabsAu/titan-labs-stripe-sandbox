@@ -68,6 +68,7 @@ export function toProductWithPromotion(row: any, promotion: WebsitePromotion): P
   const sale = websiteSalePrice(listPrice, row.sale_price == null ? null : Number(row.sale_price), row.id, promotion);
   const onSale = sale !== null && sale > 0 && sale < listPrice;
   return {
+    ...(row.id ? { id: String(row.id) } : {}),
     slug: row.slug,
     name: row.slug === "luer-lock-syringe" && row.name === "3ml Luer Lock Syringe with drawing needle"
       ? "3ml Luer Lock Syringe with Safety Hypodermic Needle"

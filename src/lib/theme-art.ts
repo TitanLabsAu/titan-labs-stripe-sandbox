@@ -1,5 +1,7 @@
 /** Responsive candidates generated from the existing shipped art (no new artwork). CMS uploads keep their own URL. */
 const ART_SETS: Record<string, string> = {
+  "/christmas/hero-dark-organic-v3.webp":"/christmas/hero-dark-organic-v3-960.webp 960w, /christmas/hero-dark-organic-v3.webp 1672w",
+  "/christmas/hero-light-organic-v3.webp":"/christmas/hero-light-organic-v3-960.webp 960w, /christmas/hero-light-organic-v3.webp 1672w",
   "/images/titan-discovery.webp": "/images/titan-discovery-960.webp 960w, /images/titan-discovery.webp 1672w",
   "/images/titan-discovery-light.webp": "/images/titan-discovery-light-960.webp 960w, /images/titan-discovery-light.webp 1672w",
   "/images/titan-membership-card.webp": "/images/titan-membership-card-960.webp 960w, /images/titan-membership-card.webp 1672w",
@@ -97,3 +99,4 @@ export function prepareSwitch(next: "dark" | "light"): Promise<unknown> {
   if (!targets.length) return Promise.resolve();
   return Promise.race([Promise.all(targets.map(decodeLike)), new Promise((r) => setTimeout(r, 600))]);
 }
+
