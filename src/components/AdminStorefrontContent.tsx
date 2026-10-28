@@ -145,7 +145,7 @@ function SectionEditor({ section, content, onDirty }: { section: CmsSection; con
         ) : null}
       </div>
       <fieldset disabled={save.isPending} aria-busy={save.isPending} className="mt-5 grid min-w-0 gap-5">
-        {section.fields.map((f) => (
+        {section.fields.filter(f => section.id !== "home_welcome" || f.key !== "notice").map((f) => (
           <FieldEditor key={f.key} field={f} value={draft[f.key]} error={errors.get(f.key)} sectionId={section.id} onChange={(v) => setDraft((d) => ({ ...d, [f.key]: v }))} onUploadState={(busy) => setUploadingFields((keys) => busy ? [...new Set([...keys, f.key])] : keys.filter((key) => key !== f.key))} />
         ))}
       </fieldset>
@@ -312,3 +312,4 @@ function ProductField({ id, field, value, onChange }: { id: string; field: CmsFi
   const products = section ? filterBySection(allProducts, section) : allProducts;
   return <div className="grid gap-1.5"><Label htmlFor={id}>{field.label}</Label><select id={id} value={value ?? ""} disabled={isLoading} onChange={e => onChange(e.target.value)} className="h-10 rounded-md border border-input bg-background px-3 text-sm"><option value="">Automatic — first available photo</option>{value && !products.some(p => p.slug === value) ? <option value={value}>Unavailable product: {value}</option> : null}{products.map(p => <option key={p.slug} value={p.slug}>{p.name}</option>)}</select></div>;
 }
+
