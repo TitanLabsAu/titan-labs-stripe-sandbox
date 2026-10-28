@@ -95,8 +95,6 @@ describe("three product highlights", () => {
     expect(isPenGallery(kit)).toBe(false);
     expect(productHighlights(kit, undefined).map((v) => v.label)).toEqual([
       "Full product view",
-      "Product close-up",
-      "Product detail",
     ]);
     expect(
       productHighlights(kit, undefined).every((v) => v.src === kit.image),
@@ -138,4 +136,53 @@ describe("three product highlights", () => {
         .items,
     ).toEqual(items);
   });
+});
+
+test("vials show three distinct supplied photos and exact light counterparts, never fabricated zooms", () => {
+  const vial = {
+    ...p,
+    slug: "retatrutide",
+    name: "Retatrutide",
+    catalogueSection: "range",
+    variants: [],
+  } as Product;
+  const photos = productHighlights(vial, undefined, [
+    {
+      product: "p1",
+      variant: "",
+      image1: "/full.webp",
+      image2: "/label.webp",
+      image3: "/box.webp",
+      light1: "/full-light.webp",
+      light2: "/label-light.webp",
+      light3: "/box-light.webp",
+    },
+  ]);
+  expect(photos.map((p) => p.src)).toEqual([
+    "/full.webp",
+    "/label.webp",
+    "/box.webp",
+  ]);
+  expect(photos.every((p) => p.scale === 1)).toBe(true);
+  expect(photos.map((p) => p.light)).toEqual([
+    "/full-light.webp",
+    "/label-light.webp",
+    "/box-light.webp",
+  ]);
+  expect(productHighlights(vial, undefined)).toHaveLength(1);
+});
+
+test("existing saved gallery rows remain valid without optional light fields", () => {
+  const items = [row("p1", "blue", "/full.webp")];
+  expect(
+    cmsValues(
+      { [cmsKey("product_galleries")]: JSON.stringify({ items }) },
+      "product_galleries",
+    ).items,
+  ).toEqual(items);
+  expect(() =>
+    validateSection("product_galleries", {
+      items: [{ ...items[0], light1: "javascript:x" }],
+    }),
+  ).toThrow();
 });

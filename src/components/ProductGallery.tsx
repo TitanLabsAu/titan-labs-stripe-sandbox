@@ -8,7 +8,11 @@ import {
 } from "@/lib/product-gallery";
 import { cmsValues } from "@/lib/storefrontContent";
 import { useSiteContent } from "@/lib/useCatalog";
-import { ThemedContentImage, ThemedProductImage } from "./ThemedImage";
+import {
+  ThemedArt,
+  ThemedContentImage,
+  ThemedProductImage,
+} from "./ThemedImage";
 import { ProductChristmasDecor } from "./christmas/ChristmasTheme";
 function HighlightImage({
   photo,
@@ -34,6 +38,15 @@ function HighlightImage({
     },
     decoding: "async" as const,
   };
+  if (photo.light)
+    return (
+      <ThemedArt
+        dark={photo.src}
+        light={photo.light}
+        sizes={thumbnail ? "180px" : "(min-width:1024px) 50vw, 100vw"}
+        {...props}
+      />
+    );
   return photo.custom ? (
     <ThemedContentImage src={photo.src} {...props} />
   ) : (
@@ -57,7 +70,8 @@ export function ProductGallery({
   const entries = cmsValues(data, "product_galleries").items as GalleryEntry[];
   const photos = productHighlights(product, variant, entries);
   const [index, setIndex] = useState(0);
-  const photo = photos[index]!;
+  const activeIndex = Math.min(index, photos.length - 1);
+  const photo = photos[activeIndex]!;
   return (
     <figure
       className="min-w-0 self-start"
@@ -86,9 +100,9 @@ export function ProductGallery({
             key={i}
             type="button"
             aria-label={`Show ${p.label.toLowerCase()}`}
-            aria-pressed={index === i}
+            aria-pressed={activeIndex === i}
             onClick={() => setIndex(i)}
-            className={`relative aspect-[4/3] overflow-hidden rounded-lg border-2 bg-card transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${index === i ? "border-primary" : "border-border hover:border-primary/60"}`}
+            className={`relative aspect-[4/3] overflow-hidden rounded-lg border-2 bg-card transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${activeIndex === i ? "border-primary" : "border-border hover:border-primary/60"}`}
           >
             <HighlightImage
               photo={p}

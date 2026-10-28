@@ -79,3 +79,28 @@ describe("theme photo identity", () => {
     ).toBeNull();
   });
 });
+
+test("legacy originals resolve without accepting later Admin uploads", () => {
+  const sources = {
+    "cjc-1295-without-dac-ipa-5mg":
+      "catalogue-v3%2Fcjc-1295-without-dac-ipa-5mg.png",
+    kpv: "catalogue-v3%2Fkpv.png",
+    "reta-30": "reta-30%2F1fbbee3a-f2e7-4778-9ab8-48c0c4a7d86c.webp",
+  };
+  for (const [slug, path] of Object.entries(sources)) {
+    expect(
+      productLightPhoto(
+        slug,
+        `/api/public/product-image?path=${path}`,
+        undefined,
+      ),
+    ).toBe(`/images/product-light/${slug}.webp`);
+    expect(
+      productLightPhoto(
+        slug,
+        `/api/public/product-image?path=${slug}%2Fnew-upload.webp`,
+        undefined,
+      ),
+    ).toBeNull();
+  }
+});

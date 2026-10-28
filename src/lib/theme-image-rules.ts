@@ -50,6 +50,12 @@ export function productLightPhoto(
   if (explicit?.image) return explicit.image;
   const light = LIGHT_PRODUCT_IMAGES[slug];
   if (!light) return null;
+  const legacySources: Record<string, string> = {
+    "cjc-1295-without-dac-ipa-5mg": "/api/public/product-image?path=catalogue-v3%2Fcjc-1295-without-dac-ipa-5mg.png",
+    "kpv": "/api/public/product-image?path=catalogue-v3%2Fkpv.png",
+    "reta-30": "/api/public/product-image?path=reta-30%2F1fbbee3a-f2e7-4778-9ab8-48c0c4a7d86c.webp",
+  };
+  if (legacySources[slug] && samePhoto(src, legacySources[slug]!)) return light;
   const optimizedSource = Object.values(optimized).find(
     (p) => p === `/images/product-optimized/${slug}.webp`,
   );

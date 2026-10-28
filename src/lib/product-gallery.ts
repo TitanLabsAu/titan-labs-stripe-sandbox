@@ -1,4 +1,3 @@
-import { optimizedProductImage } from "./product-image-delivery";
 import type { Product, ProductVariant } from "./products";
 import { sanitizeVariantImage } from "./products";
 export type GalleryEntry = {
@@ -7,6 +6,9 @@ export type GalleryEntry = {
   image1: string;
   image2: string;
   image3: string;
+  light1?: string;
+  light2?: string;
+  light3?: string;
 };
 export type HighlightPhoto = {
   src: string;
@@ -15,6 +17,7 @@ export type HighlightPhoto = {
   x: number;
   y: number;
   custom: boolean;
+  light?: string;
 };
 export function hasPhotoColourOptions(variants: ProductVariant[]) {
   return (
@@ -35,7 +38,7 @@ export function isPenGallery(product: Product) {
   );
 }
 
-/** Three authentic views of this exact selected photo; custom photos never leak from another colour. */
+/** Pens retain their three detail views; other products never invent extra photos from zoom crops. */
 export function productHighlights(
   product: Product,
   variant: ProductVariant | undefined,
@@ -52,9 +55,6 @@ export function productHighlights(
       ? entries.find((e) => e.product === key && !e.variant)
       : undefined);
   const pen = isPenGallery(product);
-  const catalogueVial =
-    product.catalogueSection === "range" &&
-    optimizedProductImage(source).startsWith("/images/product-optimized/");
   const views = pen
     ? [
         { label: "Full pen view", scale: 1, x: 0.5, y: 0.5 },
@@ -63,25 +63,30 @@ export function productHighlights(
       ]
     : [
         { label: "Full product view", scale: 1, x: 0.5, y: 0.5 },
-        {
-          label: "Product close-up",
-          scale: 1.8,
-          x: catalogueVial ? 0.73 : 0.5,
-          y: catalogueVial ? 0.66 : 0.5,
-        },
-        {
-          label: "Product detail",
-          scale: 2.7,
-          x: catalogueVial ? 0.73 : 0.5,
-          y: catalogueVial ? 0.66 : 0.5,
-        },
+        { label: "Label detail", scale: 1, x: 0.5, y: 0.5 },
+        { label: "Titan Labs product box", scale: 1, x: 0.5, y: 0.5 },
       ];
-  return views.map((v, i) => {
+  return views.flatMap<HighlightPhoto>((v, i) => {
     const photo = sanitizeVariantImage(
       custom?.[`image${i + 1}` as keyof GalleryEntry],
     );
-    return photo
-      ? { ...v, src: photo, scale: 1, x: 0.5, y: 0.5, custom: true }
-      : { ...v, src: source, custom: false };
+    const light = sanitizeVariantImage(
+      custom?.[`light${i + 1}` as keyof GalleryEntry],
+    );
+    if (photo)
+      return [
+        {
+          ...v,
+          src: photo,
+          scale: 1,
+          x: 0.5,
+          y: 0.5,
+          custom: true,
+          ...(light ? { light } : {}),
+        },
+      ];
+    return pen || i === 0
+      ? [{ ...v, src: source, custom: false, ...(light ? { light } : {}) }]
+      : [];
   });
 }

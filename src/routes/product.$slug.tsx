@@ -1,15 +1,15 @@
+import { productInformation, type ProductInformationEntry } from "@/lib/product-information";
 import { ProductGallery } from "@/components/ProductGallery";
 import { PhotoColourSelector } from "@/components/PhotoColourSelector";
-import { hasPhotoColourOptions, isPenGallery } from "@/lib/product-gallery";
+import { hasPhotoColourOptions } from "@/lib/product-gallery";
 import { Accordion,AccordionItem,AccordionTrigger,AccordionContent } from "@/components/ui/accordion";
 import { promotedPrice } from "@/lib/variant-promotions";
 import { ThemedProductImage } from "@/components/ThemedImage";
 import { seoHead, productUrl, productSchema, jsonLd } from "@/lib/seo";
 import { ProductCertificates } from "@/components/ProductCertificates";
-import { sanitizeProductLinks, isCertificate } from "@/lib/product-certificates";
+import { isCertificate } from "@/lib/product-certificates";
 import { CmsLink } from "@/components/CmsLink";
 import { cmsValues } from "@/lib/storefrontContent";
-import { DisposablePenGuide } from "@/components/DisposablePenGuide";
 import { StarterKitOffer } from "@/components/StarterKitOffer";
 import { createFileRoute, Link, notFound, useLocation } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -119,6 +119,7 @@ function ProductPageBody() {
   }
 
   const selectedVariant = (product.variants ?? []).find(v => v.id === variantId);
+  const information = productInformation(product, selectedVariant, cmsValues(content, "product_information").items as ProductInformationEntry[]);
   const promoLabel = selectedVariant ? selectedVariant.promoLabel || (selectedVariant.hotProduct ? "Hot product" : (product.variants ?? []).some(v => typeof v.hotProduct === "boolean") ? "" : product.promoLabel || "") : product.promoLabel;
   const wasPrice = selectedVariant && promotedPrice(selectedVariant.price, selectedVariant.salePrice) < selectedVariant.price ? selectedVariant.price : selectedVariant ? null : product.wasPrice;
   const singleOption = getProductOption(product, variantId, "single");
@@ -338,24 +339,11 @@ function ProductPageBody() {
         </div>
 
         <Accordion type="multiple" value={openInformation} onValueChange={setOpenInformation} className="product-information mt-8 space-y-3">
-          <AccordionItem value="details" className="rounded-lg border border-primary/25 bg-card px-5"><AccordionTrigger className="font-display font-bold uppercase">Product details</AccordionTrigger><AccordionContent>
-            {product.description?<p className="whitespace-pre-wrap leading-7">{product.description}</p>:null}
-            {product.details.length?<ul className="mt-3 space-y-2">{product.details.map(d=><li key={d}>• {d}</li>)}</ul>:null}
-            {(product.categories||[]).length?<p className="mt-3 text-xs text-muted-foreground">{product.categories!.join(" · ")}</p>:null}
-          </AccordionContent></AccordionItem>
-          <AccordionItem value="included" className="rounded-lg border border-primary/25 bg-card px-5"><AccordionTrigger className="font-display font-bold uppercase">What's included</AccordionTrigger><AccordionContent>
-            <p>{selected.variantLabel || product.name}</p>
-            {selectedVariant?.contents?.length?<ul className="mt-2 space-y-1">{selectedVariant.contents.map((it,i)=><li key={i}>{it.quantity} × {it.name}</li>)}</ul>:null}
-          </AccordionContent></AccordionItem>
-          {(product.protocol || isPenGallery(product)) ? <AccordionItem value="care" className="rounded-lg border border-primary/25 bg-card px-5"><AccordionTrigger className="font-display font-bold uppercase">{isPenGallery(product)?"Compatibility & care":pp.usage_heading}</AccordionTrigger><AccordionContent>
-            {product.protocol?<p className="whitespace-pre-wrap leading-7">{product.protocol}</p>:null}
-            {product.catalogueSection==="pens"?<DisposablePenGuide/>:<Link to="/pen-guide" className="mt-3 inline-block text-primary underline">View the Pen Guide for setup and care information</Link>}
-          </AccordionContent></AccordionItem>:null}
-          <AccordionItem value="documents" className="rounded-lg border border-primary/25 bg-card px-5"><AccordionTrigger className="font-display font-bold uppercase">Documents & certificates</AccordionTrigger><AccordionContent>
+          {([ ["details", "Product details", information.details], ["included", "What's included", information.included], ["care", "Compatibility & care", information.care], ["shipping", "Shipping & returns", information.shipping] ] as const).filter(([, , value])=>Boolean(value)).map(([key,title,value])=><AccordionItem key={key} value={key} className="rounded-lg border border-primary/25 bg-card px-5"><AccordionTrigger className="font-display font-bold uppercase">{title}</AccordionTrigger><AccordionContent><p className="whitespace-pre-wrap leading-7">{value}</p></AccordionContent></AccordionItem>)}
+          {information.documents.length ? <AccordionItem value="documents" className="rounded-lg border border-primary/25 bg-card px-5"><AccordionTrigger className="font-display font-bold uppercase">Documents & certificates</AccordionTrigger><AccordionContent>
             <ProductCertificates product={product}/>
-            {sanitizeProductLinks(product.links).filter(l=>!isCertificate(l)).map(l=><CmsLink key={l.url} href={l.url} className="mt-3 inline-block text-primary underline">{l.label || pp.link_fallback}</CmsLink>)}
-          </AccordionContent></AccordionItem>
-          <AccordionItem value="shipping" className="rounded-lg border border-primary/25 bg-card px-5"><AccordionTrigger className="font-display font-bold uppercase">Shipping & returns</AccordionTrigger><AccordionContent><p>Delivered Australia wide. Every order is covered by our 100% delivery guarantee.</p><Link to="/terms" className="mt-3 inline-block text-primary underline">View shipping and returns terms</Link></AccordionContent></AccordionItem>
+            {information.documents.filter(l=>!isCertificate(l)).map(l=><CmsLink key={l.url} href={l.url} className="mt-3 inline-block text-primary underline">{l.label || pp.link_fallback}</CmsLink>)}
+          </AccordionContent></AccordionItem> : null}
         </Accordion>
 
 
