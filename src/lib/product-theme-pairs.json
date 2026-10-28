@@ -9,7 +9,8 @@
     "slug": "titan-v2-reusable-pen",
     "source": "/api/public/product-image?path=titan-v2-reusable-pen%2F86bb2383-7ae1-4a99-ade1-498a95e03887.png",
     "dark": "/images/product-theme/v2-blue-dark-v1.webp",
-    "light": "/api/public/product-image?path=titan-v2-reusable-pen%2F86bb2383-7ae1-4a99-ade1-498a95e03887.png"
+    "light": "/api/public/product-image?path=titan-v2-reusable-pen%2F86bb2383-7ae1-4a99-ade1-498a95e03887.png",
+    "colour": "Blue"
   },
   {
     "slug": "titan-v2-reusable-pen",
@@ -27,7 +28,8 @@
     "slug": "travel-case-with-ice-pack",
     "source": "/api/public/product-image?path=travel-case-with-ice-pack%2F5bbba06c-831e-442f-b028-5eceba22bc37.png",
     "dark": "/images/product-theme/case-blue-dark-v1.webp",
-    "light": "/api/public/product-image?path=travel-case-with-ice-pack%2F5bbba06c-831e-442f-b028-5eceba22bc37.png"
+    "light": "/api/public/product-image?path=travel-case-with-ice-pack%2F5bbba06c-831e-442f-b028-5eceba22bc37.png",
+    "colour": "Blue"
   },
   {
     "slug": "travel-case-with-ice-pack",

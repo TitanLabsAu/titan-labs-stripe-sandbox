@@ -110,3 +110,47 @@ describe("no other variant behaviour changes", () => {
     expect(p.unlimitedStock).toBe(false);
   });
 });
+
+
+import shippedPairs from "../src/lib/product-theme-pairs.json";
+import { hasPhotoColourOptions } from "../src/lib/product-gallery";
+import { catalogueVariantImage } from "../src/lib/products";
+import { PhotoColourSelector } from "../src/components/PhotoColourSelector";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+
+describe("V2 pen and travel case main-photo colour tiles", () => {
+  for (const slug of ["titan-v2-reusable-pen", "travel-case-with-ice-pack"]) {
+    test(`${slug}: blank Blue variant uses the matching main photo and enables every colour tile`, () => {
+      const pairs = shippedPairs.filter(p => p.slug === slug);
+      const blue = pairs.find(p => p.colour === "Blue")!;
+      const labels = slug === "titan-v2-reusable-pen" ? ["Blue", "Grey", "Purple"] : ["Blue", "Purple"];
+      const raw = { ...row, slug, image_url: blue.source, product_variants: pairs.map((pair,i) => ({ id:`real-sku-${i}`, label:labels[i], price:slug === "titan-v2-reusable-pen" ? 40 : 25, stock:i+2, image:i===0 ? null : pair.source })) };
+      const before = JSON.stringify(raw);
+      const product = toProduct(raw);
+      expect(JSON.stringify(raw)).toBe(before);
+      expect(hasPhotoColourOptions(product.variants!)).toBe(true);
+      expect(product.variants!.find(v=>v.label === "Blue")!.image).toBe(blue.source);
+      for (const variant of product.variants!) {
+        const original = raw.product_variants.find(v=>v.id===variant.id)!;
+        expect(variant.price).toBe(original.price); expect(variant.stock).toBe(original.stock);
+        expect(variantImageFor(product,variant.id)).toBe(pairs[labels.indexOf(variant.label)]!.source);
+      }
+      const client = new QueryClient();client.setQueryData(["site-content"],{});
+      const html = renderToStaticMarkup(createElement(QueryClientProvider,{client},createElement(PhotoColourSelector,{product,variants:product.variants!,value:"real-sku-0",onChange:()=>{},compact:true})));
+      expect((html.match(/type="radio"/g)||[]).length).toBe(labels.length);
+      for(const label of labels)expect(html).toContain(`aria-label="${label}"`);
+      for(const pair of pairs){expect(html).toContain(pair.dark);expect(html).toContain(pair.light);}
+    });
+  }
+  test("new uploads, wrong colours, wrong products and other origins do not reuse the Blue photo", () => {
+    const blue = shippedPairs.find(p=>p.slug==="titan-v2-reusable-pen" && p.colour==="Blue")!;
+    expect(catalogueVariantImage(blue.slug,blue.source,"Blue","/custom-blue.webp")).toBe("/custom-blue.webp");
+    expect(catalogueVariantImage(blue.slug,"/new-main.webp","Blue",null)).toBeNull();
+    expect(catalogueVariantImage(blue.slug,blue.source,"Purple",null)).toBeNull();
+    expect(catalogueVariantImage("another-product",blue.source,"Blue",null)).toBeNull();
+    expect(catalogueVariantImage(blue.slug,`https://other.example${blue.source}`,"Blue",null)).toBeNull();
+    expect(catalogueVariantImage(blue.slug,`https://titanlabsaus.com${blue.source}`," blue ",null)).toBe(`https://titanlabsaus.com${blue.source}`);
+  });
+});

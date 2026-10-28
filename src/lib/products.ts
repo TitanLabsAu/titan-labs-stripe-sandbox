@@ -41,6 +41,22 @@ export function sanitizeVariantImage(raw: unknown): string | null {
   return s.slice(0, 500);
 }
 
+/** A blank colour photo can use its exact, known matching main photo. Custom uploads win. */
+export function catalogueVariantImage(slug: string, mainImage: unknown, label: unknown, image: unknown): string | null {
+  const explicit = sanitizeVariantImage(image);
+  if (explicit) return explicit;
+  const main = sanitizeVariantImage(mainImage);
+  if (!main) return null;
+  let source: string;
+  try {
+    const url = new URL(main, "https://titanlabsaus.com");
+    if (url.origin !== "https://titanlabsaus.com") return null;
+    source = url.pathname + url.search;
+  } catch { return null; }
+  const colour = String(label ?? "").trim().toLowerCase();
+  return shippedPhotoPairs.some(pair => pair.slug === slug && pair.colour?.toLowerCase() === colour && [pair.source, pair.dark, pair.light].includes(source)) ? main : null;
+}
+
 /** Photo for the selected option: its own assigned image, else the product's main photo. */
 export function variantImageFor(
   product: { image?: string | null; variants?: { id: string; image?: string | null }[] },
