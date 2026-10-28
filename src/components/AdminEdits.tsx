@@ -1119,18 +1119,7 @@ export function AdminEdits() {
                   <option value="right">Right</option>
                 </select>
               </div>
-              <div>
-                <Label>Header arrangement</Label>
-                <select
-                  className="mt-2 h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"
-                  value={values[HEADER_LAYOUT_KEY] ?? "inline"}
-                  onChange={(e) => setValue(HEADER_LAYOUT_KEY, e.target.value)}
-                >
-                  <option value="inline">Logo left, tabs beside it</option>
-                  <option value="stacked">Logo on top, tabs underneath</option>
-                  <option value="centred">Everything centred</option>
-                </select>
-              </div>
+              <div className="self-center text-sm text-muted-foreground">Compact single-row header. Smaller screens use the Menu button for navigation.</div>
             </div>
 
             <SectionOrderEditor
