@@ -52,4 +52,4 @@
 
 - Standalone Equipment `titan-v2-reusable-pen` can offer real Equipment add-ons (default Travel Case when enabled); explicit empty offers and disabled defaults remain authoritative. Photo colour tiles reuse saved Blue/Purple variant photos, SKU stock and prices.
 
-- Homepage announcements use `cms:home_announcements` through the shared Admin > Storefront content > Homepage editor (CAS saves, ordered topics, optional links, visibility and speed). The standalone homepage first-offer block is retired, while membership/checkout offer settings stay independent. Shared header is one compact row; mobile navigation uses an accessible sheet with labelled links.
+- Homepage announcements use `cms:home_announcements` through the shared Admin > Storefront content > Homepage editor (CAS saves, ordered topics, optional links, visibility and speed). The standalone homepage first-offer block is retired, while membership/checkout offer settings stay independent. Shared header is one compact row with individual tabs at every width; narrow screens use labelled icons and a title sized to its available space, without a hamburger menu.

@@ -1119,7 +1119,7 @@ export function AdminEdits() {
                   <option value="right">Right</option>
                 </select>
               </div>
-              <div className="self-center text-sm text-muted-foreground">Compact single-row header. Smaller screens use the Menu button for navigation.</div>
+              <div className="self-center text-sm text-muted-foreground">Compact single-row header with individual tabs. Smaller screens use compact icons beside the reduced title.</div>
             </div>
 
             <SectionOrderEditor

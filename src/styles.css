@@ -1040,24 +1040,24 @@ html.light .theme-label-light { display: contents !important; }
 }
 
 
-/* Compact shared header: a single row, with an accessible menu on smaller screens. */
+/* Individual navigation tabs stay on the same header row at every screen size. */
 .titan-site-header .titan-header-row { display:flex; flex-direction:row; justify-content:space-between; gap:1rem; padding-block:.65rem; }
 .titan-header-brand { flex:0 1 auto; }
 .titan-header-brand > span:first-child { font-size:clamp(1rem,1.8vw,1.5rem); white-space:nowrap; }
 .titan-header-brand > span:last-child { font-size:.5rem; margin-top:.2rem; white-space:nowrap; }
-.titan-mobile-actions { display:none; }
 .titan-header-nav { flex-wrap:nowrap; }
 .titan-header-nav > * { flex-shrink:0; }
-.titan-mobile-menu .titan-header-nav { display:grid; grid-template-columns:1fr; margin-top:1.5rem; gap:.4rem; }
-.titan-mobile-menu .titan-header-nav a { width:100%; min-height:44px; justify-content:flex-start; }
-.titan-mobile-menu .titan-header-nav .titan-theme-toggle { display:none; }
+.titan-narrow-tab-icon { display:none; }
 @media(max-width:1199px) {
- .titan-desktop-navigation { display:none; }
- .titan-mobile-actions { display:flex; align-items:center; gap:.2rem; flex-shrink:0; }
- .titan-site-header .titan-header-row { gap:.4rem; padding-block:.4rem; }
- .titan-mobile-actions button { min-width:40px; width:40px; min-height:44px; height:44px; padding:0; }
- .titan-header-brand > span:first-child { font-size:clamp(.85rem,2.5vw,1.3rem); letter-spacing:.07em; }
- .titan-header-brand > span:last-child { font-size:clamp(.38rem,1vw,.48rem); letter-spacing:.08em; }
+ .titan-site-header .titan-header-row { width:100%; max-width:none; gap:.3rem; padding-inline:.5rem; padding-block:.35rem; }
+ .titan-header-brand { flex:1 1 0; container-type:inline-size; }
+ .titan-site-header .titan-header-brand > span:first-child { font-size:clamp(.4rem,8cqw,1.15rem); letter-spacing:.03em; }
+ .titan-header-brand > span:last-child { font-size:clamp(.2rem,3.2cqw,.42rem); letter-spacing:0; }
+ .titan-header-nav { gap:0; }
+ .titan-site-header .titan-header-nav .titan-nav-icon { width:clamp(22px,6.4vw,40px); min-width:0; height:40px; min-height:40px; padding:0; border-color:transparent; }
+ .titan-header-nav svg { width:14px; height:14px; }
+ .titan-narrow-tab-icon { display:block; }
+ .titan-tab-text { display:none; }
 }
 /* The announcement is homepage-only and uses a separate, owner-editable CMS section. */
 .titan-announcements { display:flex; align-items:center; background:#0078b7; color:#fff; border-bottom:1px solid #b58b39; min-height:38px; }
@@ -1088,8 +1088,6 @@ html.light .theme-label-light { display: contents !important; }
 .titan-desktop-navigation { min-width:0; overflow-x:auto; }
 .titan-header-brand { overflow:hidden; }
 .titan-header-brand > span { overflow:hidden; text-overflow:ellipsis; }
-.titan-mobile-menu .titan-nav-icon { gap:.65rem; }
-.titan-mobile-menu a.titan-nav-icon:has(svg)[aria-label]::after { content:attr(aria-label); }
 
 /* Keep the hero-to-products handoff compact after retiring its research notice. */
 .titan-home .discovery-copy { min-height:0; padding-bottom:.75rem; }

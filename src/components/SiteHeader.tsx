@@ -1,5 +1,4 @@
 import { HomeAnnouncementBanner } from "./HomeAnnouncementBanner";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
 import { WebsitePromotionNotice } from "@/components/WebsitePromotionNotice";
 import { ChristmasHeaderDecor } from "@/components/christmas/ChristmasTheme";
 import { ThemedContentImage } from "@/components/ThemedImage";
@@ -13,7 +12,6 @@ import {
   Calculator,
   FlaskConical,
   Home,
-  Menu,
   LogIn,
   Microscope,
   Shield,
@@ -50,8 +48,6 @@ export function SiteHeader() {
         ? "border-primary bg-primary/10 text-primary"
         : undefined,
   });
-  const [menuOpen, setMenuOpen] = useState(false);
-  useEffect(() => setMenuOpen(false), [pathname]);
   const [signedIn, setSignedIn] = useState(false);
   const { isAdmin } = useIsAdmin();
   const {products} = useProducts();
@@ -103,8 +99,9 @@ export function SiteHeader() {
         variant={variant}
         className="titan-nav-icon font-bold uppercase"
       >
-        <Link to={to} {...navState(to)}>
-          {text}
+        <Link to={to} {...navState(to)} aria-label={text} title={text}>
+          <Icon className="titan-narrow-tab-icon"/>
+          <span className="titan-tab-text">{text}</span>
         </Link>
       </Button>
     );
@@ -147,7 +144,7 @@ export function SiteHeader() {
                 aria-label={catalogueName(content)}
                 title={catalogueName(content)}
               >
-                {display(tab) === "icon" ? <FlaskConical /> : <span>{catalogueName(content)}</span>}
+                {display(tab) === "icon" ? <FlaskConical /> : <><FlaskConical className="titan-narrow-tab-icon"/><span className="titan-tab-text">{catalogueName(content)}</span></>}
               </Link>
             </Button>
           );
@@ -166,7 +163,7 @@ export function SiteHeader() {
                 aria-label={cmsValues(content, "nav_labels").research_label || "Titan Research Lab"}
                 title={cmsValues(content, "nav_labels").research_label || "Titan Research Lab"}
               >
-                {display(tab) === "icon" ? <Microscope /> : <span>{cmsValues(content, "nav_labels").research_label || "Research Lab"}</span>}
+                {display(tab) === "icon" ? <Microscope /> : <><Microscope className="titan-narrow-tab-icon"/><span className="titan-tab-text">{cmsValues(content, "nav_labels").research_label || "Research Lab"}</span></>}
               </Link>
             </Button>
           );
@@ -179,7 +176,7 @@ export function SiteHeader() {
                 aria-label="Titan Guides"
                 title="Titan Guides"
               >
-                {display(tab) === "icon" ? <BookOpen /> : <span>Guides</span>}
+                {display(tab) === "icon" ? <BookOpen /> : <><BookOpen className="titan-narrow-tab-icon"/><span className="titan-tab-text">Guides</span></>}
               </Link>
             </Button>
           );
@@ -192,7 +189,7 @@ export function SiteHeader() {
                 aria-label="My Calendar"
                 title="My Calendar"
               >
-                {display(tab) === "icon" ? <CalendarDays /> : <span>My Calendar</span>}
+                {display(tab) === "icon" ? <CalendarDays /> : <><CalendarDays className="titan-narrow-tab-icon"/><span className="titan-tab-text">My Calendar</span></>}
               </Link>
             </Button>
           );
@@ -230,7 +227,7 @@ export function SiteHeader() {
             UserPlus,
             "outline",
           );
-        if (tab === "cart") return <span key={tab} className="hidden md:contents"><CartSheet /></span>;
+        if (tab === "cart") return <span key={tab} className="contents"><CartSheet /></span>;
         return null;
       })}
       <ThemeToggle />
@@ -275,16 +272,7 @@ export function SiteHeader() {
             </span>
           </Link>
           <div className="titan-desktop-navigation">{nav}</div>
-          <div className="titan-mobile-actions">
-            <CartSheet/><ThemeToggle/>
-            <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-              <SheetTrigger asChild><Button variant="outline" size="icon" aria-label="Open navigation menu"><Menu aria-hidden="true"/></Button></SheetTrigger>
-              <SheetContent className="titan-mobile-menu overflow-y-auto">
-                <SheetHeader><SheetTitle>Titan Labs menu</SheetTitle></SheetHeader>
-                {nav}
-              </SheetContent>
-            </Sheet>
-          </div>
+
         </div>
       </div>
       <ChristmasHeaderDecor />
