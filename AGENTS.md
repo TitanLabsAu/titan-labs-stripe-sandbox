@@ -47,3 +47,5 @@
 - Paired V2 cases (`penSlug`) add linked `pen-companion:`/`pen-case:` lines cascading via `linkedLineKeys`; orphan cases detach — each SKU priced/settled alone.
 - `products.extra_catalogue_sections` only adds listings (`filterBySection`); pricing, discounts and offers always follow the primary `catalogue_section`.
 - Bulk optional equipment: preview→apply, additive, CAS on `updated_at`, NULL defaults materialised first to keep offers.
+
+- Christmas is an independent OFF-by-default `christmas_theme` site-content layer (`src/lib/christmas.ts`). Never rewrite theme preferences, photos or prices. Admin saves require role validation and raw-body CAS; motion skips reduced-motion/hidden tabs and all account/checkout/Admin flows. All graphics are pointer-transparent; keep timer/RAF cleanup and bounded trailing snow.

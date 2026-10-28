@@ -1,3 +1,4 @@
+import { ChristmasThemeEditor } from "@/components/christmas/ChristmasThemeEditor";
 import { useEffect, useState } from "react";
 import { confirmDiscardCmsDrafts } from "@/lib/cmsDirtyGuard";
 import type { ReactNode } from "react";
@@ -944,6 +945,7 @@ export function AdminEdits() {
               redesign is approved for production.
             </p>
           </div>
+          <ChristmasThemeEditor content={data} />
         </TabsContent>
 
         <TabsContent value="legal" className="mt-6 space-y-6">
@@ -1563,3 +1565,4 @@ export function AdminEdits() {
     </div>
   );
 }
+

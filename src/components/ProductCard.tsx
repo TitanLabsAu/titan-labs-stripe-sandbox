@@ -1,3 +1,4 @@
+import { ProductChristmasDecor } from "@/components/christmas/ChristmasTheme";
 import { promotedPrice } from "@/lib/variant-promotions";
 import { PROMOTION_BANNERS_KEY, parseBannerSettings, resolveBanner } from "@/lib/promotion-banners";
 import { useSiteContent } from "@/lib/useCatalog";
@@ -80,6 +81,7 @@ export function ProductCard({ product: p, aligned = false }: { product: Product;
             className={`h-full w-full object-contain transition duration-300 hover:scale-[1.02] ${allOut ? "opacity-40 grayscale" : ""}`}
           />
         )}
+        <ProductChristmasDecor />
         {banner && !bannerSoon ? <PromotionRibbon banner={banner} /> : null}
         {bannerSoon ? (
           <span className="absolute inset-x-0 bottom-0 bg-primary py-1 text-center text-[9px] font-bold uppercase tracking-[0.16em] text-primary-foreground">
@@ -226,3 +228,4 @@ export function ProductCard({ product: p, aligned = false }: { product: Product;
     </article>
   );
 }
+

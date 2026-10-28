@@ -1,3 +1,4 @@
+import { ProductChristmasDecor } from "@/components/christmas/ChristmasTheme";
 import { promotedPrice } from "@/lib/variant-promotions";
 import { ThemedProductImage } from "@/components/ThemedImage";
 import { seoHead, productUrl, productSchema, jsonLd } from "@/lib/seo";
@@ -136,7 +137,8 @@ function ProductPage() {
         </Link>
 
         <div className="mt-6 grid gap-8 border-t border-border pt-8 lg:grid-cols-[1fr_0.95fr]">
-          <div>
+          <div className="relative self-start overflow-hidden rounded-xl">
+            <ProductChristmasDecor />
             {selectedVariant?.image ? (
               <img
                 src={selectedVariant.image}
@@ -442,4 +444,5 @@ function ProductPage() {
     </div>
   );
 }
+
 

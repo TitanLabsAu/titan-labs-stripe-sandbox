@@ -1,3 +1,4 @@
+import { ChristmasHeroDecor } from "@/components/christmas/ChristmasTheme";
 import { ThemedArt, ThemedProductImage, themedArtPair } from "@/components/ThemedImage";
 import { ArrowRight, FlaskConical, PenTool, Truck, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ export function DiscoveryWelcome() {
     <section aria-labelledby="discovery-welcome" className="discovery-welcome relative isolate overflow-hidden">
       <ThemedArt className="discovery-art" dark={art.dark} light={art.light} sizes="100vw" alt="" width={1672} height={941} priority />
       <div className="discovery-shade absolute inset-0 -z-10" />
+      <ChristmasHeroDecor helmetVisible={!c.image && !c.image_light} />
       <div className="page-shell discovery-copy relative py-14 sm:py-20 lg:py-28">
         <div className="max-w-xl">
           <p className="discovery-eyebrow mb-5">{c.eyebrow}</p>
@@ -56,3 +58,4 @@ export function DiscoveryCatalogue() {
     </div>
   </section>;
 }
+

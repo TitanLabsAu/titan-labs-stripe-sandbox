@@ -1,0 +1,179 @@
+/* Decorative layers only: never intercept input, change layout, or replace photos. */
+.christmas-chrome,
+.christmas-hero-decor,
+.christmas-product-decor,
+.christmas-catalogue-wreath,
+.christmas-flight {
+  pointer-events: none !important;
+  user-select: none;
+}
+.christmas-chrome {
+  position: fixed;
+  inset: 0 0 auto;
+  height: 105px;
+  z-index: 35;
+  overflow: hidden;
+}
+.christmas-corner {
+  position: absolute;
+  width: 90px;
+  height: auto;
+  top: -4px;
+}
+.christmas-corner-left {
+  left: -16px;
+}
+.christmas-corner-right {
+  right: -16px;
+  transform: scaleX(-1);
+}
+.christmas-subtle .christmas-corner {
+  width: 70px;
+  top: 0;
+}
+.christmas-lights {
+  position: absolute;
+  top: 65px;
+  width: 100%;
+  height: 26px;
+  filter: drop-shadow(0 0 3px #e6bb5f66);
+}
+.christmas-hero-decor {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.christmas-helmet-hat {
+  position: absolute;
+  width: 25%;
+  max-width: 370px;
+  right: 8%;
+  top: -4%;
+  transform: rotate(12deg);
+}
+.christmas-hero-pine {
+  position: absolute;
+  bottom: 0;
+  right: -10px;
+  width: 140px;
+  transform: rotate(180deg);
+}
+.christmas-product-decor {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+}
+.christmas-card-hat {
+  position: absolute;
+  width: clamp(40px, 18%, 65px);
+  right: 0;
+  top: 0;
+  transform: rotate(10deg);
+}
+.christmas-card-pine {
+  position: absolute;
+  width: 68px;
+  bottom: -16px;
+  right: -17px;
+  transform: rotate(180deg);
+}
+.christmas-catalogue-wreath {
+  position: absolute;
+  top: 8px;
+  right: 5%;
+  width: 100px;
+  height: 100px;
+}
+.christmas-flight {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  overflow: hidden;
+  contain: layout paint;
+}
+.christmas-flight[hidden] {
+  display: none;
+}
+.christmas-flight-preview {
+  position: absolute;
+}
+.christmas-flight-team {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: clamp(230px, 30vw, 420px);
+  will-change: transform;
+}
+.christmas-realistic-sleigh {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  background-image: url("/christmas/santa-sleigh-realistic-v1.webp");
+  background-size: 200% 200%;
+  background-repeat: no-repeat;
+  animation: titan-realistic-gallop 0.64s steps(1, end) infinite;
+  filter: drop-shadow(0 2px 2px #07182733);
+}
+.christmas-snow {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+@keyframes titan-realistic-gallop {
+  0% {
+    background-position: 0% 0%;
+  }
+  25% {
+    background-position: 100% 0%;
+  }
+  50% {
+    background-position: 0% 100%;
+  }
+  75% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+@media (max-width: 767px) {
+  .christmas-chrome {
+    height: 90px;
+  }
+  .christmas-corner,
+  .christmas-subtle .christmas-corner {
+    width: 64px;
+    top: -4px;
+  }
+  .christmas-lights {
+    top: 60px;
+    height: 18px;
+  }
+  .christmas-helmet-hat {
+    width: 150px;
+    max-width: 36%;
+    right: 5%;
+    top: 0;
+  }
+  .christmas-hero-pine {
+    width: 80px;
+  }
+  .christmas-catalogue-wreath {
+    width: 48px;
+    height: 48px;
+    right: 8px;
+    top: 4px;
+  }
+  .christmas-flight-team {
+    width: 230px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .christmas-flight {
+    display: none !important;
+  }
+  .christmas-realistic-sleigh {
+    animation: none !important;
+  }
+}
