@@ -17,7 +17,7 @@ First flight defaults to 30–60 seconds; subsequent waits default to 120–240 
 
 ## Artwork and scope
 
-Original code-native SVGs provide Santa, the sleigh, four independently phased galloping reindeer, swaying reins/hat, evergreen branches, blue/gold baubles, wreath and hats. Canvas renders only the short fading snow trail; particles are bounded and the display pixel ratio is capped at two.
+Santa, the sleigh and four reindeer now use a transparent 1280×640 WebP sprite with four realistic gallop poses. A discrete CSS animation advances the 2×2 frames, while the existing flight scheduler moves the group. The sprite is preloaded only when the Christmas/sleigh switches are on. Evergreen branches, baubles, wreaths and hats remain lightweight original SVGs. Canvas renders only the short fading snow trail; particles are bounded and the display pixel ratio is capped at two.
 
 All layers ignore pointer input and are hidden from assistive technology. Original product files, prices, sale rules, theme choice and page copy are not rewritten. Product-card and product-detail hats sit at the right to avoid existing left-hand promotion ribbons. The helmet hat follows the built-in welcome image; a custom welcome image disables that hat to avoid decorating the wrong subject. Static decorations work in both themes.
 
@@ -41,3 +41,12 @@ The production sitemap plugin needs public catalogue build configuration. Local 
 New tests cover malformed/missing defaults, exact random bounds, timer validation, excluded paths, actual save-handler authorisation/conflicts, cleanup on disable, reduced motion, visibility pause/resume, preview replay, and repeat scheduling.
 
 Before publication, visually review the hat placement against any saved welcome artwork on desktop/mobile and both themes, and use the Admin preview flight. Browser and Admin sign-in checks are separate from the automated tests. Keep this draft unpublished until approved.
+
+
+### Realistic Santa artwork revision
+
+`public/christmas/santa-sleigh-realistic-v1.webp` is a 304,142-byte alpha WebP (1280×640), optimised from the generated four-pose artwork without changing its design. Generated with the built-in image tool; no Lovable build credits were used.
+
+Art direction: realistic cinematic Santa in a red velvet suit, red/gold sleigh, natural brown-furred reindeer with leather harnesses, royal blue/gold gifts, side-on flight toward the right, transparent background, four consecutive gallop poses in a fixed 2×2 grid. No scenery, text or baked-in snow; the existing runtime provides the fading snow trail.
+
+Updated validation: 554 tests / 5,786 assertions, TypeScript and production build pass. The build uses the same isolated sitemap fixture. The realistic artwork replaces only the sleigh/reindeer; all Admin controls and OFF-by-default behaviour are unchanged.

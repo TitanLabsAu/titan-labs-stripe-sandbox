@@ -104,12 +104,15 @@
   width: clamp(230px, 30vw, 420px);
   will-change: transform;
 }
-.christmas-flight-team > svg {
+.christmas-realistic-sleigh {
   display: block;
   width: 100%;
-  height: auto;
-  overflow: visible;
-  filter: drop-shadow(0 2px 2px #07182740);
+  aspect-ratio: 2 / 1;
+  background-image: url("/christmas/santa-sleigh-realistic-v1.webp");
+  background-size: 200% 200%;
+  background-repeat: no-repeat;
+  animation: titan-realistic-gallop 0.64s steps(1, end) infinite;
+  filter: drop-shadow(0 2px 2px #07182733);
 }
 .christmas-snow {
   position: absolute;
@@ -117,59 +120,21 @@
   width: 100%;
   height: 100%;
 }
-.christmas-deer {
-  animation: titan-deer-bob 0.7s ease-in-out infinite;
-}
-.christmas-leg {
-  transform-box: view-box;
-  animation: titan-deer-gallop 0.7s ease-in-out infinite alternate;
-}
-.christmas-leg--1 {
-  animation-direction: alternate-reverse;
-}
-.christmas-sleigh-body {
-  animation: titan-sleigh-bob 1.4s ease-in-out infinite;
-}
-.christmas-reins {
-  animation: titan-reins 0.7s ease-in-out infinite alternate;
-  transform-origin: 70px 70px;
-}
-.christmas-santa-hat {
-  animation: titan-reins 0.8s ease-in-out infinite alternate;
-  transform-origin: 70px 16px;
-}
-@keyframes titan-deer-gallop {
-  from {
-    transform: rotate(-32deg);
+@keyframes titan-realistic-gallop {
+  0% {
+    background-position: 0% 0%;
   }
-  to {
-    transform: rotate(33deg);
-  }
-}
-@keyframes titan-deer-bob {
-  0%,
-  100% {
-    transform: translateY(0);
+  25% {
+    background-position: 100% 0%;
   }
   50% {
-    transform: translateY(-3px);
+    background-position: 0% 100%;
   }
-}
-@keyframes titan-sleigh-bob {
-  0%,
+  75% {
+    background-position: 100% 100%;
+  }
   100% {
-    transform: translateY(0) rotate(0);
-  }
-  50% {
-    transform: translateY(-2px) rotate(-1deg);
-  }
-}
-@keyframes titan-reins {
-  from {
-    transform: rotate(-1deg);
-  }
-  to {
-    transform: rotate(1deg);
+    background-position: 0% 0%;
   }
 }
 @media (max-width: 767px) {
@@ -208,11 +173,7 @@
   .christmas-flight {
     display: none !important;
   }
-  .christmas-deer,
-  .christmas-leg,
-  .christmas-sleigh-body,
-  .christmas-reins,
-  .christmas-santa-hat {
+  .christmas-realistic-sleigh {
     animation: none !important;
   }
 }

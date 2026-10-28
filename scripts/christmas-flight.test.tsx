@@ -189,6 +189,8 @@ describe("Santa animation lifecycle", () => {
     );
     expect(frames.size).toBe(1);
     expect(vi.getTimerCount()).toBe(0);
-    expect(mount.querySelectorAll(".christmas-leg").length).toBe(16);
+    expect(mount.querySelectorAll(".christmas-realistic-sleigh").length).toBe(
+      1,
+    );
   });
 });

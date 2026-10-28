@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { randomDelay, type ChristmasSettings } from "@/lib/christmas";
-import { SantaSleigh } from "./ChristmasArt";
+import { SantaSleigh, SANTA_ARTWORK } from "./ChristmasArt";
 
 export function SantaFlight({
   settings: s,
@@ -17,6 +17,9 @@ export function SantaFlight({
   const [flying, setFlying] = useState(false);
   useEffect(() => {
     if (!s.enabled || !s.santaEnabled) return;
+    const artwork = new window.Image();
+    artwork.decoding = "async";
+    artwork.src = SANTA_ARTWORK;
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     let timer: ReturnType<typeof setTimeout> | undefined;
     let frame = 0,
@@ -94,7 +97,7 @@ export function SantaFlight({
           for (let i = 0; i < count; i++)
             flakes.push({
               x: x + teamWidth * 0.07,
-              y: y + teamWidth * 0.23,
+              y: y + teamWidth * 0.36,
               age: 0,
               life: 1100 + Math.random() * 800,
               radius: 1 + Math.random() * 1.7,

@@ -111,3 +111,24 @@ describe("Titan Gold Christmas configuration", () => {
     expect(() => assertChristmasBase(undefined, "old")).toThrow(/changed/);
   });
 });
+
+import { readFileSync } from "node:fs";
+import { imageSize } from "image-size";
+
+describe("realistic Santa sprite", () => {
+  test("ships the transparent WebP sheet at the exact CSS frame geometry", () => {
+    const bytes = readFileSync(
+      "public/christmas/santa-sleigh-realistic-v1.webp",
+    );
+    const size = imageSize(bytes);
+    expect(size.width).toBe(1280);
+    expect(size.height).toBe(640);
+    expect(size.type).toBe("webp");
+    expect(bytes.length).toBeLessThan(350000);
+    expect(bytes.includes(Buffer.from("ALPH"))).toBe(true);
+    const css = readFileSync("src/components/christmas/christmas.css", "utf8");
+    expect(css).toContain('url("/christmas/santa-sleigh-realistic-v1.webp")');
+    expect(css).toContain("background-size: 200% 200%");
+    expect(css).toContain("steps(1, end)");
+  });
+});
