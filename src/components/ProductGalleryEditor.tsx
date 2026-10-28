@@ -21,6 +21,7 @@ export function ProductGalleryEditor({
   const qc = useQueryClient();
   const [variant, setVariant] = useState("");
   const [images, setImages] = useState(["", "", ""]);
+  const [lights, setLights] = useState(["", "", ""]);
   const [base, setBase] = useState<GalleryEntry[]>([]);
   const [dirty, setDirty] = useState(false);
   const [pending, setPending] = useState(false);
@@ -32,6 +33,7 @@ export function ProductGalleryEditor({
         []) as GalleryEntry[];
       const row = items.find((r) => r.product === id && r.variant === variant);
       setImages([row?.image1 || "", row?.image2 || "", row?.image3 || ""]);
+      setLights([row?.light1 || "", row?.light2 || "", row?.light3 || ""]);
       setBase(items);
     }
   }, [content, id, variant, dirty]);
@@ -47,7 +49,7 @@ export function ProductGalleryEditor({
       const rest = base.filter(
         (e) => !(e.product === id && e.variant === variant),
       );
-      const items = images.some(Boolean)
+      const items = [...images, ...lights].some(Boolean)
         ? [
             ...rest,
             {
@@ -56,6 +58,9 @@ export function ProductGalleryEditor({
               image1: images[0]!,
               image2: images[1]!,
               image3: images[2]!,
+              light1: lights[0]!,
+              light2: lights[1]!,
+              light3: lights[2]!,
             },
           ]
         : rest;
@@ -90,10 +95,13 @@ export function ProductGalleryEditor({
         Three product highlight photos
       </h4>
       <p className="text-xs text-muted-foreground">
-        Exactly three views: full product (full pen view), dial / product
-        close-up, logo / product detail. Empty slots use close-ups of the
-        selected product photo. For colour options, choose that colour below and
-        upload only its own photos. These settings have their own Save button.
+        Up to three distinct photos: full product, label detail and Titan Labs
+        product box. Pens retain full pen, dial and logo close-ups when no
+        custom photo is supplied. Other products hide blank extra slots instead
+        of repeating zoom crops. Add each matching light-mode photo below; blank
+        keeps the same product photo in both modes. For colour options, choose
+        that colour below and upload only its own photos. These settings have
+        their own Save button.
       </p>
       {variants.length ? (
         <div>
@@ -117,8 +125,8 @@ export function ProductGalleryEditor({
       <div className="grid gap-3 sm:grid-cols-3">
         {[
           "Full product / pen view",
-          "Dial / product close-up",
-          "Logo / product detail",
+          "Dial / label detail",
+          "Logo / Titan Labs box",
         ].map((label, i) => (
           <div key={i} className="space-y-2">
             <Label htmlFor={`gallery-photo-${id}-${i}`}>
@@ -141,6 +149,46 @@ export function ProductGalleryEditor({
                   a.map((v, j) => (j === i ? e.target.value : v)),
                 );
                 setDirty(true);
+              }}
+            />
+            <Label htmlFor={`gallery-light-${id}-${i}`}>
+              Matching light-mode photo
+            </Label>
+            <Input
+              id={`gallery-light-${id}-${i}`}
+              value={lights[i]}
+              disabled={!id || pending}
+              placeholder="Light-mode photo URL (optional)"
+              onChange={(e) => {
+                setLights((a) =>
+                  a.map((v, j) => (j === i ? e.target.value : v)),
+                );
+                setDirty(true);
+              }}
+            />
+            <input
+              type="file"
+              accept="image/*"
+              aria-label={`Upload light-mode ${label.toLowerCase()}`}
+              disabled={!id || pending}
+              className="max-w-full text-xs"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                setPending(true);
+                setError("");
+                try {
+                  const url = await upload(file);
+                  setLights((a) => a.map((v, j) => (j === i ? url : v)));
+                  setDirty(true);
+                } catch (err) {
+                  setError(
+                    err instanceof Error ? err.message : "Upload failed",
+                  );
+                } finally {
+                  setPending(false);
+                  e.target.value = "";
+                }
               }}
             />
             <input

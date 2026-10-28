@@ -8,7 +8,7 @@
 import { z } from "zod";
 import drawBacWaterPhoto from "@/assets/guides/titan-guide-draw-bac-water-safety-photo.webp.asset.json";
 
-export type ListItemField = { key: string; label: string; type: "text" | "textarea" | "url" | "toggle"; max?: number };
+export type ListItemField = { key: string; label: string; type: "text" | "textarea" | "url" | "toggle"; max?: number; optional?: boolean };
 export type CmsField =
   | { key: string; label: string; type: "text" | "textarea"; max: number; help?: string | undefined }
   | { key: string; label: string; type: "url"; help?: string | undefined }
@@ -39,9 +39,14 @@ const B = (key: string, label: string, help?: string): CmsField => ({ key, label
 
 export const CMS_SECTIONS: CmsSection[] = [
   {
+    id: "product_information", group: "Pages", title: "Product information panels",
+    description: "Edit beside each product in Admin > Products. Saved blank fields hide their panels. Products without overrides use their existing description, key points, included equipment, protocol and documents.",
+    fields: [{key:"items",label:"Product panels",type:"list",maxItems:200,itemFields:[{key:"product",label:"Product ID",type:"text",max:160},{key:"details",label:"Product details",type:"textarea",max:12000},{key:"included",label:"What's included",type:"textarea",max:12000},{key:"care",label:"Compatibility & care",type:"textarea",max:12000},{key:"shipping",label:"Shipping & returns",type:"textarea",max:6000}]}], defaults:{items:[]}
+  },
+  {
     id:"product_galleries",group:"Homepage",title:"Product highlight galleries",
-    description:"Exactly three highlight photos per product or colour. Edit beside the product in Admin > Products. Empty slots show authentic close-ups of that product’s current photo. Colour galleries never reuse another colour’s images.",
-    fields:[{key:"items",label:"Product galleries",type:"list",maxItems:200,itemFields:[{key:"product",label:"Product ID",type:"text",max:160},{key:"variant",label:"Variant ID (blank for main product)",type:"text",max:160},{key:"image1",label:"Full product photo",type:"url"},{key:"image2",label:"Dial / product close-up",type:"url"},{key:"image3",label:"Logo / product detail",type:"url"}]}],defaults:{items:[]}
+    description:"Exactly three highlight photos per product or colour. Edit beside the product in Admin > Products. Pens use full, dial and logo views. Other products show only supplied distinct photos; blank detail slots are hidden. Colour galleries never reuse another colour’s images.",
+    fields:[{key:"items",label:"Product galleries",type:"list",maxItems:200,itemFields:[{key:"product",label:"Product ID",type:"text",max:160},{key:"variant",label:"Variant ID (blank for main product)",type:"text",max:160},{key:"image1",label:"Full product photo",type:"url"},{key:"image2",label:"Dial / product close-up",type:"url"},{key:"image3",label:"Logo / Titan box photo",type:"url"},{key:"light1",optional:true,label:"Full photo in light mode",type:"url"},{key:"light2",optional:true,label:"Label / dial photo in light mode",type:"url"},{key:"light3",optional:true,label:"Box / logo photo in light mode",type:"url"}]}],defaults:{items:[]}
   },
   {
     id: "theme_artwork", group: "Homepage", title: "Theme artwork (products, variants & pages)",
@@ -678,7 +683,8 @@ export function guideNavLabel(label: string, url: string): string {
 }
 
 const urlSchema = z.string().max(500).refine(isSafeUrl, "Use a link starting with / or https://");
-function itemSchema(f: ListItemField) {
+function itemSchema(f: ListItemField): z.ZodTypeAny {
+  if (f.optional) return itemSchema({...f, optional:false}).optional();
   if (f.type === "toggle") return z.boolean();
   if (f.type === "url") return urlSchema;
   return z.string().max(f.max ?? 500);
