@@ -1,3 +1,4 @@
+@import "./components/christmas/christmas.css";
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
@@ -1030,3 +1031,4 @@ html.light .theme-label-light { display: contents !important; }
   .titan-row-aligned > .titan-product-card [data-promotion-slot="price"] { align-self: end; }
   .titan-row-aligned > .titan-product-card [data-promotion-slot="action"] { padding-bottom: 0.75rem; align-self: end; }
 }
+

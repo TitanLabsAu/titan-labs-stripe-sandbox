@@ -1,0 +1,218 @@
+/* Decorative layers only: never intercept input, change layout, or replace photos. */
+.christmas-chrome,
+.christmas-hero-decor,
+.christmas-product-decor,
+.christmas-catalogue-wreath,
+.christmas-flight {
+  pointer-events: none !important;
+  user-select: none;
+}
+.christmas-chrome {
+  position: fixed;
+  inset: 0 0 auto;
+  height: 105px;
+  z-index: 35;
+  overflow: hidden;
+}
+.christmas-corner {
+  position: absolute;
+  width: 90px;
+  height: auto;
+  top: -4px;
+}
+.christmas-corner-left {
+  left: -16px;
+}
+.christmas-corner-right {
+  right: -16px;
+  transform: scaleX(-1);
+}
+.christmas-subtle .christmas-corner {
+  width: 70px;
+  top: 0;
+}
+.christmas-lights {
+  position: absolute;
+  top: 65px;
+  width: 100%;
+  height: 26px;
+  filter: drop-shadow(0 0 3px #e6bb5f66);
+}
+.christmas-hero-decor {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.christmas-helmet-hat {
+  position: absolute;
+  width: 25%;
+  max-width: 370px;
+  right: 8%;
+  top: -4%;
+  transform: rotate(12deg);
+}
+.christmas-hero-pine {
+  position: absolute;
+  bottom: 0;
+  right: -10px;
+  width: 140px;
+  transform: rotate(180deg);
+}
+.christmas-product-decor {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+}
+.christmas-card-hat {
+  position: absolute;
+  width: clamp(40px, 18%, 65px);
+  right: 0;
+  top: 0;
+  transform: rotate(10deg);
+}
+.christmas-card-pine {
+  position: absolute;
+  width: 68px;
+  bottom: -16px;
+  right: -17px;
+  transform: rotate(180deg);
+}
+.christmas-catalogue-wreath {
+  position: absolute;
+  top: 8px;
+  right: 5%;
+  width: 100px;
+  height: 100px;
+}
+.christmas-flight {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  overflow: hidden;
+  contain: layout paint;
+}
+.christmas-flight[hidden] {
+  display: none;
+}
+.christmas-flight-preview {
+  position: absolute;
+}
+.christmas-flight-team {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: clamp(230px, 30vw, 420px);
+  will-change: transform;
+}
+.christmas-flight-team > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  filter: drop-shadow(0 2px 2px #07182740);
+}
+.christmas-snow {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.christmas-deer {
+  animation: titan-deer-bob 0.7s ease-in-out infinite;
+}
+.christmas-leg {
+  transform-box: view-box;
+  animation: titan-deer-gallop 0.7s ease-in-out infinite alternate;
+}
+.christmas-leg--1 {
+  animation-direction: alternate-reverse;
+}
+.christmas-sleigh-body {
+  animation: titan-sleigh-bob 1.4s ease-in-out infinite;
+}
+.christmas-reins {
+  animation: titan-reins 0.7s ease-in-out infinite alternate;
+  transform-origin: 70px 70px;
+}
+.christmas-santa-hat {
+  animation: titan-reins 0.8s ease-in-out infinite alternate;
+  transform-origin: 70px 16px;
+}
+@keyframes titan-deer-gallop {
+  from {
+    transform: rotate(-32deg);
+  }
+  to {
+    transform: rotate(33deg);
+  }
+}
+@keyframes titan-deer-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+@keyframes titan-sleigh-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  50% {
+    transform: translateY(-2px) rotate(-1deg);
+  }
+}
+@keyframes titan-reins {
+  from {
+    transform: rotate(-1deg);
+  }
+  to {
+    transform: rotate(1deg);
+  }
+}
+@media (max-width: 767px) {
+  .christmas-chrome {
+    height: 90px;
+  }
+  .christmas-corner,
+  .christmas-subtle .christmas-corner {
+    width: 64px;
+    top: -4px;
+  }
+  .christmas-lights {
+    top: 60px;
+    height: 18px;
+  }
+  .christmas-helmet-hat {
+    width: 150px;
+    max-width: 36%;
+    right: 5%;
+    top: 0;
+  }
+  .christmas-hero-pine {
+    width: 80px;
+  }
+  .christmas-catalogue-wreath {
+    width: 48px;
+    height: 48px;
+    right: 8px;
+    top: 4px;
+  }
+  .christmas-flight-team {
+    width: 230px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .christmas-flight {
+    display: none !important;
+  }
+  .christmas-deer,
+  .christmas-leg,
+  .christmas-sleigh-body,
+  .christmas-reins,
+  .christmas-santa-hat {
+    animation: none !important;
+  }
+}

@@ -1,3 +1,4 @@
+import { CHRISTMAS_KEY, assertChristmasBase, validateChristmas, type ChristmasSettings } from "@/lib/christmas";
 import { normalizeCatalogueSection } from "@/lib/catalogue-sections";
 import { PROMOTION_BANNERS_KEY, serialiseBannerSettings } from "@/lib/promotion-banners";
 import { PEN_CASES_KEY, serialisePenCases, validatePenCasesAgainst } from "@/lib/pen-cases";
@@ -959,6 +960,36 @@ export const adminSaveStorefrontSection = createServerFn({ method: "POST" })
       const { error } = await context.supabase.from("site_content").insert({ key, body });
       if (error) {
         if ((error as any).code === "23505") throw new Error(conflict);
+        throw error;
+      }
+    }
+    return { ok: true as const, raw: body };
+  });
+
+
+
+/* Seasonal appearance: full-document validation, admin auth and optimistic concurrency. */
+export const adminSaveChristmasSettings = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { settings: ChristmasSettings; expectedRaw: string | undefined }) => ({
+    settings: validateChristmas(input.settings),
+    expectedRaw: typeof input.expectedRaw === "string" ? input.expectedRaw : undefined,
+  }))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as any);
+    const { data: row, error: readError } = await context.supabase.from("site_content").select("body").eq("key", CHRISTMAS_KEY).maybeSingle();
+    if (readError) throw readError;
+    const current = row ? (row as any).body as string : undefined;
+    assertChristmasBase(current, data.expectedRaw);
+    const body = JSON.stringify(data.settings);
+    if (row) {
+      const { data: updated, error } = await context.supabase.from("site_content").update({ body }).eq("key", CHRISTMAS_KEY).eq("body", current!).select("key");
+      if (error) throw error;
+      if (!updated || updated.length !== 1) throw new Error("Christmas settings changed while you were editing. Reload before saving.");
+    } else {
+      const { error } = await context.supabase.from("site_content").insert({ key: CHRISTMAS_KEY, body });
+      if (error) {
+        if ((error as any).code === "23505") throw new Error("Christmas settings changed while you were editing. Reload before saving.");
         throw error;
       }
     }
