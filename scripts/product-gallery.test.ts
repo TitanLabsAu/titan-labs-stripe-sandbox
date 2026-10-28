@@ -89,6 +89,7 @@ describe("three product highlights", () => {
     const kit = {
       ...p,
       name: "Pen Starter Kit",
+      slug: "pen-starter-kit",
       catalogueSection: "equipment",
       variants: [],
     } as Product;
@@ -138,7 +139,7 @@ describe("three product highlights", () => {
   });
 });
 
-test("vials show three distinct supplied photos and exact light counterparts, never fabricated zooms", () => {
+test("Range ignores all saved detail and box photos, including the main gallery override", () => {
   const vial = {
     ...p,
     slug: "retatrutide",
@@ -146,30 +147,69 @@ test("vials show three distinct supplied photos and exact light counterparts, ne
     catalogueSection: "range",
     variants: [],
   } as Product;
-  const photos = productHighlights(vial, undefined, [
+  const entries = [
     {
       product: "p1",
       variant: "",
-      image1: "/full.webp",
+      image1: "/box-main.webp",
       image2: "/label.webp",
       image3: "/box.webp",
-      light1: "/full-light.webp",
-      light2: "/label-light.webp",
-      light3: "/box-light.webp",
+      light1: "/box-light.webp",
     },
-  ]);
-  expect(photos.map((p) => p.src)).toEqual([
-    "/full.webp",
-    "/label.webp",
-    "/box.webp",
-  ]);
-  expect(photos.every((p) => p.scale === 1)).toBe(true);
-  expect(photos.map((p) => p.light)).toEqual([
-    "/full-light.webp",
-    "/label-light.webp",
-    "/box-light.webp",
-  ]);
-  expect(productHighlights(vial, undefined)).toHaveLength(1);
+  ];
+  const photos = productHighlights(vial, undefined, entries);
+  expect(photos).toHaveLength(1);
+  expect(photos[0]).toEqual({
+    src: vial.image,
+    label: "Full product view",
+    scale: 1,
+    x: 0.5,
+    y: 0.5,
+    custom: false,
+  });
+  expect(isPenGallery(vial)).toBe(false);
+});
+
+test("only V2 reusable pens keep three photos, regardless of catalogue listing", () => {
+  for (const catalogueSection of ["pens", "equipment", "range"] as const) {
+    expect(
+      productHighlights({ ...p, catalogueSection }, p.variants![0]),
+    ).toHaveLength(3);
+  }
+  for (const item of [
+    {
+      ...p,
+      slug: "retatrutide-20mg-disposable-pen",
+      name: "Retatrutide disposable pen",
+      catalogueSection: "pens",
+    },
+    {
+      ...p,
+      slug: "v2-pen-kit",
+      name: "Pen Reconstitution Kit",
+      catalogueSection: "equipment",
+    },
+    {
+      ...p,
+      slug: "travel-case-with-ice-pack",
+      name: "Travel Case with Ice Pack",
+      catalogueSection: "equipment",
+    },
+  ] as Product[]) {
+    expect(isPenGallery(item)).toBe(false);
+    expect(
+      productHighlights(item, item.variants![0], [
+        {
+          ...row("p1", "blue", "/wrong.webp"),
+          image2: "/label.webp",
+          image3: "/box.webp",
+        },
+      ]),
+    ).toHaveLength(1);
+    expect(productHighlights(item, item.variants![0])[0].src).toBe(
+      "/blue.webp",
+    );
+  }
 });
 
 test("existing saved gallery rows remain valid without optional light fields", () => {

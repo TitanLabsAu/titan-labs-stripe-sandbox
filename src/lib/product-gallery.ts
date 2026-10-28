@@ -31,20 +31,32 @@ export function hasPhotoColourOptions(variants: ProductVariant[]) {
     )
   );
 }
-export function isPenGallery(product: Product) {
+/** Only V2 reusable pens have the three selectable detail views. */
+export function isPenGallery(product: Pick<Product, "slug" | "name">) {
   return (
-    product.catalogueSection === "pens" ||
-    /(?:reusable|disposable)\s+pen\b/i.test(product.name)
+    ["titan-v2-reusable-pen", "v2-reusable-pen"].includes(product.slug) ||
+    /\bv2\s+reusable\s+pen\b/i.test(product.name)
   );
 }
 
-/** Pens retain their three detail views; other products never invent extra photos from zoom crops. */
+/** Non-V2 products always use their actual selected product photo, ignoring saved gallery artwork. */
 export function productHighlights(
   product: Product,
   variant: ProductVariant | undefined,
   entries: GalleryEntry[] = [],
 ): HighlightPhoto[] {
   const source = variant?.image || product.image;
+  if (!isPenGallery(product))
+    return [
+      {
+        src: source,
+        label: "Full product view",
+        scale: 1,
+        x: 0.5,
+        y: 0.5,
+        custom: false,
+      },
+    ];
   const key = product.id || product.slug;
   const exact = entries.find(
     (e) => e.product === key && e.variant === (variant?.id || ""),
@@ -54,18 +66,11 @@ export function productHighlights(
     (!hasPhotoColourOptions(product.variants || [])
       ? entries.find((e) => e.product === key && !e.variant)
       : undefined);
-  const pen = isPenGallery(product);
-  const views = pen
-    ? [
-        { label: "Full pen view", scale: 1, x: 0.5, y: 0.5 },
-        { label: "Dial close-up", scale: 3.5, x: 0.88, y: 0.46 },
-        { label: "Logo close-up", scale: 4, x: 0.6, y: 0.49 },
-      ]
-    : [
-        { label: "Full product view", scale: 1, x: 0.5, y: 0.5 },
-        { label: "Label detail", scale: 1, x: 0.5, y: 0.5 },
-        { label: "Titan Labs product box", scale: 1, x: 0.5, y: 0.5 },
-      ];
+  const views = [
+    { label: "Full pen view", scale: 1, x: 0.5, y: 0.5 },
+    { label: "Dial close-up", scale: 3.5, x: 0.88, y: 0.46 },
+    { label: "Logo close-up", scale: 4, x: 0.6, y: 0.49 },
+  ];
   return views.flatMap<HighlightPhoto>((v, i) => {
     const photo = sanitizeVariantImage(
       custom?.[`image${i + 1}` as keyof GalleryEntry],
@@ -85,8 +90,6 @@ export function productHighlights(
           ...(light ? { light } : {}),
         },
       ];
-    return pen || i === 0
-      ? [{ ...v, src: source, custom: false, ...(light ? { light } : {}) }]
-      : [];
+    return [{ ...v, src: source, custom: false, ...(light ? { light } : {}) }];
   });
 }
