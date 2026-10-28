@@ -1,5 +1,6 @@
 import { ProductThemePhotoEditor } from "./ProductThemePhotoEditor";
 import { ProductInformationEditor } from "./ProductInformationEditor";
+import { isPenGallery } from "@/lib/product-gallery";
 import { ProductGalleryEditor } from "./ProductGalleryEditor";
 import { WebsiteSaleProductToggle } from "@/components/christmas/WebsitePromotionEditor";
 import { HomeCategoryPhotoButton } from "@/components/HomeCategoryPhotoButton";
@@ -478,7 +479,7 @@ export function ProductEditor({
       <WebsiteSaleProductToggle id={draft.id} />
       <ProductInformationEditor key={`information:${draft.id||"new"}`} id={draft.id} defaults={{details:[draft.description, ...draft.details.split("\n")].filter(Boolean).join("\n\n"),included:draft.variants.length === 1 ? (draft.variants[0]?.contents || []).map(it=>`${it.quantity} × ${it.name}`).join("\n") : "",care:draft.protocol,shipping:""}}/>
       <ProductThemePhotoEditor key={`theme:${draft.id||"new"}`} id={draft.id} slug={draft.slug} image={draft.image_url} variants={draft.variants} upload={uploadImageFile}/>
-      <ProductGalleryEditor key={draft.id||"new"} id={draft.id} variants={draft.variants} upload={uploadImageFile}/>
+      {isPenGallery(draft) ? <ProductGalleryEditor key={draft.id||"new"} id={draft.id} variants={draft.variants} upload={uploadImageFile}/> : null}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>

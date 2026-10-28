@@ -85,35 +85,39 @@ export function ProductGallery({
         </div>
         <ProductChristmasDecor />
       </div>
-      <figcaption
-        className="mt-2 text-xs text-muted-foreground"
-        aria-live="polite"
-      >
-        {photo.label}
-      </figcaption>
-      <div
-        className="mt-3 grid grid-cols-3 gap-3"
-        aria-label="Product highlight photos"
-      >
-        {photos.map((p, i) => (
-          <button
-            key={i}
-            type="button"
-            aria-label={`Show ${p.label.toLowerCase()}`}
-            aria-pressed={activeIndex === i}
-            onClick={() => setIndex(i)}
-            className={`relative aspect-[4/3] overflow-hidden rounded-lg border-2 bg-card transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${activeIndex === i ? "border-primary" : "border-border hover:border-primary/60"}`}
+      {isPenGallery(product) ? (
+        <>
+          <figcaption
+            className="mt-2 text-xs text-muted-foreground"
+            aria-live="polite"
           >
-            <HighlightImage
-              photo={p}
-              product={product}
-              variant={variant}
-              thumbnail
-            />
-            <span className="sr-only">{p.label}</span>
-          </button>
-        ))}
-      </div>
+            {photo.label}
+          </figcaption>
+          <div
+            className="mt-3 grid grid-cols-3 gap-3"
+            aria-label="Product highlight photos"
+          >
+            {photos.map((p, i) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={`Show ${p.label.toLowerCase()}`}
+                aria-pressed={activeIndex === i}
+                onClick={() => setIndex(i)}
+                className={`relative aspect-[4/3] overflow-hidden rounded-lg border-2 bg-card transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${activeIndex === i ? "border-primary" : "border-border hover:border-primary/60"}`}
+              >
+                <HighlightImage
+                  photo={p}
+                  product={product}
+                  variant={variant}
+                  thumbnail
+                />
+                <span className="sr-only">{p.label}</span>
+              </button>
+            ))}
+          </div>
+        </>
+      ) : null}
     </figure>
   );
 }

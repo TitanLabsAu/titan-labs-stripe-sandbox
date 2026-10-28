@@ -95,13 +95,10 @@ export function ProductGalleryEditor({
         Three product highlight photos
       </h4>
       <p className="text-xs text-muted-foreground">
-        Up to three distinct photos: full product, label detail and Titan Labs
-        product box. Pens retain full pen, dial and logo close-ups when no
-        custom photo is supplied. Other products hide blank extra slots instead
-        of repeating zoom crops. Add each matching light-mode photo below; blank
-        keeps the same product photo in both modes. For colour options, choose
-        that colour below and upload only its own photos. These settings have
-        their own Save button.
+        V2 reusable pens only: full pen, dial close-up and logo close-up. Choose
+        a colour below to edit its own photos. Empty slots use detail views of
+        the selected pen photo. Matching light-mode photos are optional. These
+        settings have their own Save button.
       </p>
       {variants.length ? (
         <div>
@@ -123,11 +120,7 @@ export function ProductGalleryEditor({
         </div>
       ) : null}
       <div className="grid gap-3 sm:grid-cols-3">
-        {[
-          "Full product / pen view",
-          "Dial / label detail",
-          "Logo / Titan Labs box",
-        ].map((label, i) => (
+        {["Full pen view", "Dial close-up", "Logo close-up"].map((label, i) => (
           <div key={i} className="space-y-2">
             <Label htmlFor={`gallery-photo-${id}-${i}`}>
               {i + 1}. {label}

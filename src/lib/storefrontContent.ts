@@ -45,8 +45,8 @@ export const CMS_SECTIONS: CmsSection[] = [
   },
   {
     id:"product_galleries",group:"Homepage",title:"Product highlight galleries",
-    description:"Exactly three highlight photos per product or colour. Edit beside the product in Admin > Products. Pens use full, dial and logo views. Other products show only supplied distinct photos; blank detail slots are hidden. Colour galleries never reuse another colour’s images.",
-    fields:[{key:"items",label:"Product galleries",type:"list",maxItems:200,itemFields:[{key:"product",label:"Product ID",type:"text",max:160},{key:"variant",label:"Variant ID (blank for main product)",type:"text",max:160},{key:"image1",label:"Full product photo",type:"url"},{key:"image2",label:"Dial / product close-up",type:"url"},{key:"image3",label:"Logo / Titan box photo",type:"url"},{key:"light1",optional:true,label:"Full photo in light mode",type:"url"},{key:"light2",optional:true,label:"Label / dial photo in light mode",type:"url"},{key:"light3",optional:true,label:"Box / logo photo in light mode",type:"url"}]}],defaults:{items:[]}
+    description:"Three detail photos for V2 reusable pens only: full pen, dial and logo. Edit beside the pen in Admin > Products. Range, disposable pens and other equipment show their main product photo only; saved galleries for those products are ignored.",
+    fields:[{key:"items",label:"Product galleries",type:"list",maxItems:200,itemFields:[{key:"product",label:"Product ID",type:"text",max:160},{key:"variant",label:"Variant ID (blank for main product)",type:"text",max:160},{key:"image1",label:"Full product photo",type:"url"},{key:"image2",label:"Dial / product close-up",type:"url"},{key:"image3",label:"Logo close-up",type:"url"},{key:"light1",optional:true,label:"Full photo in light mode",type:"url"},{key:"light2",optional:true,label:"Label / dial photo in light mode",type:"url"},{key:"light3",optional:true,label:"Logo photo in light mode",type:"url"}]}],defaults:{items:[]}
   },
   {
     id: "theme_artwork", group: "Homepage", title: "Theme artwork (products, variants & pages)",
