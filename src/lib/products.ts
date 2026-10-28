@@ -1,3 +1,4 @@
+import shippedPhotoPairs from "./product-theme-pairs.json";
 import { promotedPrice } from "@/lib/variant-promotions";
 import { normalizeCatalogueSection, type CatalogueSection } from "@/lib/catalogue-sections";
 import klow80 from "@/assets/klow80.asset.json";
@@ -197,7 +198,11 @@ export function effectiveStock(
  */
 export function preloadVariantImages(product: Pick<Product, "variants">) {
   if (typeof window === "undefined") return () => {};
-  const urls = [...new Set((product.variants ?? []).map((v) => v.image).filter((u): u is string => Boolean(u)))];
+  const sources = (product.variants ?? []).map((v) => v.image).filter((u): u is string => Boolean(u));
+  const urls = [...new Set(sources.flatMap(source => {
+    const pair = shippedPhotoPairs.find(p => p.source === source);
+    return pair ? [source, pair.dark, pair.light] : [source];
+  }))];
   if (urls.length < 2) return () => {};
   const run = () => { for (const u of urls) { const img = new Image(); img.decoding = "async"; img.src = u; } };
   const w = window as Window & { requestIdleCallback?: (cb: () => void) => number; cancelIdleCallback?: (id: number) => void };

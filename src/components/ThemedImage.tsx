@@ -1,5 +1,7 @@
 import {
   productLightPhoto,
+  productDarkPhoto,
+  shippedPhotoPair,
   contentLightPhoto,
   type ProductPhotoPair,
   type VariantPhotoPair,
@@ -131,7 +133,8 @@ export function ThemedProductImage({
   ...rest
 }: Props) {
   const light = useLightProductPhoto(slug, src, variantId);
-  const darkDelivery = sizes ? productImageDelivery(src, sizes) : {};
+  const dark = productDarkPhoto(slug, src);
+  const darkDelivery = productImageDelivery(dark, sizes || "100vw");
   const cls = `titan-themed-photo ${className ?? ""}`;
   if (!light) {
     return (
@@ -151,13 +154,13 @@ export function ThemedProductImage({
         srcSet: `${light.replace(/\.webp$/, "-480.webp")} 480w, ${light} 1024w`,
         sizes: sizes ?? "100vw",
       }
-    : {};
+    : productImageDelivery(light, sizes || "100vw");
   return (
     <>
       <img
         {...rest}
         loading="lazy"
-        src={src}
+        src={dark}
         {...darkDelivery}
         alt={alt}
         data-theme-variant="dark"
@@ -183,22 +186,29 @@ export function ThemedContentImage({
   ...props
 }: Omit<ImgHTMLAttributes<HTMLImageElement>, "src"> & { src: string }) {
   const { data } = useSiteContent();
-  const light = contentLightPhoto(
-    src,
-    cmsValues(data, "theme_artwork").images as PhotoPair[],
-  );
+  const shipped = shippedPhotoPair(src);
+  const dark = shipped?.dark || src;
+  const light =
+    contentLightPhoto(
+      src,
+      cmsValues(data, "theme_artwork").images as PhotoPair[],
+    ) || shipped?.light;
   if (!light) return <img {...props} src={src} />;
   return (
     <>
       <img
         {...props}
-        src={src}
+        src={dark}
+        {...productImageDelivery(dark, props.sizes || "100vw")}
+        data-theme-variant="dark"
         className={`theme-variant-dark ${props.className ?? ""}`}
       />
       <img
         {...props}
         src={light}
+        data-theme-variant="light"
         srcSet={undefined}
+        {...productImageDelivery(light, props.sizes || "100vw")}
         {...artDelivery(light, props.sizes || "100vw")}
         className={`theme-variant-light ${props.className ?? ""}`}
       />
