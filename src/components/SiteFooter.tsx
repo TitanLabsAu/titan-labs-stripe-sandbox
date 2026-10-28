@@ -1,3 +1,4 @@
+import { ChristmasSectionDecor } from "@/components/christmas/ChristmasTheme";
 import { ThemedContentImage } from "@/components/ThemedImage";
 import { cmsValues, guideNavLabel } from "@/lib/storefrontContent";
 import { CmsLink } from "@/components/CmsLink";
@@ -73,6 +74,7 @@ export function SiteFooter() {
           </div>
         </div>
       </div>
+    <ChristmasSectionDecor />
     </footer>
   );
 }

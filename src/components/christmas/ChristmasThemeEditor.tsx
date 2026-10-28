@@ -181,7 +181,7 @@ export function ChristmasThemeEditor({
               {toggle("lights", "Warm fairy lights")}
               {toggle("greenery", "Evergreen branches and baubles")}
               {toggle("wreaths", "Catalogue wreath")}
-              {toggle("hats", "Santa hat on the homepage helmet")}
+              {toggle("hats", "Santa hats on the homepage helmet and catalogue photos")}
             </div>
             <p className="text-xs text-muted-foreground">
               The helmet hat follows the built-in welcome artwork. A custom
@@ -221,7 +221,8 @@ export function ChristmasThemeEditor({
                   <p className="text-xs text-muted-foreground">
                     Delays are random within these ranges. The next interval
                     starts when the previous flight and snow trail finish.
-                    Hidden tabs pause the effect.
+                    Each flight enters from a random screen edge, follows a varied path,
+                    and exits the opposite edge. Hidden tabs pause the effect.
                   </p>
                   {toggle("snowEnabled", "Snow trail behind the sleigh")}
                   {draft.snowEnabled ? (

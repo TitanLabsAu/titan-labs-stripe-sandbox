@@ -10,7 +10,7 @@
 <!-- LOVABLE:END -->
 
 - Homepage promotions: Embla auto-scroll + drag; playback resolves the live plugin and checks current snaps (safe after Fast Refresh/resize).
-- Hot Products alone opts into ProductCard layout hooks with natural content and flex footer alignment (mobile heading price); no track-wide row equalization, so absent or collapsed offers cannot retain oversized space. Other catalogue cards keep their original layout.
+- Catalogue cards across Range, Pens and Equipment share natural-height subgrid tracks per visible row and aligned price/action footers. Hot Products retains its separate carousel/mobile heading-price layout; no JS measurement or fixed whole-card heights.
 - Promotion banners use one validated site-content document for reusable custom options and exact slug/variant assignments; soft retirement falls back to original status without product/price writes, and shared ribbons consume only validated colour tokens.
 - Companion pens and offer-added kits are owned by product slug plus stable selected variant ID; switching views retains explicit variant-owned cart choices, while ambiguous legacy product-only sources detach to ordinary lines without losing quantities.
 - Theme: light default, per-device choice in `src/lib/site-theme.ts`; themed art uses CSS-switched pairs (`ThemedArt`/`ThemedProductImage`, `src/lib/theme-art.ts`) so first paint never depends on hydration; CMS exact-slug art beats bundled defaults.
@@ -48,4 +48,6 @@
 - `products.extra_catalogue_sections` only adds listings (`filterBySection`); pricing, discounts and offers always follow the primary `catalogue_section`.
 - Bulk optional equipment: preview→apply, additive, CAS on `updated_at`, NULL defaults materialised first to keep offers.
 
-- Christmas is an independent OFF-by-default `christmas_theme` site-content layer (`src/lib/christmas.ts`). Never rewrite theme preferences, photos or prices. Admin saves require role validation and raw-body CAS; motion skips reduced-motion/hidden tabs and all account/checkout/Admin flows. All graphics are pointer-transparent; keep timer/RAF cleanup and bounded trailing snow.
+- Christmas is an independent OFF-by-default `christmas_theme` site-content layer (`src/lib/christmas.ts`). Never rewrite theme preferences, photos or prices. Admin saves require role validation and raw-body CAS; static decorations also cover member tabs at the user’s request; motion skips reduced-motion/hidden tabs and all account/checkout/Admin flows. Santa enters from a random screen edge and follows a curved path to the opposite edge with tangent-facing artwork and trailing snow. All graphics are pointer-transparent; keep timer/RAF cleanup and bounded trailing snow.
+
+- Standalone Equipment `titan-v2-reusable-pen` can offer real Equipment add-ons (default Travel Case when enabled); explicit empty offers and disabled defaults remain authoritative. Photo colour tiles reuse saved Blue/Purple variant photos, SKU stock and prices.

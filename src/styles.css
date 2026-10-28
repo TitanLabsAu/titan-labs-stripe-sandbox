@@ -547,6 +547,12 @@
 .hot-products-band { border-block: 1px solid color-mix(in oklab, var(--primary) 22%, transparent); background: linear-gradient(150deg, var(--background), color-mix(in oklab, var(--primary) 7%, var(--background))); }
 .hot-products-band article { height: 100%; }
 /* Homepage only: natural options and a bottom footer, never shared maximum rows. */
+/* Shared catalogue purchase footer: stretch naturally, reserve no fixed card height. */
+.titan-product-card > .titan-product-photo { flex-shrink: 0; }
+.titan-product-card [data-promotion-slot="price"] { margin-top:auto; padding-top:0.75rem; }
+.titan-product-card [data-promotion-slot="action"] { margin-top:0.5rem; }
+.titan-product-card [data-promotion-slot="action"] > button { margin-top:0; min-height:44px; height:44px; }
+.titan-product-card [data-promotion-slot="action"] > [aria-label="Quantity in order"] { margin-top:0; height:44px; grid-template-columns:44px minmax(0,1fr) 44px; }
 .hot-products-band .promotions-track {
   display: flex;
   align-items: stretch;
@@ -1020,10 +1026,11 @@ html.light .theme-label-light { display: contents !important; }
 .research-tier-b, .research-tier-c { background: var(--secondary); color: var(--secondary-foreground); border: 1px solid var(--border); }
 .research-subjective-scorecard > h2 { margin-top: 8px; font-size: clamp(26px,3.4vw,36px); font-weight: 700; }
 
-/* Pens grids: one subgrid row per card section so titles, stock notes, add-ons,
+/* Catalogue grids: one subgrid row per card section so titles, stock notes, add-ons,
    prices and buttons line up across each row, whatever each card contains. */
 @supports (grid-template-rows: subgrid) {
-  .titan-row-aligned > .titan-product-card { display: grid; grid-row: span 10; grid-template-rows: subgrid; row-gap: 0; }
+  .titan-row-aligned { row-gap: 0; }
+  .titan-row-aligned > .titan-product-card { display: grid; height: auto; margin-bottom: 1rem; grid-row: span 10; grid-template-rows: subgrid; row-gap: 0; }
   .titan-row-aligned > .titan-product-card > div:last-child { display: contents; }
   .titan-row-aligned > .titan-product-card > a:first-child { width: 100%; height: auto; align-self: start; }
   .titan-row-aligned > .titan-product-card [data-promotion-slot] { min-width: 0; padding-inline: 0.75rem; }

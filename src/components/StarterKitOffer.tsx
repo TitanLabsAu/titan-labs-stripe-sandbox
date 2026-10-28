@@ -1,3 +1,5 @@
+import { PhotoColourSelector } from "./PhotoColourSelector";
+import { hasPhotoColourOptions } from "@/lib/product-gallery";
 import { useId, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { PackagePlus } from "lucide-react";
@@ -95,7 +97,9 @@ function EquipmentRow({
         {kit.name} · {formatPrice(opt.unitPrice)}
       </Link>
       {contents ? <p className="mt-1 text-xs leading-5 text-muted-foreground">{contents}</p> : null}
-      {option.variantIds.length > 1 ? (
+      {option.variantIds.length > 1 ? hasPhotoColourOptions((kit.variants || []).filter(v=>option.variantIds.includes(v.id))) ? (
+        <PhotoColourSelector product={kit} variants={(kit.variants || []).filter(v=>option.variantIds.includes(v.id))} value={chosen} onChange={switchVariant} compact disabledIds={option.variantIds.filter(id=>id!==chosen && !equipmentOptionAvailability(kit,id,items).canAdd)}/>
+      ) : (
         <>
           <label htmlFor={selectId} className="sr-only">{`${kit.name} option`}</label>
           <select
@@ -143,3 +147,4 @@ function EquipmentRow({
     </li>
   );
 }
+

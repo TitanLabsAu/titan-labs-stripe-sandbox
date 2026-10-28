@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 import {
   CHRISTMAS_DEFAULTS,
   allowsChristmas,
+  allowsChristmasMotion,
   assertChristmasBase,
   parseChristmas,
   randomDelay,
@@ -70,17 +71,13 @@ describe("Titan Gold Christmas configuration", () => {
     expect(randomDelay(30, 60, () => -1)).toBe(30000);
     expect(randomDelay(30, 60, () => 2)).toBe(60000);
   });
-  test("checkout, payment, account, authentication and admin routes never get decorations", () => {
+  test("checkout, payment, authentication and admin routes never get decorations", () => {
     for (const route of [
       "/admin",
       "/admin/",
       "/admin/orders",
       "/auth",
       "/auth/reset-password",
-      "/account",
-      "/calendar",
-      "/order-history",
-      "/orders",
       "/checkout",
       "/checkout/complete",
       "/receipt/abc",
@@ -92,6 +89,11 @@ describe("Titan Gold Christmas configuration", () => {
       expect(allowsChristmas(route)).toBe(false);
     for (const route of [
       "/",
+      "/account",
+      "/calendar",
+      "/orders",
+      "/order-history",
+      "/calculator",
       "/range",
       "/pens",
       "/product/titan-v2-reusable-pen",
@@ -102,6 +104,14 @@ describe("Titan Gold Christmas configuration", () => {
       "/reviews",
     ])
       expect(allowsChristmas(route)).toBe(true);
+  });
+  test("member tabs receive static decor but never Santa motion", () => {
+    for(const path of ["/account", "/calendar", "/orders", "/order-history", "/account/", "/CALENDAR"]) {
+      expect(allowsChristmas(path)).toBe(true);
+      expect(allowsChristmasMotion(path)).toBe(false);
+    }
+    for(const path of ["/", "/range", "/calculator"])expect(allowsChristmasMotion(path)).toBe(true);
+    for(const path of ["/auth", "/checkout", "/admin", "/payment", "/account/security"]){expect(allowsChristmas(path)).toBe(false);expect(allowsChristmasMotion(path)).toBe(false);}
   });
   test("stale Admin sessions cannot overwrite another seasonal save", () => {
     expect(() => assertChristmasBase(undefined, undefined)).not.toThrow();

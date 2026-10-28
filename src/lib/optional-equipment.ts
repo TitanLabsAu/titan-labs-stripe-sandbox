@@ -43,6 +43,11 @@ export function sanitizeOptionalEquipment(raw: unknown): OptionalEquipmentEntry[
   return out;
 }
 
+/** Stand-alone V2 can offer cases while keeping Equipment as its primary catalogue. */
+export function allowsEquipmentAddOns(section: unknown, slug: string) {
+  const value = normalizeCatalogueSection(section);
+  return value === "range" || value === "pens" || (value === "equipment" && slug === "titan-v2-reusable-pen");
+}
 type CatalogueRow = { slug: string; catalogue_section?: unknown; product_variants?: unknown };
 
 /**
@@ -58,7 +63,7 @@ export function validateOptionalEquipment(
   const list = sanitizeOptionalEquipment(raw);
   if (list === null) return null;
   const section = normalizeCatalogueSection(parent.section);
-  if (section !== "range" && section !== "pens") return null;
+  if (!allowsEquipmentAddOns(section, parent.slug)) return null;
   const out: OptionalEquipmentEntry[] = [];
   for (const e of list) {
     if (e.slug === parent.slug) continue;
@@ -108,10 +113,14 @@ export function optionalEquipmentFor(
   parentVariantId?: string | null,
 ): ResolvedEquipmentOption[] {
   const section = normalizeCatalogueSection(product.catalogueSection);
-  if (section !== "range" && section !== "pens") return [];
+  if (!allowsEquipmentAddOns(section, product.slug)) return [];
   const config = product.optionalEquipment ?? null;
   if (config === null) {
     if (product.starterKitEnabled === false) return [];
+    if (section === "equipment") {
+      const travel = products.find(p=>p.slug === "travel-case-with-ice-pack" && p.catalogueSection === "equipment");
+      return travel ? [{product:travel,variantIds:(travel.variants || []).map(v=>v.id)}] : [];
+    }
     const slug = starterKitSlugFor(product, items, parentVariantId);
     const kit = products.find((p) => p.slug === slug && p.catalogueSection === "equipment" && !p.variants?.length);
     return kit ? [{ product: kit, variantIds: [] }] : [];
@@ -162,8 +171,9 @@ export function equipmentOptionAvailability(kit: Product, variantId: string | nu
 }
 
 /** Starting list that reproduces the built-in starter-kit default exactly. */
-export function defaultOptionalEquipmentList(section: unknown, starterKitEnabled: boolean): OptionalEquipmentEntry[] {
+export function defaultOptionalEquipmentList(section: unknown, starterKitEnabled: boolean, parentSlug = ""): OptionalEquipmentEntry[] {
   if (!starterKitEnabled) return [];
+  if (normalizeCatalogueSection(section) === "equipment" && parentSlug === "titan-v2-reusable-pen") return [{slug:"travel-case-with-ice-pack",variantIds:null,parentVariantIds:null}];
   const s = normalizeCatalogueSection(section);
   if (s !== "range" && s !== "pens") return [];
   return [{ slug: s === "pens" ? PEN_STARTER_KIT_SLUG : RANGE_STARTER_KIT_SLUG, variantIds: null, parentVariantIds: null }];
@@ -206,3 +216,4 @@ export function planBulkOptionalEquipment(
     return { ...row, action: "add" as const, after: [...before, { slug: entry.slug, variantIds: entry.variantIds, parentVariantIds: null }] };
   });
 }
+

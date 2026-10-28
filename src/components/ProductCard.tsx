@@ -35,7 +35,7 @@ function PromotionSlot({ aligned, name, children }: { aligned: boolean; name: st
   return aligned ? <div data-promotion-slot={name}>{children}</div> : <>{children}</>;
 }
 
-export function ProductCard({ product: p, aligned = false }: { product: Product; aligned?: boolean }) {
+export function ProductCard({ product: p, aligned = true }: { product: Product; aligned?: boolean }) {
   const { addItem, items, setQuantity } = useCart();
   const variants = sortedProductVariants(p);
   const [variantId, setVariantId] = useState<string | null>(

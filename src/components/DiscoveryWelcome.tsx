@@ -1,4 +1,4 @@
-import { ChristmasHeroDecor, ChristmasWelcomeArt } from "@/components/christmas/ChristmasTheme";
+import { ChristmasSectionDecor, ChristmasHeroDecor, ChristmasWelcomeArt } from "@/components/christmas/ChristmasTheme";
 import { ThemedProductImage, themedArtPair } from "@/components/ThemedImage";
 import { ArrowRight, FlaskConical, PenTool, Truck, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -56,6 +56,7 @@ export function DiscoveryCatalogue() {
         <span className="mt-6 flex items-center justify-between gap-3 font-display text-xl font-bold uppercase">{labels[`section_${s}`]}<ArrowRight aria-hidden="true" className="h-5 w-5 text-accent transition-transform group-hover:translate-x-1" /></span>
       </CmsLink>; })}
     </div>
+  <ChristmasSectionDecor compact/>
   </section>;
 }
 

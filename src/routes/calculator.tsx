@@ -1,3 +1,4 @@
+import { ChristmasPageDecor, ChristmasSectionDecor } from "@/components/christmas/ChristmasTheme";
 import { SITE_ORIGIN } from "@/lib/seo";
 import { cmsValues } from "@/lib/storefrontContent";
 import { useSiteContent } from "@/lib/useCatalog";
@@ -34,12 +35,13 @@ export const Route = createFileRoute("/calculator")({
   component: CalculatorPage,
 });
 
-function CalculatorPage() {
+export function CalculatorPage() {
   const intro = cmsValues(useSiteContent().data, "page_intros");
   return (
     <div className="bg-hero min-h-screen">
       <SiteHeader />
       <main className="page-shell py-8 sm:py-12">
+        <ChristmasPageDecor/>
         <TitanPageHeading
           as="h1"
           icon={Calculator}
@@ -49,8 +51,10 @@ function CalculatorPage() {
         {intro.calc_intro ? <p className="mt-4 max-w-3xl whitespace-pre-wrap text-sm leading-6 text-muted-foreground">{intro.calc_intro}</p> : null}
         <div className="h-7" />
         <ConcentrationCalculator />
+        <ChristmasSectionDecor compact/>
       </main>
       <SiteFooter />
     </div>
   );
 }
+

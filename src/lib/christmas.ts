@@ -72,12 +72,17 @@ export function randomDelay(
   const unit = Math.max(0, Math.min(1, random()));
   return (min + (max - min) * unit) * 1000;
 }
-/** Seasonal graphics never appear in account, payment, authentication or Admin flows. */
+/** Static seasonal decor is allowed on the requested profile and calendar pages. */
 export function allowsChristmas(pathname: string): boolean {
   const path = pathname.toLowerCase().replace(/\/+$/, "") || "/";
+  if (["/account", "/calendar", "/orders", "/order-history"].includes(path)) return true;
   return !/^\/(admin|auth|account|calendar|order-history|orders|checkout|receipt|payment|research-preview|api|lovable)(\/|\.|$)/.test(
     path,
   );
+}
+/** Keep animation out of private member and transaction flows even where static decor is allowed. */
+export function allowsChristmasMotion(pathname: string): boolean {
+  return allowsChristmas(pathname) && !/^\/(account|calendar|orders|order-history)(\/|$)/i.test(pathname);
 }
 export function assertChristmasBase(
   current: string | undefined,

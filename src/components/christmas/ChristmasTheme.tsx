@@ -14,11 +14,13 @@ import {
   CHRISTMAS_KEY,
   CHRISTMAS_DEFAULTS,
   allowsChristmas,
+  allowsChristmasMotion,
   parseChristmas,
   type ChristmasSettings,
 } from "@/lib/christmas";
 import {
   Wreath,
+  SantaHat,
   OrganicCorners,
   OrganicGarland,
   OrganicArrangement,
@@ -38,7 +40,7 @@ export function ChristmasProvider({ children }: { children: ReactNode }) {
   return (
     <ChristmasContext.Provider value={settings}>
       {children}
-      <SantaFlight settings={settings} />
+      <SantaFlight settings={allowsChristmasMotion(pathname) ? settings : {...settings, enabled:false}} />
     </ChristmasContext.Provider>
   );
 }
@@ -47,11 +49,30 @@ export function ProductChristmasDecor() {
   if (!s.enabled) return null;
   return (
     <span className="christmas-product-decor" aria-hidden="true">
+      {s.hats ? <SantaHat className="christmas-card-hat"/> : null}
       {s.greenery && s.density === "full" ? (
         <OrganicArrangement className="christmas-card-pine" />
       ) : null}
     </span>
   );
+}
+/** In-flow decoration bands reserve their own space instead of covering controls or copy. */
+export function ChristmasSectionDecor({compact=false}: {compact?:boolean}) {
+  const s=useContext(ChristmasContext);
+  if (!s.enabled || (!s.greenery && !s.wreaths && !s.lights)) return null;
+  return <div className={`christmas-section-band ${compact?"christmas-section-compact":""} christmas-section-${s.density}`} aria-hidden="true">
+    {s.lights ? <span className="christmas-section-gold-line"/> : null}
+    {s.greenery ? <OrganicArrangement className="christmas-section-arrangement"/> : s.wreaths ? <Wreath className="christmas-section-wreath"/> : null}
+    {s.wreaths && s.greenery && !compact ? <Wreath className="christmas-section-wreath"/> : null}
+  </div>;
+}
+export function ChristmasPageDecor() {
+  const s=useContext(ChristmasContext);
+  if(!s.enabled || (!s.greenery && !s.wreaths))return null;
+  return <div className={`christmas-page-accent christmas-section-${s.density}`} aria-hidden="true">
+    {s.greenery ? <OrganicArrangement className="christmas-page-pine"/> : null}
+    {s.wreaths ? <Wreath className="christmas-page-wreath"/> : null}
+  </div>;
 }
 export function ChristmasHeroDecor() {
   const s = useContext(ChristmasContext);

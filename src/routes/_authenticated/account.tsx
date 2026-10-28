@@ -1,3 +1,4 @@
+import { ChristmasPageDecor, ChristmasSectionDecor } from "@/components/christmas/ChristmasTheme";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -59,7 +60,7 @@ const profileSchema = z.object({
     ),
 });
 
-function AccountPage() {
+export function AccountPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [saving, setSaving] = useState(false);
@@ -167,6 +168,7 @@ function AccountPage() {
     <div className="bg-hero min-h-screen">
       <SiteHeader />
       <main className="page-shell py-8 sm:py-12">
+        <ChristmasPageDecor/>
         <TitanMemberCard name={[profile?.first_name, profile?.last_name].filter(Boolean).join(" ")} loading={isLoading} />
         <ProfileMenu email={profile?.email} />
         <FoundationMemberBadge />
@@ -261,8 +263,10 @@ function AccountPage() {
         </div>
         <MyRewardsCard />
         <ChangePasswordCard />
+        <ChristmasSectionDecor compact/>
       </main>
       <SiteFooter />
     </div>
   );
 }
+
