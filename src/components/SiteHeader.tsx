@@ -1,3 +1,5 @@
+import { HomeAnnouncementBanner } from "./HomeAnnouncementBanner";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
 import { WebsitePromotionNotice } from "@/components/WebsitePromotionNotice";
 import { ChristmasHeaderDecor } from "@/components/christmas/ChristmasTheme";
 import { ThemedContentImage } from "@/components/ThemedImage";
@@ -11,6 +13,7 @@ import {
   Calculator,
   FlaskConical,
   Home,
+  Menu,
   LogIn,
   Microscope,
   Shield,
@@ -27,7 +30,6 @@ import {
   catalogueName,
   HEADER_TABS,
   headerDisplayMode,
-  headerLayout,
   headerNavAlign,
   homeValue,
   pageSectionOrder,
@@ -48,13 +50,14 @@ export function SiteHeader() {
         ? "border-primary bg-primary/10 text-primary"
         : undefined,
   });
+  const [menuOpen, setMenuOpen] = useState(false);
+  useEffect(() => setMenuOpen(false), [pathname]);
   const [signedIn, setSignedIn] = useState(false);
   const { isAdmin } = useIsAdmin();
   const {products} = useProducts();
   const hasPens = products.some(p=>p.catalogueSection === "pens");
   const { data: content } = useSiteContent();
 
-  const layout = headerLayout(content);
   const navAlign = headerNavAlign(content);
   const label = (key: string) => homeValue(content, key);
   const tabOrder = pageSectionOrder(
@@ -121,7 +124,7 @@ export function SiteHeader() {
     <nav
       aria-label="Main navigation"
       className={cn(
-        "flex shrink-0 flex-wrap items-center gap-1.5 sm:gap-2",
+        "titan-header-nav flex shrink-0 flex-wrap items-center gap-1.5 sm:gap-2",
         navAlign === "left" && "justify-start",
         navAlign === "center" && "justify-center",
         navAlign === "right" && "justify-end",
@@ -241,6 +244,7 @@ export function SiteHeader() {
 
   return (
     <>
+    {pathname === "/" ? <HomeAnnouncementBanner/> : null}
     <header className="titan-site-header sticky top-0 z-40 border-b border-primary/25 bg-background">
       <div className="relative overflow-hidden">
         {cmsValues(content, "branding").header_image ? <ThemedContentImage
@@ -253,20 +257,14 @@ export function SiteHeader() {
         <div className="titan-header-surface absolute inset-0" />
         <div
           className={cn(
-            "relative page-shell items-center gap-4 py-4 sm:py-4",
-            layout === "inline" &&
-              "flex flex-col items-stretch lg:grid lg:grid-cols-[minmax(0,1fr)_auto]",
-            layout === "stacked" && "flex flex-col items-stretch gap-4",
-            layout === "centred" && "flex flex-col items-center gap-4",
+            "titan-header-row relative page-shell items-center",
           )}
         >
           <Link
             to="/"
             aria-label={`${pageName} home`}
             className={cn(
-              "min-w-0",
-              layout === "centred" && "flex justify-center",
-              layout === "inline" && "text-center sm:text-left",
+              "titan-header-brand min-w-0",
             )}
           >
             <span className="block font-display text-2xl font-black uppercase tracking-wide text-foreground drop-shadow-md sm:text-3xl">
@@ -276,7 +274,17 @@ export function SiteHeader() {
               {homeValue(content, "header_tagline")}
             </span>
           </Link>
-          {nav}
+          <div className="titan-desktop-navigation">{nav}</div>
+          <div className="titan-mobile-actions">
+            <CartSheet/><ThemeToggle/>
+            <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+              <SheetTrigger asChild><Button variant="outline" size="icon" aria-label="Open navigation menu"><Menu aria-hidden="true"/></Button></SheetTrigger>
+              <SheetContent className="titan-mobile-menu overflow-y-auto">
+                <SheetHeader><SheetTitle>Titan Labs menu</SheetTitle></SheetHeader>
+                {nav}
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
       <ChristmasHeaderDecor />

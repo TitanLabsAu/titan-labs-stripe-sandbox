@@ -39,6 +39,22 @@ const B = (key: string, label: string, help?: string): CmsField => ({ key, label
 
 export const CMS_SECTIONS: CmsSection[] = [
   {
+    id: "home_announcements", group: "Homepage", title: "Scrolling announcement banner",
+    description: "A compact moving strip above the homepage header. Add, remove or reorder topics; Titan shields separate them. Empty or hidden topics are omitted. This does not change discounts or shipping settings.",
+    fields: [B("visible", "Show announcement banner"),
+      { key: "speed", label: "Scroll speed", type: "choice", options: [["slow", "Slow"], ["normal", "Normal"], ["fast", "Fast"]] },
+      { key: "topics", label: "Banner topics", type: "list", maxItems: 200, itemFields: [
+        { key: "text", label: "Topic", type: "text", max: 180 },
+        { key: "url", label: "Optional link", type: "url", optional: true },
+        { key: "visible", label: "Show topic", type: "toggle", optional: true }
+      ] }],
+    defaults: { visible: true, speed: "normal", topics: [
+      { text: "Australian owned // Quality tested", url: "", visible: true },
+      { text: "Explore the Range, Pens & Equipment", url: "/range", visible: true },
+      { text: "View product certificates", url: "/certificates", visible: true }
+    ] }
+  },
+  {
     id: "product_information", group: "Pages", title: "Product information panels",
     description: "Edit beside each product in Admin > Products. Saved blank fields hide their panels. Products without overrides use their existing description, key points, included equipment, protocol and documents.",
     fields: [{key:"items",label:"Product panels",type:"list",maxItems:200,itemFields:[{key:"product",label:"Product ID",type:"text",max:160},{key:"details",label:"Product details",type:"textarea",max:12000},{key:"included",label:"What's included",type:"textarea",max:12000},{key:"care",label:"Compatibility & care",type:"textarea",max:12000},{key:"shipping",label:"Shipping & returns",type:"textarea",max:6000}]}], defaults:{items:[]}
@@ -204,10 +220,10 @@ export const CMS_SECTIONS: CmsSection[] = [
   {
     id: "home_offer",
     group: "Homepage",
-    title: "New-member offer banner",
-    description: "Shown to signed-out visitors while the first-purchase offer is switched on. Write {percent} where the discount should appear — the amount always comes from Discounts settings.",
+    title: "Membership offer wording",
+    description: "Offer wording inside the Join Titan Labs section for signed-out visitors. Write {percent} where the discount should appear — the amount comes from Discounts settings. The standalone banner below the homepage hero has been removed.",
     shortcut: { tab: "discounts", label: "Change offer amount/settings" },
-    fields: [B("visible", "Show on homepage"), T("text", "Banner text", 200), T("join_label", "Join link label", 30), T("login_label", "Log in link label", 30)],
+    fields: [B("visible", "Show offer inside the membership section"), T("text", "Offer text", 200), T("join_label", "Join link label", 30), T("login_label", "Log in link label", 30)],
     defaults: { visible: true, text: "New members receive {percent}% off their first purchase.", join_label: "Join", login_label: "Log in" },
   },
   {

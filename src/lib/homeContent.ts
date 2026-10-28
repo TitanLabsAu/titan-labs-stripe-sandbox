@@ -372,7 +372,7 @@ export const HOME_SECTIONS: PageSection[] = [
   { key: "featured", label: "Hot products" },
   { key: "pillars", label: "Information boxes" },
   { key: "signup", label: "Sign-up box" },
-  { key: "offer", label: "New-member offer banner", insertAfter: "start" },
+  { key: "offer", label: "Retired offer (not displayed)", insertAfter: "start" },
   { key: "page-heading", label: "Page heading", insertAfter: "start-after-offer" },
   { key: "testing", label: "Testing Transparency section", insertAfter: "pillars" },
   { key: "catalogue-links", label: "Catalogue discovery links", insertAfter: "testing" },
@@ -493,5 +493,6 @@ export function homeValue(content: Record<string, string> | undefined, key: stri
 export function catalogueName(content: Record<string, string> | undefined) {
   return homeValue(content, "home_range_title");
 }
+
 
 

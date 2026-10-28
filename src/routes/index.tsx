@@ -4,7 +4,6 @@ import { cmsValues } from "@/lib/storefrontContent";
 import { seoHead, SITE_ORIGIN } from "@/lib/seo";
 import { HotProductsStrip } from "@/components/HotProductsStrip";
 import { TitanMembership } from "@/components/TitanMembership";
-import { FirstOfferBanner } from "@/components/FirstOfferBanner";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -40,7 +39,7 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-function Index() {
+export function Index() {
   const { products } = useProducts();
   const { data: content } = useSiteContent();
 
@@ -59,8 +58,8 @@ function Index() {
       <main className="titan-home relative">
         <DiscoveryWelcome />
         {sectionOrder.map((section) => {
-          if (section === "offer")
-            return <div key={section} className="page-shell pb-12"><FirstOfferBanner redirectTo="/range" placement="home" /></div>;
+          // Legacy saved layouts can contain this key; the homepage discount banner is retired.
+          if (section === "offer") return null;
           if (section === "catalogue-links") return <DiscoveryCatalogue key={section} />;
           if (section === "testing") return <TestingTransparencySection key={section} />;
           if (section === "reviews") return <ReviewsStrip key={section} />;
@@ -81,3 +80,4 @@ function Index() {
     </div>
   );
 }
+
