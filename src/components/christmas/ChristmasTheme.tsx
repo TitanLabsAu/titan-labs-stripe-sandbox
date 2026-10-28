@@ -1,5 +1,13 @@
+import { ThemedArt } from "@/components/ThemedImage";
 import { SantaFlight } from "./SantaFlight";
-import { createContext, useContext, useMemo, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useMemo,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 import { useLocation } from "@tanstack/react-router";
 import { useSiteContent } from "@/lib/useCatalog";
 import {
@@ -9,7 +17,12 @@ import {
   parseChristmas,
   type ChristmasSettings,
 } from "@/lib/christmas";
-import { SantaHat, PineSprig, Wreath, FairyLights } from "./ChristmasArt";
+import {
+  Wreath,
+  OrganicCorners,
+  OrganicGarland,
+  OrganicArrangement,
+} from "./ChristmasArt";
 
 const ChristmasContext = createContext<ChristmasSettings>({
   ...CHRISTMAS_DEFAULTS,
@@ -34,26 +47,20 @@ export function ProductChristmasDecor() {
   if (!s.enabled) return null;
   return (
     <span className="christmas-product-decor" aria-hidden="true">
-      {s.hats ? <SantaHat className="christmas-card-hat" /> : null}
       {s.greenery && s.density === "full" ? (
-        <PineSprig className="christmas-card-pine" />
+        <OrganicArrangement className="christmas-card-pine" />
       ) : null}
     </span>
   );
 }
-export function ChristmasHeroDecor({
-  helmetVisible = true,
-}: {
-  helmetVisible?: boolean;
-}) {
+export function ChristmasHeroDecor() {
   const s = useContext(ChristmasContext);
   if (!s.enabled) return null;
   return (
     <div className="christmas-hero-decor" aria-hidden="true">
-      {s.hats && helmetVisible ? (
-        <SantaHat className="christmas-helmet-hat" />
+      {s.greenery ? (
+        <OrganicArrangement className="christmas-hero-pine" />
       ) : null}
-      {s.greenery ? <PineSprig className="christmas-hero-pine" /> : null}
     </div>
   );
 }
@@ -65,19 +72,49 @@ export function ChristmasCatalogueWreath() {
 }
 export function ChristmasHeaderDecor() {
   const s = useContext(ChristmasContext);
+  const [nearTop, setNearTop] = useState(true);
+  useEffect(() => {
+    if (!s.enabled) return undefined;
+    const onScroll = () => setNearTop(window.scrollY <= 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [s.enabled]);
   if (!s.enabled) return null;
   return (
     <div
       className={`christmas-chrome christmas-${s.density}`}
+      data-scrolled={!nearTop}
       aria-hidden="true"
     >
-      {s.lights ? <FairyLights className="christmas-lights" /> : null}
-      {s.greenery ? (
-        <>
-          <PineSprig className="christmas-corner christmas-corner-left" />
-          <PineSprig className="christmas-corner christmas-corner-right" />
-        </>
-      ) : null}
+      {s.lights ? <OrganicGarland greenery={s.greenery} /> : null}
+      {s.greenery ? <OrganicCorners /> : null}
     </div>
+  );
+}
+
+/** The hat is composited into matching seasonal photos, so its perspective/shadow cannot drift on resize. */
+export function ChristmasWelcomeArt({
+  dark,
+  light,
+  builtin,
+}: {
+  dark: string;
+  light: string;
+  builtin: boolean;
+}) {
+  const s = useContext(ChristmasContext);
+  const seasonal = s.enabled && s.hats && builtin;
+  return (
+    <ThemedArt
+      className="discovery-art"
+      dark={seasonal ? "/christmas/hero-dark-organic-v3.webp" : dark}
+      light={seasonal ? "/christmas/hero-light-organic-v3.webp" : light}
+      sizes="100vw"
+      alt=""
+      width={1672}
+      height={941}
+      priority
+    />
   );
 }

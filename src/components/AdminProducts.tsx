@@ -1,3 +1,4 @@
+import { ProductGalleryEditor } from "./ProductGalleryEditor";
 import { WebsiteSaleProductToggle } from "@/components/christmas/WebsitePromotionEditor";
 import { HomeCategoryPhotoButton } from "@/components/HomeCategoryPhotoButton";
 import { useState } from "react";
@@ -473,6 +474,7 @@ export function ProductEditor({
       </div>
 
       <WebsiteSaleProductToggle id={draft.id} />
+      <ProductGalleryEditor key={draft.id||"new"} id={draft.id} variants={draft.variants} upload={uploadImageFile}/>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>

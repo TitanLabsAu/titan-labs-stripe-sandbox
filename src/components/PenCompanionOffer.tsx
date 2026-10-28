@@ -1,3 +1,5 @@
+import {PhotoColourSelector} from "./PhotoColourSelector";
+import {hasPhotoColourOptions} from "@/lib/product-gallery";
 import { useId, useState } from "react";
 import { PenTool } from "lucide-react";
 import { toast } from "sonner";
@@ -152,7 +154,7 @@ export function PenCompanionOffer({ product, variantId }: { product: Product; va
               ] as const).map(([kind, label, colours, value]) => (
                 <div key={kind}>
                   <label htmlFor={`${baseId}-${kind}`} className="block text-xs font-bold uppercase tracking-[0.16em] text-accent">{label}</label>
-                  <select
+                  {hasPhotoColourOptions((kind === "pen" ? selectedCase.pen!.product! : selectedCase.product!).variants || []) ? <PhotoColourSelector product={kind === "pen" ? selectedCase.pen!.product! : selectedCase.product!} variants={(kind === "pen" ? selectedCase.pen!.product! : selectedCase.product!).variants!.filter(v=>colours.some(c=>c.id===v.id))} value={value || null} onChange={id=>choosePair(kind,id)} compact disableUnavailable/> : <select
                     id={`${baseId}-${kind}`}
                     className="mt-2 h-11 w-full rounded-md border border-input bg-background px-2 text-[11px] font-semibold text-foreground"
                     value={value}
@@ -165,7 +167,7 @@ export function PenCompanionOffer({ product, variantId }: { product: Product; va
                         {v.comingSoon ? " · Coming soon" : v.soldOut ? " · Sold out" : ""}
                       </option>
                     ))}
-                  </select>
+                  </select>}
                 </div>
               ))}
               <p className="text-[11px] leading-4 text-muted-foreground">
@@ -177,7 +179,7 @@ export function PenCompanionOffer({ product, variantId }: { product: Product; va
               <label htmlFor={`${baseId}-colour`} className="block text-xs font-bold uppercase tracking-[0.16em] text-accent">
                 2. Select colour
               </label>
-              <select
+              {hasPhotoColourOptions(selectedCase.product!.variants || []) ? <PhotoColourSelector product={selectedCase.product!} variants={selectedCase.product!.variants!.filter(v=>selectedCase.colours.some(c=>c.id===v.id))} value={colourValue || null} onChange={chooseColour} compact disableUnavailable/> : <select
                 id={`${baseId}-colour`}
                 className="mt-2 h-11 w-full rounded-md border border-input bg-background px-2 text-[11px] font-semibold text-foreground"
                 value={colourValue}
@@ -190,7 +192,7 @@ export function PenCompanionOffer({ product, variantId }: { product: Product; va
                     {v.comingSoon ? " · Coming soon" : v.soldOut ? " · Sold out" : ""}
                   </option>
                 ))}
-              </select>
+              </select>}
             </div>
           ) : null}
           {current ? (
@@ -203,3 +205,4 @@ export function PenCompanionOffer({ product, variantId }: { product: Product; va
     </div>
   );
 }
+

@@ -181,7 +181,7 @@ export function ChristmasThemeEditor({
               {toggle("lights", "Warm fairy lights")}
               {toggle("greenery", "Evergreen branches and baubles")}
               {toggle("wreaths", "Catalogue wreath")}
-              {toggle("hats", "Santa hats on the helmet and product cards")}
+              {toggle("hats", "Santa hat on the homepage helmet")}
             </div>
             <p className="text-xs text-muted-foreground">
               The helmet hat follows the built-in welcome artwork. A custom

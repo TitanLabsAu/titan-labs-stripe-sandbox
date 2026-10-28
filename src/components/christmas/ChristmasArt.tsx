@@ -41,3 +41,46 @@ export function SantaSleigh({ className = "" }: { className?: string }) {
     />
   );
 }
+
+export function OrganicCorners() {
+  return (
+    <>
+      <img
+        src="/christmas/corner-left-organic-v3.webp"
+        className="christmas-organic-corner christmas-organic-corner-left"
+        alt=""
+        aria-hidden="true"
+      />
+      <img
+        src="/christmas/corner-right-organic-v3.webp"
+        className="christmas-organic-corner christmas-organic-corner-right"
+        alt=""
+        aria-hidden="true"
+      />
+    </>
+  );
+}
+export function OrganicGarland({ greenery = true }: { greenery?: boolean }) {
+  return (
+    <img
+      src={
+        greenery
+          ? "/christmas/garland-organic-v3.webp"
+          : "/christmas/lights-realistic-v2.webp"
+      }
+      className="christmas-organic-garland"
+      alt=""
+      aria-hidden="true"
+    />
+  );
+}
+export function OrganicArrangement({ className = "" }: { className?: string }) {
+  return (
+    <img
+      src="/christmas/arrangement-organic-v3.webp"
+      className={className}
+      alt=""
+      aria-hidden="true"
+    />
+  );
+}
