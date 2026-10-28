@@ -6,6 +6,7 @@ import { adminSaveStorefrontSection } from "@/lib/admin.functions";
 import { setCmsDirty } from "@/lib/cmsDirtyGuard";
 import {
   productLightPhoto,
+  productDarkPhoto,
   samePhoto,
   type PhotoPair,
   type ProductPhotoPair,
@@ -108,9 +109,10 @@ export function ProductThemePhotoEditor({
         Dark & light product photos
       </h4>
       <p className="text-xs text-muted-foreground">
-        Your current photo stays in dark mode. Assign a matching light photo for
-        the catalogue, product page and colour selection. A new main photo or
-        colour upload needs its own matching light photo.
+        Prepared image pairs automatically show the correct dark and light
+        artwork. Assign a matching light photo for the catalogue, product page
+        and colour selection. A new main photo or colour upload needs its own
+        matching light photo.
       </p>
       <Label htmlFor={`theme-photo-variant-${id}`}>Photo option</Label>
       <select
@@ -139,7 +141,7 @@ export function ProductThemePhotoEditor({
           <p className="text-xs">Current / dark photo</p>
           {source ? (
             <img
-              src={source}
+              src={productDarkPhoto(slug, source)}
               alt="Current product photo"
               className="aspect-square w-full rounded border object-contain"
             />

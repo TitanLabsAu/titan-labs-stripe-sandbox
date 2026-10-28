@@ -1,0 +1,74 @@
+[
+  {
+    "slug": "5-amino-1mq",
+    "source": "/api/public/product-image?path=catalogue-v3%2F5-amino-1mq.png",
+    "dark": "/api/public/product-image?path=catalogue-v3%2F5-amino-1mq.png",
+    "light": "/images/product-theme/five-amino-light-v1.webp"
+  },
+  {
+    "slug": "titan-v2-reusable-pen",
+    "source": "/api/public/product-image?path=titan-v2-reusable-pen%2F86bb2383-7ae1-4a99-ade1-498a95e03887.png",
+    "dark": "/images/product-theme/v2-blue-dark-v1.webp",
+    "light": "/api/public/product-image?path=titan-v2-reusable-pen%2F86bb2383-7ae1-4a99-ade1-498a95e03887.png"
+  },
+  {
+    "slug": "titan-v2-reusable-pen",
+    "source": "/api/public/product-image?path=titan-v2-reusable-pen%2F36c22b5a-9f57-4a73-a36a-f25a5d7cad10.png",
+    "dark": "/images/product-theme/v2-grey-dark-v1.webp",
+    "light": "/api/public/product-image?path=titan-v2-reusable-pen%2F36c22b5a-9f57-4a73-a36a-f25a5d7cad10.png"
+  },
+  {
+    "slug": "titan-v2-reusable-pen",
+    "source": "/api/public/product-image?path=titan-v2-reusable-pen%2F9aa97148-eae1-41a4-88eb-80e136c6ca5e.png",
+    "dark": "/images/product-theme/v2-purple-dark-v1.webp",
+    "light": "/api/public/product-image?path=titan-v2-reusable-pen%2F9aa97148-eae1-41a4-88eb-80e136c6ca5e.png"
+  },
+  {
+    "slug": "travel-case-with-ice-pack",
+    "source": "/api/public/product-image?path=travel-case-with-ice-pack%2F5bbba06c-831e-442f-b028-5eceba22bc37.png",
+    "dark": "/images/product-theme/case-blue-dark-v1.webp",
+    "light": "/api/public/product-image?path=travel-case-with-ice-pack%2F5bbba06c-831e-442f-b028-5eceba22bc37.png"
+  },
+  {
+    "slug": "travel-case-with-ice-pack",
+    "source": "/api/public/product-image?path=travel-case-with-ice-pack%2F0ecabc4f-c285-4fce-95ee-12e079497ed2.png",
+    "dark": "/images/product-theme/case-purple-dark-v1.webp",
+    "light": "/api/public/product-image?path=travel-case-with-ice-pack%2F0ecabc4f-c285-4fce-95ee-12e079497ed2.png"
+  },
+  {
+    "slug": "v2-reusable-pen",
+    "source": "/api/public/product-image?path=v2-reusable-pen%2Fbfb1734d-d269-4130-9366-c9b2590ed014.png",
+    "dark": "/images/product-theme/older-v2-blue-dark-v1.webp",
+    "light": "/api/public/product-image?path=v2-reusable-pen%2Fbfb1734d-d269-4130-9366-c9b2590ed014.png"
+  },
+  {
+    "slug": "v2-reusable-pen",
+    "source": "/api/public/product-image?path=v2-reusable-pen%2F6e0e6586-fec3-4ce9-94ee-5fc6faab460a.png",
+    "dark": "/images/product-theme/older-v2-grey-dark-v1.webp",
+    "light": "/api/public/product-image?path=v2-reusable-pen%2F6e0e6586-fec3-4ce9-94ee-5fc6faab460a.png"
+  },
+  {
+    "slug": "v2-reusable-pen",
+    "source": "/api/public/product-image?path=v2-reusable-pen%2Fb840db10-6377-4f12-9b08-67cd60205d09.png",
+    "dark": "/images/product-theme/older-v2-purple-dark-v1.webp",
+    "light": "/api/public/product-image?path=v2-reusable-pen%2Fb840db10-6377-4f12-9b08-67cd60205d09.png"
+  },
+  {
+    "slug": "alcohol-prep-pads",
+    "source": "/api/public/product-image?path=alcohol-prep-pads%2Fd413a877-45c5-4a6d-9592-cbe5b84063a9.png",
+    "dark": "/images/product-theme/prep-pads-dark-v1.webp",
+    "light": "/api/public/product-image?path=alcohol-prep-pads%2Fd413a877-45c5-4a6d-9592-cbe5b84063a9.png"
+  },
+  {
+    "slug": "range-starter-kit",
+    "source": "/api/public/product-image?path=range-starter-kit%2F42d8f45a-a6b8-4e48-aa28-ba4b9306a99e.png",
+    "dark": "/images/product-theme/range-kit-dark-v1.webp",
+    "light": "/api/public/product-image?path=range-starter-kit%2F42d8f45a-a6b8-4e48-aa28-ba4b9306a99e.png"
+  },
+  {
+    "slug": "v2-pen-kit",
+    "source": "/api/public/product-image?path=v2-pen-kit%2F2951f34c-352f-438a-9254-f7dc38210ecb.png",
+    "dark": "/images/product-theme/reconstitution-dark-v1.webp",
+    "light": "/api/public/product-image?path=v2-pen-kit%2F2951f34c-352f-438a-9254-f7dc38210ecb.png"
+  }
+]
