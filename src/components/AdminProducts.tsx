@@ -1,3 +1,4 @@
+import { WebsiteSaleProductToggle } from "@/components/christmas/WebsitePromotionEditor";
 import { HomeCategoryPhotoButton } from "@/components/HomeCategoryPhotoButton";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -470,6 +471,8 @@ export function ProductEditor({
           ) : null}
         </div>
       </div>
+
+      <WebsiteSaleProductToggle id={draft.id} />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
@@ -1365,4 +1368,5 @@ export function AdminProducts() {
     </div>
   );
 }
+
 

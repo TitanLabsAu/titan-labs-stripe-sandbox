@@ -1,3 +1,4 @@
+import { ThemedContentImage } from "@/components/ThemedImage";
 import { SITE_ORIGIN, seoHead } from "@/lib/seo";
 import { canonicalUrl, cmsValues } from "@/lib/storefrontContent";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -106,7 +107,7 @@ function NativeKitGuide({ data, docUrl, file }: { data: { title: string; intro: 
                 const img = canonicalUrl(item.image ?? "");
                 return (
                   <div key={i} className="kit-item flex min-w-0 items-center gap-4 rounded-xl border border-primary/20 bg-background/40 p-4">
-                    {img ? <span className="kit-item-art shrink-0"><img src={img} alt={item.label} loading="lazy" decoding="async" /></span> : null}
+                    {img ? <span className="kit-item-art shrink-0"><ThemedContentImage src={img} alt={item.label} loading="lazy" decoding="async" /></span> : null}
                     <div className="min-w-0">
                       <p className="kit-item-label font-display text-base font-bold uppercase text-primary">{item.label}</p>
                       {item.body ? <ul className="kit-bullets mt-1 space-y-1 text-xs leading-5 text-muted-foreground">{lines(item.body).map((l, j) => <li key={j}>{l}</li>)}</ul> : null}
@@ -130,7 +131,7 @@ function NativeKitGuide({ data, docUrl, file }: { data: { title: string; intro: 
                     </div>
                     {step.body ? <ul className="kit-bullets mt-3 space-y-1.5 text-sm leading-6 text-muted-foreground">{lines(step.body).map((l, j) => <li key={j}>{l}</li>)}</ul> : null}
                   </div>
-                  {img ? <img src={img} alt={`${data.title} — step ${i + 1}: ${step.title}`} loading="lazy" decoding="async" className="kit-step-art" /> : null}
+                  {img ? <ThemedContentImage src={img} alt={`${data.title} — step ${i + 1}: ${step.title}`} loading="lazy" decoding="async" className="kit-step-art" /> : null}
                 </li>
               );
             })}
@@ -211,3 +212,4 @@ function PenGuidePanel() {
     </>
   );
 }
+

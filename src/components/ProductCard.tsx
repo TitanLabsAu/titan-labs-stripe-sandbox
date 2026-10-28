@@ -64,7 +64,7 @@ export function ProductCard({ product: p, aligned = false }: { product: Product;
         className="titan-product-photo relative block aspect-square overflow-hidden border-b border-primary/20 bg-[#030f19] titan-photo-frame"
       >
         {selectedVariant?.image ? (
-          <img
+          <ThemedProductImage slug={p.slug} variantId={selectedVariant.id}
             src={selectedVariant.image}
             alt={`${p.alt} — ${selectedVariant.label}`}
             loading="lazy"

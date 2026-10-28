@@ -1,3 +1,6 @@
+import { WebsitePromotionNotice } from "@/components/WebsitePromotionNotice";
+import { ChristmasHeaderDecor } from "@/components/christmas/ChristmasTheme";
+import { ThemedContentImage } from "@/components/ThemedImage";
 import { cmsValues, guideNavLabel, visibleCmsLinks } from "@/lib/storefrontContent";
 import { CmsLink } from "@/components/CmsLink";
 import { Link, useRouterState } from "@tanstack/react-router";
@@ -237,9 +240,10 @@ export function SiteHeader() {
   );
 
   return (
+    <>
     <header className="titan-site-header sticky top-0 z-40 border-b border-primary/25 bg-background">
       <div className="relative overflow-hidden">
-        {cmsValues(content, "branding").header_image ? <img
+        {cmsValues(content, "branding").header_image ? <ThemedContentImage
           src={cmsValues(content, "branding").header_image}
           alt=""
           width={1920}
@@ -275,6 +279,10 @@ export function SiteHeader() {
           {nav}
         </div>
       </div>
+      <ChristmasHeaderDecor />
     </header>
+    <WebsitePromotionNotice />
+    </>
   );
 }
+

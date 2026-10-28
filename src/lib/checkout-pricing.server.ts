@@ -1,3 +1,4 @@
+import { readWebsitePromotion, websiteSalePrice } from "./website-promotion";
 import { promotedPrice } from "@/lib/variant-promotions";
 import { effectivePack, effectiveStock, bundleSummary, sanitizeBundle, packLabel, sanitizePackSize } from "@/lib/products";
 import type { ShippingMethodKey } from "@/lib/pricing";
@@ -157,15 +158,16 @@ export async function priceCheckout(
 
   const userId = buyer.userId ?? "";
   const slugs = [...new Set(items.map((i) => String(i.slug)))];
-  const [{ data: products, error: productError }, { data: settingsRow }] = await Promise.all([
+  const [{ data: products, error: productError }, { data: settingsRow }, websitePromotion] = await Promise.all([
     admin
       .from("products")
       .select(
-        "slug, name, price, sale_price, product_variants, catalogue_section, stock_quantity, coming_soon, unlimited_stock",
+        "id, slug, name, price, sale_price, product_variants, catalogue_section, stock_quantity, coming_soon, unlimited_stock",
       )
       .in("slug", slugs)
       .eq("active", true),
     admin.from("referral_settings").select("*").eq("id", 1).maybeSingle(),
+    readWebsitePromotion(admin),
   ]);
   if (productError) throw productError;
   const settings = settingsFromRow(settingsRow);
@@ -196,7 +198,7 @@ export async function priceCheckout(
     const singlePrice = variant ? promotedPrice(Number(variant.price), variant.salePrice == null ? null : Number(variant.salePrice)) : basePrice;
     // The 10x bulk-kit is retired: every line prices as a single item, so a
     // crafted pack:"kit" request simply pays the ordinary single price.
-    const unitPrice = singlePrice;
+    const unitPrice = websiteSalePrice(variant ? Number(variant.price) : listPrice, singlePrice, product.id, websitePromotion);
     const quantity = Math.min(99, Math.max(1, Math.floor(item.quantity)));
     if (!Number.isFinite(unitPrice) || unitPrice <= 0)
       throw new Error("One of the product prices is unavailable.");
@@ -228,7 +230,7 @@ export async function priceCheckout(
     });
     priceLines.push({
       unitCents: Math.round(unitPrice * 100),
-      baseCents: Math.round(singlePrice * 100),
+      baseCents: Math.round(unitPrice * 100),
       quantity,
       // Titan Stack eligibility comes only from the stored catalogue section
       // (never client input); anything that is not exactly "range" fails closed.
@@ -463,3 +465,4 @@ export async function claimReferralRedemption(
 export async function releaseReferralRedemptionForAttempt(admin: any, paymentAttemptId: string) {
   await admin.rpc("release_referral_redemption_for_attempt", { _payment_attempt_id: paymentAttemptId });
 }
+

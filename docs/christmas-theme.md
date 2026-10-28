@@ -50,3 +50,15 @@ Before publication, visually review the hat placement against any saved welcome 
 Art direction: realistic cinematic Santa in a red velvet suit, red/gold sleigh, natural brown-furred reindeer with leather harnesses, royal blue/gold gifts, side-on flight toward the right, transparent background, four consecutive gallop poses in a fixed 2×2 grid. No scenery, text or baked-in snow; the existing runtime provides the fading snow trail.
 
 Updated validation: 554 tests / 5,786 assertions, TypeScript and production build pass. The build uses the same isolated sitemap fixture. The realistic artwork replaces only the sleigh/reindeer; all Admin controls and OFF-by-default behaviour are unchanged.
+
+## Realistic artwork and website sale revision
+
+The hat, pine corners, wreath and fairy lights use transparent, versioned WebP artwork in `public/christmas/*-realistic-v2.webp`. They are generated artwork, separate from original site/product photos. Header decorations follow the actual header height; decorative elements do not receive pointer events. Hat positioning uses the shared built-in hero composition; uploaded custom hero art does not receive the helmet hat.
+
+Admin → Website → Appearance → Christmas Theme → Website Promotion offers an independent sale toggle, name, and integer discount of 1–90%. New deployments default OFF. Every product editor has an immediately saved inclusion switch covering all variants and catalogue listings. Exclusions are stored by stable product ID in `site_content.website_promotion`; no database migration is required. Global saves preserve product exclusions. Both handlers enforce Admin access and reject stale/concurrent saves. No production settings are changed by this code revision.
+
+Website prices use the lower of the regular-price percentage discount or an existing individual sale. These two discounts do not compound. Turning the promotion off leaves saved regular/individual prices intact. Existing cart/checkout incentives retain their rules. The public catalogue and trusted checkout use the same cents-rounded rule; checkout refuses to proceed when the promotion configuration cannot be read or validated. Equipment add-ons are priced as their own products and follow their own exclusions.
+
+### Theme photo identity
+
+Bundled light photos apply only to their known original source. A newly uploaded Admin photo cannot fall back to an older bundled light photo. CMS → Homepage → Theme artwork supports source-bound page/photo pairs and variant pairs (product slug, variant ID, exact current source URL, light URL). Product cards, detail, cart, checkout, category tiles, page images, guide pictures and branding use the shared resolvers. Without a matching light alternate, the latest assigned photo stays visible in both modes; images are never inverted or substituted with another product/colour. Explicit original-product light overrides remain supported.

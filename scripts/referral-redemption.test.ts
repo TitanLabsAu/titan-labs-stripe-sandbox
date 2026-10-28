@@ -14,6 +14,7 @@ function mockAdmin(opts: { codeRow: any; ownerEmail?: string | null; eligible?: 
     from: (table: string) => {
       if (table === "products")
         return chain({ data: [{ slug: "reta", name: "R", price: 100, sale_price: null, product_variants: [], catalogue_section: "range", stock_quantity: 99, coming_soon: false, unlimited_stock: false }], error: null });
+      if (table === "site_content") return chain({ data: null, error: null });
       if (table === "referral_settings") return chain({ data: null, error: null });
       if (table === "discount_codes") return chain({ data: opts.codeRow, error: null });
       if (table === "profiles") return chain({ data: opts.ownerEmail ? { email: opts.ownerEmail } : null, error: null });
@@ -97,3 +98,4 @@ describe("checkCodeRow self-referral by account id", () => {
     expect((checkCodeRow(row, "buyer-1") as any).ok).toBe(true);
   });
 });
+

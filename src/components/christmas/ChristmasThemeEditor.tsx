@@ -1,3 +1,4 @@
+import { WebsitePromotionEditor } from "./WebsitePromotionEditor";
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -313,6 +314,7 @@ export function ChristmasThemeEditor({
           </span>
         ) : null}
       </div>
+      <WebsitePromotionEditor content={content} />
     </section>
   );
 }

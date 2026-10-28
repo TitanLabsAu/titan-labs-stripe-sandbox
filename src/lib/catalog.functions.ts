@@ -1,3 +1,4 @@
+import { readWebsitePromotion, websiteSalePrice, parseWebsitePromotion, type WebsitePromotion } from "./website-promotion";
 import { sanitizeOptionalEquipment } from "./optional-equipment";
 import { optimizedProductImage } from "./product-image-delivery";
 import { PROMOTION_BANNERS_KEY, parseBannerSettings, serialiseBannerSettings } from "@/lib/promotion-banners";
@@ -28,7 +29,9 @@ function publicClient() {
   });
 }
 
-export function toProduct(row: any): Product {
+export function toProduct(row: any): Product { return toProductWithPromotion(row, parseWebsitePromotion(undefined)); }
+
+export function toProductWithPromotion(row: any, promotion: WebsitePromotion): Product {
   const unlimited = isUnlimitedStock(row);
   const links = sanitizeProductLinks(row.product_links);
   const rawVariants = Array.isArray(row.product_variants) ? row.product_variants : [];
@@ -41,7 +44,7 @@ export function toProduct(row: any): Product {
       id: String(v?.id || `size-${index}`),
       label: String(v?.label || "").trim(),
       price: Number(v?.price ?? 0),
-      salePrice: optNum(v?.salePrice),
+      salePrice: (() => { const price = websiteSalePrice(Number(v?.price), optNum(v?.salePrice), row.id, promotion); return price < Number(v?.price) ? price : null; })(),
       promoLabel: String(v?.promoLabel ?? ""),
       hotProduct: typeof v?.hotProduct === "boolean" ? v.hotProduct : undefined,
       stock: unlimited ? null : v?.stock === null || v?.stock === undefined ? null : Math.max(0, Math.trunc(Number(v.stock) || 0)),
@@ -62,8 +65,7 @@ export function toProduct(row: any): Product {
       return a.price - b.price || a.label.localeCompare(b.label);
     });
   const listPrice = Number(row.price);
-  const sale =
-    row.sale_price === null || row.sale_price === undefined ? null : Number(row.sale_price);
+  const sale = websiteSalePrice(listPrice, row.sale_price == null ? null : Number(row.sale_price), row.id, promotion);
   const onSale = sale !== null && sale > 0 && sale < listPrice;
   return {
     slug: row.slug,
@@ -99,31 +101,33 @@ export function toProduct(row: any): Product {
 }
 
 export const PRODUCT_COLUMNS =
-  "slug, name, price, sale_price, promo_label, sub_description, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, stock_quantity, coming_soon, catalogue_section, starter_kit_enabled, unlimited_stock, optional_equipment, v2_pen_offer_enabled, extra_catalogue_sections";
+  "id, slug, name, price, sale_price, promo_label, sub_description, product_variants, image_url, alt, blurb, description, details, categories, protocol, recon_vial_mg, recon_water_ml, recon_dose_mg, recon_notes, product_links, stock_quantity, coming_soon, catalogue_section, starter_kit_enabled, unlimited_stock, optional_equipment, v2_pen_offer_enabled, extra_catalogue_sections";
 
 export const listProducts = createServerFn({ method: "GET" }).handler(
   async (): Promise<Product[]> => {
-    const { data, error } = await publicClient()
+    const client = publicClient();
+    const [{ data, error }, promotion] = await Promise.all([client
       .from("products")
       .select(PRODUCT_COLUMNS)
       .eq("active", true)
-      .order("name", { ascending: true });
+      .order("name", { ascending: true }), readWebsitePromotion(client)]);
     if (error) throw error;
-    return (data ?? []).map(toProduct);
+    return (data ?? []).map(row => toProductWithPromotion(row, promotion));
   },
 );
 
 export const getProductBySlug = createServerFn({ method: "GET" })
   .inputValidator((input: { slug: string }) => input)
   .handler(async ({ data }): Promise<Product | null> => {
-    const { data: row, error } = await publicClient()
+    const client = publicClient();
+    const [{ data: row, error }, promotion] = await Promise.all([client
       .from("products")
       .select(PRODUCT_COLUMNS)
       .eq("slug", data.slug)
       .eq("active", true)
-      .maybeSingle();
+      .maybeSingle(), readWebsitePromotion(client)]);
     if (error) throw error;
-    return row ? toProduct(row) : null;
+    return row ? toProductWithPromotion(row, promotion) : null;
   });
 
 export const listSiteLinks = createServerFn({ method: "GET" }).handler(
@@ -150,5 +154,6 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
     return out;
   },
 );
+
 
 
