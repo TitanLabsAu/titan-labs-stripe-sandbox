@@ -8,7 +8,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { normalizeCatalogueSection, sanitizeExtraSections } from "@/lib/catalogue-sections";
-import { isUnlimitedStock, sanitizeBundle, sanitizePackSize, sanitizeVariantImage, type Product, type ProductLink, type ProductVariant } from "@/lib/products";
+import { isUnlimitedStock, sanitizeBundle, sanitizePackSize, catalogueVariantImage, type Product, type ProductLink, type ProductVariant } from "@/lib/products";
 
 export type SiteLink = { id: string; label: string; url: string; sort_order: number };
 
@@ -53,7 +53,7 @@ export function toProductWithPromotion(row: any, promotion: WebsitePromotion): P
       reconWaterMl: optNum(v?.reconWaterMl),
       reconDoseMg: optNum(v?.reconDoseMg),
       reconNotes: String(v?.reconNotes ?? ""),
-      image: sanitizeVariantImage(v?.image),
+      image: catalogueVariantImage(String(row.slug), row.image_url, v?.label, v?.image),
       contents: sanitizeBundle(v?.contents),
       packSize: normalizeCatalogueSection(row.catalogue_section) === "equipment" ? sanitizePackSize(v?.packSize) : 1,
     }))
