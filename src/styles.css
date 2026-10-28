@@ -1090,3 +1090,8 @@ html.light .theme-label-light { display: contents !important; }
 .titan-header-brand > span { overflow:hidden; text-overflow:ellipsis; }
 .titan-mobile-menu .titan-nav-icon { gap:.65rem; }
 .titan-mobile-menu a.titan-nav-icon:has(svg)[aria-label]::after { content:attr(aria-label); }
+
+/* Keep the hero-to-products handoff compact after retiring its research notice. */
+.titan-home .discovery-copy { min-height:0; padding-bottom:.75rem; }
+.titan-home .discovery-shipping { margin-top:1rem; padding-block:.5rem; }
+.titan-home > .hot-products-band { padding-top:1rem; }
