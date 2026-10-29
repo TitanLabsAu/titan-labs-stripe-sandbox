@@ -10,6 +10,8 @@ type Item = { slug: string; name: string; catalogue_section: unknown; product_va
 
 const ACTION_LABEL: Record<Row["action"], string> = {
   add: "Will add",
+  remove: "Will remove",
+  "not-offered": "Not offered — unchanged",
   "already-offered": "Already offered — unchanged",
   limit: "Add-on limit reached — unchanged",
   "not-eligible": "Not a Range/Pen product — unchanged",
@@ -17,10 +19,11 @@ const ACTION_LABEL: Record<Row["action"], string> = {
 
 /**
  * Admin bulk tool: pick one Equipment item and a target group, review the
- * exact per-product result, then apply additively. Individual product
+ * exact per-product result, then add or remove it. Individual product
  * add-on editing is unchanged afterwards.
  */
 export function BulkOptionalEquipment({ products, onDone }: { products: Item[]; onDone: () => void }) {
+  const [operation, setOperation] = useState<"add" | "remove">("add");
   const [open, setOpen] = useState(false);
   const [slug, setSlug] = useState("");
   const [variantIds, setVariantIds] = useState<string[] | null>(null);
@@ -39,13 +42,13 @@ export function BulkOptionalEquipment({ products, onDone }: { products: Item[]; 
     if (!slug) { toast.error("Choose an equipment item"); return; }
     setBusy(true);
     try {
-      const expected = Object.fromEntries((plan ?? []).filter((r) => r.action === "add").map((r) => [r.id, r.updatedAt]));
-      const res = await adminBulkOptionalEquipment({ data: { equipmentSlug: slug, variantIds, target, slugs: selected, apply, expected } });
+      const expected = Object.fromEntries((plan ?? []).filter((r) => (r.action === "add" || r.action === "remove")).map((r) => [r.id, r.updatedAt]));
+      const res = await adminBulkOptionalEquipment({ data: { equipmentSlug: slug, operation, variantIds: operation === "remove" ? null : variantIds, target, slugs: selected, apply, expected } });
       setPlan(res.rows);
       if (apply) {
         const applied = res.rows.filter((r) => r.result === "applied").length;
         const conflicts = res.rows.filter((r) => r.result === "conflict").length;
-        toast.success(`Added to ${applied} product${applied === 1 ? "" : "s"}${conflicts ? ` · ${conflicts} changed since review, left untouched` : ""}`);
+        toast.success(`${operation === "remove" ? "Removed from" : "Added to"} ${applied} product${applied === 1 ? "" : "s"}${conflicts ? ` · ${conflicts} changed since review, left untouched` : ""}`);
         onDone();
       }
     } catch (e) {
@@ -56,19 +59,25 @@ export function BulkOptionalEquipment({ products, onDone }: { products: Item[]; 
   };
 
   if (!open) {
-    return <Button type="button" variant="outline" onClick={() => setOpen(true)}>Bulk add optional equipment</Button>;
+    return <Button type="button" variant="outline" onClick={() => setOpen(true)}>Bulk add / remove equipment</Button>;
   }
-  const adds = plan?.filter((r) => r.action === "add" && !r.result).length ?? 0;
+  const adds = plan?.filter((r) => (r.action === "add" || r.action === "remove") && !r.result).length ?? 0;
 
   return (
     <section aria-labelledby="bulk-oe" className="space-y-3 rounded-lg border border-input p-3 text-sm">
       <div className="flex items-center justify-between gap-2">
-        <h3 id="bulk-oe" className="font-bold uppercase tracking-[0.12em]">Bulk add optional equipment</h3>
-        <Button type="button" size="sm" variant="ghost" onClick={() => { setOpen(false); reset(); }}>Close</Button>
+        <h3 id="bulk-oe" className="font-bold uppercase tracking-[0.12em]">Bulk add / remove equipment</h3>
+        <Button type="button" size="sm" variant="ghost" disabled={busy} onClick={() => { setOpen(false); reset(); }}>Close</Button>
       </div>
       <p className="text-xs text-muted-foreground">
-        Adds one Equipment item to each product’s add-on list. Existing add-ons, their order and per-product settings are kept; products already offering it are skipped. You can still edit each product afterwards.
+        {operation === "remove" ? "Removes the chosen equipment item and all its options from the selected products’ add-on lists. Other add-ons and their order are kept. The equipment product itself is kept." : "Adds one Equipment item to each product’s add-on list. Existing add-ons, their order and per-product settings are kept; products already offering it are skipped. You can still edit each product afterwards."}
       </p>
+      <label className="block text-xs font-semibold">Action
+        <select aria-label="Bulk equipment action" disabled={busy} value={operation} onChange={e => { setOperation(e.target.value as "add" | "remove"); reset(); }} className="mt-1 h-10 w-full rounded-md border border-input bg-background px-2">
+          <option value="add">Add equipment</option><option value="remove">Remove equipment</option>
+        </select>
+      </label>
+      <fieldset disabled={busy} className="space-y-3">
       <label className="block text-xs font-semibold">1. Equipment item
         <select aria-label="Equipment item" className="mt-1 h-10 w-full rounded-md border border-input bg-background px-2"
           value={slug} onChange={(e) => { setSlug(e.target.value); setVariantIds(null); reset(); }}>
@@ -76,7 +85,7 @@ export function BulkOptionalEquipment({ products, onDone }: { products: Item[]; 
           {equipment.map((p) => <option key={p.slug} value={p.slug}>{p.name}</option>)}
         </select>
       </label>
-      {kitVariants.length > 1 ? (
+      {operation === "add" && kitVariants.length > 1 ? (
         <fieldset className="text-xs">
           <legend className="font-semibold">Options offered</legend>
           <div className="flex flex-wrap gap-x-3">
@@ -117,10 +126,11 @@ export function BulkOptionalEquipment({ products, onDone }: { products: Item[]; 
           </div>
         ) : null}
       </fieldset>
+      </fieldset>
       <div className="flex flex-wrap gap-2">
         <Button type="button" size="sm" variant="outline" disabled={busy || !slug} onClick={() => run(false)}>3. Review changes</Button>
         <Button type="button" size="sm" disabled={busy || !plan || adds === 0} onClick={() => run(true)}>
-          {busy ? "Working…" : `Apply to ${adds} product${adds === 1 ? "" : "s"}`}
+          {busy ? "Working…" : `${operation === "remove" ? "Remove from" : "Add to"} ${adds} product${adds === 1 ? "" : "s"}`}
         </Button>
       </div>
       {plan ? (
@@ -130,7 +140,7 @@ export function BulkOptionalEquipment({ products, onDone }: { products: Item[]; 
             <li key={r.id} className="flex flex-wrap justify-between gap-2 p-2">
               <span className="font-semibold">{r.name}</span>
               <span className="text-muted-foreground">
-                {r.result === "applied" ? "Added" : r.result === "conflict" ? "Changed since review — untouched" : ACTION_LABEL[r.action]}
+                {r.result === "applied" ? (r.action === "remove" ? "Removed" : "Added") : r.result === "conflict" ? "Changed since review — untouched" : ACTION_LABEL[r.action]}
                 {" · "}{r.after.length} add-on{r.after.length === 1 ? "" : "s"}
               </span>
             </li>
@@ -140,3 +150,4 @@ export function BulkOptionalEquipment({ products, onDone }: { products: Item[]; 
     </section>
   );
 }
+

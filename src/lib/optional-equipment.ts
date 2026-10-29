@@ -191,7 +191,7 @@ export type BulkPlanRow = {
   id: string;
   slug: string;
   name: string;
-  action: "add" | "already-offered" | "limit" | "not-eligible";
+  action: "add" | "remove" | "not-offered" | "already-offered" | "limit" | "not-eligible";
   before: OptionalEquipmentEntry[];
   after: OptionalEquipmentEntry[];
 };
@@ -205,12 +205,17 @@ export type BulkPlanRow = {
 export function planBulkOptionalEquipment(
   entry: { slug: string; variantIds: string[] | null },
   targets: BulkTarget[],
+  operation: "add" | "remove" = "add",
 ): BulkPlanRow[] {
   return targets.map((t) => {
     const section = normalizeCatalogueSection(t.catalogue_section);
     const before = sanitizeOptionalEquipment(t.optional_equipment) ?? defaultOptionalEquipmentList(section, t.starter_kit_enabled !== false);
     const row = { id: t.id, slug: t.slug, name: t.name, before, after: before };
     if ((section !== "range" && section !== "pens") || t.slug === entry.slug) return { ...row, action: "not-eligible" as const };
+    if (operation === "remove") {
+      const after = before.filter(e => e.slug !== entry.slug);
+      return after.length === before.length ? { ...row, action: "not-offered" as const } : { ...row, after, action: "remove" as const };
+    }
     if (before.some((e) => e.slug === entry.slug)) return { ...row, action: "already-offered" as const };
     if (before.length >= MAX_OPTIONAL_EQUIPMENT) return { ...row, action: "limit" as const };
     return { ...row, action: "add" as const, after: [...before, { slug: entry.slug, variantIds: entry.variantIds, parentVariantIds: null }] };
