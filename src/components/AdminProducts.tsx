@@ -44,6 +44,7 @@ import {
 } from "@/lib/admin.functions";
 
 export type DraftVariant = {
+  description?: string;
   salePrice?: string;
   promoLabel?: string;
   hotProduct?: boolean | undefined;
@@ -241,6 +242,7 @@ export function toDraft(p: AdminProduct): Draft {
       reconDoseMg: v.reconDoseMg == null ? "" : String(v.reconDoseMg),
       reconNotes: v.reconNotes ?? "",
       image: v.image ?? "",
+      description: v.description ?? "",
       contents: sanitizeBundle(v.contents),
       packSize: String(v.packSize ?? 1),
     })),
@@ -288,6 +290,7 @@ export function draftToPayload(d: Draft) {
       reconDoseMg: num(v.reconDoseMg),
       reconNotes: v.reconNotes,
       image: v.image.trim() || null,
+      description: v.description ?? "",
       // Included Equipment is available for every section (display-only, no extra charge).
       contents: sanitizeBundle(v.contents),
       packSize: d.catalogue_section === "equipment" ? parsePackSizeInput(v.packSize ?? "1", v.label) : 1,
@@ -858,6 +861,11 @@ export function ProductEditor({
                         </Button>
                       ) : null}
                     </div>
+                  </div>
+                  <div className="rounded-lg border border-border p-3">
+                    <Label htmlFor={`variant-description-${variant.id}`}>Description for {variant.label || "this option"}</Label>
+                    <Textarea id={`variant-description-${variant.id}`} className="mt-2" rows={4} maxLength={12000} value={variant.description ?? ""} onChange={(e) => setVariant(i, { description: e.target.value })} placeholder="Describe the quantities and inclusions for this option…" />
+                    <p className="mt-1 text-xs text-muted-foreground">Changes with the selected option on the catalogue and Product Info page. Leave blank to use the main product information. Save the product to apply.</p>
                   </div>
                   <div id={`variant-includes-${variant.id}`}>
                     <BundleEditor

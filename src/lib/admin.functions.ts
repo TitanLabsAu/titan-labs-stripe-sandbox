@@ -465,6 +465,7 @@ export const adminGetMemberOrders = createServerFn({ method: "POST" })
 
 export type AdminProductLink = import("./products").ProductLink;
 export type AdminProductVariant = {
+  description?: string;
   salePrice?: number | null;
   promoLabel?: string;
   hotProduct?: boolean;
@@ -548,6 +549,7 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
       .map((v) => ({
         id: String(v.id || crypto.randomUUID()),
         label: String(v.label ?? "").trim(),
+        description: String(v.description ?? "").trim().slice(0, 12000),
         price: Number(v.price ?? 0),
         salePrice: optNum(v.salePrice),
         promoLabel: String(v.promoLabel ?? "").trim().slice(0, 80),
