@@ -7,6 +7,8 @@ import nad1000 from "@/assets/nad1000.asset.json";
 
 export type ProductLink = { label: string; url: string; kind?: "coa" | "document" | undefined; variantId?: string; strength?: string; batch?: string };
 export type ProductVariant = {
+  /** Optional description for this option; blank uses the main product information. */
+  description?: string;
   salePrice?: number | null;
   promoLabel?: string;
   hotProduct?: boolean;

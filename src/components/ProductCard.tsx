@@ -1,3 +1,5 @@
+import { productInformation, type ProductInformationEntry } from "@/lib/product-information";
+import { cmsValues } from "@/lib/storefrontContent";
 import { PhotoColourSelector } from "./PhotoColourSelector";
 import { hasPhotoColourOptions } from "@/lib/product-gallery";
 import { ProductChristmasDecor } from "@/components/christmas/ChristmasTheme";
@@ -47,6 +49,7 @@ export function ProductCard({ product: p, aligned = true }: { product: Product; 
   const wasPrice = selectedVariant && promotedPrice(selectedVariant.price, selectedVariant.salePrice) < selectedVariant.price ? selectedVariant.price : selectedVariant ? null : p.wasPrice;
   const { data: content } = useSiteContent();
   const banner = resolveBanner(parseBannerSettings(content?.[PROMOTION_BANNERS_KEY]), selectedVariant ? `${p.slug}::${selectedVariant.id}` : p.slug, promoLabel, Boolean(wasPrice), Boolean(selectedVariant?.hotProduct));
+  const optionDescription = variants.some(v => v.description?.trim()) ? productInformation(p, selectedVariant, cmsValues(content, "product_information").items as ProductInformationEntry[]).details : "";
   const option = getProductOption(p, variantId, "single");
   const stockCount = variantStockFor(p, variantId);
   const stock = stockState(stockCount);
@@ -63,6 +66,7 @@ export function ProductCard({ product: p, aligned = true }: { product: Product; 
       <Link
         to="/product/$slug"
         params={{ slug: p.slug }}
+        search={variantId ? { variant: variantId } : {}}
         className="titan-product-photo relative block aspect-square overflow-hidden border-b border-primary/20 bg-[#030f19] titan-photo-frame"
       >
         {selectedVariant?.image ? (
@@ -96,6 +100,7 @@ export function ProductCard({ product: p, aligned = true }: { product: Product; 
           <Link
             to="/product/$slug"
             params={{ slug: p.slug }}
+            search={variantId ? { variant: variantId } : {}}
             className="min-w-0 font-display text-xl font-bold uppercase tracking-wide text-foreground transition group-hover:text-primary"
           >
             {p.name}
@@ -106,7 +111,7 @@ export function ProductCard({ product: p, aligned = true }: { product: Product; 
             </span>
           ) : null}
         </div>
-        <div data-promotion-slot={aligned ? "links" : undefined} className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1"><Link to="/product/$slug" params={{slug:p.slug}} className="inline-flex min-h-7 w-fit items-center gap-1 text-xs font-semibold text-primary hover:underline"><BookOpen className="h-3 w-3"/>Product Info</Link><ProductCoaLink product={p}/></div>
+        <div data-promotion-slot={aligned ? "links" : undefined} className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1"><Link to="/product/$slug" params={{slug:p.slug}} search={variantId ? {variant:variantId} : {}} className="inline-flex min-h-7 w-fit items-center gap-1 text-xs font-semibold text-primary hover:underline"><BookOpen className="h-3 w-3"/>Product Info</Link><ProductCoaLink product={p}/></div>
         <PromotionSlot aligned={aligned} name="metadata">
         {soon && !bannerSoon ? (
           <span className="mt-2 inline-flex w-fit items-center border border-primary bg-primary px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-primary-foreground">
@@ -149,6 +154,7 @@ export function ProductCard({ product: p, aligned = true }: { product: Product; 
         </PromotionSlot>
         <PromotionSlot aligned={aligned} name="pen"><PenCompanionOffer key={variantId || "base"} product={p} variantId={variantId} /></PromotionSlot>
         <PromotionSlot aligned={aligned} name="inclusions">
+        {optionDescription ? <p className="mt-2 whitespace-pre-wrap text-[11px] leading-4 text-muted-foreground">{optionDescription}</p> : null}
         {(() => {
           const items = variants.find((v) => v.id === variantId)?.contents ?? [];
           return items.length ? (

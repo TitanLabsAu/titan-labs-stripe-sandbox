@@ -25,7 +25,7 @@ export function productInformation(
   };
   const fields = saved || defaults;
   return {
-    details: fields.details?.trim() || "",
+    details: variant?.description?.trim() || fields.details?.trim() || "",
     included: fields.included?.trim() || "",
     care: fields.care?.trim() || "",
     shipping: fields.shipping?.trim() || "",

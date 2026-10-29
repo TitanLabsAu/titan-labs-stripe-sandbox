@@ -111,3 +111,12 @@ describe("editable product information", () => {
     ).toEqual(items);
   });
 });
+
+test("selected option description overrides shared panels; blank restores main information", () => {
+  const small = { id: "small", label: "Small", price: 20, description: "15 pins and 15 Titan wipes" };
+  const large = { id: "large", label: "Large", price: 30, description: "20 pins and 20 Titan wipes" };
+  expect(productInformation(product, small, [row]).details).toBe(small.description);
+  expect(productInformation(product, large, [row]).details).toBe(large.description);
+  expect(productInformation(product, { ...small, description: "  " }, [row]).details).toBe("Details");
+  expect(productInformation({ ...product, description: "Main description" }, { ...small, description: "" }).details).toBe("Main description");
+});

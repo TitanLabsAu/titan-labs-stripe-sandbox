@@ -154,3 +154,22 @@ describe("V2 pen and travel case main-photo colour tiles", () => {
     expect(catalogueVariantImage(blue.slug,`https://titanlabsaus.com${blue.source}`," blue ",null)).toBe(`https://titanlabsaus.com${blue.source}`);
   });
 });
+
+test("option descriptions survive Admin editing and public catalogue normalization", () => {
+  const admin = { ...row, id: "p1", active: true, sort_order: 0,
+    product_variants: [
+      { id: "small", label: "15 pack", price: 20, description: "15 pins and 15 Titan wipes", image: "/small.png" },
+      { id: "large", label: "20 pack", price: 30, description: "20 pins and 20 Titan wipes", image: "/large.png" },
+    ],
+  };
+  const draft = toDraft(admin as never);
+  draft.variants[0]!.description = "Updated small pack";
+  const payload = draftToPayload(draft);
+  expect(payload.product_variants[0]!.description).toBe("Updated small pack");
+  expect(payload.product_variants[1]!.description).toBe("20 pins and 20 Titan wipes");
+  const publicProduct = toProduct({ ...admin, ...payload });
+  expect(publicProduct.variants?.find(v => v.id === "small")?.description).toBe("Updated small pack");
+  expect(publicProduct.variants?.find(v => v.id === "large")?.description).toBe("20 pins and 20 Titan wipes");
+  expect(publicProduct.variants?.find(v => v.id === "large")?.price).toBe(30);
+  expect(publicProduct.variants?.find(v => v.id === "small")?.image).toBe("/small.png");
+});

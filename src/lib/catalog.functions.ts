@@ -43,6 +43,7 @@ export function toProductWithPromotion(row: any, promotion: WebsitePromotion): P
     .map((v: any, index: number) => ({
       id: String(v?.id || `size-${index}`),
       label: String(v?.label || "").trim(),
+      description: String(v?.description ?? "").trim().slice(0, 12000),
       price: Number(v?.price ?? 0),
       salePrice: (() => { const price = websiteSalePrice(Number(v?.price), optNum(v?.salePrice), row.id, promotion); return price < Number(v?.price) ? price : null; })(),
       promoLabel: String(v?.promoLabel ?? ""),

@@ -85,9 +85,12 @@ function ProductPageBody() {
   const { variant: linkedVariant } = Route.useSearch();
   const [variantId, setVariantId] = useState<string | null>(() => {
     const linked = (product.variants ?? []).find((v) => v.id === linkedVariant);
-    if (linked && !linked.comingSoon && (linked.stock === null || linked.stock === undefined || linked.stock > 0)) return linked.id;
+    if (linked) return linked.id;
     return firstAvailableVariant(product)?.id ?? null;
   });
+  useEffect(() => {
+    if (linkedVariant && (product.variants ?? []).some(v => v.id === linkedVariant)) setVariantId(linkedVariant);
+  }, [linkedVariant, product.variants]);
   const selected = useMemo(
     () => getProductOption(product, variantId, "single"),
     [product, variantId],
