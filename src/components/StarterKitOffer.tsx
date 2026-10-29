@@ -1,3 +1,4 @@
+import { productInformation, type ProductInformationEntry } from "@/lib/product-information";
 import { PhotoColourSelector } from "./PhotoColourSelector";
 import { hasPhotoColourOptions } from "@/lib/product-gallery";
 import { useId, useState } from "react";
@@ -74,7 +75,9 @@ function EquipmentRow({
     : null;
   const opt = getProductOption(kit, chosen, "single");
   const variant = (kit.variants ?? []).find((v) => v.id === chosen);
-  const contents = bundleSummary(variant?.contents) || kit.details.join(" · ");
+  const { data: content } = useSiteContent();
+  const description = productInformation(kit, variant, cmsValues(content, "product_information").items as ProductInformationEntry[]).details;
+  const contents = description || bundleSummary(variant?.contents) || kit.details.join(" · ");
   const state = equipmentOptionAvailability(kit, chosen, items);
   const isStarterKit = kit.slug === RANGE_STARTER_KIT_SLUG || kit.slug === PEN_STARTER_KIT_SLUG;
 
@@ -92,11 +95,10 @@ function EquipmentRow({
 
   return (
     <li className="border-t border-primary/15 pt-3 first:border-t-0 first:pt-0">
-      <Link to="/product/$slug" params={{ slug: kit.slug }} className="inline-flex items-center gap-2 text-xs font-bold text-primary hover:underline">
+      <Link to="/product/$slug" params={{ slug: kit.slug }} search={chosen ? { variant: chosen } : {}} className="inline-flex items-center gap-2 text-xs font-bold text-primary hover:underline">
         <PackagePlus className="h-4 w-4" aria-hidden="true" />
         {kit.name} · {formatPrice(opt.unitPrice)}
       </Link>
-      {contents ? <p className="mt-1 text-xs leading-5 text-muted-foreground">{contents}</p> : null}
       {option.variantIds.length > 1 ? hasPhotoColourOptions((kit.variants || []).filter(v=>option.variantIds.includes(v.id))) ? (
         <PhotoColourSelector product={kit} variants={(kit.variants || []).filter(v=>option.variantIds.includes(v.id))} value={chosen} onChange={switchVariant} compact disabledIds={option.variantIds.filter(id=>id!==chosen && !equipmentOptionAvailability(kit,id,items).canAdd)}/>
       ) : (
@@ -121,6 +123,7 @@ function EquipmentRow({
           </select>
         </>
       ) : null}
+      {contents ? <p className="mt-2 whitespace-pre-wrap text-xs leading-5 text-muted-foreground">{contents}</p> : null}
       {owned ? (
         <Button type="button" size="sm" variant="outline" className="mt-2 w-full border-accent" onClick={() => removeItem(owned.key)}
           aria-label={`Remove ${kit.name} from cart`}>
