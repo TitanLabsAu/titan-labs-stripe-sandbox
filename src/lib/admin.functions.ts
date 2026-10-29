@@ -646,7 +646,7 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
   });
 
 /**
- * Bulk optional equipment: preview (apply=false) or additively apply one
+ * Bulk optional equipment: preview (apply=false), add or remove one
  * Equipment add-on to all Pens, all Range products or selected products.
  * Writes are compare-and-set on `updated_at`, so a product edited since the
  * preview is reported as a conflict and left untouched.
@@ -655,6 +655,7 @@ export const adminBulkOptionalEquipment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: {
     equipmentSlug: string;
+    operation?: "add" | "remove";
     variantIds: string[] | null;
     target: "pens" | "range" | "selected";
     slugs?: string[];
@@ -663,12 +664,13 @@ export const adminBulkOptionalEquipment = createServerFn({ method: "POST" })
   }) => {
     if (!/^[a-z0-9-]{1,120}$/.test(String(input?.equipmentSlug ?? ""))) throw new Error("Choose an equipment item");
     if (!["pens", "range", "selected"].includes(input.target)) throw new Error("Choose which products to update");
+    if (input.operation !== undefined && input.operation !== "add" && input.operation !== "remove") throw new Error("Choose add or remove");
     const slugs = Array.isArray(input.slugs) ? input.slugs.filter((x) => /^[a-z0-9-]{1,120}$/.test(String(x))).slice(0, 500) : [];
     if (input.target === "selected" && !slugs.length) throw new Error("Select at least one product");
     const variantIds = Array.isArray(input.variantIds) ? input.variantIds.map(String).filter((x) => /^[A-Za-z0-9_-]{1,120}$/.test(x)) : null;
     const expected: Record<string, string> = {};
     for (const [k, v] of Object.entries(input.expected ?? {})) if (typeof v === "string") expected[String(k)] = v;
-    return { equipmentSlug: input.equipmentSlug, variantIds: variantIds?.length ? variantIds : null, target: input.target, slugs, apply: input.apply === true, expected };
+    return { operation: input.operation ?? "add", equipmentSlug: input.equipmentSlug, variantIds: variantIds?.length ? variantIds : null, target: input.target, slugs, apply: input.apply === true, expected };
   })
   .handler(async ({ data, context }): Promise<{ rows: (BulkPlanRow & { updatedAt: string; result?: "applied" | "conflict" })[] }> => {
     await assertAdmin(context as any);
@@ -684,15 +686,15 @@ export const adminBulkOptionalEquipment = createServerFn({ method: "POST" })
       if (data.target === "selected") return data.slugs.includes(r.slug);
       return s === data.target;
     });
-    const plan = planBulkOptionalEquipment({ slug: data.equipmentSlug, variantIds: data.variantIds }, targets);
+    const plan = planBulkOptionalEquipment({ slug: data.equipmentSlug, variantIds: data.variantIds }, targets, data.operation);
     const out: (BulkPlanRow & { updatedAt: string; result?: "applied" | "conflict" })[] = [];
     for (const p of plan) {
       const t = targets.find((x) => x.id === p.id)!;
       const row = { ...p, updatedAt: String(t.updated_at) };
-      if (!data.apply || p.action !== "add") { out.push(row); continue; }
+      if (!data.apply || (p.action !== "add" && p.action !== "remove")) { out.push(row); continue; }
       // Only rows the Admin reviewed, unchanged since review.
       if (data.expected[p.id] !== row.updatedAt) { out.push({ ...row, result: "conflict" }); continue; }
-      const validated = validateOptionalEquipment(
+      const validated = data.operation === "remove" ? p.after : validateOptionalEquipment(
         p.after,
         { slug: t.slug, section: t.catalogue_section, variantIds: (Array.isArray(t.product_variants) ? t.product_variants : []).map((v: any) => String(v?.id ?? "")).filter(Boolean) },
         rows,
