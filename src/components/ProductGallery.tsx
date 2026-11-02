@@ -64,6 +64,15 @@ function HighlightImage({
   ) : (
     <ThemedProductImage
       slug={product.slug}
+      sceneDetail={
+        isPenGallery(product)
+          ? photo.label === "Dial close-up"
+            ? "dial"
+            : photo.label === "Logo close-up"
+              ? "logo"
+              : "full"
+          : undefined
+      }
       src={photo.src}
       variantId={variant?.image ? variant.id : undefined}
       sizes={thumbnail ? "180px" : "(min-width:1024px) 50vw, 100vw"}
@@ -99,12 +108,7 @@ export function ProductGallery({
       </div>
       {photos.length > 1 ? (
         <>
-          <figcaption
-            className={
-              photo.rangeView ? "sr-only" : "mt-2 text-xs text-muted-foreground"
-            }
-            aria-live="polite"
-          >
+          <figcaption className="sr-only" aria-live="polite">
             {photo.label}
           </figcaption>
           <div
@@ -126,11 +130,6 @@ export function ProductGallery({
                     variant={variant}
                     thumbnail
                   />
-                  {!p.rangeView ? (
-                    <span className="absolute inset-x-0 bottom-0 bg-card/95 py-1 text-[10px] text-foreground">
-                      {p.label}
-                    </span>
-                  ) : null}
                 </button>
               </div>
             ))}

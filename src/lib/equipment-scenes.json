@@ -1,0 +1,280 @@
+[
+  {
+    "source": "/api/public/product-image?path=v2-reusable-pen%2Fa6145624-ee1e-4a28-b580-a5ce2ceaaab9.png",
+    "slugs": [
+      "v2-reusable-pen"
+    ],
+    "cutout": "/images/catalogue-equipment-v4/product-00.webp",
+    "width": 1100,
+    "height": 1015,
+    "dial": [
+      0.86,
+      0.82
+    ],
+    "logo": [
+      0.64,
+      0.8
+    ]
+  },
+  {
+    "source": "/api/public/product-image?path=v2-reusable-pen%2Fbfb1734d-d269-4130-9366-c9b2590ed014.png",
+    "slugs": [
+      "v2-reusable-pen"
+    ],
+    "cutout": "/images/catalogue-equipment-v4/product-00.webp",
+    "width": 1100,
+    "height": 1015,
+    "dial": [
+      0.86,
+      0.82
+    ],
+    "logo": [
+      0.64,
+      0.8
+    ]
+  },
+  {
+    "source": "/api/public/product-image?path=v2-reusable-pen%2Fb840db10-6377-4f12-9b08-67cd60205d09.png",
+    "slugs": [
+      "v2-reusable-pen"
+    ],
+    "cutout": "/images/catalogue-equipment-v4/product-02.webp",
+    "width": 1100,
+    "height": 1017,
+    "dial": [
+      0.86,
+      0.82
+    ],
+    "logo": [
+      0.64,
+      0.8
+    ]
+  },
+  {
+    "source": "/api/public/product-image?path=v2-reusable-pen%2F6e0e6586-fec3-4ce9-94ee-5fc6faab460a.png",
+    "slugs": [
+      "v2-reusable-pen"
+    ],
+    "cutout": "/images/catalogue-equipment-v4/product-03.webp",
+    "width": 1100,
+    "height": 1015,
+    "dial": [
+      0.86,
+      0.82
+    ],
+    "logo": [
+      0.64,
+      0.8
+    ]
+  },
+  {
+    "source": "/images/titan-v2-pen-cartridges.webp",
+    "slugs": [
+      "v2-pen-cartridges"
+    ],
+    "cutout": "/images/catalogue-equipment-v4/product-04.webp",
+    "width": 240,
+    "height": 1100
+  },
+  {
+    "source": "/images/titan-pen-pins.webp",
+    "slugs": [
+      "pen-pins"
+    ],
+    "cutout": "/images/catalogue-equipment-v4/product-05.webp",
+    "width": 925,
+    "height": 919
+  },
+  {
+    "source": "/images/titan-luer-lock-syringe.webp",
+    "slugs": [
+      "luer-lock-syringe"
+    ],
+    "cutout": "/images/catalogue-equipment-v4/product-06.webp",
+    "width": 283,
+    "height": 1100
+  },
+  {
+    "source": "/api/public/product-image?path=reta-30%2F1fbbee3a-f2e7-4778-9ab8-48c0c4a7d86c.webp",
+    "slugs": [
+      "reta-30"
+    ],
+    "cutout": "/images/catalogue-equipment-v4/product-09.webp",
+    "width": 1100,
+    "height": 270
+  },
+  {
+    "source": "/api/public/product-image?path=recon-kit%2F1ef0eb59-d69e-45ed-8d58-49dd9e16c9b5.png",
+    "slugs": [
+      "recon-kit"
+    ],
+    "cutout": "/images/catalogue-equipment-v4/product-08.webp",
+    "width": 1100,
+    "height": 916,
+    "previousLight": "/api/public/product-image?path=recon-kit%2Fd7f64a86-a544-491c-8a12-b509fe19a5bd.png"
+  },
+  {
+    "source": "/images/titan-disposable-pen.webp",
+    "slugs": [
+      "retatrutide-20mg-disposable-pen",
+      "klow-80mg-disposable-pen",
+      "ghk-cu-100mg-disposable-pen",
+      "tirzepatide-30mg-disposable-pen"
+    ],
+    "cutout": "/images/catalogue-equipment-v4/product-09.webp",
+    "width": 1100,
+    "height": 270
+  },
+  {
+    "source": "/api/public/product-image?path=catalogue-v3%2Fbac-water.png",
+    "slugs": [
+      "bac-water"
+    ],
+    "cutout": "/images/catalogue-equipment-v4/product-10.webp",
+    "width": 428,
+    "height": 1100
+  },
+  {
+    "source": "/api/public/product-image?path=v2-pen-kit%2F2951f34c-352f-438a-9254-f7dc38210ecb.png",
+    "slugs": [
+      "v2-pen-kit"
+    ],
+    "cutout": "/images/catalogue-equipment-v4/product-11.webp",
+    "width": 1100,
+    "height": 795
+  },
+  {
+    "source": "/api/public/product-image?path=pen-starter-kit%2F213dea19-01d8-41d2-a379-4d565de9b20e.png",
+    "slugs": [
+      "pen-starter-kit"
+    ],
+    "cutout": "/images/catalogue-equipment-v4/product-12.webp",
+    "width": 1100,
+    "height": 981,
+    "previousLight": "/api/public/product-image?path=pen-starter-kit%2F5da00c00-d868-4514-b399-6cd8a665f6f5.png"
+  },
+  {
+    "source": "/api/public/product-image?path=range-starter-kit%2F42d8f45a-a6b8-4e48-aa28-ba4b9306a99e.png",
+    "slugs": [
+      "range-starter-kit"
+    ],
+    "cutout": "/images/catalogue-equipment-v4/product-13.webp",
+    "width": 1100,
+    "height": 1095
+  },
+  {
+    "source": "/api/public/product-image?path=range-starter-kit%2Fc1001c2f-15ff-4cc6-80dd-9ee216693974.png",
+    "slugs": [
+      "range-starter-kit"
+    ],
+    "cutout": "/images/catalogue-equipment-v4/product-14.webp",
+    "width": 1100,
+    "height": 1012,
+    "previousLight": "/api/public/product-image?path=range-starter-kit%2F9a2edf5b-ae2c-4634-be1a-54ca67b58ada.png"
+  },
+  {
+    "source": "/api/public/product-image?path=travel-case-with-ice-pack%2F5bbba06c-831e-442f-b028-5eceba22bc37.png",
+    "slugs": [
+      "travel-case-with-ice-pack"
+    ],
+    "cutout": "/images/catalogue-equipment-v4/product-15.webp",
+    "width": 1100,
+    "height": 983
+  },
+  {
+    "source": "/api/public/product-image?path=travel-case-with-ice-pack%2F0ecabc4f-c285-4fce-95ee-12e079497ed2.png",
+    "slugs": [
+      "travel-case-with-ice-pack"
+    ],
+    "cutout": "/images/catalogue-equipment-v4/product-16.webp",
+    "width": 1100,
+    "height": 975
+  },
+  {
+    "source": "/api/public/product-image?path=titan-v2-reusable-pen%2F86bb2383-7ae1-4a99-ade1-498a95e03887.png",
+    "slugs": [
+      "titan-v2-reusable-pen"
+    ],
+    "cutout": "/images/catalogue-equipment-v4/product-17.webp",
+    "width": 1100,
+    "height": 280,
+    "dial": [
+      0.88,
+      0.25
+    ],
+    "logo": [
+      0.62,
+      0.43
+    ]
+  },
+  {
+    "source": "/api/public/product-image?path=titan-v2-reusable-pen%2F9aa97148-eae1-41a4-88eb-80e136c6ca5e.png",
+    "slugs": [
+      "titan-v2-reusable-pen"
+    ],
+    "cutout": "/images/catalogue-equipment-v4/product-18.webp",
+    "width": 1100,
+    "height": 279,
+    "dial": [
+      0.88,
+      0.25
+    ],
+    "logo": [
+      0.62,
+      0.43
+    ]
+  },
+  {
+    "source": "/api/public/product-image?path=titan-v2-reusable-pen%2F36c22b5a-9f57-4a73-a36a-f25a5d7cad10.png",
+    "slugs": [
+      "titan-v2-reusable-pen"
+    ],
+    "cutout": "/images/catalogue-equipment-v4/product-19.webp",
+    "width": 1100,
+    "height": 273,
+    "dial": [
+      0.88,
+      0.25
+    ],
+    "logo": [
+      0.62,
+      0.43
+    ]
+  },
+  {
+    "source": "/images/titan-syringe-top-up-kit.webp",
+    "slugs": [
+      "syringe-top-up-kit"
+    ],
+    "cutout": "/images/catalogue-equipment-v4/product-20.webp",
+    "width": 1100,
+    "height": 992
+  },
+  {
+    "source": "/api/public/product-image?path=alcohol-prep-pads%2Fd413a877-45c5-4a6d-9592-cbe5b84063a9.png",
+    "slugs": [
+      "alcohol-prep-pads"
+    ],
+    "cutout": "/images/catalogue-equipment-v4/product-21.webp",
+    "width": 1100,
+    "height": 893
+  },
+  {
+    "source": "/images/titan-sharps-container-1-8l.webp",
+    "slugs": [
+      "sharps-container-1-8l"
+    ],
+    "cutout": "/images/catalogue-equipment-v4/product-22.webp",
+    "width": 479,
+    "height": 1067
+  },
+  {
+    "source": "/images/titan-portable-sharps-container.webp",
+    "slugs": [
+      "portable-sharps-container"
+    ],
+    "cutout": "/images/catalogue-equipment-v4/product-23.webp",
+    "width": 321,
+    "height": 1008
+  }
+]
