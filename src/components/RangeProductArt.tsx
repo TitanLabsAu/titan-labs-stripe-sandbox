@@ -67,7 +67,7 @@ export function RangeLabelArt({
   const { navy, gold } = RANGE_PALETTE;
   return (
     <svg
-      viewBox="0 0 550 450"
+      viewBox="0 0 550 600"
       width="100%"
       height="100%"
       preserveAspectRatio="none"
@@ -90,18 +90,24 @@ export function RangeLabelArt({
           <stop offset="1" stopColor="#081c31" stopOpacity=".28" />
         </linearGradient>
         <clipPath id={`${id}-paper`}>
-          <path d="M0 0Q275 10 550 0V440Q275 457 0 440Z" />
+          <path d="M0 0Q275 10 550 0V590Q275 607 0 590Z" />
         </clipPath>
       </defs>
       <g clipPath={`url(#${id}-paper)`}>
-        <rect width="550" height="450" fill="white" />
+        <rect width="550" height="600" fill="white" />
         <path
-          d="M0 9Q275 19 550 9M0 433Q275 450 550 433"
+          d="M0 9Q275 19 550 9M0 583Q275 600 550 583"
           fill="none"
           stroke={`url(#${id}-gold)`}
           strokeWidth="7"
         />
-        <g stroke={gold} strokeWidth="1.7" fill="none" opacity=".65">
+        <g
+          stroke={gold}
+          strokeWidth="1.7"
+          fill="none"
+          opacity=".5"
+          transform="translate(0 70) scale(1 1.2)"
+        >
           <path d="M0 141L22 155L39 186L22 216L0 224M39 186H70L87 216L70 246H39L22 216M39 246L22 277L39 308M70 246L89 277M550 152L529 168L513 199L529 229L550 237M513 199H482L465 229L482 259H513L529 229M513 259L529 290L513 320" />
           {[
             [22, 155],
@@ -135,30 +141,30 @@ export function RangeLabelArt({
         </g>
         <MasterCrop
           box="340 641 210 174"
-          x={42}
-          y={27}
-          width={108}
-          height={90}
+          x={190}
+          y={28}
+          width={170}
+          height={141}
         />
         <MasterCrop
           box="583 644 716 158"
-          x={174}
-          y={28}
-          width={376}
-          height={83}
+          x={60}
+          y={185}
+          width={430}
+          height={95}
         />
         {lines.map((line, i) => (
           <text
             key={i}
             x="275"
-            y={lines.length > 1 ? 174 + i * 43 : 202}
+            y={lines.length > 1 ? 331 + i * 43 : 357}
             textAnchor="middle"
             fill={navy}
             fontFamily="Arial, sans-serif"
             fontWeight="900"
-            fontSize={lines.length > 1 ? 35 : 47}
+            fontSize={lines.length > 1 ? 38 : 52}
             textLength={
-              line.length > (lines.length > 1 ? 19 : 15) ? 400 : undefined
+              line.length > (lines.length > 1 ? 19 : 15) ? 430 : undefined
             }
             lengthAdjust="spacingAndGlyphs"
           >
@@ -167,15 +173,15 @@ export function RangeLabelArt({
         ))}
         {strength ? (
           <>
-            <rect x="145" y="244" width="260" height="63" rx="17" fill={navy} />
+            <rect x="135" y="402" width="280" height="69" rx="17" fill={navy} />
             <text
               x="275"
-              y="289"
+              y="451"
               textAnchor="middle"
               fill={`url(#${id}-gold)`}
               fontFamily="Arial, sans-serif"
               fontWeight="800"
-              fontSize={strength.length > 10 ? 29 : 43}
+              fontSize={strength.length > 10 ? 32 : 49}
               textLength={strength.length > 14 ? 225 : undefined}
               lengthAdjust="spacingAndGlyphs"
             >
@@ -186,22 +192,22 @@ export function RangeLabelArt({
         <g
           fill={navy}
           fontFamily="Arial, sans-serif"
-          fontSize="17"
+          fontSize="18"
           textAnchor="middle"
         >
-          <text x="275" y="351">
+          <text x="275" y="510">
             For research purpose only
           </text>
-          <text x="275" y="377">
+          <text x="275" y="538">
             Keep out of reach of children
           </text>
-          <text x="275" y="403">
+          <text x="275" y="566">
             Keep refrigerated 2°C to 8°C
           </text>
         </g>
         <rect
           width="550"
-          height="450"
+          height="600"
           fill={`url(#${id}-curve)`}
           pointerEvents="none"
         />
@@ -228,11 +234,11 @@ function Vial({
     <svg x={x} y={y} width={size} height={size} viewBox="0 0 1280 1280">
       <image href={`${root}vial-blank.webp`} width="1280" height="1280" />
       <svg
-        x="366"
-        y="565"
-        width="524"
-        height="438"
-        viewBox="0 0 550 450"
+        x="360"
+        y="510"
+        width="536"
+        height="575"
+        viewBox="0 0 550 600"
         preserveAspectRatio="none"
       >
         <RangeLabelArt product={product} variant={variant} />
@@ -273,7 +279,7 @@ export function RangeProductArt({
       style={{ display: "block", overflow: "hidden" }}
     >
       <image
-        href={`${root}laboratory-scene.webp`}
+        href={`${root}branded-display-scene.webp`}
         width={thumbnail ? 1200 : 1000}
         height={thumbnail ? 900 : 1000}
         preserveAspectRatio="xMidYMid slice"
@@ -289,9 +295,9 @@ export function RangeProductArt({
           <Vial
             product={product}
             variant={selected}
-            x={-580}
-            y={-750}
-            size={2200}
+            x={-435}
+            y={-640}
+            size={1900}
           />
         ) : view === "boxed" ? (
           <>
@@ -312,7 +318,13 @@ export function RangeProductArt({
             />
           </>
         ) : (
-          <Vial product={product} variant={selected} x={30} y={10} size={940} />
+          <Vial
+            product={product}
+            variant={selected}
+            x={220}
+            y={-5}
+            size={1000}
+          />
         )}
       </g>
     </svg>
