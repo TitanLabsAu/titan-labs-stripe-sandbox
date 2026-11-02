@@ -4,7 +4,7 @@ import { PhotoColourSelector } from "@/components/PhotoColourSelector";
 import { hasPhotoColourOptions } from "@/lib/product-gallery";
 import { Accordion,AccordionItem,AccordionTrigger,AccordionContent } from "@/components/ui/accordion";
 import { promotedPrice } from "@/lib/variant-promotions";
-import { ThemedProductImage } from "@/components/ThemedImage";
+import { CatalogueProductImage } from "@/components/RangeProductArt";
 import { seoHead, productUrl, productSchema, jsonLd } from "@/lib/seo";
 import { ProductCertificates } from "@/components/ProductCertificates";
 import { isCertificate } from "@/lib/product-certificates";
@@ -364,9 +364,8 @@ function ProductPageBody() {
                   params={{ slug: p.slug }}
                   className="group overflow-hidden rounded-xl border border-border bg-card transition-all hover:border-primary hover:shadow-glow"
                 >
-                  <ThemedProductImage
-                    slug={p.slug}
-                    src={p.image}
+                  <CatalogueProductImage
+                    product={p}
                     sizes="80px"
                     alt={p.alt}
                     loading="lazy"
@@ -389,5 +388,6 @@ function ProductPageBody() {
     </div>
   );
 }
+
 
 

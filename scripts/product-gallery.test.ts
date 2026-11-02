@@ -139,7 +139,7 @@ describe("three product highlights", () => {
   });
 });
 
-test("Range ignores all saved detail and box photos, including the main gallery override", () => {
+test("Range uses the new coordinated set rather than stale saved artwork", () => {
   const vial = {
     ...p,
     slug: "retatrutide",
@@ -158,10 +158,11 @@ test("Range ignores all saved detail and box photos, including the main gallery 
     },
   ];
   const photos = productHighlights(vial, undefined, entries);
-  expect(photos).toHaveLength(1);
+  expect(photos).toHaveLength(3);
   expect(photos[0]).toEqual({
     src: vial.image,
-    label: "Full product view",
+    label: "Full product",
+    rangeView: "vial",
     scale: 1,
     x: 0.5,
     y: 0.5,
@@ -226,3 +227,4 @@ test("existing saved gallery rows remain valid without optional light fields", (
     }),
   ).toThrow();
 });
+
