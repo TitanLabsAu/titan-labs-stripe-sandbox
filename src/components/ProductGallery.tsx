@@ -100,7 +100,9 @@ export function ProductGallery({
       {photos.length > 1 ? (
         <>
           <figcaption
-            className="mt-2 text-xs text-muted-foreground"
+            className={
+              photo.rangeView ? "sr-only" : "mt-2 text-xs text-muted-foreground"
+            }
             aria-live="polite"
           >
             {photo.label}
@@ -130,11 +132,6 @@ export function ProductGallery({
                     </span>
                   ) : null}
                 </button>
-                {p.rangeView ? (
-                  <span className="mt-1 block text-center text-xs text-foreground">
-                    {p.label}
-                  </span>
-                ) : null}
               </div>
             ))}
           </div>

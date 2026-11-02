@@ -1,38 +1,37 @@
-# Matching Titan Labs Range labels and boxes
+# Titan Range display and gallery review
 
-Display-proportion follow-up to PR #27, based on `review/light-theme` at `eb4b2327624612bf6014d679c07fe82898ebee0c`. Owner requested GitHub merge and will review/publish through Lovable. No deployment is authorized.
+Owner authorized GitHub merge only. Review and publishing remain with the owner in Lovable.
 
-## Changes
+## Current appearance
 
-- All products with primary catalogue section Range use one shared label design. New Range products inherit it automatically.
-- Product name and quantity come from the live product and selected variant, including mg, IU, ml and blend labels. Missing strengths stay blank; they are never guessed. Long product names wrap into two lines.
-- The label uses the navy/gold helmet and brand lettering directly from the owner's approved reference. The box photograph uses the gold-only helmet, white curved molecular band, navy field and gold detailing.
-- The front-facing label now extends from near the glass shoulder to near the base (575px tall on the 1280px vial photo, previously 438px). The larger helmet and wordmark are stacked above the enlarged product name and strength. Curved gold edges and cylindrical shading remain. The disclaimer stays below.
-- The full vial is larger and positioned to the right of a new branded navy stone / champagne-gold display backdrop, based on the owner's older blue-and-white display reference. All three views reuse this same updated background.
-- Product pages show three selectable photographic thumbnails: Full product, Label detail (close-up on the vial), Titan Labs box. All three share the branded display background and lighting, with theme-aware shading and captions below the thumbnails. Switching size resets the gallery to the full product and refreshes its strength.
-- Catalogue cards, homepage Hot Products, related products, cart and checkout thumbnails use the same Range artwork. Pens, Equipment and exact-colour CMS photo rules retain their existing rendering.
-- Existing saved Range gallery photos are retained in CMS but ignored by the new coordinated set. No product records, prices, stock, orders, catalogue sections or saved photos were written.
+- Light mode uses a white marble branded display with navy lettering and champagne-gold accents. Dark mode retains the approved navy/gold display. CSS selects the correct background on first paint using existing theme classes.
+- The full-view vial is reduced from a 1000px to a 720px scene scale and its base aligns with the bench surface. A subtle contact shadow anchors it to the bench.
+- The tall navy/gold/white label is retained, with the selected product name, quantity and disclaimer facing forward.
+- Thumbnails have their own product-focused framing and unbranded photographic backgrounds: full vial, tight on-vial label detail, vial beside its matching carton. Light/dark photographic backgrounds are paired. Large wall branding no longer competes with thumbnail products.
+- Range thumbnail captions and the visible active-photo caption are removed. Accessible button names, selected-state announcements and focus controls remain. V2 pen gallery captions and photo rules are unchanged.
+- No catalogue data, prices, stock, orders or saved CMS photos were modified.
 
-## Visual review
+## Actual gallery component
 
-These screenshots render the production artwork component in an isolated review harness, not a screenshot of the signed-in live storefront. The real ProductGallery component was separately exercised in Chromium to verify selection and variant reset.
+These screenshots render the production ProductGallery and artwork components with the built production stylesheet in an isolated fixture. They do not represent a live account session. The small 30mg fixture control checks size changes and is not part of the storefront.
 
-![Light presentation](light.webp)
-![Dark presentation, 30mg](dark.webp)
+![Light product page gallery](gallery-light.webp)
+![Dark product page gallery](gallery-dark.webp)
 
-[Mobile and long-name review](mobile.webp) · [Desktop long-name review](long-name.webp)
+## Additional artwork checks
+
+[Light compositions](light.webp) · [Dark compositions](dark.webp) · [Mobile](mobile.webp) · [Long product name](long-name.webp)
+
+The comparison harness labels its separate panels for review; these panel labels are not website thumbnail captions.
 
 ## Validation
 
-- `npx tsc --noEmit`: passed.
-- Bun focused tests: 33 passed, 0 failed, covering Range data, gallery ownership, theme photo identity and variant photos.
-- Chromium: three views render, 20mg → 30mg changes artwork, long-name and light/dark checks, 390px viewport without horizontal overflow, no JavaScript errors.
-- Actual ProductGallery component: label and box selections activate the corresponding button; selecting 30mg resets to the full product with 30mg in its accessible label.
-- `npm run build`: passed with the repository's existing `bun.lock` dependencies. Existing framework deprecation/chunk-size warnings remain.
-- `git diff --check`: passed.
+- TypeScript check: passed.
+- Production build using the existing bun.lock: passed; existing framework warnings remain.
+- Focused Bun tests: 33 passed, 0 failed (Range data, gallery ownership, theme photo identity, variant images).
+- Chromium: actual gallery selections, selected-strength refresh/reset, long names, light/dark rendering and mobile without horizontal overflow or JavaScript errors passed. Actual gallery screenshots confirm captions are absent and thumbnails use separate framing.
+- git diff --check: passed.
 
-## Asset and rollout notes
+## Assets
 
-The three shared WebP assets total approximately 516 KB, plus the shared branded display background. Vial and box photographs were generated with the built-in image tool; SVG overlays supply accurate product text rather than regenerating every SKU. Prompt intent: isolated clear research vial with blank label and navy cap; isolated approved navy/white/gold carton on transparent background; branded navy/gold stone display background plate, adapted from the owner's older bright-blue vial display screenshot. Reference source: `Gold-Only Helmet Emblems on Navy Boxes(1).png` provided by the owner. The approved master supplies the actual label helmet and wordmark via SVG crops. The box remains a generated photographic interpretation for visual approval, not manufacturing artwork or an exact vector logo master.
-
-Merge into `review/light-theme` as authorized by the owner. The owner controls Lovable review and publishing. No website deployment is included.
+The approved master supplies the actual label helmet and lettering via SVG viewports. Vial and box are photographic mockups with SVG label text driven by product data. Built-in image generation produced a white marble display and bright laboratory plate from the dark references. Prompt intent: preserve display geometry and branding positions, replace dark stone with white marble, use navy lettering and gold trim, keep the foreground empty for compositing. The original dark display is unchanged. These are website visuals, not manufacturing or exact vector logo masters.
