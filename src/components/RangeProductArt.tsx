@@ -295,49 +295,51 @@ export function RangeProductArt({
         />
       </g>
       {view === "label" ? (
-        <Vial
-          product={product}
-          variant={selected}
-          x={thumbnail ? -528 : -435}
-          y={thumbnail ? -920 : -640}
-          size={thumbnail ? 2300 : 1900}
-        />
+        <svg
+          viewBox="0 0 1200 900"
+          width={thumbnail ? 1200 : 1000}
+          height={thumbnail ? 900 : 1000}
+          preserveAspectRatio="xMidYMid meet"
+        >
+          <Vial
+            product={product}
+            variant={selected}
+            x={-329}
+            y={-720}
+            size={1900}
+          />
+        </svg>
       ) : view === "boxed" ? (
-        <>
-          <image
-            href={`${root}box-front.webp`}
-            x={thumbnail ? 430 : 300}
-            y={thumbnail ? -30 : 100}
-            width={thumbnail ? 780 : 650}
-            height={thumbnail ? 900 : 750}
-            preserveAspectRatio="xMidYMid meet"
-          />
+        <svg
+          viewBox="0 0 1200 900"
+          width={thumbnail ? 1200 : 1000}
+          height={thumbnail ? 900 : 1000}
+          preserveAspectRatio="xMidYMid meet"
+        >
+          <svg
+            x="465"
+            y="20"
+            width="630"
+            height="860"
+            viewBox="230 35 800 1200"
+            preserveAspectRatio="xMidYMax meet"
+          >
+            <image href={`${root}box-front.webp`} width="1280" height="1280" />
+          </svg>
           <Vial
             product={product}
             variant={selected}
-            x={thumbnail ? -30 : -50}
-            y={thumbnail ? 180 : 260}
-            size={thumbnail ? 720 : 560}
+            x={-23}
+            y={244}
+            size={660}
           />
-        </>
+        </svg>
+      ) : thumbnail ? (
+        <Vial product={product} variant={selected} x={150} y={-5} size={900} />
       ) : (
-        <>
-          <ellipse
-            cx={thumbnail ? 592 : 703}
-            cy={thumbnail ? 865 : 802}
-            rx={thumbnail ? 155 : 123}
-            ry={thumbnail ? 14 : 11}
-            fill="#071624"
-            opacity=".2"
-          />
-          <Vial
-            product={product}
-            variant={selected}
-            x={thumbnail ? 150 : 350}
-            y={thumbnail ? -5 : 105}
-            size={thumbnail ? 900 : 720}
-          />
-        </>
+        // Reference: vial is 54% of the scene height, centred at 67%, with its base at 82%.
+        // The contact shadow is already part of the immutable cutout photograph.
+        <Vial product={product} variant={selected} x={384} y={262} size={585} />
       )}
     </svg>
   );
