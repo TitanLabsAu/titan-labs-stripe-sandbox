@@ -1,4 +1,4 @@
-import { ThemedProductImage } from "@/components/ThemedImage";
+import { CatalogueProductImage } from "@/components/RangeProductArt";
 import { cmsValues } from "@/lib/storefrontContent";
 import { cancelAndRefreshQuote, isVerifiedQuote } from "@/lib/checkout-quote-refresh";
 import { TitanPageHeading } from "@/components/TitanPageHeading";
@@ -961,10 +961,8 @@ function CheckoutPage() {
                   const imageVariant = product.variants?.find(v => v.id === item.variantId);
                   return (
                     <li key={item.key} className="flex items-center gap-4 py-4">
-                      <ThemedProductImage
-                        slug={product.slug}
-                        variantId={imageVariant?.image ? imageVariant.id : undefined}
-                        src={imageVariant?.image || product.image}
+                      <CatalogueProductImage
+                        product={product} variant={imageVariant}
                         alt={product.alt}
                         className="h-14 w-14 shrink-0 rounded object-cover"
                       />
@@ -1215,4 +1213,5 @@ function CheckoutPage() {
     </div>
   );
 }
+
 

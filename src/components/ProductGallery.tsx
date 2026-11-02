@@ -1,3 +1,4 @@
+import { RangeProductArt } from "./RangeProductArt";
 import { useState } from "react";
 import type { Product, ProductVariant } from "@/lib/products";
 import {
@@ -25,6 +26,16 @@ function HighlightImage({
   variant: ProductVariant | undefined;
   thumbnail?: boolean;
 }) {
+  if (photo.rangeView)
+    return (
+      <RangeProductArt
+        product={product}
+        variant={variant}
+        view={photo.rangeView}
+        className="absolute inset-0 h-full w-full"
+        alt={thumbnail ? "" : undefined}
+      />
+    );
   const props = {
     alt: thumbnail
       ? ""
@@ -85,7 +96,7 @@ export function ProductGallery({
         </div>
         <ProductChristmasDecor />
       </div>
-      {isPenGallery(product) ? (
+      {photos.length > 1 ? (
         <>
           <figcaption
             className="mt-2 text-xs text-muted-foreground"
@@ -112,7 +123,9 @@ export function ProductGallery({
                   variant={variant}
                   thumbnail
                 />
-                <span className="sr-only">{p.label}</span>
+                <span className="absolute inset-x-0 bottom-0 bg-card/95 py-1 text-[10px] text-foreground">
+                  {p.label}
+                </span>
               </button>
             ))}
           </div>

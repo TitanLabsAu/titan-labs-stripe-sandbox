@@ -1,3 +1,4 @@
+import { CatalogueProductImage } from "@/components/RangeProductArt";
 import { ThemedProductImage } from "@/components/ThemedImage";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Check, ChevronRight, Minus, Plus, ShoppingCart, Trash2, Wrench } from "lucide-react";
@@ -167,23 +168,9 @@ export function CartSheet({ floating = false, inline = false }: { floating?: boo
                       key={item.key}
                       className="flex gap-3 rounded-xl border border-border bg-card p-3"
                     >
-                      {lineVariant?.image ? (
-                        <ThemedProductImage slug={product.slug} variantId={lineVariant.id}
-                          src={lineVariant.image}
-                          alt={`${product.alt} — ${lineVariant.label}`}
-                          loading="lazy"
-                          decoding="async"
-                          className="brand-cut h-16 w-16 object-cover"
-                        />
-                      ) : (
-                        <ThemedProductImage
-                          slug={product.slug}
-                          src={product.image}
-                          sizes="80px"
-                          alt={product.alt}
-                          className="brand-cut h-16 w-16 object-cover"
-                        />
-                      )}
+                      <CatalogueProductImage product={product} variant={lineVariant}
+                        alt={`${product.alt}${lineVariant ? ` — ${lineVariant.label}` : ""}`}
+                        className="brand-cut h-16 w-16 shrink-0 object-cover" loading="lazy" sizes="80px"/>
                       <div className="flex-1">
                         <div className="flex items-start justify-between gap-2">
                           <div>
@@ -403,4 +390,5 @@ export function CartSheet({ floating = false, inline = false }: { floating?: boo
     </Sheet>
   );
 }
+
 

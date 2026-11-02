@@ -1,3 +1,4 @@
+import { usesRangeArtwork, RANGE_VIEWS, type RangeView } from "./range-artwork";
 import type { Product, ProductVariant } from "./products";
 import { sanitizeVariantImage } from "./products";
 export type GalleryEntry = {
@@ -18,6 +19,7 @@ export type HighlightPhoto = {
   y: number;
   custom: boolean;
   light?: string;
+  rangeView?: RangeView;
 };
 export function hasPhotoColourOptions(variants: ProductVariant[]) {
   return (
@@ -39,13 +41,23 @@ export function isPenGallery(product: Pick<Product, "slug" | "name">) {
   );
 }
 
-/** Non-V2 products always use their actual selected product photo, ignoring saved gallery artwork. */
+/** Range uses the coordinated live-label set; V2 pens retain their exact colour galleries. */
 export function productHighlights(
   product: Product,
   variant: ProductVariant | undefined,
   entries: GalleryEntry[] = [],
 ): HighlightPhoto[] {
   const source = variant?.image || product.image;
+  if (usesRangeArtwork(product))
+    return RANGE_VIEWS.map(({ view, label }) => ({
+      src: source,
+      label,
+      scale: 1,
+      x: 0.5,
+      y: 0.5,
+      custom: false,
+      rangeView: view,
+    }));
   if (!isPenGallery(product))
     return [
       {

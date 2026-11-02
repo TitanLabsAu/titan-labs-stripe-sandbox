@@ -7,7 +7,7 @@ import { promotedPrice } from "@/lib/variant-promotions";
 import { PROMOTION_BANNERS_KEY, parseBannerSettings, resolveBanner } from "@/lib/promotion-banners";
 import { useSiteContent } from "@/lib/useCatalog";
 import { PromotionRibbon } from "@/components/PromotionRibbon";
-import { ThemedProductImage } from "@/components/ThemedImage";
+import { CatalogueProductImage } from "@/components/RangeProductArt";
 import { ProductCoaLink } from "./ProductCertificates";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
@@ -70,17 +70,15 @@ export function ProductCard({ product: p, aligned = true }: { product: Product; 
         className="titan-product-photo relative block aspect-square overflow-hidden border-b border-primary/20 bg-[#030f19] titan-photo-frame"
       >
         {selectedVariant?.image ? (
-          <ThemedProductImage slug={p.slug} variantId={selectedVariant.id}
-            src={selectedVariant.image}
+          <CatalogueProductImage product={p} variant={selectedVariant}
             alt={`${p.alt} — ${selectedVariant.label}`}
             loading="lazy"
             decoding="async"
             className={`h-full w-full object-contain transition duration-300 hover:scale-[1.02] ${allOut ? "opacity-40 grayscale" : ""}`}
           />
         ) : (
-          <ThemedProductImage
-            slug={p.slug}
-            src={p.image}
+          <CatalogueProductImage
+            product={p} variant={selectedVariant}
             sizes="(min-width: 1280px) 320px, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
             alt={p.alt}
             loading="lazy"
@@ -236,4 +234,5 @@ export function ProductCard({ product: p, aligned = true }: { product: Product; 
     </article>
   );
 }
+
 
