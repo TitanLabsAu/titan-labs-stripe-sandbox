@@ -31,6 +31,14 @@ describe("matching Range artwork", () => {
       rangeLabelDetails({ name: "Retatrutide 20mg" }, { label: "40" }).strength,
     ).toBe("40");
   });
+  test("bare size uses a unit only when the exact same quantity is saved in the product name", () => {
+    expect(
+      rangeLabelDetails({ name: "KLOW 80mg" }, { label: "80" }).strength,
+    ).toBe("80mg");
+    expect(
+      rangeLabelDetails({ name: "HGH 36IU" }, { label: "36" }).strength,
+    ).toBe("36IU");
+  });
   test("every Range product receives three real compositions; sizes retain the selected identity", () => {
     for (const slug of [
       "retatrutide",

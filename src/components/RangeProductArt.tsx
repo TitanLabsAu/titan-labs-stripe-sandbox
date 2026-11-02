@@ -53,7 +53,7 @@ export function RangeLabelArt({
   const upper = name.toUpperCase();
   const breaks = [...upper.matchAll(/\s+/g)].map((m) => m.index!);
   const split =
-    upper.length > 23 && breaks.length
+    upper.length > 20 && breaks.length
       ? breaks.reduce((best, n) =>
           Math.abs(n - upper.length / 2) < Math.abs(best - upper.length / 2)
             ? n
@@ -64,113 +64,147 @@ export function RangeLabelArt({
     ? [upper.slice(0, split), upper.slice(split).trim()]
     : [upper];
   const id = useId().replace(/[^a-zA-Z0-9_-]/g, "");
-  const navy = RANGE_PALETTE.navy;
-  const gold = RANGE_PALETTE.gold;
+  const { navy, gold } = RANGE_PALETTE;
   return (
     <svg
-      viewBox="0 0 800 400"
+      viewBox="0 0 550 450"
       width="100%"
       height="100%"
+      preserveAspectRatio="none"
       aria-hidden="true"
       focusable="false"
     >
       <defs>
         <linearGradient id={`${id}-gold`}>
           <stop stopColor="#B98832" />
-          <stop offset=".45" stopColor={gold} />
-          <stop offset=".7" stopColor="#F6DE98" />
+          <stop offset=".4" stopColor={gold} />
+          <stop offset=".65" stopColor="#F6DE98" />
           <stop offset="1" stopColor={gold} />
         </linearGradient>
+        <linearGradient id={`${id}-curve`}>
+          <stop stopColor="#081c31" stopOpacity=".3" />
+          <stop offset=".12" stopColor="#081c31" stopOpacity=".05" />
+          <stop offset=".35" stopColor="white" stopOpacity=".08" />
+          <stop offset=".65" stopColor="white" stopOpacity="0" />
+          <stop offset=".88" stopColor="#081c31" stopOpacity=".04" />
+          <stop offset="1" stopColor="#081c31" stopOpacity=".28" />
+        </linearGradient>
+        <clipPath id={`${id}-paper`}>
+          <path d="M0 0Q275 10 550 0V440Q275 457 0 440Z" />
+        </clipPath>
       </defs>
-      <rect width="800" height="400" fill="white" />
-      <path
-        d="M0 5H800M0 395H800"
-        stroke={`url(#${id}-gold)`}
-        strokeWidth="10"
-      />
-      <g stroke={gold} strokeWidth="2" fill="none" opacity=".8">
-        <path d="M0 160L30 176L48 212L28 250L0 259M48 212H88L110 249L91 287H50L28 250M50 287L29 325L48 361M88 212L108 176M91 287L114 322" />
-        {[
-          [30, 176],
-          [48, 212],
-          [28, 250],
-          [88, 212],
-          [110, 249],
-          [91, 287],
-          [50, 287],
-          [29, 325],
-          [48, 361],
-          [108, 176],
-          [114, 322],
-        ].map(([x, y]) => (
-          <circle
-            key={`${x}-${y}`}
-            cx={x}
-            cy={y}
-            r="5"
-            fill={`url(#${id}-gold)`}
-          />
-        ))}
-      </g>
-      <MasterCrop
-        box="340 641 210 174"
-        x={65}
-        y={20}
-        width={157}
-        height={130}
-      />
-      <MasterCrop
-        box="583 644 716 158"
-        x={245}
-        y={15}
-        width={555}
-        height={135}
-      />
-      {lines.map((line, i) => (
-        <text
-          key={i}
-          x="122"
-          y={lines.length > 1 ? 215 + i * 53 : 258}
-          fill={navy}
-          fontFamily="Arial, sans-serif"
-          fontWeight="900"
-          fontSize={lines.length > 1 ? 45 : 65}
-          textLength={
-            line.length > (lines.length > 1 ? 23 : 12) ? 650 : undefined
-          }
-          lengthAdjust="spacingAndGlyphs"
-        >
-          {line}
-        </text>
-      ))}
-      {strength ? (
-        <>
-          <path d="M0 305H205Q245 305 245 345V388H0Z" fill={navy} />
+      <g clipPath={`url(#${id}-paper)`}>
+        <rect width="550" height="450" fill="white" />
+        <path
+          d="M0 9Q275 19 550 9M0 433Q275 450 550 433"
+          fill="none"
+          stroke={`url(#${id}-gold)`}
+          strokeWidth="7"
+        />
+        <g stroke={gold} strokeWidth="1.7" fill="none" opacity=".65">
+          <path d="M0 141L22 155L39 186L22 216L0 224M39 186H70L87 216L70 246H39L22 216M39 246L22 277L39 308M70 246L89 277M550 152L529 168L513 199L529 229L550 237M513 199H482L465 229L482 259H513L529 229M513 259L529 290L513 320" />
+          {[
+            [22, 155],
+            [39, 186],
+            [22, 216],
+            [70, 186],
+            [87, 216],
+            [70, 246],
+            [39, 246],
+            [22, 277],
+            [39, 308],
+            [89, 277],
+            [529, 168],
+            [513, 199],
+            [529, 229],
+            [482, 199],
+            [465, 229],
+            [482, 259],
+            [513, 259],
+            [529, 290],
+            [513, 320],
+          ].map(([x, y]) => (
+            <circle
+              key={`${x}-${y}`}
+              cx={x}
+              cy={y}
+              r="4"
+              fill={`url(#${id}-gold)`}
+            />
+          ))}
+        </g>
+        <MasterCrop
+          box="340 641 210 174"
+          x={42}
+          y={27}
+          width={108}
+          height={90}
+        />
+        <MasterCrop
+          box="583 644 716 158"
+          x={174}
+          y={28}
+          width={376}
+          height={83}
+        />
+        {lines.map((line, i) => (
           <text
-            x="122"
-            y="367"
+            key={i}
+            x="275"
+            y={lines.length > 1 ? 174 + i * 43 : 202}
             textAnchor="middle"
-            fill={`url(#${id}-gold)`}
+            fill={navy}
             fontFamily="Arial, sans-serif"
-            fontSize={strength.length > 9 ? 29 : 51}
-            fontWeight="800"
-            textLength={strength.length > 14 ? 215 : undefined}
+            fontWeight="900"
+            fontSize={lines.length > 1 ? 35 : 47}
+            textLength={
+              line.length > (lines.length > 1 ? 19 : 15) ? 400 : undefined
+            }
             lengthAdjust="spacingAndGlyphs"
           >
-            {strength}
+            {line}
           </text>
-        </>
-      ) : null}
-      <g fill={navy} fontFamily="Arial, sans-serif" fontSize="15">
-        <text x="405" y="321">
-          For research purpose only
-        </text>
-        <text x="405" y="345">
-          Keep out of reach of children
-        </text>
-        <text x="405" y="369">
-          Keep refrigerated 2°C to 8°C
-        </text>
+        ))}
+        {strength ? (
+          <>
+            <rect x="145" y="244" width="260" height="63" rx="17" fill={navy} />
+            <text
+              x="275"
+              y="289"
+              textAnchor="middle"
+              fill={`url(#${id}-gold)`}
+              fontFamily="Arial, sans-serif"
+              fontWeight="800"
+              fontSize={strength.length > 10 ? 29 : 43}
+              textLength={strength.length > 14 ? 225 : undefined}
+              lengthAdjust="spacingAndGlyphs"
+            >
+              {strength}
+            </text>
+          </>
+        ) : null}
+        <g
+          fill={navy}
+          fontFamily="Arial, sans-serif"
+          fontSize="17"
+          textAnchor="middle"
+        >
+          <text x="275" y="351">
+            For research purpose only
+          </text>
+          <text x="275" y="377">
+            Keep out of reach of children
+          </text>
+          <text x="275" y="403">
+            Keep refrigerated 2°C to 8°C
+          </text>
+        </g>
+        <rect
+          width="550"
+          height="450"
+          fill={`url(#${id}-curve)`}
+          pointerEvents="none"
+        />
       </g>
     </svg>
   );
@@ -193,7 +227,14 @@ function Vial({
   return (
     <svg x={x} y={y} width={size} height={size} viewBox="0 0 1280 1280">
       <image href={`${root}vial-blank.webp`} width="1280" height="1280" />
-      <svg x="367" y="650" width="522" height="261" viewBox="0 0 800 400">
+      <svg
+        x="366"
+        y="565"
+        width="524"
+        height="438"
+        viewBox="0 0 550 450"
+        preserveAspectRatio="none"
+      >
         <RangeLabelArt product={product} variant={variant} />
       </svg>
     </svg>
@@ -206,18 +247,20 @@ export function RangeProductArt({
   view = "vial",
   className = "",
   alt,
+  thumbnail = false,
 }: {
   product: Product;
   variant?: ProductVariant | undefined;
   view?: RangeView;
   className?: string | undefined;
   alt?: string | undefined;
+  thumbnail?: boolean;
 }) {
   const selected = variant ?? firstAvailableVariant(product) ?? undefined;
   const details = rangeLabelDetails(product, selected);
   return (
     <svg
-      viewBox="0 0 1000 1000"
+      viewBox={thumbnail ? "0 0 1200 900" : "0 0 1000 1000"}
       role={alt === "" ? undefined : "img"}
       aria-hidden={alt === "" ? true : undefined}
       aria-label={
@@ -229,31 +272,49 @@ export function RangeProductArt({
       className={`range-product-art ${className}`}
       style={{ display: "block", overflow: "hidden" }}
     >
-      {view === "label" ? (
-        <svg x="35" y="265" width="930" height="465" viewBox="0 0 800 400">
-          <RangeLabelArt product={product} variant={selected} />
-        </svg>
-      ) : view === "boxed" ? (
-        <>
-          <image
-            href={`${root}box-front.webp`}
-            x="305"
-            y="40"
-            width="700"
-            height="850"
-            preserveAspectRatio="xMidYMid meet"
-          />
+      <image
+        href={`${root}laboratory-scene.webp`}
+        width={thumbnail ? 1200 : 1000}
+        height={thumbnail ? 900 : 1000}
+        preserveAspectRatio="xMidYMid slice"
+      />
+      <rect
+        className="range-art-scene-shade opacity-0 dark:opacity-50"
+        width={thumbnail ? 1200 : 1000}
+        height={thumbnail ? 900 : 1000}
+        fill="#03172b"
+      />
+      <g transform={thumbnail ? "translate(150 0) scale(.9)" : undefined}>
+        {view === "label" ? (
           <Vial
             product={product}
             variant={selected}
-            x={-145}
-            y={240}
-            size={740}
+            x={-580}
+            y={-750}
+            size={2200}
           />
-        </>
-      ) : (
-        <Vial product={product} variant={selected} x={30} y={10} size={940} />
-      )}
+        ) : view === "boxed" ? (
+          <>
+            <image
+              href={`${root}box-front.webp`}
+              x="305"
+              y="40"
+              width="700"
+              height="850"
+              preserveAspectRatio="xMidYMid meet"
+            />
+            <Vial
+              product={product}
+              variant={selected}
+              x={-145}
+              y={240}
+              size={740}
+            />
+          </>
+        ) : (
+          <Vial product={product} variant={selected} x={30} y={10} size={940} />
+        )}
+      </g>
     </svg>
   );
 }
