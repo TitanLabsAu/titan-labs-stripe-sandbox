@@ -34,6 +34,7 @@ function HighlightImage({
         view={photo.rangeView}
         className="absolute inset-0 h-full w-full"
         alt={thumbnail ? "" : undefined}
+        thumbnail={thumbnail}
       />
     );
   const props = {
@@ -109,24 +110,32 @@ export function ProductGallery({
             aria-label="Product highlight photos"
           >
             {photos.map((p, i) => (
-              <button
-                key={i}
-                type="button"
-                aria-label={`Show ${p.label.toLowerCase()}`}
-                aria-pressed={activeIndex === i}
-                onClick={() => setIndex(i)}
-                className={`relative aspect-[4/3] overflow-hidden rounded-lg border-2 bg-card transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${activeIndex === i ? "border-primary" : "border-border hover:border-primary/60"}`}
-              >
-                <HighlightImage
-                  photo={p}
-                  product={product}
-                  variant={variant}
-                  thumbnail
-                />
-                <span className="absolute inset-x-0 bottom-0 bg-card/95 py-1 text-[10px] text-foreground">
-                  {p.label}
-                </span>
-              </button>
+              <div key={i} className="min-w-0">
+                <button
+                  type="button"
+                  aria-label={`Show ${p.label.toLowerCase()}`}
+                  aria-pressed={activeIndex === i}
+                  onClick={() => setIndex(i)}
+                  className={`relative w-full aspect-[4/3] overflow-hidden rounded-lg border-2 bg-card transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${activeIndex === i ? "border-primary" : "border-border hover:border-primary/60"}`}
+                >
+                  <HighlightImage
+                    photo={p}
+                    product={product}
+                    variant={variant}
+                    thumbnail
+                  />
+                  {!p.rangeView ? (
+                    <span className="absolute inset-x-0 bottom-0 bg-card/95 py-1 text-[10px] text-foreground">
+                      {p.label}
+                    </span>
+                  ) : null}
+                </button>
+                {p.rangeView ? (
+                  <span className="mt-1 block text-center text-xs text-foreground">
+                    {p.label}
+                  </span>
+                ) : null}
+              </div>
             ))}
           </div>
         </>

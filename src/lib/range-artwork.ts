@@ -5,7 +5,7 @@ export type RangeView = "vial" | "label" | "boxed";
 export const RANGE_VIEWS: { view: RangeView; label: string }[] = [
   { view: "vial", label: "Full product" },
   { view: "label", label: "Label detail" },
-  { view: "boxed", label: "Vial and box" },
+  { view: "boxed", label: "Titan Labs box" },
 ];
 export const RANGE_PALETTE = {
   navy: "#0C2D53",
@@ -28,9 +28,16 @@ export function rangeLabelDetails(
   variant?: Pick<ProductVariant, "label">,
 ) {
   const sizes = (variant?.label.trim() || product.name).match(quantity) ?? [];
-  const strength = sizes.length
-    ? sizes.join(" / ").replace(/\s+(mg|mcg|µg|μg|iu|ml|g)\b/gi, "$1")
-    : variant?.label.trim() || "";
+  const matchingSize = /^\d+(?:\.\d+)?$/.test(variant?.label.trim() || "")
+    ? product.name
+        .match(quantity)
+        ?.find((size) => Number.parseFloat(size) === Number(variant?.label))
+    : undefined;
+  const strength =
+    matchingSize ||
+    (sizes.length
+      ? sizes.join(" / ").replace(/\s+(mg|mcg|µg|μg|iu|ml|g)\b/gi, "$1")
+      : variant?.label.trim() || "");
   const name =
     product.name
       .replace(
