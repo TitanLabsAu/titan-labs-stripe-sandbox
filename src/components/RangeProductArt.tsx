@@ -216,37 +216,82 @@ export function RangeLabelArt({
   );
 }
 
-function Vial({
+/** The actual website photograph, not a regenerated bottle. */
+function WebsitePhoto() {
+  return (
+    <>
+      <g className="theme-variant-dark">
+        <image
+          href="/images/product-optimized/retatrutide.webp"
+          width="1024"
+          height="1024"
+        />
+      </g>
+      <g className="theme-variant-light">
+        <image
+          href="/images/product-light/retatrutide.webp"
+          width="1024"
+          height="1024"
+        />
+      </g>
+    </>
+  );
+}
+function WebsitePaper({
   product,
   variant,
-  x = 0,
-  y = 0,
-  size = 1000,
 }: {
   product: Product;
   variant?: ProductVariant | undefined;
-  x?: number;
-  y?: number;
-  size?: number;
 }) {
-  // Image geometry belongs to this immutable blank photograph (1280 × 1280).
   return (
-    <svg x={x} y={y} width={size} height={size} viewBox="0 0 1280 1280">
-      <image href={`${root}vial-blank.webp`} width="1280" height="1280" />
-      <svg
-        x="360"
-        y="510"
-        width="536"
-        height="575"
-        viewBox="0 0 550 600"
-        preserveAspectRatio="none"
-      >
-        <RangeLabelArt product={product} variant={variant} />
-      </svg>
+    <svg
+      x="577"
+      y="495"
+      width="227"
+      height="303"
+      viewBox="0 0 550 600"
+      preserveAspectRatio="none"
+    >
+      <RangeLabelArt product={product} variant={variant} />
     </svg>
   );
 }
-
+function Vial({
+  product,
+  variant,
+  x,
+  y,
+  height,
+}: {
+  product: Product;
+  variant?: ProductVariant | undefined;
+  x: number;
+  y: number;
+  height: number;
+}) {
+  const id = useId().replace(/[^a-zA-Z0-9_-]/g, "");
+  return (
+    <svg
+      x={x}
+      y={y}
+      width={(height * 250) / 568}
+      height={height}
+      viewBox="565 278 250 568"
+      preserveAspectRatio="xMidYMid meet"
+    >
+      <defs>
+        <clipPath id={`${id}-glass`}>
+          <path d="M690 281C742 280 801 284 802 310V340L790 347V397Q790 409 773 414L771 439Q808 456 809 490V815Q809 841 785 842H595Q571 840 571 815V490Q571 461 604 439V416Q580 410 580 397V347L576 342V311Q577 285 690 281Z" />
+        </clipPath>
+      </defs>
+      <g clipPath={`url(#${id}-glass)`}>
+        <WebsitePhoto />
+      </g>
+      <WebsitePaper product={product} variant={variant} />
+    </svg>
+  );
+}
 export function RangeProductArt({
   product,
   variant,
@@ -264,9 +309,11 @@ export function RangeProductArt({
 }) {
   const selected = variant ?? firstAvailableVariant(product) ?? undefined;
   const details = rangeLabelDetails(product, selected);
+  const hero = !thumbnail && view === "vial";
   return (
     <svg
-      viewBox={thumbnail ? "0 0 1200 900" : "0 0 1000 1000"}
+      viewBox={hero ? "0 0 1024 1024" : "0 0 1200 800"}
+      preserveAspectRatio="xMidYMid slice"
       role={alt === "" ? undefined : "img"}
       aria-hidden={alt === "" ? true : undefined}
       aria-label={
@@ -278,68 +325,71 @@ export function RangeProductArt({
       className={`range-product-art ${className}`}
       style={{ display: "block", overflow: "hidden" }}
     >
-      <g className="theme-variant-dark">
-        <image
-          href={`${root}${!thumbnail && view === "vial" ? "branded-display-scene.webp" : "laboratory-scene.webp"}`}
-          width={thumbnail ? 1200 : 1000}
-          height={thumbnail ? 900 : 1000}
-          preserveAspectRatio="xMidYMid slice"
-        />
-      </g>
-      <g className="theme-variant-light">
-        <image
-          href={`${root}${!thumbnail && view === "vial" ? "branded-display-light.webp" : "laboratory-scene-light.webp"}`}
-          width={thumbnail ? 1200 : 1000}
-          height={thumbnail ? 900 : 1000}
-          preserveAspectRatio="xMidYMid slice"
-        />
-      </g>
-      {view === "label" ? (
-        <svg
-          viewBox="0 0 1200 900"
-          width={thumbnail ? 1200 : 1000}
-          height={thumbnail ? 900 : 1000}
-          preserveAspectRatio="xMidYMid meet"
-        >
-          <Vial
-            product={product}
-            variant={selected}
-            x={-329}
-            y={-720}
-            size={1900}
-          />
-        </svg>
-      ) : view === "boxed" ? (
-        <svg
-          viewBox="0 0 1200 900"
-          width={thumbnail ? 1200 : 1000}
-          height={thumbnail ? 900 : 1000}
-          preserveAspectRatio="xMidYMid meet"
-        >
-          <svg
-            x="465"
-            y="20"
-            width="630"
-            height="860"
-            viewBox="230 35 800 1200"
-            preserveAspectRatio="xMidYMax meet"
-          >
-            <image href={`${root}box-front.webp`} width="1280" height="1280" />
-          </svg>
-          <Vial
-            product={product}
-            variant={selected}
-            x={-23}
-            y={244}
-            size={660}
-          />
-        </svg>
-      ) : thumbnail ? (
-        <Vial product={product} variant={selected} x={150} y={-5} size={900} />
+      {hero ? (
+        <>
+          <WebsitePhoto />
+          <WebsitePaper product={product} variant={selected} />
+        </>
       ) : (
-        // Reference: vial is 54% of the scene height, centred at 67%, with its base at 82%.
-        // The contact shadow is already part of the immutable cutout photograph.
-        <Vial product={product} variant={selected} x={384} y={262} size={585} />
+        <>
+          <g className="theme-variant-dark">
+            <image
+              href={`${root}laboratory-scene.webp`}
+              width="1200"
+              height="800"
+              preserveAspectRatio="xMidYMid slice"
+            />
+          </g>
+          <g className="theme-variant-light">
+            <image
+              href={`${root}laboratory-scene-light.webp`}
+              width="1200"
+              height="800"
+              preserveAspectRatio="xMidYMid slice"
+            />
+          </g>
+          {view === "label" ? (
+            <Vial
+              product={product}
+              variant={selected}
+              x={280}
+              y={-550}
+              height={1450}
+            />
+          ) : view === "boxed" ? (
+            <>
+              <svg
+                x="480"
+                y="0"
+                width="550"
+                height="780"
+                viewBox="230 35 800 1200"
+                preserveAspectRatio="xMidYMax meet"
+              >
+                <image
+                  href={`${root}box-front.webp`}
+                  width="1280"
+                  height="1280"
+                />
+              </svg>
+              <Vial
+                product={product}
+                variant={selected}
+                x={200}
+                y={190}
+                height={590}
+              />
+            </>
+          ) : (
+            <Vial
+              product={product}
+              variant={selected}
+              x={428}
+              y={10}
+              height={780}
+            />
+          )}
+        </>
       )}
     </svg>
   );

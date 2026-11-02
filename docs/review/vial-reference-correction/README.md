@@ -1,11 +1,26 @@
-# Vial scale and gallery reference correction
+# Original photographic vial and full-width gallery — revised review
 
-Preview for user approval; do not merge or publish until the visual composition is accepted.
+This revision replaces the rejected replacement-vial preview. Approval is required before merge; no publication is included.
 
-The Range main vial is reduced from a 720px cutout canvas to 585px in the 1000px scene. Its visible height is approximately 54% of the scene, centred near 67% horizontally, with its base near 82% vertically, matching the proportions measured from the supplied original SS-31 screenshot. The current navy/gold label and the existing light/dark backgrounds are retained. The redundant oval shadow is removed because the cutout already includes its contact shadow.
+## Original vial appearance
 
-The three thumbnails remain: full vial, label close-up, then vial on the left beside the taller box on the right. The label crop now includes all three disclaimer lines. The boxed composition uses explicit transparent-image crop bounds and aligns the vial and box bases. A selected label/boxed view retains the same composition as its thumbnail, scaled within the main image.
+Range artwork now reuses the actual original website photographs (`/images/product-optimized/retatrutide.webp` and its existing light counterpart). The cap, metal, glass silhouette, reflections, lighting and original scene placement are the original photo pixels. No new bottle is generated. Only the paper label is overlaid with the current navy/gold label and selected product/strength. The square catalogue composition preserves the original photo geometry; the product-page main frame crops it to 4:3 without stretching.
 
-This changes only RangeProductArt rendering. Product names, strengths, CMS data, pricing, stock, checkout, Pens and Equipment imagery remain unchanged.
+For the three gallery views, an SVG silhouette clips that same original photographed vial. The image itself is not retouched or regenerated. The new label and matching navy/gold box remain. Photo switching follows the existing first-paint theme CSS.
 
-Validation: TypeScript and 14 Range/gallery tests passed. Browser component preview inspected in light and dark, all three view buttons, a long blend name with 5mg / 5mg, and HGH 36IU. A 390px iframe (375px content area after its scrollbar) had no horizontal overflow. Screenshots show actual source-component output in a review fixture beside the user-supplied original reference; they are not live production screenshots.
+## Reference layout
+
+The Range product page has a 3:2 photo/details column ratio. Three 3:2 thumbnails span the entire combined width in one row below BOTH columns, followed by product information. Their order is full vial, label close-up, then a smaller vial on the left beside the taller box on the right. There are no visible captions; accessible view labels and announcements remain.
+
+`ProductGallery` accepts the buying controls as children so its view selection and full-width row share the same state. The existing controls, selected variant, pricing and add-to-cart handlers remain in the product route. Non-Range galleries retain their original column arrangement and aspect ratios.
+
+## Validation
+
+- TypeScript, 14 Range/gallery tests and production build passed.
+- Browser measured that the thumbnail row spans the combined photo/details width and lies below both.
+- Light/dark screenshots use the actual ProductGallery and RangeProductArt components. Buying controls are a disabled review fixture, not a production checkout.
+- All three views were inspected. Switching 20mg to 30mg updates the main view plus all three thumbnails with no stale 20mg label.
+- Mobile iframe: 390px outer width, 375px content width after the scrollbar, no horizontal overflow, thumbnails remain below the buying controls.
+- No application console errors observed. No database, CMS, pricing, stock or payment changes.
+
+The screenshots in this directory supersede the earlier rejected screenshots on this PR.
