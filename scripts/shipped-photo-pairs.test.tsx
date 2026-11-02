@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { equipmentSceneFor } from "../src/lib/equipment-scenes";
 import pairs from "../src/lib/product-theme-pairs.json";
 import {
   productDarkPhoto,
@@ -131,10 +132,17 @@ describe("missing catalogue image pairs", () => {
           sizes: "180px",
         }),
       );
-      expect(html).toContain(`src="${pair.dark}"`);
-      expect(html).toContain(`src="${pair.light}"`);
-      expect(html).toContain('data-theme-variant="dark"');
-      expect(html).toContain('data-theme-variant="light"');
+      const scene = equipmentSceneFor(pair.slug, pair.source);
+      if (scene) {
+        expect(html).toContain(`href="${scene.cutout}"`);
+        expect(html).toContain('class="theme-variant-dark"');
+        expect(html).toContain('class="theme-variant-light"');
+      } else {
+        expect(html).toContain(`src="${pair.dark}"`);
+        expect(html).toContain(`src="${pair.light}"`);
+        expect(html).toContain('data-theme-variant="dark"');
+        expect(html).toContain('data-theme-variant="light"');
+      }
       const content = render(
         createElement(ThemedContentImage, { src: pair.source, alt: "Gallery" }),
       );

@@ -14,6 +14,13 @@ import { canonicalUrl, cmsValues } from "@/lib/storefrontContent";
 import { useSiteContent } from "@/lib/useCatalog";
 import { artDelivery } from "@/lib/theme-art";
 
+import {
+  equipmentSceneFor,
+  hasSceneOverride,
+  type SceneDetail,
+} from "@/lib/equipment-scenes";
+import { EquipmentProductScene } from "@/components/EquipmentProductScene";
+
 export const LIGHT_DISCOVERY_ART = "/images/titan-discovery-light.webp";
 const responsiveLightPhotos = new Set(Object.values(LIGHT_PRODUCT_IMAGES));
 
@@ -117,6 +124,7 @@ export function ThemedArt({
 type Props = Omit<ImgHTMLAttributes<HTMLImageElement>, "src" | "srcSet"> & {
   slug: string | undefined;
   variantId?: string | undefined;
+  sceneDetail?: SceneDetail | undefined;
   src: string;
   alt: string;
   sizes?: string;
@@ -130,12 +138,44 @@ export function ThemedProductImage({
   alt,
   className,
   loading,
+  sceneDetail,
   ...rest
 }: Props) {
   const light = useLightProductPhoto(slug, src, variantId);
   const dark = productDarkPhoto(slug, src);
   const darkDelivery = productImageDelivery(dark, sizes || "100vw");
   const cls = `titan-themed-photo ${className ?? ""}`;
+  const { data } = useSiteContent();
+  const values = cmsValues(data, "theme_artwork");
+  const scene = equipmentSceneFor(slug, src);
+  if (
+    scene &&
+    !hasSceneOverride(
+      slug,
+      src,
+      variantId,
+      values.products as ProductPhotoPair[],
+      values.variants as VariantPhotoPair[],
+      values.images as PhotoPair[],
+      scene.previousLight,
+    )
+  ) {
+    return (
+      <EquipmentProductScene
+        scene={scene}
+        alt={alt}
+        className={cls}
+        width={rest.width}
+        height={rest.height}
+        detail={sceneDetail}
+        style={
+          sceneDetail
+            ? { ...rest.style, width: "100%", height: "100%", left: 0, top: 0 }
+            : rest.style
+        }
+      />
+    );
+  }
   if (!light) {
     return (
       <img

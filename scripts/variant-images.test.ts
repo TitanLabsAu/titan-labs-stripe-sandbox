@@ -112,6 +112,7 @@ describe("no other variant behaviour changes", () => {
 });
 
 
+import { equipmentSceneFor } from "../src/lib/equipment-scenes";
 import shippedPairs from "../src/lib/product-theme-pairs.json";
 import { hasPhotoColourOptions } from "../src/lib/product-gallery";
 import { catalogueVariantImage } from "../src/lib/products";
@@ -141,7 +142,7 @@ describe("V2 pen and travel case main-photo colour tiles", () => {
       const html = renderToStaticMarkup(createElement(QueryClientProvider,{client},createElement(PhotoColourSelector,{product,variants:product.variants!,value:"real-sku-0",onChange:()=>{},compact:true})));
       expect((html.match(/type="radio"/g)||[]).length).toBe(labels.length);
       for(const label of labels)expect(html).toContain(`aria-label="${label}"`);
-      for(const pair of pairs){expect(html).toContain(pair.dark);expect(html).toContain(pair.light);}
+      for(const pair of pairs){const scene=equipmentSceneFor(slug,pair.source);expect(scene).toBeDefined();expect(html).toContain(scene!.cutout);expect(html).toContain("laboratory-scene-light.webp");expect(html).toContain("laboratory-scene.webp");}
     });
   }
   test("new uploads, wrong colours, wrong products and other origins do not reuse the Blue photo", () => {
@@ -173,3 +174,4 @@ test("option descriptions survive Admin editing and public catalogue normalizati
   expect(publicProduct.variants?.find(v => v.id === "large")?.price).toBe(30);
   expect(publicProduct.variants?.find(v => v.id === "small")?.image).toBe("/small.png");
 });
+
