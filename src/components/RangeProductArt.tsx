@@ -278,55 +278,67 @@ export function RangeProductArt({
       className={`range-product-art ${className}`}
       style={{ display: "block", overflow: "hidden" }}
     >
-      <image
-        href={`${root}branded-display-scene.webp`}
-        width={thumbnail ? 1200 : 1000}
-        height={thumbnail ? 900 : 1000}
-        preserveAspectRatio="xMidYMid slice"
-      />
-      <rect
-        className="range-art-scene-shade opacity-0 dark:opacity-50"
-        width={thumbnail ? 1200 : 1000}
-        height={thumbnail ? 900 : 1000}
-        fill="#03172b"
-      />
-      <g transform={thumbnail ? "translate(150 0) scale(.9)" : undefined}>
-        {view === "label" ? (
-          <Vial
-            product={product}
-            variant={selected}
-            x={-435}
-            y={-640}
-            size={1900}
-          />
-        ) : view === "boxed" ? (
-          <>
-            <image
-              href={`${root}box-front.webp`}
-              x="305"
-              y="40"
-              width="700"
-              height="850"
-              preserveAspectRatio="xMidYMid meet"
-            />
-            <Vial
-              product={product}
-              variant={selected}
-              x={-145}
-              y={240}
-              size={740}
-            />
-          </>
-        ) : (
-          <Vial
-            product={product}
-            variant={selected}
-            x={220}
-            y={-5}
-            size={1000}
-          />
-        )}
+      <g className="theme-variant-dark">
+        <image
+          href={`${root}${!thumbnail && view === "vial" ? "branded-display-scene.webp" : "laboratory-scene.webp"}`}
+          width={thumbnail ? 1200 : 1000}
+          height={thumbnail ? 900 : 1000}
+          preserveAspectRatio="xMidYMid slice"
+        />
       </g>
+      <g className="theme-variant-light">
+        <image
+          href={`${root}${!thumbnail && view === "vial" ? "branded-display-light.webp" : "laboratory-scene-light.webp"}`}
+          width={thumbnail ? 1200 : 1000}
+          height={thumbnail ? 900 : 1000}
+          preserveAspectRatio="xMidYMid slice"
+        />
+      </g>
+      {view === "label" ? (
+        <Vial
+          product={product}
+          variant={selected}
+          x={thumbnail ? -528 : -435}
+          y={thumbnail ? -920 : -640}
+          size={thumbnail ? 2300 : 1900}
+        />
+      ) : view === "boxed" ? (
+        <>
+          <image
+            href={`${root}box-front.webp`}
+            x={thumbnail ? 430 : 300}
+            y={thumbnail ? -30 : 100}
+            width={thumbnail ? 780 : 650}
+            height={thumbnail ? 900 : 750}
+            preserveAspectRatio="xMidYMid meet"
+          />
+          <Vial
+            product={product}
+            variant={selected}
+            x={thumbnail ? -30 : -50}
+            y={thumbnail ? 180 : 260}
+            size={thumbnail ? 720 : 560}
+          />
+        </>
+      ) : (
+        <>
+          <ellipse
+            cx={thumbnail ? 592 : 703}
+            cy={thumbnail ? 865 : 802}
+            rx={thumbnail ? 155 : 123}
+            ry={thumbnail ? 14 : 11}
+            fill="#071624"
+            opacity=".2"
+          />
+          <Vial
+            product={product}
+            variant={selected}
+            x={thumbnail ? 150 : 350}
+            y={thumbnail ? -5 : 105}
+            size={thumbnail ? 900 : 720}
+          />
+        </>
+      )}
     </svg>
   );
 }
