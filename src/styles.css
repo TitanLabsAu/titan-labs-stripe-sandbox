@@ -237,7 +237,8 @@
 }
 
 @utility page-shell {
-  width: min(100% - 2rem, 78rem);
+  /* A wider CSS viewport (including browser zoom-out) should open up the layout. */
+  width: min(100% - 2rem, max(78rem, 90%));
   margin-inline: auto;
 }
 
