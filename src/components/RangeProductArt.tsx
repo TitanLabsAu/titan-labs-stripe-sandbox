@@ -216,26 +216,17 @@ export function RangeLabelArt({
   );
 }
 
-/** The actual website photograph, not a regenerated bottle. */
+/** Keep the photographed glass; recolour only the cap, never an entire product photo. */
 function WebsitePhoto() {
-  return (
-    <>
-      <g className="theme-variant-dark">
-        <image
-          href="/images/product-optimized/retatrutide.webp"
-          width="1024"
-          height="1024"
-        />
-      </g>
-      <g className="theme-variant-light">
-        <image
-          href="/images/product-light/retatrutide.webp"
-          width="1024"
-          height="1024"
-        />
-      </g>
-    </>
-  );
+  const id=useId().replace(/[^a-zA-Z0-9_-]/g, "");
+  return <>
+    <defs>
+      <clipPath id={`${id}-cap`}><rect x="570" y="278" width="240" height="72"/></clipPath>
+      <filter id={`${id}-navy`} colorInterpolationFilters="sRGB"><feColorMatrix type="matrix" values=".038 .130 .013 0 .015 .063 .216 .021 0 .025 .095 .324 .032 0 .045 0 0 0 1 0"/></filter>
+    </defs>
+    <image href="/images/product-optimized/retatrutide.webp" width="1024" height="1024"/>
+    <g clipPath={`url(#${id}-cap)`}><image href="/images/product-optimized/retatrutide.webp" width="1024" height="1024" filter={`url(#${id}-navy)`}/></g>
+  </>;
 }
 function WebsitePaper({
   product,
@@ -327,8 +318,10 @@ export function RangeProductArt({
     >
       {hero ? (
         <>
-          <WebsitePhoto />
-          <WebsitePaper product={product} variant={selected} />
+          <g className="theme-variant-dark"><image href={`${root}branded-display-scene.webp`} width="1024" height="1024" preserveAspectRatio="xMidYMid slice"/></g>
+          <g className="theme-variant-light"><image href={`${root}branded-display-light.webp`} width="1024" height="1024" preserveAspectRatio="xMidYMid slice"/></g>
+          <Vial product={product} variant={selected} x={565} y={278} height={568}/>
+
         </>
       ) : (
         <>
@@ -426,3 +419,4 @@ export function CatalogueProductImage({
     />
   );
 }
+

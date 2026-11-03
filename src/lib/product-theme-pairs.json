@@ -39,12 +39,6 @@
   },
   {
     "slug": "v2-reusable-pen",
-    "source": "/api/public/product-image?path=v2-reusable-pen%2Fbfb1734d-d269-4130-9366-c9b2590ed014.png",
-    "dark": "/images/product-theme/older-v2-blue-dark-v1.webp",
-    "light": "/api/public/product-image?path=v2-reusable-pen%2Fbfb1734d-d269-4130-9366-c9b2590ed014.png"
-  },
-  {
-    "slug": "v2-reusable-pen",
     "source": "/api/public/product-image?path=v2-reusable-pen%2F6e0e6586-fec3-4ce9-94ee-5fc6faab460a.png",
     "dark": "/images/product-theme/older-v2-grey-dark-v1.webp",
     "light": "/api/public/product-image?path=v2-reusable-pen%2F6e0e6586-fec3-4ce9-94ee-5fc6faab460a.png"
@@ -72,5 +66,17 @@
     "source": "/api/public/product-image?path=v2-pen-kit%2F2951f34c-352f-438a-9254-f7dc38210ecb.png",
     "dark": "/images/product-theme/reconstitution-dark-v1.webp",
     "light": "/api/public/product-image?path=v2-pen-kit%2F2951f34c-352f-438a-9254-f7dc38210ecb.png"
+  },
+  {
+    "slug": "v2-reusable-pen",
+    "source": "/api/public/product-image?path=v2-reusable-pen%2Fa6145624-ee1e-4a28-b580-a5ce2ceaaab9.png",
+    "dark": "/images/approved-products-v1/v2-blue-case-dark.webp",
+    "light": "/images/approved-products-v1/v2-blue-case-light.webp"
+  },
+  {
+    "slug": "v2-reusable-pen",
+    "source": "/api/public/product-image?path=v2-reusable-pen%2Fbfb1734d-d269-4130-9366-c9b2590ed014.png",
+    "dark": "/images/approved-products-v1/v2-blue-case-dark.webp",
+    "light": "/images/approved-products-v1/v2-blue-case-light.webp"
   }
 ]
