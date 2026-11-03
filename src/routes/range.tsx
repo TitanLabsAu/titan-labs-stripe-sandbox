@@ -160,12 +160,12 @@ function RangePage() {
       <SiteHeader />
 
       <main id="range" className="page-shell pb-32 pt-8 sm:pt-12">
-        <section aria-labelledby="catalogue-banner-heading" className="catalogue-banner relative isolate overflow-hidden rounded-lg border border-primary/35 p-6 sm:p-8">
+        <section aria-labelledby="catalogue-banner-heading" className="catalogue-banner relative isolate overflow-hidden rounded-lg border border-primary/35 bg-card p-5 sm:p-7">
           <ThemedArt dark={bannerArt.dark} light={bannerArt.light} sizes="(min-width: 1280px) 1200px, 100vw" alt="" priority className="absolute inset-0 -z-20 h-full w-full object-cover object-right" />
-          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#030f19]/95 via-[#030f19]/45 to-[#030f19]/10 catalogue-banner-shade" />
+          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-card via-card/90 to-card/10" />
           <ChristmasCatalogueWreath />
-          <p className="font-display text-2xl font-bold uppercase tracking-wide text-[#ccecff] catalogue-banner-text">{banner.eyebrow}</p>
-          <h1 id="catalogue-banner-heading" className="font-display text-[clamp(3rem,7vw,6rem)] font-bold uppercase leading-none text-[#ccecff] catalogue-banner-text">{catalogueName(content)}</h1>
+          <p className="font-display text-sm font-bold uppercase tracking-[.2em] text-accent">{banner.eyebrow}</p>
+          <h1 id="catalogue-banner-heading" className="font-display mt-2 text-[clamp(2.25rem,6vw,4.5rem)] font-bold uppercase leading-none text-foreground">{catalogueName(content)}</h1>
           <div className="mt-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                 {availableSections.length > 0 && (
                 <div
