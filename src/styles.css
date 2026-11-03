@@ -1097,3 +1097,6 @@ html.light .theme-label-light { display: contents !important; }
 }
 .discovery-category > img { opacity:1; }
 
+
+/* Source-bound neutral equipment only; coloured pens/cases never inherit this. */
+.titan-navy-gold-neutral { filter:url("/images/navy-gold-tone.svg#navy-gold"); }

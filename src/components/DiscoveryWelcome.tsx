@@ -1,3 +1,4 @@
+import { CatalogueProductImage } from "./RangeProductArt";
 import { ChristmasSectionDecor, ChristmasHeroDecor, ChristmasWelcomeArt } from "@/components/christmas/ChristmasTheme";
 import { ThemedProductImage, themedArtPair } from "@/components/ThemedImage";
 import { ArrowRight, FlaskConical, PenTool, Truck, Wrench } from "lucide-react";
@@ -49,8 +50,8 @@ export function DiscoveryCatalogue() {
     <h2 id="discovery-catalogue" className="font-display text-4xl font-bold uppercase tracking-tight sm:text-5xl">{c.title}</h2>
     {c.body ? <p className="mt-3 max-w-xl whitespace-pre-line text-base leading-7 text-muted-foreground">{c.body}</p> : null}
     <div className="mt-7 grid gap-4 sm:grid-cols-3">
-      {sections.map(s => { const Icon = icons[s]; const photo = categoryTilePhoto(products, s, photos[`${s}_slug`]); const photoSlug = filterBySection(products, s).find(p => p.image === photo)?.slug; return <CmsLink key={s} href={`/range?section=${s}`} className="discovery-category group relative flex min-h-52 flex-col justify-end overflow-hidden rounded-md border border-primary/40 bg-card p-6 hover:border-accent">
-        {photo ? <ThemedProductImage slug={photoSlug} src={photo} sizes="(min-width: 1024px) 33vw, 100vw" alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-75 transition duration-300 group-hover:scale-105" /> : <Icon aria-hidden="true" className="h-9 w-9 text-primary" strokeWidth={1.3} />}
+      {sections.map(s => { const Icon = icons[s]; const photo = categoryTilePhoto(products, s, photos[`${s}_slug`]); const photoProduct = filterBySection(products, s).find(p => p.image === photo || p.variants?.some(v => v.image === photo)); const photoSlug = photoProduct?.slug; return <CmsLink key={s} href={`/range?section=${s}`} className="discovery-category group relative flex min-h-52 flex-col justify-end overflow-hidden rounded-md border border-primary/40 bg-card p-6 hover:border-accent">
+        {photoProduct && s === "range" ? <CatalogueProductImage product={photoProduct} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-75 transition duration-300 group-hover:scale-105" /> : photo ? <ThemedProductImage slug={photoSlug} src={photo} sizes="(min-width: 1024px) 33vw, 100vw" alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-75 transition duration-300 group-hover:scale-105" /> : <Icon aria-hidden="true" className="h-9 w-9 text-primary" strokeWidth={1.3} />}
         <div className="absolute inset-0 bg-gradient-to-t from-[#030f19] via-transparent discovery-category-shade to-transparent" />
         <span className="mt-6 flex items-center justify-between gap-3 font-display text-xl font-bold uppercase">{labels[`section_${s}`]}<ArrowRight aria-hidden="true" className="h-5 w-5 text-accent transition-transform group-hover:translate-x-1" /></span>
       </CmsLink>; })}
@@ -58,4 +59,5 @@ export function DiscoveryCatalogue() {
   <ChristmasSectionDecor compact/>
   </section>;
 }
+
 

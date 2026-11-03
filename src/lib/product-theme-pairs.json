@@ -78,5 +78,53 @@
     "source": "/api/public/product-image?path=v2-reusable-pen%2Fbfb1734d-d269-4130-9366-c9b2590ed014.png",
     "dark": "/images/approved-products-v1/v2-blue-case-dark.webp",
     "light": "/images/approved-products-v1/v2-blue-case-light.webp"
+  },
+  {
+    "slug": "reta-30",
+    "source": "/api/public/product-image?path=reta-30%2F1fbbee3a-f2e7-4778-9ab8-48c0c4a7d86c.webp",
+    "dark": "/images/approved-products-v1/disposable-pen-dark.webp",
+    "light": "/images/approved-products-v1/disposable-pen-light.webp"
+  },
+  {
+    "slug": "retatrutide-20mg-disposable-pen",
+    "source": "/images/titan-disposable-pen.webp",
+    "dark": "/images/approved-products-v1/disposable-pen-dark.webp",
+    "light": "/images/approved-products-v1/disposable-pen-light.webp"
+  },
+  {
+    "slug": "klow-80mg-disposable-pen",
+    "source": "/images/titan-disposable-pen.webp",
+    "dark": "/images/approved-products-v1/disposable-pen-dark.webp",
+    "light": "/images/approved-products-v1/disposable-pen-light.webp"
+  },
+  {
+    "slug": "ghk-cu-100mg-disposable-pen",
+    "source": "/images/titan-disposable-pen.webp",
+    "dark": "/images/approved-products-v1/disposable-pen-dark.webp",
+    "light": "/images/approved-products-v1/disposable-pen-light.webp"
+  },
+  {
+    "slug": "tirzepatide-30mg-disposable-pen",
+    "source": "/images/titan-disposable-pen.webp",
+    "dark": "/images/approved-products-v1/disposable-pen-dark.webp",
+    "light": "/images/approved-products-v1/disposable-pen-light.webp"
+  },
+  {
+    "slug": "range-starter-kit",
+    "source": "/api/public/product-image?path=range-starter-kit%2Fc1001c2f-15ff-4cc6-80dd-9ee216693974.png",
+    "dark": "/api/public/product-image?path=range-starter-kit%2Fc1001c2f-15ff-4cc6-80dd-9ee216693974.png",
+    "light": "/api/public/product-image?path=range-starter-kit%2F9a2edf5b-ae2c-4634-be1a-54ca67b58ada.png"
+  },
+  {
+    "slug": "recon-kit",
+    "source": "/api/public/product-image?path=recon-kit%2F1ef0eb59-d69e-45ed-8d58-49dd9e16c9b5.png",
+    "dark": "/api/public/product-image?path=recon-kit%2F1ef0eb59-d69e-45ed-8d58-49dd9e16c9b5.png",
+    "light": "/api/public/product-image?path=recon-kit%2Fd7f64a86-a544-491c-8a12-b509fe19a5bd.png"
+  },
+  {
+    "slug": "pen-starter-kit",
+    "source": "/api/public/product-image?path=pen-starter-kit%2F213dea19-01d8-41d2-a379-4d565de9b20e.png",
+    "dark": "/api/public/product-image?path=pen-starter-kit%2F213dea19-01d8-41d2-a379-4d565de9b20e.png",
+    "light": "/api/public/product-image?path=pen-starter-kit%2F5da00c00-d868-4514-b399-6cd8a665f6f5.png"
   }
 ]
