@@ -1074,3 +1074,19 @@ html.light .theme-label-light { display: contents !important; }
 .light .titan-site-footer { background:var(--background); }
 .light .titan-photo-frame, .light .titan-themed-photo:not([data-light-photo]) { background:var(--card); }
 .titan-promo-ribbon--flash { background:var(--primary); color:var(--primary-foreground); border-color:var(--accent); text-shadow:none; }
+
+
+/* Colour treatment only: keep the original photographs, crop and product placement. */
+.titan-navy-gold-photo,
+.range-product-art image[href*="retatrutide.webp"] {
+  filter:url("/images/navy-gold-tone.svg#navy-gold");
+}
+/* Keep category names readable over photographs in either theme without moving the tiles. */
+.discovery-category > span,
+.light .discovery-category > span {
+  position:relative;
+  color:oklch(0.98 0.005 85);
+  background:oklch(0.216921 0.045708 249.435 / .96);
+  text-shadow:none;
+}
+.discovery-category > img { opacity:1; }
