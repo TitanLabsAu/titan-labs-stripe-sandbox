@@ -1,5 +1,6 @@
 import { RangeProductArt } from "./RangeProductArt";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
+import { usesRangeArtwork } from "@/lib/range-artwork";
 import type { Product, ProductVariant } from "@/lib/products";
 import {
   productHighlights,
@@ -83,9 +84,11 @@ function HighlightImage({
 export function ProductGallery({
   product,
   variant,
+  children,
 }: {
   product: Product;
   variant: ProductVariant | undefined;
+  children?: ReactNode;
 }) {
   const { data } = useSiteContent();
   const entries = cmsValues(data, "product_galleries").items as GalleryEntry[];
@@ -93,49 +96,61 @@ export function ProductGallery({
   const [index, setIndex] = useState(0);
   const activeIndex = Math.min(index, photos.length - 1);
   const photo = photos[activeIndex]!;
+  const wide = Boolean(children && usesRangeArtwork(product));
   return (
-    <figure
-      className="min-w-0 self-start"
-      aria-label={`${product.name} photo gallery`}
+    <div
+      className={
+        children
+          ? wide
+            ? "grid gap-6 lg:grid-cols-[3fr_2fr]"
+            : "grid gap-8 lg:grid-cols-[1fr_0.95fr]"
+          : undefined
+      }
     >
-      <div
-        className={`titan-product-gallery-photo relative isolate ${isPenGallery(product) ? "aspect-[4/3]" : "aspect-square"} rounded-xl border border-primary/25 bg-card`}
+      <figure
+        className={wide ? "contents" : "order-1 min-w-0 self-start"}
+        aria-label={`${product.name} photo gallery`}
       >
-        <div className="absolute inset-0 overflow-hidden rounded-xl">
-          <HighlightImage photo={photo} product={product} variant={variant} />
-        </div>
-        <ProductChristmasDecor />
-      </div>
-      {photos.length > 1 ? (
-        <>
-          <figcaption className="sr-only" aria-live="polite">
-            {photo.label}
-          </figcaption>
-          <div
-            className="mt-3 grid grid-cols-3 gap-3"
-            aria-label="Product highlight photos"
-          >
-            {photos.map((p, i) => (
-              <div key={i} className="min-w-0">
-                <button
-                  type="button"
-                  aria-label={`Show ${p.label.toLowerCase()}`}
-                  aria-pressed={activeIndex === i}
-                  onClick={() => setIndex(i)}
-                  className={`relative w-full aspect-[4/3] overflow-hidden rounded-lg border-2 bg-card transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${activeIndex === i ? "border-primary" : "border-border hover:border-primary/60"}`}
-                >
-                  <HighlightImage
-                    photo={p}
-                    product={product}
-                    variant={variant}
-                    thumbnail
-                  />
-                </button>
-              </div>
-            ))}
+        <div
+          className={`titan-product-gallery-photo order-1 self-start relative isolate ${isPenGallery(product) || usesRangeArtwork(product) ? "aspect-[4/3]" : "aspect-square"} rounded-xl border border-primary/25 bg-card`}
+        >
+          <div className="absolute inset-0 overflow-hidden rounded-xl">
+            <HighlightImage photo={photo} product={product} variant={variant} />
           </div>
-        </>
-      ) : null}
-    </figure>
+          <ProductChristmasDecor />
+        </div>
+        {photos.length > 1 ? (
+          <>
+            <figcaption className="sr-only" aria-live="polite">
+              {photo.label}
+            </figcaption>
+            <div
+              className={`grid grid-cols-3 gap-4 ${wide ? "order-3 col-span-full" : "mt-3"}`}
+              aria-label="Product highlight photos"
+            >
+              {photos.map((p, i) => (
+                <div key={i} className="min-w-0">
+                  <button
+                    type="button"
+                    aria-label={`Show ${p.label.toLowerCase()}`}
+                    aria-pressed={activeIndex === i}
+                    onClick={() => setIndex(i)}
+                    className={`relative w-full ${p.rangeView ? "aspect-[3/2]" : "aspect-[4/3]"} overflow-hidden rounded-lg border-2 bg-card transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${activeIndex === i ? "border-primary" : "border-border hover:border-primary/60"}`}
+                  >
+                    <HighlightImage
+                      photo={p}
+                      product={product}
+                      variant={variant}
+                      thumbnail
+                    />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : null}
+      </figure>
+      {children ? <div className="order-2 min-w-0">{children}</div> : null}
+    </div>
   );
 }

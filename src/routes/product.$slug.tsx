@@ -144,8 +144,8 @@ function ProductPageBody() {
           ← Back to {catalogueName(content)}
         </Link>
 
-        <div className="mt-6 grid gap-8 border-t border-border pt-8 lg:grid-cols-[1fr_0.95fr]">
-          <ProductGallery key={`${product.slug}:${variantId||"base"}`} product={product} variant={selectedVariant}/>
+        <div className="mt-6 border-t border-border pt-8">
+          <ProductGallery key={`${product.slug}:${variantId||"base"}`} product={product} variant={selectedVariant}>
 
           <div>
             <h1 className="titan-hero-heading">{product.name}</h1>
@@ -339,6 +339,7 @@ function ProductPageBody() {
             </div>
 
           </div>
+          </ProductGallery>
         </div>
 
         <Accordion type="multiple" value={openInformation} onValueChange={setOpenInformation} className="product-information mt-8 space-y-3">
@@ -388,6 +389,7 @@ function ProductPageBody() {
     </div>
   );
 }
+
 
 
 
