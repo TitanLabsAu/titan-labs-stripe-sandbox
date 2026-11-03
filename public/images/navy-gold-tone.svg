@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg"><defs>
+<!-- Select only excess-blue pixels. Whites, golds and neutral shadows remain unmasked. -->
+<filter id="navy-gold" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%">
+<feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  -2 -1 3 0 -0.15" result="blue-mask"/>
+<feColorMatrix in="SourceGraphic" type="matrix" values="0.62 0.10 0.04 0 0  0.05 0.38 0.06 0 0  0.03 0.08 0.32 0 0  0 0 0 1 0" result="navy-tone"/>
+<feComposite in="navy-tone" in2="blue-mask" operator="in" result="navy-pixels"/>
+<feComposite in="navy-pixels" in2="SourceGraphic" operator="over"/>
+</filter></defs></svg>
