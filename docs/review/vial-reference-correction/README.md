@@ -24,3 +24,7 @@ The Range product page has a 3:2 photo/details column ratio. Three 3:2 thumbnail
 - No application console errors observed. No database, CMS, pricing, stock or payment changes.
 
 The screenshots in this directory supersede the earlier rejected screenshots on this PR.
+
+## Third-thumbnail framing refinement
+
+The latest supplied vial-and-box reference is shown beside the updated composition in `boxed-light.jpg` and `boxed-dark.jpg`. The approved current carton artwork is retained. Its framing is wider and moved closer behind the original reflective vial, with slight overlap and the vial in front-left. The laboratory background is reframed to lower the bench horizon. The main image, first two thumbnails and gallery-row placement are unchanged by this refinement.

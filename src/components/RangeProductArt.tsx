@@ -336,7 +336,8 @@ export function RangeProductArt({
             <image
               href={`${root}laboratory-scene.webp`}
               width="1200"
-              height="800"
+              height={view === "boxed" ? 1200 : 800}
+              y={view === "boxed" ? -157 : 0}
               preserveAspectRatio="xMidYMid slice"
             />
           </g>
@@ -344,7 +345,8 @@ export function RangeProductArt({
             <image
               href={`${root}laboratory-scene-light.webp`}
               width="1200"
-              height="800"
+              height={view === "boxed" ? 1200 : 800}
+              y={view === "boxed" ? -157 : 0}
               preserveAspectRatio="xMidYMid slice"
             />
           </g>
@@ -359,12 +361,12 @@ export function RangeProductArt({
           ) : view === "boxed" ? (
             <>
               <svg
-                x="480"
-                y="0"
-                width="550"
-                height="780"
+                x="410"
+                y="35"
+                width="620"
+                height="750"
                 viewBox="230 35 800 1200"
-                preserveAspectRatio="xMidYMax meet"
+                preserveAspectRatio="none"
               >
                 <image
                   href={`${root}box-front.webp`}
@@ -375,8 +377,8 @@ export function RangeProductArt({
               <Vial
                 product={product}
                 variant={selected}
-                x={200}
-                y={190}
+                x={197}
+                y={205}
                 height={590}
               />
             </>
