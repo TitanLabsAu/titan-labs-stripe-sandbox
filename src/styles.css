@@ -1077,8 +1077,7 @@ html.light .theme-label-light { display: contents !important; }
 
 
 /* Colour treatment only: keep the original photographs, crop and product placement. */
-.titan-navy-gold-photo,
-.range-product-art image[href*="retatrutide.webp"] {
+.titan-navy-gold-art {
   filter:url("/images/navy-gold-tone.svg#navy-gold");
 }
 /* Category labels sit directly on the existing photos; no background strip. */
@@ -1097,3 +1096,4 @@ html.light .theme-label-light { display: contents !important; }
   color:inherit;
 }
 .discovery-category > img { opacity:1; }
+

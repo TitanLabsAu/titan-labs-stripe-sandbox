@@ -97,7 +97,7 @@ export function ThemedArt({
         loading="lazy"
         decoding="async"
         data-theme-variant="dark"
-        className={`theme-variant-dark titan-navy-gold-photo ${className ?? ""}`}
+        className={`theme-variant-dark titan-navy-gold-art ${className ?? ""}`}
       />
       <img
         {...rest}
@@ -108,7 +108,7 @@ export function ThemedArt({
         loading="lazy"
         decoding="async"
         data-theme-variant="light"
-        className={`theme-variant-light titan-navy-gold-photo ${className ?? ""}`}
+        className={`theme-variant-light titan-navy-gold-art ${className ?? ""}`}
       />
     </>
   );
@@ -137,7 +137,7 @@ export function ThemedProductImage({
   const light = useLightProductPhoto(slug, src, variantId);
   const dark = productDarkPhoto(slug, src);
   const darkDelivery = productImageDelivery(dark, sizes || "100vw");
-  const cls = `titan-themed-photo titan-navy-gold-photo ${className ?? ""}`;
+  const cls = `titan-themed-photo ${className ?? ""}`;
   if (!light) {
     return (
       <img
@@ -217,4 +217,5 @@ export function ThemedContentImage({
     </>
   );
 }
+
 
