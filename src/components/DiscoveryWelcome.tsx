@@ -1,3 +1,4 @@
+import { RangeProductArt } from "./RangeProductArt";
 import { ChristmasSectionDecor, ChristmasHeroDecor, ChristmasWelcomeArt } from "@/components/christmas/ChristmasTheme";
 import { ThemedProductImage, themedArtPair } from "@/components/ThemedImage";
 import { ArrowRight, FlaskConical, PenTool, Truck, Wrench } from "lucide-react";
@@ -13,11 +14,12 @@ import { filterBySection, CATALOGUE_SECTIONS } from "@/lib/catalogue-sections";
 export function DiscoveryWelcome() {
   const { data: content } = useSiteContent();
   const c = cmsValues(content, "home_welcome");
+  const { products } = useProducts();
+  const heroProduct = products.find(p => p.slug === "retatrutide") ?? products.find(p => p.catalogueSection === "range");
   const art = themedArtPair(c.image || "/images/titan-discovery.webp", c.image_light);
   return (
     <section aria-labelledby="discovery-welcome" className="discovery-welcome relative isolate overflow-hidden">
-      <ChristmasWelcomeArt dark={art.dark} light={art.light} builtin={!c.image && !c.image_light} />
-      <div className="discovery-shade absolute inset-0 -z-10" />
+      <div className="page-shell titan-welcome-split">
       <ChristmasHeroDecor />
       <div className="page-shell discovery-copy relative py-14 sm:py-20 lg:py-28">
         <div className="max-w-xl">
@@ -30,6 +32,8 @@ export function DiscoveryWelcome() {
           </div>
           {homeValue(content, "home_shipping_banner") ? <div className="discovery-shipping relative mt-6 flex items-center gap-3 py-3"><Truck aria-hidden="true" className="h-6 w-6 shrink-0 text-primary" /><p className="font-display text-sm font-bold uppercase tracking-wide"><RichText inline text={homeValue(content, "home_shipping_banner")} /></p></div> : null}
         </div>
+      </div>
+      <div className="titan-welcome-photo">{heroProduct ? <RangeProductArt product={heroProduct}/> : <ChristmasWelcomeArt dark={art.dark} light={art.light} builtin={!c.image && !c.image_light}/>}</div>
       </div>
     </section>
   );
@@ -58,4 +62,5 @@ export function DiscoveryCatalogue() {
   <ChristmasSectionDecor compact/>
   </section>;
 }
+
 
