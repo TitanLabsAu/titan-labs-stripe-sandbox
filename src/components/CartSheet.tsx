@@ -105,7 +105,7 @@ export function CartSheet({ floating = false, inline = false }: { floating?: boo
 
   // Mobile floating trigger is hidden on checkout pages — the checkout flow
   // manages its own cart summary there.
-  if (floating && (pathname === "/" || (!catalogue && count === 0) || pathname.startsWith("/checkout"))) return null;
+  if (floating && (count === 0 || pathname === "/" || pathname.startsWith("/checkout"))) return null;
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>

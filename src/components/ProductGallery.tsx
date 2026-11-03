@@ -1,6 +1,6 @@
 import { RangeProductArt } from "./RangeProductArt";
 import { useState, type ReactNode } from "react";
-import { usesRangeArtwork } from "@/lib/range-artwork";
+import { usesRangeArtwork, usesBacWaterArtwork } from "@/lib/range-artwork";
 import type { Product, ProductVariant } from "@/lib/products";
 import {
   productHighlights,
@@ -27,6 +27,7 @@ function HighlightImage({
   variant: ProductVariant | undefined;
   thumbnail?: boolean;
 }) {
+  if (usesBacWaterArtwork(product)) return <RangeProductArt product={product} variant={variant} className="absolute inset-0 h-full w-full" alt={thumbnail ? "" : undefined} thumbnail={thumbnail} />;
   if (photo.rangeView)
     return (
       <RangeProductArt
@@ -42,7 +43,7 @@ function HighlightImage({
     alt: thumbnail
       ? ""
       : `${product.name}${variant ? ` — ${variant.label}` : ""}: ${photo.label}`,
-    className: `absolute max-w-none ${isPenGallery(product) ? "object-cover" : "object-contain"}`,
+    className: "absolute max-w-none object-cover",
     style: {
       width: `${photo.scale * 100}%`,
       height: `${photo.scale * 100}%`,

@@ -8,6 +8,7 @@ import {
   rangeLabelDetails,
   RANGE_PALETTE,
   usesRangeArtwork,
+  usesBacWaterArtwork,
   type RangeView,
 } from "@/lib/range-artwork";
 import { ThemedProductImage } from "./ThemedImage";
@@ -400,7 +401,7 @@ export function CatalogueProductImage({
   variant?: ProductVariant | undefined;
   sizes?: string;
 }) {
-  if (usesRangeArtwork(product))
+  if (usesRangeArtwork(product) || usesBacWaterArtwork(product))
     return (
       <RangeProductArt
         product={product}

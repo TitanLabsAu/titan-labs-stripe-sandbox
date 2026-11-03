@@ -1,3 +1,4 @@
+import { productDisplayName, productDisplaySize, relatedProductPresentation } from "@/lib/product-presentation";
 import { productInformation, type ProductInformationEntry } from "@/lib/product-information";
 import { ProductGallery } from "@/components/ProductGallery";
 import { PhotoColourSelector } from "@/components/PhotoColourSelector";
@@ -29,7 +30,6 @@ import {
   isComingSoon,
   subDescriptionFor,
   packLabel,
-  productBasePrice,
   sortedProductVariants,
   stockState,
   variantStockFor,
@@ -148,7 +148,7 @@ function ProductPageBody() {
           <ProductGallery key={`${product.slug}:${variantId||"base"}`} product={product} variant={selectedVariant}>
 
           <div>
-            <h1 className="titan-hero-heading">{product.name}</h1>
+            <h1 className="titan-hero-heading">{productDisplayName(product)}</h1>
             <p className="mt-3 flex flex-wrap items-baseline gap-3">
               {wasPrice ? (
                 <span className="text-lg text-muted-foreground line-through">
@@ -178,7 +178,7 @@ function ProductPageBody() {
                 Out of stock
               </p>
             ) : stock === "low" ? (
-              <p className="mt-4 inline-flex items-center border border-accent bg-accent/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-accent-foreground">
+              <p className="mt-4 inline-flex items-center border border-accent bg-accent/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-accent">
                 Low stock — only {stockCount} left
               </p>
             ) : null}
@@ -201,7 +201,7 @@ function ProductPageBody() {
                         const vSoon = Boolean(variant.comingSoon) && !product.comingSoon;
                         return (
                           <option key={variant.id} value={variant.id}>
-                            {packLabel(variant.label, variant.packSize)} — {formatPrice(promotedPrice(variant.price, variant.salePrice))}
+                            {packLabel(productDisplaySize(product, variant), variant.packSize)} — {formatPrice(promotedPrice(variant.price, variant.salePrice))}
                             {vSoon ? " · Coming soon" : soldOut ? " · Sold out" : ""}
                           </option>
                         );
@@ -225,7 +225,7 @@ function ProductPageBody() {
                           onClick={() => setVariantId(variant.id)}
                         >
                           <span>
-                            {packLabel(variant.label, variant.packSize)}
+                            {packLabel(productDisplaySize(product, variant), variant.packSize)}
                             {vSoon
                               ? " · Coming soon"
                               : soldOut
@@ -358,30 +358,34 @@ function ProductPageBody() {
           <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {products
               .filter((p) => p.slug !== product.slug)
-              .map((p) => (
+              .map((p) => {
+                const { variant, option } = relatedProductPresentation(p);
+                return (
                 <Link
                   key={p.slug}
                   to="/product/$slug"
                   params={{ slug: p.slug }}
+                  search={variant ? { variant: variant.id } : {}}
                   className="group overflow-hidden rounded-xl border border-border bg-card transition-all hover:border-primary hover:shadow-glow"
                 >
                   <CatalogueProductImage
                     product={p}
-                    sizes="80px"
+                    variant={variant}
+                    sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
                     alt={p.alt}
                     loading="lazy"
                     className="aspect-[4/3] w-full object-cover transition-transform group-hover:scale-[1.02]"
                   />
                   <div className="flex items-center justify-between gap-3 p-5">
                     <h3 className="text-lg font-bold uppercase text-foreground">
-                      {p.name}
+                      {productDisplayName(p)}{variant ? <span className="block text-sm font-normal normal-case text-muted-foreground">{productDisplaySize(p, variant)}</span> : null}
                     </h3>
                     <span className="text-lg font-extrabold text-accent">
-                      {formatPrice(productBasePrice(p))}
+                      {formatPrice(option.unitPrice)}
                     </span>
                   </div>
                 </Link>
-              ))}
+              );})}
           </div>
         </section>
       </main>

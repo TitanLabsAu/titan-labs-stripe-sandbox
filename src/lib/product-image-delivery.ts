@@ -26,6 +26,7 @@ export function optimizedProductImage(value: string): string {
 
 export function productImageDelivery(value: string, sizes: string) {
   const src = optimizedProductImage(value);
+  if (src.startsWith("/images/catalogue-polish-v2/")) return { srcSet: `${src.replace(/\.webp$/, "-480.webp")} 480w, ${src} 1254w`, sizes };
   if (pairedPhotos.has(src))
     return {
       srcSet: `${src.replace(/\.webp$/, "-480.webp")} 480w, ${src} 1024w`,
@@ -38,3 +39,4 @@ export function productImageDelivery(value: string, sizes: string) {
     sizes,
   };
 }
+

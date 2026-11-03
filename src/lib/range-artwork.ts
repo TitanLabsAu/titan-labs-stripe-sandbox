@@ -1,3 +1,4 @@
+import { productDisplaySize } from "./product-presentation";
 import type { Product, ProductVariant } from "./products";
 import { normalizeCatalogueSection } from "./catalogue-sections";
 
@@ -24,7 +25,7 @@ export function usesRangeArtwork(
 const quantity = /\d+(?:\.\d+)?\s*(?:mg|mcg|µg|μg|iu|ml|g)\b/gi;
 /** Saved option text is authoritative. Never guess a strength or convert ml/IU to mg. */
 export function rangeLabelDetails(
-  product: Pick<Product, "name">,
+  product: Pick<Product, "name"> & Partial<Pick<Product, "slug">>,
   variant?: Pick<ProductVariant, "label">,
 ) {
   const sizes = (variant?.label.trim() || product.name).match(quantity) ?? [];
@@ -37,7 +38,7 @@ export function rangeLabelDetails(
     matchingSize ||
     (sizes.length
       ? sizes.join(" / ").replace(/\s+(mg|mcg|µg|μg|iu|ml|g)\b/gi, "$1")
-      : variant?.label.trim() || "");
+      : variant ? productDisplaySize({slug: product.slug || ""}, variant).trim() : "");
   const name =
     product.name
       .replace(
@@ -46,4 +47,13 @@ export function rangeLabelDetails(
       )
       .trim() || product.name;
   return { name, strength };
+}
+
+/** Source-bound BAC Water upgrade; later Admin photographs remain untouched. */
+export function usesBacWaterArtwork(product: Pick<Product, "slug" | "image">) {
+  if (product.slug !== "bac-water") return false;
+  try {
+    const u = new URL(product.image, "https://titanlabsaus.com");
+    return u.origin === "https://titanlabsaus.com" && ((u.pathname === "/api/public/product-image" && u.searchParams.get("path") === "catalogue-v3/bac-water.png") || /^\/images\/(product-optimized|product-light)\/bac-water(?:-\d+)?\.webp$/.test(u.pathname));
+  } catch { return false; }
 }

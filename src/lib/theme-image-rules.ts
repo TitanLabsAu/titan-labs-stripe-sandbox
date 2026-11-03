@@ -45,7 +45,9 @@ export function productLightPhoto(
   images: PhotoPair[] = [],
 ) {
   const exact = contentLightPhoto(src, images);
-  if (exact) return exact;
+  const reviewed = slug ? shippedPhotoPair(src, slug) : undefined;
+  // Upgrade only the exact shipped legacy pair, never a later custom CMS image.
+  if (exact) return reviewed?.light.startsWith("/images/catalogue-polish-v2/") && (samePhoto(exact, src) || ("legacyLight" in reviewed && typeof reviewed.legacyLight === "string" && samePhoto(exact, reviewed.legacyLight))) ? reviewed.light : exact;
   if (!slug) return null;
   if (variantId) {
     const variant = variants.find(p => p.slug?.trim() === slug && p.variant_id?.trim() === variantId && p.source && samePhoto(p.source, src));
@@ -83,5 +85,5 @@ export function productLightPhoto(
 /** Only reviewed neutral equipment photos may tone old blue backdrop accents.
  * Blue/purple/grey pens and cases, and every later Admin upload, opt out. */
 export function usesNeutralEquipmentTone(slug: string | undefined, src: string) {
-  return Boolean(slug && neutralToneSources.some(p => p.slug === slug && samePhoto(p.source, src)));
+  return Boolean(slug && !shippedPhotoPair(src, slug)?.dark.startsWith("/images/catalogue-polish-v2/") && neutralToneSources.some(p => p.slug === slug && samePhoto(p.source, src)));
 }
