@@ -1,5 +1,6 @@
 import {
   productLightPhoto,
+  usesNeutralEquipmentTone,
   productDarkPhoto,
   shippedPhotoPair,
   contentLightPhoto,
@@ -64,6 +65,8 @@ type ArtProps = Omit<
   alt: string;
   /** Above-the-fold hero: high fetch priority for whichever variant the CSS shows. */
   priority?: boolean;
+  /** Decorative tint is disabled for physical product gallery photographs. */
+  tone?: boolean;
 };
 
 /**
@@ -76,6 +79,7 @@ export function ThemedArt({
   sizes,
   alt,
   priority,
+  tone = true,
   className,
   ...rest
 }: ArtProps) {
@@ -97,7 +101,7 @@ export function ThemedArt({
         loading="lazy"
         decoding="async"
         data-theme-variant="dark"
-        className={`theme-variant-dark titan-navy-gold-art ${className ?? ""}`}
+        className={`theme-variant-dark ${tone ? "titan-navy-gold-art" : ""} ${className ?? ""}`}
       />
       <img
         {...rest}
@@ -108,7 +112,7 @@ export function ThemedArt({
         loading="lazy"
         decoding="async"
         data-theme-variant="light"
-        className={`theme-variant-light titan-navy-gold-art ${className ?? ""}`}
+        className={`theme-variant-light ${tone ? "titan-navy-gold-art" : ""} ${className ?? ""}`}
       />
     </>
   );
@@ -137,7 +141,7 @@ export function ThemedProductImage({
   const light = useLightProductPhoto(slug, src, variantId);
   const dark = productDarkPhoto(slug, src);
   const darkDelivery = productImageDelivery(dark, sizes || "100vw");
-  const cls = `titan-themed-photo ${className ?? ""}`;
+  const cls = `titan-themed-photo ${usesNeutralEquipmentTone(slug, src) ? "titan-navy-gold-neutral" : ""} ${className ?? ""}`;
   if (!light) {
     return (
       <img
@@ -217,5 +221,6 @@ export function ThemedContentImage({
     </>
   );
 }
+
 
 

@@ -1,3 +1,4 @@
+import neutralToneSources from "./product-photo-tone-sources.json";
 import shippedPairs from "./product-theme-pairs.json";
 import { LIGHT_PRODUCT_IMAGES } from "./light-product-images";
 import { optimizedProductImage } from "./product-image-delivery";
@@ -17,7 +18,7 @@ function localPath(src: string) {
   }
 }
 export function samePhoto(a: string, b: string) {
-  return localPath(a) === localPath(b);
+  return localPath(optimizedProductImage(a)) === localPath(optimizedProductImage(b));
 }
 /** Immutable artwork belongs to one exact source photo; changing an Admin photo opts out. */
 export function shippedPhotoPair(src: string, slug?: string) {
@@ -46,18 +47,17 @@ export function productLightPhoto(
   const exact = contentLightPhoto(src, images);
   if (exact) return exact;
   if (!slug) return null;
-  if (variantId)
-    return (
-      variants.find(
-        (p) =>
-          p.slug?.trim() === slug &&
-          p.variant_id?.trim() === variantId &&
-          p.source &&
-          samePhoto(p.source, src),
-      )?.image ||
-      shippedPhotoPair(src, slug)?.light ||
-      null
-    );
+  if (variantId) {
+    const variant = variants.find(p => p.slug?.trim() === slug && p.variant_id?.trim() === variantId && p.source && samePhoto(p.source, src));
+    if (variant?.image) return variant.image;
+    const shipped = shippedPhotoPair(src, slug);
+    if (shipped) return shipped.light;
+    // Unknown colour uploads never fall through to a parent photo. Known originals
+    // may still use their source-bound light counterpart for size-only options.
+    const knownLight = LIGHT_PRODUCT_IMAGES[slug];
+    const knownSource = knownLight?.replace("/product-light/", "/");
+    return knownLight && knownSource && samePhoto(src, knownSource) ? knownLight : null;
+  }
   const explicit = products.find((p) => p.slug?.trim() === slug && p.image);
   if (explicit?.image) return explicit.image;
   const shipped = shippedPhotoPair(src, slug);
@@ -77,4 +77,11 @@ export function productLightPhoto(
   );
   const original = optimizedSource || light.replace("/product-light/", "/");
   return samePhoto(optimizedProductImage(src), original) ? light : null;
+}
+
+
+/** Only reviewed neutral equipment photos may tone old blue backdrop accents.
+ * Blue/purple/grey pens and cases, and every later Admin upload, opt out. */
+export function usesNeutralEquipmentTone(slug: string | undefined, src: string) {
+  return Boolean(slug && neutralToneSources.some(p => p.slug === slug && samePhoto(p.source, src)));
 }

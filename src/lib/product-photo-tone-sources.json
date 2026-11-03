@@ -1,0 +1,54 @@
+[
+  {
+    "slug": "v2-pen-cartridges",
+    "source": "/images/titan-v2-pen-cartridges.webp"
+  },
+  {
+    "slug": "pen-pins",
+    "source": "/images/titan-pen-pins.webp"
+  },
+  {
+    "slug": "luer-lock-syringe",
+    "source": "/images/titan-luer-lock-syringe.webp"
+  },
+  {
+    "slug": "recon-kit",
+    "source": "/api/public/product-image?path=recon-kit%2F1ef0eb59-d69e-45ed-8d58-49dd9e16c9b5.png"
+  },
+  {
+    "slug": "bac-water",
+    "source": "/api/public/product-image?path=catalogue-v3%2Fbac-water.png"
+  },
+  {
+    "slug": "v2-pen-kit",
+    "source": "/api/public/product-image?path=v2-pen-kit%2F2951f34c-352f-438a-9254-f7dc38210ecb.png"
+  },
+  {
+    "slug": "pen-starter-kit",
+    "source": "/api/public/product-image?path=pen-starter-kit%2F213dea19-01d8-41d2-a379-4d565de9b20e.png"
+  },
+  {
+    "slug": "range-starter-kit",
+    "source": "/api/public/product-image?path=range-starter-kit%2F42d8f45a-a6b8-4e48-aa28-ba4b9306a99e.png"
+  },
+  {
+    "slug": "range-starter-kit",
+    "source": "/api/public/product-image?path=range-starter-kit%2Fc1001c2f-15ff-4cc6-80dd-9ee216693974.png"
+  },
+  {
+    "slug": "syringe-top-up-kit",
+    "source": "/images/titan-syringe-top-up-kit.webp"
+  },
+  {
+    "slug": "alcohol-prep-pads",
+    "source": "/api/public/product-image?path=alcohol-prep-pads%2Fd413a877-45c5-4a6d-9592-cbe5b84063a9.png"
+  },
+  {
+    "slug": "sharps-container-1-8l",
+    "source": "/images/titan-sharps-container-1-8l.webp"
+  },
+  {
+    "slug": "portable-sharps-container",
+    "source": "/images/titan-portable-sharps-container.webp"
+  }
+]

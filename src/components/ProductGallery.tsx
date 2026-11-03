@@ -54,6 +54,7 @@ function HighlightImage({
   if (photo.light)
     return (
       <ThemedArt
+        tone={false}
         dark={photo.src}
         light={photo.light}
         sizes={thumbnail ? "180px" : "(min-width:1024px) 50vw, 100vw"}
@@ -154,3 +155,4 @@ export function ProductGallery({
     </div>
   );
 }
+

@@ -1,0 +1,563 @@
+[
+  {
+    "slug": "v2-reusable-pen",
+    "name": "Titan Labs V2 Reusable Pen and Case",
+    "catalogueSection": "pens",
+    "image": "/api/public/product-image?path=v2-reusable-pen%2Fa6145624-ee1e-4a28-b580-a5ce2ceaaab9.png",
+    "variants": [
+      {
+        "id": "40b59f02-2cdd-488b-9f3d-e620721d1aab",
+        "label": "Blue",
+        "image": "/api/public/product-image?path=v2-reusable-pen%2Fbfb1734d-d269-4130-9366-c9b2590ed014.png"
+      },
+      {
+        "id": "795b078e-d359-423a-b032-4b703c5fff90",
+        "label": "Purple",
+        "image": "/api/public/product-image?path=v2-reusable-pen%2Fb840db10-6377-4f12-9b08-67cd60205d09.png"
+      },
+      {
+        "id": "b379ebb7-0815-4312-82b7-8757b9ec33b1",
+        "label": "Grey",
+        "image": "/api/public/product-image?path=v2-reusable-pen%2F6e0e6586-fec3-4ce9-94ee-5fc6faab460a.png"
+      }
+    ]
+  },
+  {
+    "slug": "retatrutide",
+    "name": "Retatrutide",
+    "catalogueSection": "range",
+    "image": "/api/public/product-image?path=catalogue-v3%2Fretatrutide.png",
+    "variants": [
+      {
+        "id": "c44e3e09-bc6d-4794-ae94-19154cebe207",
+        "label": "10mg",
+        "image": null
+      },
+      {
+        "id": "54d5b916-1a4a-4851-989a-3cc4d872dc24",
+        "label": "20mg",
+        "image": null
+      },
+      {
+        "id": "e63a4a70-0f09-4695-a926-78aaa270274e",
+        "label": "30mg",
+        "image": null
+      }
+    ]
+  },
+  {
+    "slug": "v2-pen-cartridges",
+    "name": "Pen Cartridges",
+    "catalogueSection": "equipment",
+    "image": "/images/titan-v2-pen-cartridges.webp",
+    "variants": [
+      {
+        "id": "5634022a-c37f-4b59-ba40-2fb928ec0df5",
+        "label": "3ml",
+        "image": null
+      }
+    ]
+  },
+  {
+    "slug": "pen-pins",
+    "name": "Pen Pins",
+    "catalogueSection": "equipment",
+    "image": "/images/titan-pen-pins.webp",
+    "variants": [
+      {
+        "id": "8025ba0d-c543-4f89-b579-562ca83b2516",
+        "label": "6mm 31g Pen Needles",
+        "image": null
+      },
+      {
+        "id": "81ff3cec-272d-41d5-b94e-d1c21bb47697",
+        "label": "8mm 31g Pen Needles",
+        "image": null
+      }
+    ]
+  },
+  {
+    "slug": "tesamorelin",
+    "name": "Tesamorelin",
+    "catalogueSection": "range",
+    "image": "/api/public/product-image?path=catalogue-v3%2Ftesamorelin.png",
+    "variants": [
+      {
+        "id": "default",
+        "label": "10mg",
+        "image": null
+      },
+      {
+        "id": "0775e739-b6df-439a-a4b1-f291431c0827",
+        "label": "20mg",
+        "image": null
+      }
+    ]
+  },
+  {
+    "slug": "5-amino-1mq",
+    "name": "5-amino-1mq",
+    "catalogueSection": "range",
+    "image": "/api/public/product-image?path=catalogue-v3%2F5-amino-1mq.png",
+    "variants": [
+      {
+        "id": "2dca4c1d-77df-49d1-b9f1-1666595dc525",
+        "label": "20",
+        "image": null
+      },
+      {
+        "id": "571e8046-d2fb-4e80-a22f-34ee33af6938",
+        "label": "50",
+        "image": null
+      }
+    ]
+  },
+  {
+    "slug": "luer-lock-syringe",
+    "name": "3ml Luer Lock Syringe",
+    "catalogueSection": "equipment",
+    "image": "/images/titan-luer-lock-syringe.webp",
+    "variants": []
+  },
+  {
+    "slug": "reta-30",
+    "name": "Retatrutide 30mg Pre-filled Pen",
+    "catalogueSection": "pens",
+    "image": "/api/public/product-image?path=reta-30%2F1fbbee3a-f2e7-4778-9ab8-48c0c4a7d86c.webp",
+    "variants": []
+  },
+  {
+    "slug": "tirzepatide",
+    "name": "Tirzepatide",
+    "catalogueSection": "range",
+    "image": "/api/public/product-image?path=catalogue-v3%2Ftirzepatide.png",
+    "variants": [
+      {
+        "id": "default",
+        "label": "30mg",
+        "image": null
+      },
+      {
+        "id": "6c3b7529-d2ea-493f-a99b-08daee428b66",
+        "label": "20mg",
+        "image": null
+      },
+      {
+        "id": "1b0dbf2d-4679-4372-b63f-1dd4f9e999cc",
+        "label": "10mg",
+        "image": null
+      }
+    ]
+  },
+  {
+    "slug": "recon-kit",
+    "name": "Reconstitution Kit",
+    "catalogueSection": "equipment",
+    "image": "/api/public/product-image?path=recon-kit%2F1ef0eb59-d69e-45ed-8d58-49dd9e16c9b5.png",
+    "variants": []
+  },
+  {
+    "slug": "ghk-cu",
+    "name": "GHK-CU",
+    "catalogueSection": "range",
+    "image": "/api/public/product-image?path=catalogue-v3%2Fghk-cu.png",
+    "variants": [
+      {
+        "id": "default",
+        "label": "100mg",
+        "image": null
+      }
+    ]
+  },
+  {
+    "slug": "mt-1-10mg",
+    "name": "MT-1 10mg",
+    "catalogueSection": "range",
+    "image": "/api/public/product-image?path=catalogue-v3%2Fmt-1-10mg.png",
+    "variants": [
+      {
+        "id": "default",
+        "label": "10mg",
+        "image": null
+      }
+    ]
+  },
+  {
+    "slug": "nad",
+    "name": "NAD+",
+    "catalogueSection": "range",
+    "image": "/api/public/product-image?path=catalogue-v3%2Fnad.png",
+    "variants": [
+      {
+        "id": "f36e04ec-5b52-42eb-b138-59f9d2d2faad",
+        "label": "500mg",
+        "image": null
+      },
+      {
+        "id": "f8047116-6547-4477-8a82-e67629b867e0",
+        "label": "1000mg",
+        "image": null
+      }
+    ]
+  },
+  {
+    "slug": "ss-31",
+    "name": "SS-31",
+    "catalogueSection": "range",
+    "image": "/api/public/product-image?path=catalogue-v3%2Fss-31.png",
+    "variants": [
+      {
+        "id": "default",
+        "label": "10mg",
+        "image": null
+      },
+      {
+        "id": "6479c561-2d70-4798-9e70-a032d033f827",
+        "label": "50mg",
+        "image": null
+      }
+    ]
+  },
+  {
+    "slug": "tb-500-thymosin-b4",
+    "name": "TB 500 (Thymosin B4)",
+    "catalogueSection": "range",
+    "image": "/api/public/product-image?path=catalogue-v3%2Ftb-500-thymosin-b4.png",
+    "variants": [
+      {
+        "id": "default",
+        "label": "20mg",
+        "image": null
+      },
+      {
+        "id": "0a4e581c-885b-430e-8689-a3502d46f967",
+        "label": "10mg",
+        "image": null
+      }
+    ]
+  },
+  {
+    "slug": "retatrutide-20mg-disposable-pen",
+    "name": "Retatrutide 20mg Pre-filled Pen",
+    "catalogueSection": "pens",
+    "image": "/images/titan-disposable-pen.webp",
+    "variants": []
+  },
+  {
+    "slug": "wolverine-20mg",
+    "name": "BPC 157/TB 500",
+    "catalogueSection": "range",
+    "image": "/api/public/product-image?path=catalogue-v3%2Fwolverine-20mg.png",
+    "variants": [
+      {
+        "id": "default",
+        "label": "20mg",
+        "image": null
+      }
+    ]
+  },
+  {
+    "slug": "klow-80mg-disposable-pen",
+    "name": "KLOW 80mg Pre-filled Pen",
+    "catalogueSection": "pens",
+    "image": "/images/titan-disposable-pen.webp",
+    "variants": []
+  },
+  {
+    "slug": "klow-80mg",
+    "name": "KLOW",
+    "catalogueSection": "range",
+    "image": "/api/public/product-image?path=catalogue-v3%2Fklow-80mg.png",
+    "variants": [
+      {
+        "id": "default",
+        "label": "80",
+        "image": null
+      }
+    ]
+  },
+  {
+    "slug": "mots-c",
+    "name": "Mots-c",
+    "catalogueSection": "range",
+    "image": "/api/public/product-image?path=catalogue-v3%2Fmots-c.png",
+    "variants": [
+      {
+        "id": "default",
+        "label": "20mg",
+        "image": null
+      },
+      {
+        "id": "c484414b-db2c-4a01-9136-158e46f1b8fe",
+        "label": "40mg",
+        "image": null
+      }
+    ]
+  },
+  {
+    "slug": "cagrilintide",
+    "name": "Cagrilintide 5mg",
+    "catalogueSection": "range",
+    "image": "/api/public/product-image?path=catalogue-v3%2Fcagrilintide.png",
+    "variants": [
+      {
+        "id": "default",
+        "label": "5mg",
+        "image": null
+      },
+      {
+        "id": "0476f57a-cf70-4b5f-93bb-861a4466c083",
+        "label": "10mg",
+        "image": null
+      }
+    ]
+  },
+  {
+    "slug": "pt-141-10mg",
+    "name": "PT-141 10mg",
+    "catalogueSection": "range",
+    "image": "/api/public/product-image?path=catalogue-v3%2Fpt-141-10mg.png",
+    "variants": [
+      {
+        "id": "default",
+        "label": "10mg",
+        "image": null
+      }
+    ]
+  },
+  {
+    "slug": "bpc-157",
+    "name": "BPC 157",
+    "catalogueSection": "range",
+    "image": "/api/public/product-image?path=catalogue-v3%2Fbpc-157.png",
+    "variants": [
+      {
+        "id": "c7a1b1c3-1aeb-4b58-bcd6-73328faf598c",
+        "label": "20mg",
+        "image": null
+      },
+      {
+        "id": "e94337a9-eb6e-43ad-8ab6-8823628a69e2",
+        "label": "10mg",
+        "image": null
+      }
+    ]
+  },
+  {
+    "slug": "bac-water",
+    "name": "BAC Water",
+    "catalogueSection": "equipment",
+    "image": "/api/public/product-image?path=catalogue-v3%2Fbac-water.png",
+    "variants": [
+      {
+        "id": "3ml",
+        "label": "3ml",
+        "image": null
+      },
+      {
+        "id": "10ml",
+        "label": "10ml",
+        "image": null
+      }
+    ]
+  },
+  {
+    "slug": "v2-pen-kit",
+    "name": "Titan Labs Pen Reconstitution Kit",
+    "catalogueSection": "equipment",
+    "image": "/api/public/product-image?path=v2-pen-kit%2F2951f34c-352f-438a-9254-f7dc38210ecb.png",
+    "variants": []
+  },
+  {
+    "slug": "mt-2-10mg",
+    "name": "MT-2 10mg",
+    "catalogueSection": "range",
+    "image": "/api/public/product-image?path=catalogue-v3%2Fmt-2-10mg.png",
+    "variants": [
+      {
+        "id": "default",
+        "label": "10mg",
+        "image": null
+      }
+    ]
+  },
+  {
+    "slug": "pen-starter-kit",
+    "name": "Pen Starter Kit",
+    "catalogueSection": "equipment",
+    "image": "/api/public/product-image?path=pen-starter-kit%2F213dea19-01d8-41d2-a379-4d565de9b20e.png",
+    "variants": []
+  },
+  {
+    "slug": "range-starter-kit",
+    "name": "Range Starter Kit",
+    "catalogueSection": "equipment",
+    "image": "/api/public/product-image?path=range-starter-kit%2F42d8f45a-a6b8-4e48-aa28-ba4b9306a99e.png",
+    "variants": [
+      {
+        "id": "f2dd9443-a991-4ffd-ab4d-9b20762358ce",
+        "label": "Small Starter Kit",
+        "image": null
+      },
+      {
+        "id": "722dfd6b-901b-454b-90f9-96b6c9c56c48",
+        "label": "Large Starter Kit",
+        "image": "/api/public/product-image?path=range-starter-kit%2Fc1001c2f-15ff-4cc6-80dd-9ee216693974.png"
+      }
+    ]
+  },
+  {
+    "slug": "ghk-cu-100mg-disposable-pen",
+    "name": "GHK-CU 100mg Pre-filled Pen",
+    "catalogueSection": "pens",
+    "image": "/images/titan-disposable-pen.webp",
+    "variants": []
+  },
+  {
+    "slug": "cjc-1295-without-dac-ipa-5mg",
+    "name": "CJC-1295 Without DAC + IPA 5mg",
+    "catalogueSection": "range",
+    "image": "/api/public/product-image?path=catalogue-v3%2Fcjc-1295-without-dac-ipa-5mg.png",
+    "variants": [
+      {
+        "id": "48c6203f-1a73-4ab2-988d-a8ff5b8f9b59",
+        "label": "10mg",
+        "image": null
+      }
+    ]
+  },
+  {
+    "slug": "travel-case-with-ice-pack",
+    "name": "Travel Case with Ice Pack",
+    "catalogueSection": "equipment",
+    "image": "/api/public/product-image?path=travel-case-with-ice-pack%2F5bbba06c-831e-442f-b028-5eceba22bc37.png",
+    "variants": [
+      {
+        "id": "96a43430-9bf6-4c67-9d7f-b3702efdd21e",
+        "label": "Blue",
+        "image": null
+      },
+      {
+        "id": "823ba813-0a74-41e1-9dc8-f92d12a39f15",
+        "label": "Purple",
+        "image": "/api/public/product-image?path=travel-case-with-ice-pack%2F0ecabc4f-c285-4fce-95ee-12e079497ed2.png"
+      }
+    ]
+  },
+  {
+    "slug": "kpv",
+    "name": "KPV",
+    "catalogueSection": "range",
+    "image": "/api/public/product-image?path=catalogue-v3%2Fkpv.png",
+    "variants": [
+      {
+        "id": "default",
+        "label": "10mg",
+        "image": null
+      }
+    ]
+  },
+  {
+    "slug": "tirzepatide-30mg-disposable-pen",
+    "name": "Tirzepatide 30mg Pre-filled Pen",
+    "catalogueSection": "pens",
+    "image": "/images/titan-disposable-pen.webp",
+    "variants": []
+  },
+  {
+    "slug": "selank",
+    "name": "Selank",
+    "catalogueSection": "range",
+    "image": "/api/public/product-image?path=catalogue-v3%2Fselank.png",
+    "variants": [
+      {
+        "id": "default",
+        "label": "Standard",
+        "image": null
+      }
+    ]
+  },
+  {
+    "slug": "dsip-10mg",
+    "name": "DSIP 10mg",
+    "catalogueSection": "range",
+    "image": "/api/public/product-image?path=catalogue-v3%2Fdsip-10mg.png",
+    "variants": [
+      {
+        "id": "default",
+        "label": "10mg",
+        "image": null
+      }
+    ]
+  },
+  {
+    "slug": "titan-v2-reusable-pen",
+    "name": "Titan V2 Reusable Pen",
+    "catalogueSection": "pens",
+    "image": "/api/public/product-image?path=titan-v2-reusable-pen%2F86bb2383-7ae1-4a99-ade1-498a95e03887.png",
+    "variants": [
+      {
+        "id": "c21691a0-3d9f-4e8e-aaec-6079fd3ecd86",
+        "label": "Blue",
+        "image": null
+      },
+      {
+        "id": "fcb548b1-b97f-4d14-8920-8c6dcddccfcb",
+        "label": "Purple",
+        "image": "/api/public/product-image?path=titan-v2-reusable-pen%2F9aa97148-eae1-41a4-88eb-80e136c6ca5e.png"
+      },
+      {
+        "id": "c762b2dd-eac6-491d-ab2b-aa45f99349f7",
+        "label": "Grey",
+        "image": "/api/public/product-image?path=titan-v2-reusable-pen%2F36c22b5a-9f57-4a73-a36a-f25a5d7cad10.png"
+      }
+    ]
+  },
+  {
+    "slug": "ipamorelin",
+    "name": "Ipamorelin",
+    "catalogueSection": "range",
+    "image": "/api/public/product-image?path=catalogue-v3%2Fipamorelin.png",
+    "variants": [
+      {
+        "id": "default",
+        "label": "10mg",
+        "image": null
+      }
+    ]
+  },
+  {
+    "slug": "syringe-top-up-kit",
+    "name": "Syringe Top-Up Kit",
+    "catalogueSection": "equipment",
+    "image": "/images/titan-syringe-top-up-kit.webp",
+    "variants": []
+  },
+  {
+    "slug": "alcohol-prep-pads",
+    "name": "Alcohol Prep Pads",
+    "catalogueSection": "equipment",
+    "image": "/api/public/product-image?path=alcohol-prep-pads%2Fd413a877-45c5-4a6d-9592-cbe5b84063a9.png",
+    "variants": [
+      {
+        "id": "c16380e9-47eb-4e8b-822c-24d7aad9c18c",
+        "label": "Alcohol Prep Pads",
+        "image": null
+      }
+    ]
+  },
+  {
+    "slug": "sharps-container-1-8l",
+    "name": "Sharps Container 1.8L",
+    "catalogueSection": "equipment",
+    "image": "/images/titan-sharps-container-1-8l.webp",
+    "variants": []
+  },
+  {
+    "slug": "portable-sharps-container",
+    "name": "Portable Sharps Container",
+    "catalogueSection": "equipment",
+    "image": "/images/titan-portable-sharps-container.webp",
+    "variants": []
+  }
+]
