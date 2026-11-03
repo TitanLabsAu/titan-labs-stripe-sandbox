@@ -1061,29 +1061,15 @@ html.light .theme-label-light { display: contents !important; }
 .titan-site-header .titan-header-nav .titan-nav-icon:hover { box-shadow:none; }
 
 
-/* Approved navy/gold theme: shared by both modes and every catalogue section. */
-body { background-image:none; }
-.titan-product-card, .review-card { background:var(--card); border-color:var(--border); box-shadow:none; }
+/* Approved navy/gold colours only. Existing layout, imagery and typography are preserved. */
+.titan-product-card, .review-card { background:var(--card); border-color:var(--border); }
 .titan-product-card > div { color:var(--foreground); }
-.titan-site-header .titan-header-surface, .titan-site-footer .titan-footer-surface { background:var(--card); }
-.titan-site-header .titan-future-art, .titan-site-footer .titan-future-art-footer { opacity:0; }
 .titan-site-footer, .catalogue-banner, .titan-membership { background:var(--background); color:var(--foreground); }
-
 .titan-membership h2, .titan-home .discovery-welcome h1 { color:var(--foreground); text-shadow:none; }
-
 .discovery-shipping { color:var(--muted-foreground); }
 .titan-announcements { background:var(--secondary); color:var(--foreground); border-color:var(--accent); }
 .titan-announcement-pause { background:var(--card); }
 .review-band { --review-blue:var(--accent); --review-gold:var(--accent); color:var(--foreground); }
-.discovery-category { color:oklch(0.98 0.005 85); }
-.titan-welcome-split { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:3rem; align-items:center; padding-block:3rem; }
-.titan-welcome-split .discovery-copy { width:100%; min-height:0; margin:0; padding:0; }
-.titan-welcome-split .discovery-copy > div { max-width:100%; }
-.titan-welcome-photo { overflow:hidden; border:1px solid var(--accent); border-radius:.35rem; aspect-ratio:9/8; box-shadow:var(--shadow-gold); }
-.titan-welcome-photo > svg { width:100%; height:100%; }
-.titan-welcome-split h1 { text-transform:none; letter-spacing:-.025em; }
-@media(max-width:767px) { .titan-welcome-split { grid-template-columns:minmax(0,1fr); gap:1.75rem; padding-block:2rem; } }
-
 .light .discovery-category { color:var(--foreground); }
 .light .titan-site-footer { background:var(--background); }
 .light .titan-photo-frame, .light .titan-themed-photo:not([data-light-photo]) { background:var(--card); }
