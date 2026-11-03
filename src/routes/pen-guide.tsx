@@ -23,7 +23,15 @@ function TitanGuides() {
   const content = useSiteContent().data;
   const g = cmsValues(content, "guide_pages");
   const docs = cmsValues(content, "guide_documents");
-  const banner = themedArtPair(g.banner_image || "/images/titan-catalogue-banner.webp", g.banner_image_light, "/images/titan-pen-guide-banner-light.webp");
+  // Upgrade the built-in artwork while preserving custom CMS uploads.
+  const defaultDark = "/images/guides-navy-gold/guide-banner-dark.webp";
+  const defaultLight = "/images/guides-navy-gold/guide-banner-light.webp";
+  const builtIn = (src?: string) => !src || /\/images\/titan-(catalogue-banner|pen-guide-banner(?:-light)?)\.webp(?:\?.*)?$/.test(src);
+  const banner = themedArtPair(
+    builtIn(g.banner_image) ? defaultDark : g.banner_image,
+    builtIn(g.banner_image_light) ? defaultLight : g.banner_image_light,
+    defaultLight
+  );
   const [tab, setTab] = useState<Tab>("pens");
   const refs = useRef<Record<Tab, HTMLButtonElement | null>>({ pens: null, reconstitution: null, administration: null });
   useEffect(() => {
@@ -52,12 +60,13 @@ function TitanGuides() {
     <div className="bg-hero min-h-screen">
       <SiteHeader />
       <main className="pen-guide-page page-shell py-8 sm:py-12">
-        <section aria-labelledby="pen-guide-heading" className="catalogue-banner pen-guide-banner relative isolate overflow-hidden rounded-lg border border-primary/35 p-6 sm:p-8">
-          <ThemedArt dark={banner.dark} light={banner.light} sizes="(min-width: 1280px) 1248px, calc(100vw - 32px)" alt="" priority className="pen-guide-art absolute inset-0 -z-20 h-full w-full object-cover object-right" />
-          <div className="pen-guide-banner-shade absolute inset-0 -z-10" />
-          <p className="font-display text-sm uppercase tracking-[.2em] text-accent">{docs.eyebrow}</p>
-          <h1 id="pen-guide-heading" className="pen-guide-banner-title mt-3 max-w-2xl font-display text-[clamp(2.5rem,5vw,4.5rem)] font-bold uppercase leading-none">{docs.title}</h1>
-          {docs.intro ? <p className="mt-5 max-w-xl whitespace-pre-wrap text-sm leading-6 text-muted-foreground">{docs.intro}</p> : null}
+        <section aria-labelledby="pen-guide-heading" className="pen-guide-banner overflow-hidden rounded-lg border border-primary/35 bg-card">
+          <div className="p-6 sm:p-8">
+            <p className="font-display text-sm uppercase tracking-[.2em] text-accent">{docs.eyebrow}</p>
+            <h1 id="pen-guide-heading" className="pen-guide-banner-title mt-3 max-w-2xl font-display text-[clamp(2.5rem,5vw,4.5rem)] font-bold uppercase leading-none">{docs.title}</h1>
+            {docs.intro ? <p className="mt-5 max-w-xl whitespace-pre-wrap text-sm leading-6 text-muted-foreground">{docs.intro}</p> : null}
+          </div>
+          <ThemedArt tone={false} dark={banner.dark} light={banner.light} sizes="(min-width: 1280px) 1248px, calc(100vw - 32px)" alt="" priority className="pen-guide-art block aspect-[3/1] w-full object-cover" />
         </section>
         <div role="tablist" aria-label="Titan Guides" onKeyDown={onKey} className="mt-7 grid auto-rows-fr gap-3 sm:grid-cols-3">
           {cards.map(({ id, label, icon: Icon }) => (

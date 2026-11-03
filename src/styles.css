@@ -756,13 +756,11 @@
 html:not(.light) .theme-variant-light, html.light .theme-variant-dark, .theme-label-light, html.light .theme-label-dark { display: none !important; }
 html.light .theme-label-light { display: contents !important; }
 /* Page-scoped roles win over legacy hardcoded heading utilities without touching dark pages. */
-.pen-guide-page {
-  --pen-banner-ink: #ccecff;
-  --pen-banner-shade: linear-gradient(to right, rgb(3 15 25 / 95%), rgb(3 15 25 / 65%), rgb(3 15 25 / 10%));
-}
+.pen-guide-page { --pen-banner-ink: var(--foreground); }
 .pen-guide-banner-title { color: var(--pen-banner-ink); }
-.pen-guide-banner-shade { background: var(--pen-banner-shade); }
-.light .pen-guide-banner .pen-guide-art.theme-variant-light { object-fit: contain; object-position: right center; }
+.pen-guide-banner .pen-guide-art { display: block; width: 100%; aspect-ratio: 3 / 1; object-fit: cover; object-position: center; }
+.pen-guide-page [role="tab"][aria-selected="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--card)); }
+.pen-guide-page [role="tab"] > span:first-child { background: color-mix(in srgb, var(--accent) 10%, transparent); }
 .pen-faq-grid { grid-auto-rows: 1fr; align-items: stretch; }
 .pen-faq-card { height: 100%; overflow-wrap: anywhere; }
 .pen-faq-card:hover { box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 12%, transparent); }
@@ -772,17 +770,10 @@ html.light .theme-label-light { display: contents !important; }
 .light .pen-guide-page {
   --pen-ink: oklch(0.24 0.02 250);
   --pen-banner-ink: var(--pen-ink);
-  --pen-banner-shade: linear-gradient(to right, var(--card), color-mix(in oklab, var(--card) 85%, transparent) 35%, transparent 58%);
-}
-@media (max-width: 767px) {
-  /* Full 3:1 light art below copy; shared clearance keeps both themes the same size.
-     Dark retains its original cover/right composition and overlay. */
-  .pen-guide-banner { padding-bottom: calc((100vw - 34px) / 3 + 1.5rem); }
-  .light .pen-guide-banner .pen-guide-art.theme-variant-light { object-position: center bottom; }
-  .light .pen-guide-page { --pen-banner-shade: none; }
 }
 .light .pen-guide-page :is(h1, h2, h3, h4, p, li, p span, li span, svg) { color: var(--pen-ink) !important; text-shadow: none; }
 .light .pen-guide-page a svg { color: inherit !important; }
+.light .pen-guide-page .text-accent { color: var(--accent) !important; }
 
 /* Titan Guides kit panels (approved concept): gold square step numbers, circular kit art,
    gold-ruled section titles, bullet lists, gold tips/note bands. Tokens keep dark readable. */
