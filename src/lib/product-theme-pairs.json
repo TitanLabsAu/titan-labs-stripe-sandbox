@@ -8,34 +8,39 @@
   {
     "slug": "titan-v2-reusable-pen",
     "source": "/api/public/product-image?path=titan-v2-reusable-pen%2F86bb2383-7ae1-4a99-ade1-498a95e03887.png",
-    "dark": "/images/product-theme/v2-blue-dark-v1.webp",
-    "light": "/api/public/product-image?path=titan-v2-reusable-pen%2F86bb2383-7ae1-4a99-ade1-498a95e03887.png",
-    "colour": "Blue"
+    "dark": "/images/catalogue-polish-v2/v2-blue-dark.webp",
+    "light": "/images/catalogue-polish-v2/v2-blue-light.webp",
+    "colour": "Blue",
+    "legacyLight": "/api/public/product-image?path=titan-v2-reusable-pen%2F86bb2383-7ae1-4a99-ade1-498a95e03887.png"
   },
   {
     "slug": "titan-v2-reusable-pen",
     "source": "/api/public/product-image?path=titan-v2-reusable-pen%2F36c22b5a-9f57-4a73-a36a-f25a5d7cad10.png",
-    "dark": "/images/product-theme/v2-grey-dark-v1.webp",
-    "light": "/api/public/product-image?path=titan-v2-reusable-pen%2F36c22b5a-9f57-4a73-a36a-f25a5d7cad10.png"
+    "dark": "/images/catalogue-polish-v2/v2-grey-dark.webp",
+    "light": "/images/catalogue-polish-v2/v2-grey-light.webp",
+    "legacyLight": "/api/public/product-image?path=titan-v2-reusable-pen%2F36c22b5a-9f57-4a73-a36a-f25a5d7cad10.png"
   },
   {
     "slug": "titan-v2-reusable-pen",
     "source": "/api/public/product-image?path=titan-v2-reusable-pen%2F9aa97148-eae1-41a4-88eb-80e136c6ca5e.png",
-    "dark": "/images/product-theme/v2-purple-dark-v1.webp",
-    "light": "/api/public/product-image?path=titan-v2-reusable-pen%2F9aa97148-eae1-41a4-88eb-80e136c6ca5e.png"
+    "dark": "/images/catalogue-polish-v2/v2-purple-dark.webp",
+    "light": "/images/catalogue-polish-v2/v2-purple-light.webp",
+    "legacyLight": "/api/public/product-image?path=titan-v2-reusable-pen%2F9aa97148-eae1-41a4-88eb-80e136c6ca5e.png"
   },
   {
     "slug": "travel-case-with-ice-pack",
     "source": "/api/public/product-image?path=travel-case-with-ice-pack%2F5bbba06c-831e-442f-b028-5eceba22bc37.png",
-    "dark": "/images/product-theme/case-blue-dark-v1.webp",
-    "light": "/api/public/product-image?path=travel-case-with-ice-pack%2F5bbba06c-831e-442f-b028-5eceba22bc37.png",
-    "colour": "Blue"
+    "dark": "/images/catalogue-polish-v2/travel-blue-dark.webp",
+    "light": "/images/catalogue-polish-v2/travel-blue-light.webp",
+    "colour": "Blue",
+    "legacyLight": "/api/public/product-image?path=travel-case-with-ice-pack%2F5bbba06c-831e-442f-b028-5eceba22bc37.png"
   },
   {
     "slug": "travel-case-with-ice-pack",
     "source": "/api/public/product-image?path=travel-case-with-ice-pack%2F0ecabc4f-c285-4fce-95ee-12e079497ed2.png",
-    "dark": "/images/product-theme/case-purple-dark-v1.webp",
-    "light": "/api/public/product-image?path=travel-case-with-ice-pack%2F0ecabc4f-c285-4fce-95ee-12e079497ed2.png"
+    "dark": "/images/catalogue-polish-v2/travel-purple-dark.webp",
+    "light": "/images/catalogue-polish-v2/travel-purple-light.webp",
+    "legacyLight": "/api/public/product-image?path=travel-case-with-ice-pack%2F0ecabc4f-c285-4fce-95ee-12e079497ed2.png"
   },
   {
     "slug": "v2-reusable-pen",
@@ -52,20 +57,23 @@
   {
     "slug": "alcohol-prep-pads",
     "source": "/api/public/product-image?path=alcohol-prep-pads%2Fd413a877-45c5-4a6d-9592-cbe5b84063a9.png",
-    "dark": "/images/product-theme/prep-pads-dark-v1.webp",
-    "light": "/api/public/product-image?path=alcohol-prep-pads%2Fd413a877-45c5-4a6d-9592-cbe5b84063a9.png"
+    "dark": "/images/catalogue-polish-v2/titan-wipes-dark.webp",
+    "light": "/images/catalogue-polish-v2/titan-wipes-light.webp",
+    "legacyLight": "/api/public/product-image?path=alcohol-prep-pads%2Fd413a877-45c5-4a6d-9592-cbe5b84063a9.png"
   },
   {
     "slug": "range-starter-kit",
     "source": "/api/public/product-image?path=range-starter-kit%2F42d8f45a-a6b8-4e48-aa28-ba4b9306a99e.png",
-    "dark": "/images/product-theme/range-kit-dark-v1.webp",
-    "light": "/api/public/product-image?path=range-starter-kit%2F42d8f45a-a6b8-4e48-aa28-ba4b9306a99e.png"
+    "dark": "/images/catalogue-polish-v2/range-kit-small-dark.webp",
+    "light": "/images/catalogue-polish-v2/range-kit-small-light.webp",
+    "legacyLight": "/api/public/product-image?path=range-starter-kit%2F42d8f45a-a6b8-4e48-aa28-ba4b9306a99e.png"
   },
   {
     "slug": "v2-pen-kit",
     "source": "/api/public/product-image?path=v2-pen-kit%2F2951f34c-352f-438a-9254-f7dc38210ecb.png",
-    "dark": "/images/product-theme/reconstitution-dark-v1.webp",
-    "light": "/api/public/product-image?path=v2-pen-kit%2F2951f34c-352f-438a-9254-f7dc38210ecb.png"
+    "dark": "/images/catalogue-polish-v2/pen-recon-kit-dark.webp",
+    "light": "/images/catalogue-polish-v2/pen-recon-kit-light.webp",
+    "legacyLight": "/api/public/product-image?path=v2-pen-kit%2F2951f34c-352f-438a-9254-f7dc38210ecb.png"
   },
   {
     "slug": "v2-reusable-pen",
@@ -112,19 +120,28 @@
   {
     "slug": "range-starter-kit",
     "source": "/api/public/product-image?path=range-starter-kit%2Fc1001c2f-15ff-4cc6-80dd-9ee216693974.png",
-    "dark": "/api/public/product-image?path=range-starter-kit%2Fc1001c2f-15ff-4cc6-80dd-9ee216693974.png",
-    "light": "/api/public/product-image?path=range-starter-kit%2F9a2edf5b-ae2c-4634-be1a-54ca67b58ada.png"
+    "dark": "/images/catalogue-polish-v2/range-kit-large-dark.webp",
+    "light": "/images/catalogue-polish-v2/range-kit-large-light.webp",
+    "legacyLight": "/api/public/product-image?path=range-starter-kit%2F9a2edf5b-ae2c-4634-be1a-54ca67b58ada.png"
   },
   {
     "slug": "recon-kit",
     "source": "/api/public/product-image?path=recon-kit%2F1ef0eb59-d69e-45ed-8d58-49dd9e16c9b5.png",
-    "dark": "/api/public/product-image?path=recon-kit%2F1ef0eb59-d69e-45ed-8d58-49dd9e16c9b5.png",
-    "light": "/api/public/product-image?path=recon-kit%2Fd7f64a86-a544-491c-8a12-b509fe19a5bd.png"
+    "dark": "/images/catalogue-polish-v2/recon-kit-dark.webp",
+    "light": "/images/catalogue-polish-v2/recon-kit-light.webp",
+    "legacyLight": "/api/public/product-image?path=recon-kit%2Fd7f64a86-a544-491c-8a12-b509fe19a5bd.png"
   },
   {
     "slug": "pen-starter-kit",
     "source": "/api/public/product-image?path=pen-starter-kit%2F213dea19-01d8-41d2-a379-4d565de9b20e.png",
-    "dark": "/api/public/product-image?path=pen-starter-kit%2F213dea19-01d8-41d2-a379-4d565de9b20e.png",
-    "light": "/api/public/product-image?path=pen-starter-kit%2F5da00c00-d868-4514-b399-6cd8a665f6f5.png"
+    "dark": "/images/catalogue-polish-v2/pen-starter-kit-dark.webp",
+    "light": "/images/catalogue-polish-v2/pen-starter-kit-light.webp",
+    "legacyLight": "/api/public/product-image?path=pen-starter-kit%2F5da00c00-d868-4514-b399-6cd8a665f6f5.png"
+  },
+  {
+    "slug": "syringe-top-up-kit",
+    "source": "/images/titan-syringe-top-up-kit.webp",
+    "light": "/images/catalogue-polish-v2/syringe-top-up-kit-light.webp",
+    "dark": "/images/catalogue-polish-v2/syringe-top-up-kit-dark.webp"
   }
 ]

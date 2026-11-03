@@ -1,3 +1,4 @@
+import { productDisplayName, productDisplaySize } from "@/lib/product-presentation";
 import { productInformation, type ProductInformationEntry } from "@/lib/product-information";
 import { cmsValues } from "@/lib/storefrontContent";
 import { PhotoColourSelector } from "./PhotoColourSelector";
@@ -74,7 +75,7 @@ export function ProductCard({ product: p, aligned = true }: { product: Product; 
             alt={`${p.alt} — ${selectedVariant.label}`}
             loading="lazy"
             decoding="async"
-            className={`h-full w-full object-contain transition duration-300 hover:scale-[1.02] ${allOut ? "opacity-40 grayscale" : ""}`}
+            className={`h-full w-full object-cover transition duration-300 hover:scale-[1.02] ${allOut ? "opacity-40 grayscale" : ""}`}
           />
         ) : (
           <CatalogueProductImage
@@ -82,7 +83,7 @@ export function ProductCard({ product: p, aligned = true }: { product: Product; 
             sizes="(min-width: 1280px) 320px, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
             alt={p.alt}
             loading="lazy"
-            className={`h-full w-full object-contain transition duration-300 hover:scale-[1.02] ${allOut ? "opacity-40 grayscale" : ""}`}
+            className={`h-full w-full object-cover transition duration-300 hover:scale-[1.02] ${allOut ? "opacity-40 grayscale" : ""}`}
           />
         )}
         <ProductChristmasDecor />
@@ -101,7 +102,7 @@ export function ProductCard({ product: p, aligned = true }: { product: Product; 
             search={variantId ? { variant: variantId } : {}}
             className="min-w-0 font-display text-xl font-bold uppercase tracking-wide text-foreground transition group-hover:text-primary"
           >
-            {p.name}
+            {productDisplayName(p)}
           </Link>
           {(p.categories ?? []).length ? (
             <span className="sr-only">
@@ -120,7 +121,7 @@ export function ProductCard({ product: p, aligned = true }: { product: Product; 
             Out of stock
           </span>
         ) : stock === "low" ? (
-          <span className="mt-2 inline-flex w-fit items-center border border-accent bg-accent/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-accent-foreground">
+          <span className="mt-2 inline-flex w-fit items-center border border-accent bg-accent/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-accent">
             Low stock — only {stockCount} left
           </span>
         ) : null}
@@ -141,7 +142,7 @@ export function ProductCard({ product: p, aligned = true }: { product: Product; 
               const vSoon = Boolean(variant.comingSoon) && !p.comingSoon;
               return (
                 <option key={variant.id} value={variant.id}>
-                  {packLabel(variant.label, variant.packSize)}
+                  {packLabel(productDisplaySize(p, variant), variant.packSize)}
                   {vSoon ? " · Soon" : soldOut ? " · Sold out" : ""}
                 </option>
               );

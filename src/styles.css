@@ -1091,3 +1091,8 @@ html.light .theme-label-light { display: contents !important; }
 
 /* Source-bound neutral equipment only; coloured pens/cases never inherit this. */
 .titan-navy-gold-neutral { filter:url("/images/navy-gold-tone.svg#navy-gold"); }
+
+/* Product photo areas fill the frame while keeping the complete square equipment arrangement. */
+.titan-product-card .titan-product-photo { aspect-ratio:1; max-height:none; }
+.hot-products-band .titan-product-photo { height:auto; min-height:0; aspect-ratio:1; }
+.hot-products-band .titan-product-photo img { object-fit:cover; }

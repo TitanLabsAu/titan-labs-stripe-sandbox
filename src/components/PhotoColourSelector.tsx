@@ -48,7 +48,7 @@ export function PhotoColourSelector({
                 aria-label={`${v.label}${unavailable ? " — Coming soon" : out ? " — Sold out" : ""}`}
               />
               <span
-                className={`relative block overflow-hidden rounded ${compact ? "aspect-[3/2]" : "aspect-[4/3]"}`}
+                className={`relative block overflow-hidden rounded aspect-square`}
               >
                 <ThemedProductImage
                   slug={product.slug}
@@ -80,3 +80,4 @@ export function PhotoColourSelector({
     </fieldset>
   );
 }
+
