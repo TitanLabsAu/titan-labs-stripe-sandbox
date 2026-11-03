@@ -1,6 +1,6 @@
 import { ChristmasCatalogueWreath } from "@/components/christmas/ChristmasTheme";
 import { loadCatalogProducts } from "@/lib/useCatalog";
-import { ThemedArt, themedArtPair } from "@/components/ThemedImage";
+import { ThemedArt } from "@/components/ThemedImage";
 import { hotVariantIds, withHotSelections } from "@/lib/product-promotions";
 import { SITE_ORIGIN } from "@/lib/seo";
 import { cmsValues } from "@/lib/storefrontContent";
@@ -82,7 +82,7 @@ function RangePage() {
   const { data: content } = useSiteContent();
   const pp = cmsValues(content, "product_page");
   const banner = cmsValues(content, "catalogue_banner");
-  const bannerArt = themedArtPair(banner.image || "/images/titan-catalogue-banner.webp", banner.image_light);
+  const bannerImage = banner.image || "/images/titan-catalogue-banner.webp";
   const [mounted, setMounted] = useState(false);
   const [category, setCategory] = useState<string>("All");
   const [search, setSearch] = useState("");
@@ -161,7 +161,7 @@ function RangePage() {
 
       <main id="range" className="page-shell pb-32 pt-8 sm:pt-12">
         <section aria-labelledby="catalogue-banner-heading" className="catalogue-banner relative isolate overflow-hidden rounded-lg border border-primary/35 bg-card p-5 sm:p-7">
-          <ThemedArt dark={bannerArt.dark} light={bannerArt.light} sizes="(min-width: 1280px) 1200px, 100vw" alt="" priority className="absolute inset-0 -z-20 h-full w-full object-cover object-right" />
+          <ThemedArt dark={bannerImage} light={bannerImage} sizes="(min-width: 1280px) 1200px, 100vw" alt="" priority className="absolute inset-0 -z-20 h-full w-full object-cover object-right" />
           <div className="absolute inset-0 -z-10 bg-gradient-to-r from-card via-card/90 to-card/10" />
           <ChristmasCatalogueWreath />
           <p className="font-display text-sm font-bold uppercase tracking-[.2em] text-accent">{banner.eyebrow}</p>
