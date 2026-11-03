@@ -222,7 +222,7 @@ function WebsitePhoto() {
   return <>
     <defs>
       <clipPath id={`${id}-cap`}><rect x="570" y="278" width="240" height="72"/></clipPath>
-      <filter id={`${id}-navy`} colorInterpolationFilters="sRGB"><feColorMatrix type="matrix" values=".12 .24 .10 0 .015 .20 .34 .20 0 .025 .32 .40 .32 0 .055 0 0 0 1 0"/></filter>
+      <filter id={`${id}-navy`} colorInterpolationFilters="sRGB"><feColorMatrix type="matrix" values=".038 .130 .013 0 .015 .063 .216 .021 0 .025 .095 .324 .032 0 .045 0 0 0 1 0"/></filter>
     </defs>
     <image href="/images/product-optimized/retatrutide.webp" width="1024" height="1024"/>
     <g clipPath={`url(#${id}-cap)`}><image href="/images/product-optimized/retatrutide.webp" width="1024" height="1024" filter={`url(#${id}-navy)`}/></g>
