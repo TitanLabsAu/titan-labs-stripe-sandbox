@@ -1081,12 +1081,19 @@ html.light .theme-label-light { display: contents !important; }
 .range-product-art image[href*="retatrutide.webp"] {
   filter:url("/images/navy-gold-tone.svg#navy-gold");
 }
-/* Keep category names readable over photographs in either theme without moving the tiles. */
-.discovery-category > span,
-.light .discovery-category > span {
+/* Category labels sit directly on the existing photos; no background strip. */
+.discovery-category > span {
   position:relative;
-  color:oklch(0.98 0.005 85);
-  background:oklch(0.216921 0.045708 249.435 / .96);
+  color:var(--foreground);
+  background:transparent;
+  text-shadow:0 1px 3px oklch(0.216921 0.045708 249.435 / .7);
+}
+.light .discovery-category > span {
+  color:oklch(0.216921 0.045708 249.435);
+  background:transparent;
   text-shadow:none;
+}
+.discovery-category > span > svg {
+  color:inherit;
 }
 .discovery-category > img { opacity:1; }
