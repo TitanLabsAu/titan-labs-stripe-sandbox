@@ -161,18 +161,19 @@ function RangePage() {
 
       <main id="range" className="page-shell pb-32 pt-8 sm:pt-12">
         <section aria-labelledby="catalogue-banner-heading" className="catalogue-banner relative isolate overflow-hidden rounded-lg border border-primary/35 bg-card p-5 sm:p-7">
-          <ThemedArt dark={bannerImage} light={bannerImage} sizes="(min-width: 1280px) 1200px, 100vw" alt="" priority className="absolute inset-0 -z-20 h-full w-full object-cover object-right" />
-          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-card via-card/90 to-card/10" />
+          <ThemedArt tone={false} dark={bannerImage} light="/images/guides-navy-gold/guide-banner-light.webp" sizes="(min-width: 1280px) 1200px, 100vw" alt="" priority className="absolute inset-0 -z-20 h-full w-full object-cover object-right" />
           <ChristmasCatalogueWreath />
-          <p className="font-display text-sm font-bold uppercase tracking-[.2em] text-accent">{banner.eyebrow}</p>
+          <div className="w-fit max-w-full rounded-md bg-card/95 p-4">
+            <p className="font-display text-sm font-bold uppercase tracking-[.2em] text-accent">{banner.eyebrow}</p>
           <h1 id="catalogue-banner-heading" className="font-display mt-2 text-[clamp(2.25rem,6vw,4.5rem)] font-bold uppercase leading-none text-foreground">{catalogueName(content)}</h1>
+          </div>
           <div className="mt-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                 {availableSections.length > 0 && (
                 <div
                   role="tablist"
                   aria-label="Catalogue sections"
                   className={cn(
-                    "catalogue-banner-tabs flex flex-wrap gap-5",
+                    "catalogue-banner-tabs flex flex-wrap gap-2 rounded-md bg-card/95 px-2 sm:gap-5",
                     availableSections.length === 1 && "grid-cols-1 max-w-[12rem]",
                     availableSections.length === 2 && "grid-cols-2 sm:max-w-sm",
                     availableSections.length >= 3 && "grid-cols-3 sm:max-w-xl",
