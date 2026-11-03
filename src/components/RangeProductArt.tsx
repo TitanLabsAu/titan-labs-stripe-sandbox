@@ -321,7 +321,7 @@ export function RangeProductArt({
         <>
           <g className="theme-variant-dark"><image href={`${root}branded-display-scene.webp`} width="1200" height="1200" preserveAspectRatio="xMidYMid slice"/></g>
           <g className="theme-variant-light"><image href={`${root}branded-display-light.webp`} width="1200" height="1200" preserveAspectRatio="xMidYMid slice"/></g>
-          <Vial product={product} variant={selected} x={660} y={350} height={650}/ >
+          <Vial product={product} variant={selected} x={660} y={350} height={650} />
         </>
       ) : (
         <>
