@@ -216,26 +216,18 @@ export function RangeLabelArt({
   );
 }
 
-/** The actual website photograph, not a regenerated bottle. */
+/** Original photographed glass, with the navy cap from the approved theme concept. */
 function WebsitePhoto() {
-  return (
-    <>
-      <g className="theme-variant-dark">
-        <image
-          href="/images/product-optimized/retatrutide.webp"
-          width="1024"
-          height="1024"
-        />
-      </g>
-      <g className="theme-variant-light">
-        <image
-          href="/images/product-light/retatrutide.webp"
-          width="1024"
-          height="1024"
-        />
-      </g>
-    </>
-  );
+  const id = useId().replace(/[^a-zA-Z0-9_-]/g, "");
+  return <>
+    <defs>
+      <filter id={`${id}-neutral`} colorInterpolationFilters="sRGB"><feColorMatrix type="saturate" values=".25"/></filter>
+      <filter id={`${id}-navy`} colorInterpolationFilters="sRGB"><feColorMatrix type="matrix" values=".12 .24 .10 0 .015 .20 .34 .20 0 .025 .32 .40 .32 0 .055 0 0 0 1 0"/></filter>
+      <clipPath id={`${id}-cap`}><rect x="570" y="278" width="240" height="72"/></clipPath>
+    </defs>
+    <image href="/images/product-optimized/retatrutide.webp" width="1024" height="1024" filter={`url(#${id}-neutral)`}/>
+    <g clipPath={`url(#${id}-cap)`}><image href="/images/product-optimized/retatrutide.webp" width="1024" height="1024" filter={`url(#${id}-navy)`}/></g>
+  </>;
 }
 function WebsitePaper({
   product,
@@ -312,7 +304,7 @@ export function RangeProductArt({
   const hero = !thumbnail && view === "vial";
   return (
     <svg
-      viewBox={hero ? "0 0 1024 1024" : "0 0 1200 800"}
+      viewBox={hero ? "0 0 1200 1200" : "0 0 1200 800"}
       preserveAspectRatio="xMidYMid slice"
       role={alt === "" ? undefined : "img"}
       aria-hidden={alt === "" ? true : undefined}
@@ -327,8 +319,9 @@ export function RangeProductArt({
     >
       {hero ? (
         <>
-          <WebsitePhoto />
-          <WebsitePaper product={product} variant={selected} />
+          <g className="theme-variant-dark"><image href={`${root}branded-display-scene.webp`} width="1200" height="1200" preserveAspectRatio="xMidYMid slice"/></g>
+          <g className="theme-variant-light"><image href={`${root}branded-display-light.webp`} width="1200" height="1200" preserveAspectRatio="xMidYMid slice"/></g>
+          <Vial product={product} variant={selected} x={660} y={350} height={650}/ >
         </>
       ) : (
         <>
@@ -426,3 +419,4 @@ export function CatalogueProductImage({
     />
   );
 }
+
