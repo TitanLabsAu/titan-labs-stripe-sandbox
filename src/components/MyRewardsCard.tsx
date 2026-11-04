@@ -15,6 +15,30 @@ function useMyRewards() {
 
 type RewardCodes = NonNullable<ReturnType<typeof useMyRewards>["data"]>["codes"];
 
+async function copyReferralCode(code: string) {
+  try {
+    await navigator.clipboard.writeText(code);
+    return;
+  } catch {
+    // The clipboard API can be blocked in embedded previews.
+  }
+
+  const previousFocus = document.activeElement;
+  const field = document.createElement("textarea");
+  field.value = code;
+  field.readOnly = true;
+  field.style.cssText = "position:fixed;top:0;left:0;opacity:0;pointer-events:none;font-size:16px";
+  document.body.append(field);
+  try {
+    field.select();
+    field.setSelectionRange(0, code.length);
+    if (!document.execCommand("copy")) throw new Error("Clipboard unavailable");
+  } finally {
+    field.remove();
+    if (previousFocus instanceof HTMLElement) previousFocus.focus({ preventScroll: true });
+  }
+}
+
 function ReferralCodes({ codes, inBanner = false }: { codes: RewardCodes; inBanner?: boolean }) {
   const referral = codes.filter((code) => code.code_kind === "referral" && code.active);
   return <>{referral.length ? (
@@ -28,12 +52,12 @@ function ReferralCodes({ codes, inBanner = false }: { codes: RewardCodes; inBann
                 type="button"
                 size={inBanner ? "icon" : "sm"}
                 variant="outline"
-                className={inBanner ? "shrink-0" : undefined}
+                className={inBanner ? "shrink-0 bg-background text-foreground" : undefined}
                 aria-label={`Copy referral code ${c.code}`}
                 title="Copy referral code"
                 onClick={async () => {
                   try {
-                    await navigator.clipboard.writeText(c.code);
+                    await copyReferralCode(c.code);
                     toast.success("Code copied");
                   } catch {
                     toast.error("Could not copy. Select and copy the code manually.");
