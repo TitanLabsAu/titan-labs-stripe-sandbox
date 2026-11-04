@@ -51,6 +51,7 @@ function HighlightImage({
       top: `${Math.min(0, Math.max(100 - photo.scale * 100, 50 - photo.y * photo.scale * 100))}%`,
     },
     decoding: "async" as const,
+    loading: !thumbnail && /^(?:titan-)?v2-reusable-pen$/.test(product.slug) ? "eager" as const : "lazy" as const,
   };
   if (photo.light)
     return (

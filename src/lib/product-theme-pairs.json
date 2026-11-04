@@ -46,13 +46,13 @@
     "slug": "v2-reusable-pen",
     "source": "/api/public/product-image?path=v2-reusable-pen%2F6e0e6586-fec3-4ce9-94ee-5fc6faab460a.png",
     "dark": "/images/product-theme/older-v2-grey-dark-v1.webp",
-    "light": "/api/public/product-image?path=v2-reusable-pen%2F6e0e6586-fec3-4ce9-94ee-5fc6faab460a.png"
+    "light": "/images/product-theme/v2-grey-light.webp"
   },
   {
     "slug": "v2-reusable-pen",
     "source": "/api/public/product-image?path=v2-reusable-pen%2Fb840db10-6377-4f12-9b08-67cd60205d09.png",
     "dark": "/images/product-theme/older-v2-purple-dark-v1.webp",
-    "light": "/api/public/product-image?path=v2-reusable-pen%2Fb840db10-6377-4f12-9b08-67cd60205d09.png"
+    "light": "/images/product-theme/v2-purple-light.webp"
   },
   {
     "slug": "alcohol-prep-pads",

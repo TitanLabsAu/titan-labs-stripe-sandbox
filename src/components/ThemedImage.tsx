@@ -57,7 +57,7 @@ export function useLightProductPhoto(
 
 type ArtProps = Omit<
   ImgHTMLAttributes<HTMLImageElement>,
-  "src" | "srcSet" | "loading"
+  "src" | "srcSet"
 > & {
   dark: string;
   light: string;
@@ -79,6 +79,7 @@ export function ThemedArt({
   sizes,
   alt,
   priority,
+  loading = "lazy",
   tone = true,
   className,
   ...rest
@@ -98,7 +99,7 @@ export function ThemedArt({
         src={dark}
         {...artDelivery(dark, sizes)}
         alt={alt}
-        loading="lazy"
+        loading={loading ?? "lazy"}
         decoding="async"
         data-theme-variant="dark"
         className={`theme-variant-dark ${tone ? "titan-navy-gold-art" : ""} ${className ?? ""}`}
@@ -109,7 +110,7 @@ export function ThemedArt({
         src={light}
         {...artDelivery(light, sizes)}
         alt={alt}
-        loading="lazy"
+        loading={loading ?? "lazy"}
         decoding="async"
         data-theme-variant="light"
         className={`theme-variant-light ${tone ? "titan-navy-gold-art" : ""} ${className ?? ""}`}
@@ -165,7 +166,7 @@ export function ThemedProductImage({
     <>
       <img
         {...rest}
-        loading="lazy"
+        loading={loading ?? "lazy"}
         src={dark}
         {...darkDelivery}
         alt={alt}
@@ -174,7 +175,7 @@ export function ThemedProductImage({
       />
       <img
         {...rest}
-        loading="lazy"
+        loading={loading ?? "lazy"}
         src={light}
         {...lightDelivery}
         alt={alt}

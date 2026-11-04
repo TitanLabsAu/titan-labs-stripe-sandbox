@@ -24,8 +24,8 @@ function TitanGuides() {
   const g = cmsValues(content, "guide_pages");
   const docs = cmsValues(content, "guide_documents");
   // Upgrade the built-in artwork while preserving custom CMS uploads.
-  const defaultDark = "/images/guides-navy-gold/guide-banner-dark.webp";
-  const defaultLight = "/images/guides-navy-gold/guide-banner-light.webp";
+  const defaultDark = "/images/titan-banners/guides-dark.webp";
+  const defaultLight = "/images/titan-banners/guides-light.webp";
   const builtIn = (src?: string) => !src || /\/images\/titan-(catalogue-banner|pen-guide-banner(?:-light)?)\.webp(?:\?.*)?$/.test(src);
   const banner = themedArtPair(
     builtIn(g.banner_image) ? defaultDark : g.banner_image,
@@ -62,8 +62,7 @@ function TitanGuides() {
       <main className="pen-guide-page page-shell py-8 sm:py-12">
         <section aria-labelledby="pen-guide-heading" className="pen-guide-banner relative isolate overflow-hidden rounded-lg border border-primary/35 bg-card">
           <ThemedArt tone={false} dark={banner.dark} light={banner.light} sizes="(min-width: 1280px) 1248px, calc(100vw - 32px)" alt="" priority className="pen-guide-art absolute inset-0 -z-20 h-full w-full object-cover object-right" />
-          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-card via-card/90 to-card/10" />
-          <div className="p-5 sm:p-7">
+          <div className="m-5 w-fit max-w-[calc(100%-2.5rem)] rounded-md bg-card/95 p-4 sm:m-7 sm:max-w-[calc(100%-3.5rem)]">
             <p className="font-display text-sm uppercase tracking-[.2em] text-accent">{docs.eyebrow}</p>
             <h1 id="pen-guide-heading" className="mt-3 text-foreground max-w-2xl font-display text-[clamp(2.5rem,5vw,4.5rem)] font-bold uppercase leading-none">{docs.title}</h1>
             {docs.intro ? <p className="mt-3 max-w-md whitespace-pre-wrap text-sm leading-6 text-foreground">{docs.intro}</p> : null}
