@@ -82,7 +82,7 @@ function RangePage() {
   const { data: content } = useSiteContent();
   const pp = cmsValues(content, "product_page");
   const banner = cmsValues(content, "catalogue_banner");
-  const bannerImage = banner.image || "/images/titan-banners/catalogue-dark.webp";
+  const bannerImage = banner.image || "/images/titan-banners/catalogue-plain-dark.webp";
   const [mounted, setMounted] = useState(false);
   const [category, setCategory] = useState<string>("All");
   const [search, setSearch] = useState("");
@@ -161,7 +161,7 @@ function RangePage() {
 
       <main id="range" className="page-shell pb-32 pt-8 sm:pt-12">
         <section aria-labelledby="catalogue-banner-heading" className="catalogue-banner relative isolate overflow-hidden rounded-lg border border-primary/35 bg-card p-5 sm:p-7">
-          <ThemedArt tone={false} dark={bannerImage} light={banner.image_light || "/images/titan-banners/catalogue-light.webp"} sizes="(min-width: 1280px) 1200px, 100vw" alt="" priority className="absolute inset-0 -z-20 h-full w-full object-cover object-right" />
+          <ThemedArt tone={false} dark={bannerImage} light={banner.image_light || "/images/titan-banners/catalogue-plain-light.webp"} sizes="(min-width: 1280px) 1200px, 100vw" alt="" priority className="absolute inset-0 -z-20 h-full w-full object-cover object-right" />
           <ChristmasCatalogueWreath />
           <div className="w-fit max-w-full p-4">
             <p className="font-display text-sm font-bold uppercase tracking-[.2em] text-accent">{banner.eyebrow}</p>
