@@ -60,9 +60,9 @@ function TitanGuides() {
     <div className="bg-hero min-h-screen">
       <SiteHeader />
       <main className="pen-guide-page page-shell py-8 sm:py-12">
-        <section aria-labelledby="pen-guide-heading" className="pen-guide-banner relative isolate overflow-hidden rounded-lg border border-primary/35 bg-card">
+        <section aria-labelledby="pen-guide-heading" className="pen-guide-banner relative isolate overflow-hidden rounded-lg border border-primary/35 bg-card flex min-h-56 items-center sm:min-h-64">
           <ThemedArt tone={false} dark={banner.dark} light={banner.light} sizes="(min-width: 1280px) 1248px, calc(100vw - 32px)" alt="" priority className="pen-guide-art absolute inset-0 -z-20 h-full w-full object-cover object-right" />
-          <div className="m-5 w-fit max-w-[calc(100%-2.5rem)] rounded-md bg-card/95 p-4 sm:m-7 sm:max-w-[calc(100%-3.5rem)]">
+          <div className="relative w-full p-6 sm:p-8">
             <p className="font-display text-sm uppercase tracking-[.2em] text-accent">{docs.eyebrow}</p>
             <h1 id="pen-guide-heading" className="mt-3 text-foreground max-w-2xl font-display text-[clamp(2.5rem,5vw,4.5rem)] font-bold uppercase leading-none">{docs.title}</h1>
             {docs.intro ? <p className="mt-3 max-w-md whitespace-pre-wrap text-sm leading-6 text-foreground">{docs.intro}</p> : null}
