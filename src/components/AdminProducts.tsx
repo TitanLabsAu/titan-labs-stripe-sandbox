@@ -1185,7 +1185,18 @@ export function AdminProducts() {
   return (
     <div className="space-y-4">
       <BulkOptionalEquipment products={(data ?? []) as any} onDone={refresh} />
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        {!data?.some((product) => product.slug === "lipo-b") && (
+          <Button type="button" variant="outline" onClick={() => setDraft({
+            ...emptyDraft,
+            slug: "lipo-b",
+            name: "Lipo-B",
+            sub_description: "25/50/50/1mg/1ml",
+            active: false,
+          })}>
+            Start Lipo-B draft
+          </Button>
+        )}
         <Button
           className="font-bold uppercase"
           onClick={() => setDraft({ ...emptyDraft })}

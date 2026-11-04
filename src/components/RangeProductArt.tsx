@@ -291,6 +291,7 @@ export function RangeProductArt({
   className = "",
   alt,
   thumbnail = false,
+  previewTheme,
 }: {
   product: Product;
   variant?: ProductVariant | undefined;
@@ -298,6 +299,7 @@ export function RangeProductArt({
   className?: string | undefined;
   alt?: string | undefined;
   thumbnail?: boolean;
+  previewTheme?: "dark" | "light";
 }) {
   const selected = variant ?? firstAvailableVariant(product) ?? undefined;
   const details = rangeLabelDetails(product, selected);
@@ -319,14 +321,14 @@ export function RangeProductArt({
     >
       {hero ? (
         <>
-          <g className="theme-variant-dark"><image href={`${root}branded-display-scene.webp`} width="1024" height="1024" preserveAspectRatio="xMidYMid slice"/></g>
-          <g className="theme-variant-light"><image href={`${root}branded-display-light.webp`} width="1024" height="1024" preserveAspectRatio="xMidYMid slice"/></g>
+          <g className={previewTheme ? undefined : "theme-variant-dark"} display={previewTheme && previewTheme !== "dark" ? "none" : undefined}><image href={`${root}branded-display-scene.webp`} width="1024" height="1024" preserveAspectRatio="xMidYMid slice"/></g>
+          <g className={previewTheme ? undefined : "theme-variant-light"} display={previewTheme && previewTheme !== "light" ? "none" : undefined}><image href={`${root}branded-display-light.webp`} width="1024" height="1024" preserveAspectRatio="xMidYMid slice"/></g>
           <Vial product={product} variant={selected} x={565} y={278} height={568}/>
 
         </>
       ) : (
         <>
-          <g className="theme-variant-dark">
+          <g className={previewTheme ? undefined : "theme-variant-dark"} display={previewTheme && previewTheme !== "dark" ? "none" : undefined}>
             <image
               href={`${root}laboratory-scene.webp`}
               width="1200"
@@ -335,7 +337,7 @@ export function RangeProductArt({
               preserveAspectRatio="xMidYMid slice"
             />
           </g>
-          <g className="theme-variant-light">
+          <g className={previewTheme ? undefined : "theme-variant-light"} display={previewTheme && previewTheme !== "light" ? "none" : undefined}>
             <image
               href={`${root}laboratory-scene-light.webp`}
               width="1200"

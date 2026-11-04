@@ -1,6 +1,8 @@
+import { RangeProductArt } from "./RangeProductArt";
+import { usesRangeArtwork, usesBacWaterArtwork } from "@/lib/range-artwork";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useSiteContent } from "@/lib/useCatalog";
+import { useProducts, useSiteContent } from "@/lib/useCatalog";
 import { cmsKey, cmsValues } from "@/lib/storefrontContent";
 import { adminSaveStorefrontSection } from "@/lib/admin.functions";
 import { setCmsDirty } from "@/lib/cmsDirtyGuard";
@@ -37,7 +39,11 @@ export function ProductThemePhotoEditor({
   const [dirty, setDirty] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
+  const { products } = useProducts();
+  const product = products.find((item) => item.slug === slug);
+  const usesStorefrontArt = product && (usesRangeArtwork(product) || usesBacWaterArtwork(product));
   const variant = variants.find((v) => v.id === selected);
+  const previewVariant = product?.variants?.find((item) => item.id === selected);
   const source = variant?.image || image;
   const values = cmsValues(content, "theme_artwork");
   const resolved = productLightPhoto(
@@ -132,14 +138,16 @@ export function ProductThemePhotoEditor({
           ))}
       </select>
       <p className="text-xs text-muted-foreground">
-        {resolved
+        {usesStorefrontArt ? "Storefront artwork in both themes" : resolved
           ? "Matching light photo available"
           : "Same photo in both modes — matching light photo not assigned"}
       </p>
       <div className="grid grid-cols-2 gap-3">
         <div>
           <p className="text-xs">Current / dark photo</p>
-          {source ? (
+          {usesStorefrontArt ? (
+            <RangeProductArt product={product} variant={previewVariant} previewTheme="dark" className="aspect-square w-full rounded border" />
+          ) : source ? (
             <img
               src={productDarkPhoto(slug, source)}
               alt="Current product photo"
@@ -149,9 +157,11 @@ export function ProductThemePhotoEditor({
         </div>
         <div>
           <p className="text-xs">Light photo</p>
-          {light || resolved ? (
+          {usesStorefrontArt ? (
+            <RangeProductArt product={product} variant={previewVariant} previewTheme="light" className="aspect-square w-full rounded border" />
+          ) : light || resolved ? (
             <img
-              src={light || resolved!}
+              src={(dirty && light) || resolved || light}
               alt="Matching light product photo"
               className="aspect-square w-full rounded border bg-white object-contain"
             />
