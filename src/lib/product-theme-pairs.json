@@ -16,15 +16,15 @@
   {
     "slug": "titan-v2-reusable-pen",
     "source": "/api/public/product-image?path=titan-v2-reusable-pen%2F36c22b5a-9f57-4a73-a36a-f25a5d7cad10.png",
-    "dark": "/images/product-theme/v2-grey-case-dark.webp",
-    "light": "/images/product-theme/v2-grey-case-light.webp",
+    "dark": "/images/catalogue-polish-v2/v2-grey-dark.webp",
+    "light": "/images/catalogue-polish-v2/v2-grey-light.webp",
     "legacyLight": "/api/public/product-image?path=titan-v2-reusable-pen%2F36c22b5a-9f57-4a73-a36a-f25a5d7cad10.png"
   },
   {
     "slug": "titan-v2-reusable-pen",
     "source": "/api/public/product-image?path=titan-v2-reusable-pen%2F9aa97148-eae1-41a4-88eb-80e136c6ca5e.png",
-    "dark": "/images/product-theme/v2-purple-case-dark.webp",
-    "light": "/images/product-theme/v2-purple-case-light.webp",
+    "dark": "/images/catalogue-polish-v2/v2-purple-dark.webp",
+    "light": "/images/catalogue-polish-v2/v2-purple-light.webp",
     "legacyLight": "/api/public/product-image?path=titan-v2-reusable-pen%2F9aa97148-eae1-41a4-88eb-80e136c6ca5e.png"
   },
   {
