@@ -24,8 +24,8 @@ function TitanGuides() {
   const g = cmsValues(content, "guide_pages");
   const docs = cmsValues(content, "guide_documents");
   // Upgrade the built-in artwork while preserving custom CMS uploads.
-  const defaultDark = "/images/titan-banners/guides-dark-matched.webp";
-  const defaultLight = "/images/titan-banners/guides-light.webp";
+  const defaultDark = "/images/titan-banners/guides-clear-dark.webp";
+  const defaultLight = "/images/titan-banners/guides-clear-light.webp";
   const builtIn = (src?: string) => !src || /\/images\/titan-(catalogue-banner|pen-guide-banner(?:-light)?)\.webp(?:\?.*)?$/.test(src);
   const banner = themedArtPair(
     builtIn(g.banner_image) ? defaultDark : g.banner_image,
