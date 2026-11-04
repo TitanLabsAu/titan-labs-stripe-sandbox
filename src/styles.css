@@ -760,7 +760,6 @@ html.light .theme-label-light { display: contents !important; }
 .pen-guide-page { --pen-banner-ink: var(--foreground); }
 .pen-guide-banner-title { color: var(--pen-banner-ink); }
 .pen-guide-banner .pen-guide-art { object-position: right 32%; }
-.pen-guide-banner .pen-guide-art[data-theme-variant="dark"] { object-position: right center; }
 :is(.pen-guide-banner, .catalogue-banner) :is(h1, p, [role="tab"]) {
   filter: drop-shadow(0 1px 4px var(--background)) drop-shadow(0 0 8px var(--background));
 }
