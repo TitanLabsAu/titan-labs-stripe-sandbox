@@ -51,8 +51,8 @@ function ReferralCodes({ codes, inBanner = false }: { codes: RewardCodes; inBann
               <Button
                 type="button"
                 size={inBanner ? "icon" : "sm"}
-                variant="outline"
-                className={inBanner ? "shrink-0 bg-background text-foreground" : undefined}
+                variant={inBanner ? "ghost" : "outline"}
+                className={inBanner ? "shrink-0 border-transparent bg-transparent text-[var(--account-ink,currentColor)] hover:bg-transparent hover:opacity-75" : undefined}
                 aria-label={`Copy referral code ${c.code}`}
                 title="Copy referral code"
                 onClick={async () => {
