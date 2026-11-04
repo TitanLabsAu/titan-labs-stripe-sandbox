@@ -219,7 +219,7 @@ export function preloadVariantImages(product: Pick<Product, "variants">) {
   const sources = (product.variants ?? []).map((v) => v.image).filter((u): u is string => Boolean(u));
   const urls = [...new Set(sources.flatMap(source => {
     const pair = shippedPhotoPairs.find(p => p.source === source);
-    return pair ? [source, pair.dark, pair.light] : [source];
+    return pair ? [pair.dark, pair.light] : [source];
   }))];
   if (urls.length < 2) return () => {};
   const run = () => { for (const u of urls) { const img = new Image(); img.decoding = "async"; img.src = u; } };

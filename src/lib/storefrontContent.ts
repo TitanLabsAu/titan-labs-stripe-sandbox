@@ -145,7 +145,7 @@ export const CMS_SECTIONS: CmsSection[] = [
       checklist: [{ text: "Exact model and supplied instructions identified" }, { text: "Packaging, labels and components inspected" }, { text: "Cartridge and accessories confirmed compatible" }, { text: "Display and scale terminology understood" }, { text: "Storage instructions checked" }, { text: "Sharps container and disposal plan ready" }],
     },
   },
-  { id: "catalogue_banner", group: "Pages", title: "Catalogue banner", fields: [T("eyebrow", "Small heading", 60), { key: "image", label: "Banner artwork", type: "image" }, { key: "image_light", label: "Light theme banner artwork", type: "image", help: "Shown only in the light theme. Leave empty to use the approved light helmet artwork." }, T("search_placeholder", "Search placeholder", 100)], defaults: { eyebrow: "The", image: "", image_light: "", search_placeholder: "Search products…" } },
+  { id: "catalogue_banner", group: "Pages", title: "Catalogue banner", fields: [T("eyebrow", "Small heading", 60), { key: "image", label: "Banner artwork", type: "image" }, { key: "image_light", label: "Light theme banner artwork", type: "image", help: "Shown only in the light theme. Leave empty to use the default light Catalogue artwork." }, T("search_placeholder", "Search placeholder", 100)], defaults: { eyebrow: "The", image: "", image_light: "", search_placeholder: "Search products…" } },
   { id: "footer_design", group: "Navigation", title: "Footer presentation", fields: [T("support_title", "Support column heading", 60)], defaults: { support_title: "Support" } },
   {
     id: "home_membership", group: "Homepage", title: "Join Titan Labs",

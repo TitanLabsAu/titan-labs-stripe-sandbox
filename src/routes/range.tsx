@@ -161,7 +161,7 @@ function RangePage() {
 
       <main id="range" className="page-shell pb-32 pt-8 sm:pt-12">
         <section aria-labelledby="catalogue-banner-heading" className="catalogue-banner relative isolate overflow-hidden rounded-lg border border-primary/35 bg-card p-5 sm:p-7">
-          <ThemedArt tone={false} dark={bannerImage} light="/images/titan-banners/catalogue-light.webp" sizes="(min-width: 1280px) 1200px, 100vw" alt="" priority className="absolute inset-0 -z-20 h-full w-full object-cover object-right" />
+          <ThemedArt tone={false} dark={bannerImage} light={banner.image_light || "/images/titan-banners/catalogue-light.webp"} sizes="(min-width: 1280px) 1200px, 100vw" alt="" priority className="absolute inset-0 -z-20 h-full w-full object-cover object-right" />
           <ChristmasCatalogueWreath />
           <div className="w-fit max-w-full rounded-md bg-card/95 p-4">
             <p className="font-display text-sm font-bold uppercase tracking-[.2em] text-accent">{banner.eyebrow}</p>
