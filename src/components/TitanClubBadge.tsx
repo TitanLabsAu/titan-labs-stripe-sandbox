@@ -32,9 +32,17 @@ export function TitanClubView({ club }: { club: NonNullable<MyTitanClub> }) {
   );
 }
 
-export function TitanClubBadge() {
+export function TitanClubBadge({ compact = false }: { compact?: boolean }) {
   const fetchIt = useServerFn(getMyTitanClub);
   const { data } = useQuery({ queryKey: ["my-titan-club"], queryFn: () => fetchIt() });
+  if (compact) {
+    return data ? (
+      <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-primary/50 bg-card px-2.5 py-1 text-xs font-semibold text-foreground">
+        <Crown className="h-4 w-4 text-primary" aria-hidden="true" />
+        Titan Club
+      </span>
+    ) : null;
+  }
   return data ? <TitanClubView club={data} /> : null;
 }
 

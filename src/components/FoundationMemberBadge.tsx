@@ -41,7 +41,7 @@ export function FoundationMemberView({ data, capPercent = 20, personalCap = fals
   );
 }
 
-export function FoundationMemberBadge() {
+export function FoundationMemberBadge({ compact = false }: { compact?: boolean }) {
   const fetchIt = useServerFn(getMyFoundation);
   const { data } = useQuery({ queryKey: ["my-foundation"], queryFn: () => fetchIt() });
   const clubFn = useServerFn(getMyTitanClub);
@@ -49,5 +49,13 @@ export function FoundationMemberBadge() {
   const { settings } = useReferralSettings();
   const activeClub = club.data ?? null;
   const cap = activeClub ? activeClub.maxCapPercent : settings.combinedCapPercent;
+  if (compact) {
+    return data?.award ? (
+      <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-primary/50 bg-card px-2.5 py-1 text-xs font-semibold text-foreground">
+        <ShieldCheck className="h-4 w-4 text-primary" aria-hidden="true" />
+        Foundation Member
+      </span>
+    ) : null;
+  }
   return data ? <FoundationMemberView data={data} capPercent={cap} personalCap={Boolean(activeClub)} /> : null;
 }

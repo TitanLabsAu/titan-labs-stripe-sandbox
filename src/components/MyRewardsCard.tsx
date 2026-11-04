@@ -8,11 +8,66 @@ import { getMyRewards } from "@/lib/referrals.functions";
 
 const fmtDate = (d: string) => new Date(d).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" });
 
-export function MyRewardsCard() {
+function useMyRewards() {
   const fetchRewards = useServerFn(getMyRewards);
-  const { data } = useQuery({ queryKey: ["my-rewards"], queryFn: () => fetchRewards() });
+  return useQuery({ queryKey: ["my-rewards"], queryFn: () => fetchRewards() });
+}
+
+type RewardCodes = NonNullable<ReturnType<typeof useMyRewards>["data"]>["codes"];
+
+function ReferralCodes({ codes, inBanner = false }: { codes: RewardCodes; inBanner?: boolean }) {
+  const referral = codes.filter((code) => code.code_kind === "referral" && code.active);
+  return <>{referral.length ? (
+        <div className={inBanner ? "mt-1 space-y-1" : "mt-4 space-y-2"}>
+          {referral.map((c) => (
+            <div key={c.id} className={inBanner ? "flex items-center gap-2" : "flex flex-wrap items-center justify-between gap-2 rounded border border-primary/40 p-3"}>
+              {inBanner ? <p className="min-w-0 break-words">{c.code}</p> : <span className="text-sm text-muted-foreground">
+                Your referral code <strong className="ml-1 text-base uppercase tracking-wide text-foreground">{c.code}</strong>
+              </span>}
+              <Button
+                type="button"
+                size={inBanner ? "icon" : "sm"}
+                variant="outline"
+                className={inBanner ? "shrink-0" : undefined}
+                aria-label={`Copy referral code ${c.code}`}
+                title="Copy referral code"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(c.code);
+                    toast.success("Code copied");
+                  } catch {
+                    toast.error("Could not copy. Select and copy the code manually.");
+                  }
+                }}
+              >
+                <Copy className={inBanner ? "h-4 w-4" : "mr-1 h-4 w-4"} aria-hidden="true" />
+                {!inBanner && "Copy"}
+              </Button>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className={inBanner ? "mt-2 text-sm" : "mt-4 text-sm text-muted-foreground"}>You don&apos;t have a referral code yet. Contact us to request one.</p>
+      )}</>;
+}
+
+export function AccountReferralCard() {
+  const { data, isError } = useMyRewards();
+  return (
+    <section aria-labelledby="account-referral-heading" className="mt-4">
+      <h2 id="account-referral-heading" className="technical-label text-[var(--account-ink,currentColor)]">Your referral code</h2>
+      {data ? <ReferralCodes codes={data.codes} inBanner /> : (
+        <p role="status" className="mt-2 text-sm">
+          {isError ? "Could not load your referral code." : "Loading your referral code…"}
+        </p>
+      )}
+    </section>
+  );
+}
+
+export function MyRewardsCard({ showReferralCodes = true }: { showReferralCodes?: boolean }) {
+  const { data } = useMyRewards();
   if (!data) return null;
-  const referral = data.codes.filter((c) => c.code_kind === "referral" && c.active);
   const member = data.codes.filter((c) => c.code_kind === "member" && c.active && c.times_used < c.max_uses);
   const s = data.summary;
   const every = data.rewardEvery || s.rewardEvery;
@@ -57,29 +112,7 @@ export function MyRewardsCard() {
           ))}
         </ul>
       ) : null}
-      {referral.length ? (
-        <div className="mt-4 space-y-2">
-          {referral.map((c) => (
-            <div key={c.id} className="flex flex-wrap items-center justify-between gap-2 rounded border border-primary/40 p-3">
-              <span className="text-sm text-muted-foreground">
-                Your referral code <strong className="ml-1 text-base uppercase tracking-wide text-foreground">{c.code}</strong>
-              </span>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  void navigator.clipboard?.writeText(c.code);
-                  toast.success("Code copied");
-                }}
-              >
-                <Copy className="mr-1 h-4 w-4" /> Copy
-              </Button>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p className="mt-4 text-sm text-muted-foreground">You don&apos;t have a referral code yet. Contact us to request one.</p>
-      )}
+      {showReferralCodes && <ReferralCodes codes={data.codes} />}
       {member.length ? (
         <p className="mt-3 text-sm text-muted-foreground">Personal reward codes: {member.map((c) => c.code).join(", ")}</p>
       ) : null}
