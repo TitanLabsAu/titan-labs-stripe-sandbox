@@ -1,5 +1,11 @@
 [
   {
+    "slug": "lipo-b",
+    "source": "/images/product-theme/lipo-b-dark.webp",
+    "dark": "/images/product-theme/lipo-b-dark.webp",
+    "light": "/images/product-theme/lipo-b-light.webp"
+  },
+  {
     "slug": "5-amino-1mq",
     "source": "/api/public/product-image?path=catalogue-v3%2F5-amino-1mq.png",
     "dark": "/api/public/product-image?path=catalogue-v3%2F5-amino-1mq.png",
