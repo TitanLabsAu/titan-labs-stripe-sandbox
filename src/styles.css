@@ -519,8 +519,6 @@
 }
 
 .hot-products-band { border-block: 1px solid color-mix(in oklab, var(--primary) 22%, transparent); background: linear-gradient(150deg, var(--background), color-mix(in oklab, var(--primary) 7%, var(--background))); }
-.hot-products-band article { height: 100%; }
-/* Homepage only: natural options and a bottom footer, never shared maximum rows. */
 /* Shared catalogue purchase footer: stretch naturally, reserve no fixed card height. */
 .titan-product-card > .titan-product-photo { flex-shrink: 0; }
 .titan-product-card [data-promotion-slot="price"] { margin-top:auto; padding-top:0.75rem; }
@@ -532,7 +530,12 @@
   align-items: stretch;
 }
 .hot-products-band .promotions-slide {
+  display: flex;
   flex: 0 0 min(20rem, calc(100vw - 2rem));
+}
+.hot-products-band .promotions-slide > .titan-product-card {
+  flex: 1;
+  height: auto;
 }
 .hot-products-band .titan-product-photo {
   height: 210px;
@@ -566,10 +569,16 @@
   box-shadow: 0 0 14px -9px var(--primary);
 }
 @media (max-width: 767px) {
-  .hot-products-band .promotions-track { align-items: flex-start; }
-  .hot-products-band article { height: auto; }
-  .hot-products-band article > div { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+  .hot-products-band article > div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    /* Header and six detail slots, with the purchase action anchored at the bottom. */
+    grid-template-rows: repeat(7, max-content) 1fr;
+    row-gap: 0;
+  }
   .hot-products-band [data-promotion-slot] { grid-column: 1 / -1; }
+  .hot-products-band [data-promotion-slot]:not([data-promotion-slot="title"], [data-promotion-slot="price"]) { margin-top: 8px; }
+  .hot-products-band [data-promotion-slot="action"] { grid-row: 8; align-self: end; }
   .hot-products-band [data-promotion-slot="title"] { grid-column: 1; grid-row: 1; min-height: 0; }
   .hot-products-band [data-promotion-slot="price"] { grid-column: 2; grid-row: 1; margin: 0; padding: 0; align-self: start; flex-direction: column-reverse; align-items: flex-end; gap: 0; }
   .hot-products-band [data-promotion-slot="price"] .titan-card-price { font-size: 22px; line-height: 24px; }
