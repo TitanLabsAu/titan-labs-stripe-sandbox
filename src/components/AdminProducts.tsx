@@ -1191,7 +1191,9 @@ export function AdminProducts() {
             ...emptyDraft,
             slug: "lipo-b",
             name: "Lipo-B",
-            sub_description: "25/50/50/1mg/1ml",
+            price: "100",
+            sub_description: "25/50/50/1mg/ml",
+            stock_quantity: "20",
             active: false,
           })}>
             Start Lipo-B draft
