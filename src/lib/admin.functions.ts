@@ -525,6 +525,8 @@ export const adminListProducts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<AdminProduct[]> => {
     await assertAdmin(context as any);
+    const { ensureStorageProduct } = await import("@/lib/storage-product-setup");
+    await ensureStorageProduct(context.supabase);
     const { data, error } = await context.supabase
       .from("products")
       .select(PRODUCT_COLS)
@@ -999,3 +1001,4 @@ export const adminSaveChristmasSettings = createServerFn({ method: "POST" })
     }
     return { ok: true as const, raw: body };
   });
+
