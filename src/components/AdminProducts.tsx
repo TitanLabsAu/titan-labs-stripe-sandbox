@@ -1099,7 +1099,7 @@ export function AdminProducts() {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("name-asc");
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error: productsError, refetch } = useQuery({
     queryKey: ["admin-products"],
     queryFn: () => adminListProducts({}),
   });
@@ -1263,7 +1263,12 @@ export function AdminProducts() {
         </select>
       </div>
 
-      {isLoading ? (
+      {productsError ? (
+        <div role="alert" className="rounded-lg border border-destructive p-4 text-sm">
+          <p>Products could not be loaded: {productsError.message}</p>
+          <Button type="button" variant="outline" className="mt-2" onClick={() => void refetch()}>Retry loading products</Button>
+        </div>
+      ) : isLoading ? (
         <p className="text-sm text-muted-foreground">Loading products…</p>
       ) : visibleProducts.length === 0 ? (
         <p className="text-sm text-muted-foreground">
@@ -1398,5 +1403,6 @@ export function AdminProducts() {
     </div>
   );
 }
+
 
 
