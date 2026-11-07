@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { stripTypeScriptTypes } from 'node:module';
+import { paidRangeEligible } from '../src/lib/equipment-gifts.ts';
+const source=stripTypeScriptTypes(readFileSync('src/lib/order-pricing.ts','utf8')).replace(/^import[\s\S]*?from\s+["'][^"']+["'];\s*/gm,'').replace(/export /g,'');
+const {quoteOrder,DEFAULT_PRICING_SETTINGS}=new Function('FREE_SHIPPING_THRESHOLD','SHIPPING_OPTIONS',source+'\nreturn {quoteOrder,DEFAULT_PRICING_SETTINGS};')(150,[{key:'express',price:15},{key:'standard',price:10}]);
+const settings={...DEFAULT_PRICING_SETTINGS,multibuyTiers:[{units:2,percent:10},{units:3,percent:15},{units:4,percent:20}]};
+const paid={unitCents:10000,baseCents:10000,quantity:3,multibuyEligible:paidRangeEligible({},'range')};
+const gift={unitCents:0,baseCents:0,quantity:1,multibuyEligible:paidRangeEligible({freeGift:true},'range')};
+const baseline=quoteOrder({lines:[paid],shippingMethod:'express',paymentMethod:'payid'},settings);
+const withGift=quoteOrder({lines:[paid,gift],shippingMethod:'express',paymentMethod:'payid'},settings);
+assert.equal(withGift.multibuyPercent,15);assert.equal(withGift.multibuyCents,4500);assert.equal(withGift.totalCents,baseline.totalCents);
+console.log('Actual quoteOrder regression passed: three purchased vials plus one free vial stay at the three-vial 15% tier.');

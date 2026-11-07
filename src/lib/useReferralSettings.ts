@@ -1,3 +1,4 @@
+import { paidRangeEligible } from "./equipment-gifts";
 import { useQuery } from "@tanstack/react-query";
 import { getReferralSettings } from "@/lib/referrals.functions";
 import { settingsFromRow, type PriceLine } from "@/lib/order-pricing";
@@ -14,7 +15,7 @@ export function useReferralSettings() {
 
 /** Build pricing lines from cart items (single items only; the 10x bulk-kit is retired). */
 export function cartPriceLines(
-  items: { slug: string; variantId?: string | null; pack?: "single" | "kit"; quantity: number }[],
+  items: { slug: string; variantId?: string | null; pack?: "single" | "kit"; quantity: number; freeGift?: boolean }[],
   getProduct: (slug: string) => Product | undefined,
   getLinePrice: (item: any) => number,
 ): PriceLine[] {
@@ -26,7 +27,8 @@ export function cartPriceLines(
       baseCents: Math.round(unit * 100),
       quantity: item.quantity,
       // Titan Stack counts Range products only; unknown products fail closed.
-      multibuyEligible: product?.catalogueSection === "range",
+      multibuyEligible: paidRangeEligible(item, product?.catalogueSection),
     };
   });
 }
+

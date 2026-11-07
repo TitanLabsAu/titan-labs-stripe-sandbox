@@ -11,6 +11,8 @@ export type EquipmentGiftRule = {
   sections: ("range" | "pens" | "equipment")[];
   targets: GiftTarget[];
   message: string;
+  /** Missing keeps the automatic terms; an explicit empty string hides the subtext. */
+  subtext?: string;
 };
 export type GiftProduct = {
   slug: string;
@@ -32,14 +34,14 @@ const identifier = (value: unknown): string => {
   return value;
 };
 export function validateEquipmentGiftOffers(value: unknown): EquipmentGiftRule[] {
-  if (!Array.isArray(value) || value.length > 100) throw new Error("Save up to 100 equipment gift offers.");
+  if (!Array.isArray(value) || value.length > 100) throw new Error("Save up to 100 free gift offers.");
   const ids = new Set<string>(), skus = new Set<string>();
   return value.map(raw => {
     if (!raw || typeof raw !== "object") throw new Error("Invalid gift offer.");
     const id = identifier(raw.id), giftSlug = identifier(raw.giftSlug);
     const giftVariantId = raw.giftVariantId == null ? null : identifier(raw.giftVariantId);
     const sku = JSON.stringify([giftSlug, giftVariantId]);
-    if (ids.has(id) || skus.has(sku)) throw new Error("Only one offer may be saved for each equipment option.");
+    if (ids.has(id) || skus.has(sku)) throw new Error("Only one offer may be saved for each product option.");
     ids.add(id); skus.add(sku);
     if (typeof raw.enabled !== "boolean" || typeof raw.membersOnly !== "boolean") throw new Error("Choose the offer and member settings.");
     for (const n of [raw.minimumQuantity, raw.giftQuantity]) if (!Number.isInteger(n) || n < 1 || n > 99) throw new Error("Offer quantities must be between 1 and 99.");
@@ -48,9 +50,10 @@ export function validateEquipmentGiftOffers(value: unknown): EquipmentGiftRule[]
     const targets = raw.targets.map((t: any) => ({ slug: identifier(t?.slug), variantId: t?.variantId == null ? null : identifier(t.variantId) }));
     if (raw.enabled && !raw.sections.length && !targets.length) throw new Error("Choose at least one qualifying product, option or section.");
     if (typeof raw.message !== "string" || raw.message.length > 240) throw new Error("Offer wording must be at most 240 characters.");
+    if (raw.subtext !== undefined && (typeof raw.subtext !== "string" || raw.subtext.length > 600)) throw new Error("Offer subtext must be at most 600 characters.");
     return { id, giftSlug, giftVariantId, enabled: raw.enabled, membersOnly: raw.membersOnly,
       minimumQuantity: raw.minimumQuantity, giftQuantity: raw.giftQuantity,
-      sections: [...new Set(raw.sections)] as EquipmentGiftRule["sections"], targets, message: raw.message.trim() };
+      sections: [...new Set(raw.sections)] as EquipmentGiftRule["sections"], targets, message: raw.message.trim(), ...(raw.subtext === undefined ? {} : { subtext: raw.subtext.trim() }) };
   });
 }
 /** Missing settings retain the approved storage offer; malformed saved settings fail closed. */
@@ -75,7 +78,7 @@ export function eligibleGiftRules(rules: EquipmentGiftRule[], lines: GiftCartLin
   return rules.filter(rule => {
     if (!rule.enabled || (rule.membersOnly && !member) || qualifyingGiftQuantity(rule, lines, lookup) < rule.minimumQuantity) return false;
     const product = lookup(rule.giftSlug);
-    if (!product || product.catalogueSection !== "equipment" || product.comingSoon) return false;
+    if (!product || !isGiftCatalogueSection(product.catalogueSection) || product.comingSoon) return false;
     const variant = product.variants?.find(v => v.id === rule.giftVariantId);
     if ((product.variants?.length && !variant) || (!product.variants?.length && rule.giftVariantId !== null) || variant?.comingSoon) return false;
     const stock = variant ? variant.stock : product.stock;
@@ -89,7 +92,7 @@ export function validateGiftLines(rules: EquipmentGiftRule[], lines: GiftCartLin
   for (const line of lines.filter(isFreeGift)) {
     const id = giftOfferId(line), rule = eligible.get(id);
     if (!rule || seen.has(id) || line.slug !== rule.giftSlug || (line.variantId ?? null) !== rule.giftVariantId || line.quantity !== rule.giftQuantity) {
-      throw new Error("A free equipment offer has changed, no longer qualifies or is out of stock. Please refresh and review your cart.");
+      throw new Error("A free item offer has changed, no longer qualifies or is out of stock. Please refresh and review your cart.");
     }
     seen.add(id);
   }
@@ -99,11 +102,24 @@ export function validateGiftCatalogue(rules: EquipmentGiftRule[], lookup: (slug:
   for (const rule of rules) {
     if (!rule.enabled) continue; // Retired/deleted choices can always be switched off.
     const gift = lookup(rule.giftSlug);
-    if (!gift || gift.catalogueSection !== "equipment") throw new Error("Free gifts must be saved Equipment products.");
-    if (gift.variants?.length ? !gift.variants.some(v => v.id === rule.giftVariantId) : rule.giftVariantId !== null) throw new Error("Choose a saved equipment option, then save the offer.");
+    if (!gift || !isGiftCatalogueSection(gift.catalogueSection)) throw new Error("Free gifts must be saved Range, Pens or Equipment products.");
+    if (gift.variants?.length ? !gift.variants.some(v => v.id === rule.giftVariantId) : rule.giftVariantId !== null) throw new Error("Choose a saved product option, then save the offer.");
     for (const t of rule.targets) {
       const product = lookup(t.slug);
       if (!product || (t.variantId !== null && !product.variants?.some(v => v.id === t.variantId))) throw new Error("A qualifying product or option no longer exists. Update the selection.");
     }
   }
+}
+
+
+/** Primary catalogue sections are authoritative for gifts and discounts. */
+export function isGiftCatalogueSection(value: unknown) {
+  return value === "range" || value === "pens" || value === "equipment";
+}
+export function paidRangeEligible(line: { freeGift?: boolean }, section: unknown) {
+  return line.freeGift !== true && section === "range";
+}
+export function giftOfferSubtext(rule: EquipmentGiftRule): string {
+  if (rule.subtext !== undefined) return rule.subtext;
+  return `${rule.membersOnly ? "Members · " : ""}Buy ${rule.minimumQuantity} qualifying item${rule.minimumQuantity === 1 ? "" : "s"} · ${rule.giftQuantity} free per order · while stocks last`;
 }

@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { EQUIPMENT_GIFTS_KEY, parseEquipmentGiftOffers, validateEquipmentGiftOffers, validateGiftCatalogue, type EquipmentGiftRule } from "./equipment-gifts";
+import { EQUIPMENT_GIFTS_KEY, isGiftCatalogueSection, parseEquipmentGiftOffers, validateEquipmentGiftOffers, validateGiftCatalogue, type EquipmentGiftRule } from "./equipment-gifts";
 
 async function requireAdmin(context: any) {
   const { data, error } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
@@ -26,7 +26,7 @@ export const adminSaveEquipmentGifts = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
     const incoming = validateEquipmentGiftOffers(data.rules);
-    if (!data.productSlug || incoming.some(rule => rule.giftSlug !== data.productSlug)) throw new Error("Save offers for this Equipment product only.");
+    if (!data.productSlug || incoming.some(rule => rule.giftSlug !== data.productSlug)) throw new Error("Save offers for this product only.");
     const current = await readSettings(context.supabase);
     const conflict = "Free gift offers changed while you were editing. Reload offers before saving.";
     if (current.raw !== data.expectedRaw) throw new Error(conflict);
@@ -35,7 +35,7 @@ export const adminSaveEquipmentGifts = createServerFn({ method: "POST" })
       .select("slug, catalogue_section, product_variants").in("slug", slugs);
     if (productError) throw productError;
     const bySlug = new Map((products ?? []).map((p: any) => [p.slug, { slug: p.slug, catalogueSection: p.catalogue_section, variants: p.product_variants ?? [] }]));
-    if ((bySlug.get(data.productSlug) as any)?.catalogueSection !== "equipment") throw new Error("Save this product in Equipment before setting up free gifts.");
+    if (!isGiftCatalogueSection((bySlug.get(data.productSlug) as any)?.catalogueSection)) throw new Error("Save this product in Range, Pens or Equipment before setting up free gifts.");
     validateGiftCatalogue(incoming, slug => bySlug.get(slug) as any);
     const rules = validateEquipmentGiftOffers([...current.rules.filter(rule => rule.giftSlug !== data.productSlug), ...incoming]);
     const body = JSON.stringify(rules);
@@ -51,3 +51,4 @@ export const adminSaveEquipmentGifts = createServerFn({ method: "POST" })
     }
     return { raw: body, rules };
   });
+

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { DEFAULT_STORAGE_RULE, eligibleGiftRules, matchesGiftTarget, parseEquipmentGiftOffers, validateEquipmentGiftOffers, validateGiftCatalogue, validateGiftLines, type EquipmentGiftRule, type GiftProduct } from "../src/lib/equipment-gifts.ts";
+import { DEFAULT_STORAGE_RULE, giftOfferSubtext, paidRangeEligible, eligibleGiftRules, matchesGiftTarget, parseEquipmentGiftOffers, validateEquipmentGiftOffers, validateGiftCatalogue, validateGiftLines, type EquipmentGiftRule, type GiftProduct } from "../src/lib/equipment-gifts.ts";
 const products: GiftProduct[] = [
   { slug: "vial-a", catalogueSection: "range", stock: 20, variants: [{ id: "10mg", stock: 20 }, { id: "20mg", stock: 20 }] },
   { slug: "vial-b", catalogueSection: "range", stock: 20 },
@@ -71,7 +71,37 @@ test("Admin rejects invalid settings, duplicate gift options and unsaved catalog
   validateGiftCatalogue(validateEquipmentGiftOffers([rule]), lookup);
   for (const bad of [{ ...rule, minimumQuantity: 0 }, { ...rule, giftQuantity: 100 }, { ...rule, sections: ["made-up"] }, { ...rule, sections: [], targets: [] }]) assert.throws(() => validateEquipmentGiftOffers([bad]));
   assert.throws(() => validateEquipmentGiftOffers([rule, { ...rule, id: "another" }]));
-  assert.throws(() => validateGiftCatalogue([{ ...rule, giftSlug: "pen" }], lookup));
+  validateGiftCatalogue([{ ...rule, giftSlug: "pen", giftVariantId: "blue" }], lookup);
+  assert.throws(() => validateGiftCatalogue([{ ...rule, giftSlug: "missing" }], lookup));
   assert.throws(() => validateGiftCatalogue([{ ...rule, targets: [{ slug: "pen", variantId: "missing" }] }], lookup));
   validateGiftCatalogue([{ ...rule, enabled: false, targets: [{ slug: "deleted", variantId: null }] }], lookup);
+});
+
+
+test("Range, Pens and Equipment can each be gifted with any other section", () => {
+  for (const gift of [{slug:"vial-a",variantId:"10mg"},{slug:"pen",variantId:"purple"},{slug:"case",variantId:null}]) {
+    for (const section of ["range","pens","equipment"] as const) {
+      const offer = {...rule, giftSlug:gift.slug, giftVariantId:gift.variantId, minimumQuantity:1, giftQuantity:1, sections:[section], targets:[]};
+      validateGiftCatalogue([offer],lookup);
+      const paid = section === "range" ? {slug:"vial-b",quantity:1} : section === "pens" ? {slug:"pen",variantId:"blue",quantity:1} : {slug:"wipe",quantity:1};
+      validateGiftLines([offer],[paid,{slug:gift.slug,variantId:gift.variantId,quantity:1,freeGift:true,giftOfferId:offer.id}],false,lookup);
+    }
+  }
+});
+test("headline and subtext round trip independently; blank hides while legacy keeps automatic terms", () => {
+  const custom = {...rule,message:"Your custom headline",subtext:"Your own small print\nSecond line"};
+  const [saved] = validateEquipmentGiftOffers([custom]);
+  assert.equal(saved!.message,custom.message);assert.equal(giftOfferSubtext(saved!),custom.subtext);
+  assert.equal(giftOfferSubtext(validateEquipmentGiftOffers([{...rule,subtext:""}])[0]!),"");
+  assert.match(giftOfferSubtext(rule),/Buy 2 qualifying items/);
+  assert.match(giftOfferSubtext(DEFAULT_STORAGE_RULE),/^Members/);
+  assert.throws(()=>validateEquipmentGiftOffers([{...rule,subtext:"x".repeat(601)}]),/subtext/);
+  assert.throws(()=>validateEquipmentGiftOffers([{...rule,subtext:null}]),/subtext/);
+});
+test("a free Range item never increases paid Range discount eligibility",()=>{
+  assert.equal(paidRangeEligible({freeGift:true},"range"),false);
+  assert.equal(paidRangeEligible({freeGift:false},"range"),true);
+  assert.equal(paidRangeEligible({},"range"),true);
+  assert.equal(paidRangeEligible({},"equipment"),false);
+  assert.equal(paidRangeEligible({},"pens"),false);
 });
