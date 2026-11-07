@@ -53,12 +53,20 @@ test('stale or racing writes cannot overwrite another save',async()=>{
  f=fixture(raw);f.db.change();
  await assert.rejects(()=>functions.adminSaveEquipmentGifts({context:f.context,data:{productSlug:'wipe',rules:[rule],expectedRaw:raw}}),/changed/);assert.equal(f.db.raw,'[]');
 });
-test('an equipment editor cannot modify another equipment product offer',async()=>{
+test('an equipment editor cannot modify another product offer',async()=>{
  const f=fixture();
- await assert.rejects(()=>functions.adminSaveEquipmentGifts({context:f.context,data:{productSlug:'wipe',rules:[helpers.DEFAULT_STORAGE_RULE],expectedRaw:null}}),/this Equipment/);
+ await assert.rejects(()=>functions.adminSaveEquipmentGifts({context:f.context,data:{productSlug:'wipe',rules:[helpers.DEFAULT_STORAGE_RULE],expectedRaw:null}}),/this product/);
  assert.equal(f.db.raw,null);
 });
 test('unknown target options are rejected and nothing is saved',async()=>{
  const f=fixture();
  await assert.rejects(()=>functions.adminSaveEquipmentGifts({context:f.context,data:{productSlug:'wipe',rules:[{...rule,targets:[{slug:'pen',variantId:'missing'}]}],expectedRaw:null}}),/no longer exists/);assert.equal(f.db.raw,null);
+});
+
+
+test('Pens gifts and custom headline/subtext are saved without changing eligibility',async()=>{
+ const f=fixture();
+ const penRule={...rule,id:'pen-gift',giftSlug:'pen',giftVariantId:'blue',message:'Your headline',subtext:'Your own small print\nMore details',targets:[{slug:'wipe',variantId:null}]};
+ const result=await functions.adminSaveEquipmentGifts({context:f.context,data:{productSlug:'pen',rules:[penRule],expectedRaw:null}});
+ const saved=result.rules.find(r=>r.id==='pen-gift');assert.equal(saved.subtext,penRule.subtext);assert.equal(saved.message,penRule.message);assert.equal(saved.minimumQuantity,penRule.minimumQuantity);
 });

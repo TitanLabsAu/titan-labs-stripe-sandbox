@@ -6,7 +6,8 @@ const raw=readFileSync('src/lib/checkout-pricing.server.ts','utf8');
 const code=stripTypeScriptTypes(raw).replace(/^import[\s\S]*?from\s+["'][^"']+["'];\s*/gm,'').replace(/export /g,'');
 const settings={programEnabled:false,firstOffer:{enabled:false,percent:0},combinedCapPercent:40};
 let rules = [gift.DEFAULT_STORAGE_RULE];
-const deps={...gift,readEquipmentGiftOffers:async()=>rules,readWebsitePromotion:async()=>({}),websiteSalePrice:(_list,current)=>current,promotedPrice:(price)=>price,effectiveStock:(_p,stock)=>stock,bundleSummary:()=>'',sanitizeBundle:()=>[],packLabel:(label)=>label,sanitizePackSize:()=>1,settingsFromRow:()=>settings,quoteOrder:({lines})=>({itemsCents:lines.reduce((n,l)=>n+l.unitCents*l.quantity,0)}),sanitizeClub:()=>null,clubLabel:()=>'',fromCents:(n)=>n/100};
+let lastPriceLines=[];
+const deps={...gift,readEquipmentGiftOffers:async()=>rules,readWebsitePromotion:async()=>({}),websiteSalePrice:(_list,current)=>current,promotedPrice:(price)=>price,effectiveStock:(_p,stock)=>stock,bundleSummary:()=>'',sanitizeBundle:()=>[],packLabel:(label)=>label,sanitizePackSize:()=>1,settingsFromRow:()=>settings,quoteOrder:({lines})=>{lastPriceLines=lines;return {itemsCents:lines.reduce((n,l)=>n+l.unitCents*l.quantity,0)}},sanitizeClub:()=>null,clubLabel:()=>'',fromCents:(n)=>n/100};
 const {priceCheckout}=new Function(...Object.keys(deps),code+'\nreturn {priceCheckout};')(...Object.values(deps));
 const product={id:'storage',slug:gift.DEFAULT_STORAGE_RULE.giftSlug,name:'Storage',catalogue_section:'equipment',price:20,stock_quantity:40,product_variants:[{id:'2x3ml',label:'2 × 3ml',price:20,stock:20},{id:'4x3ml',label:'4 × 3ml',price:35,stock:20}]};
 const rows=[product,{id:'a',slug:'a',name:'A',catalogue_section:'range',price:100,stock_quantity:20},{id:'b',slug:'b',name:'B',catalogue_section:'range',price:100,stock_quantity:20},{id:'pen',slug:'pen',name:'Pen',catalogue_section:'pens',price:40,stock_quantity:20}];
@@ -38,3 +39,10 @@ await assert.rejects(()=>quote([{slug:'pen',quantity:1}, {...customGift,giftOffe
 rules = [{...rules[0],enabled:false}];
 await assert.rejects(()=>quote([{slug:'pen',quantity:1}, customGift]));
 console.log('Configurable offer server tests passed: guest offers, arbitrary Pens pairing, exact gift option and quantities, stale/disabled offers.');
+
+
+rules = [{...gift.DEFAULT_STORAGE_RULE,id:'free-vial',giftSlug:'a',giftVariantId:null,membersOnly:false,minimumQuantity:1,giftQuantity:1,sections:[],targets:[{slug:'pen',variantId:null}]}];
+result=await quote([{slug:'pen',quantity:1},{slug:'a',quantity:3},{slug:'a',quantity:1,freeGift:true,giftOfferId:'free-vial'}]);
+assert.equal(result.lines[2].unit_price,0);assert.equal(lastPriceLines[2].multibuyEligible,false);assert.equal(lastPriceLines[1].multibuyEligible,true);assert.equal(lastPriceLines.filter(l=>l.multibuyEligible).reduce((n,l)=>n+l.quantity,0),3);
+assert.equal(result.quote.itemsCents,34000);
+console.log('Range gift pricing passed: free vial is $0 and does not inflate Titan Stack paid quantities.');

@@ -1,4 +1,4 @@
-import { EQUIPMENT_GIFTS_KEY, matchesGiftTarget, parseEquipmentGiftOffers } from "@/lib/equipment-gifts";
+import { EQUIPMENT_GIFTS_KEY, giftOfferSubtext, isGiftCatalogueSection, matchesGiftTarget, parseEquipmentGiftOffers } from "@/lib/equipment-gifts";
 import { useProducts, useSiteContent } from "@/lib/useCatalog";
 import type { Product } from "@/lib/products";
 export function EquipmentGiftNotice({ product, variantId }: { product: Product; variantId: string | null }) {
@@ -12,15 +12,17 @@ export function EquipmentGiftNotice({ product, variantId }: { product: Product; 
   return <div className="mt-2 space-y-2">{rules.map(rule => {
     const gift = rule.giftSlug === product.slug ? product : getProduct(rule.giftSlug);
     const variant = gift?.variants?.find(v => v.id === rule.giftVariantId);
-    if (!gift || gift.catalogueSection !== "equipment" || gift.comingSoon || variant?.comingSoon ||
+    if (!gift || !isGiftCatalogueSection(gift.catalogueSection) || gift.comingSoon || variant?.comingSoon ||
       (gift.variants?.length && !variant) || (!gift.variants?.length && rule.giftVariantId !== null)) return null;
     const stock = variant ? variant.stock : gift.stock;
     if (stock != null && stock < rule.giftQuantity) return null;
+    const subtext = giftOfferSubtext(rule);
     const ownGift = rule.giftSlug === product.slug && rule.giftVariantId === variantId;
     return <p key={rule.id} className="text-sm font-semibold text-accent">
       {!ownGift ? <span className="block">Free: {rule.giftQuantity} × {gift.name}{variant ? ` — ${variant.label}` : ""}</span> : null}
-      {rule.message || "Free equipment with a qualifying purchase"}
-      <span className="mt-1 block text-xs font-normal text-muted-foreground">{rule.membersOnly ? "Members · " : ""}Buy {rule.minimumQuantity} qualifying item{rule.minimumQuantity === 1 ? "" : "s"} · {rule.giftQuantity} free per order · while stocks last</span>
+      {rule.message || "Free item with a qualifying purchase"}
+      {subtext ? <span className="mt-1 block whitespace-pre-line break-words text-xs font-normal text-muted-foreground">{subtext}</span> : null}
     </p>;
   })}</div>;
 }
+

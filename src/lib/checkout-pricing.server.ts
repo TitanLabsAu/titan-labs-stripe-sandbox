@@ -15,7 +15,7 @@ import {
   type Quote,
 } from "@/lib/order-pricing";
 
-import { isFreeGift, validateGiftLines, type GiftProduct } from "./equipment-gifts";
+import { isFreeGift, paidRangeEligible, validateGiftLines, type GiftProduct } from "./equipment-gifts";
 import { readEquipmentGiftOffers } from "./equipment-gifts.server";
 
 export type CheckoutItemInput = {
@@ -250,7 +250,7 @@ export async function priceCheckout(
       quantity,
       // Titan Stack eligibility comes only from the stored catalogue section
       // (never client input); anything that is not exactly "range" fails closed.
-      multibuyEligible: product.catalogue_section === "range",
+      multibuyEligible: paidRangeEligible(item, product.catalogue_section),
     });
   }
 
@@ -481,6 +481,7 @@ export async function claimReferralRedemption(
 export async function releaseReferralRedemptionForAttempt(admin: any, paymentAttemptId: string) {
   await admin.rpc("release_referral_redemption_for_attempt", { _payment_attempt_id: paymentAttemptId });
 }
+
 
 
 
