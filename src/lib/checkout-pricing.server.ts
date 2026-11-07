@@ -15,13 +15,15 @@ import {
   type Quote,
 } from "@/lib/order-pricing";
 
-import { isStorageGift, validateStorageGift } from "./storage-gift";
+import { isFreeGift, validateGiftLines, type GiftProduct } from "./equipment-gifts";
+import { readEquipmentGiftOffers } from "./equipment-gifts.server";
 
 export type CheckoutItemInput = {
   slug: string;
   variantId?: string | null;
   pack?: "single" | "kit";
   freeGift?: boolean;
+  giftOfferId?: string | null;
   quantity: number;
 };
 
@@ -156,12 +158,13 @@ export async function priceCheckout(
     creditUnits?: number;
   },
 ): Promise<PricedCheckout> {
-  const items = (input.items ?? []).filter((i) => i && i.slug && i.quantity > 0).slice(0, 50);
+  if ((input.items ?? []).length > 50) throw new Error("Your cart has too many separate items. Please keep it to 50 lines or fewer.");
+  const items = (input.items ?? []).filter((i) => i && i.slug && i.quantity > 0);
   if (items.length === 0) throw new Error("Your order is empty.");
 
   const userId = buyer.userId ?? "";
   const slugs = [...new Set(items.map((i) => String(i.slug)))];
-  const [{ data: products, error: productError }, { data: settingsRow }, websitePromotion] = await Promise.all([
+  const [{ data: products, error: productError }, { data: settingsRow }, websitePromotion, giftRules] = await Promise.all([
     admin
       .from("products")
       .select(
@@ -171,12 +174,20 @@ export async function priceCheckout(
       .eq("active", true),
     admin.from("referral_settings").select("*").eq("id", 1).maybeSingle(),
     readWebsitePromotion(admin),
+    readEquipmentGiftOffers(admin),
   ]);
   if (productError) throw productError;
   const settings = settingsFromRow(settingsRow);
 
   const bySlug = new Map((products ?? []).map((p: any) => [p.slug, p]));
-  validateStorageGift(items, Boolean(buyer.userId), slug => (bySlug.get(slug) as any)?.catalogue_section);
+  const giftProduct = (slug: string): GiftProduct | undefined => {
+    const p: any = bySlug.get(slug);
+    if (!p) return undefined;
+    return { slug: p.slug, catalogueSection: p.catalogue_section, comingSoon: Boolean(p.coming_soon),
+      stock: effectiveStock(p, p.stock_quantity),
+      variants: (Array.isArray(p.product_variants) ? p.product_variants : []).map((v: any) => ({ id: String(v.id), stock: effectiveStock(p, v.stock), comingSoon: Boolean(v.comingSoon) })) };
+  };
+  validateGiftLines(giftRules, items, Boolean(buyer.userId), giftProduct);
   const lines: PricedLine[] = [];
   const priceLines: PriceLine[] = [];
   const requestedStock = new Map<string, number>();
@@ -203,7 +214,7 @@ export async function priceCheckout(
     // The 10x bulk-kit is retired: every line prices as a single item, so a
     // crafted pack:"kit" request simply pays the ordinary single price.
     const regularPrice = websiteSalePrice(variant ? Number(variant.price) : listPrice, singlePrice, product.id, websitePromotion);
-    const unitPrice = isStorageGift(item) ? 0 : regularPrice;
+    const unitPrice = isFreeGift(item) ? 0 : regularPrice;
     const quantity = Math.min(99, Math.max(1, Math.floor(item.quantity)));
     if (!Number.isFinite(regularPrice) || regularPrice <= 0)
       throw new Error("One of the product prices is unavailable.");
@@ -230,7 +241,7 @@ export async function priceCheckout(
       product_name: product.name,
       unit_price: unitPrice,
       quantity,
-      variant_label: isStorageGift(item) ? `${label} · Complimentary member gift` : label,
+      variant_label: isFreeGift(item) ? `${label} · Complimentary gift` : label,
       variant_id: variant ? String(variant.id) : null,
     });
     priceLines.push({
@@ -470,5 +481,6 @@ export async function claimReferralRedemption(
 export async function releaseReferralRedemptionForAttempt(admin: any, paymentAttemptId: string) {
   await admin.rpc("release_referral_redemption_for_attempt", { _payment_attempt_id: paymentAttemptId });
 }
+
 
 

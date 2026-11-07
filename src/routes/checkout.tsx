@@ -220,7 +220,7 @@ export const Route = createFileRoute("/checkout")({
 
 function CheckoutPage() {
   const copy = cmsValues(useSiteContent().data, "checkout_copy");
-  const { items, count, subtotal, getLinePrice, getLineLabel, clear, storageGiftAvailable, storageGiftSelected, setStorageGiftSelected } =
+  const { items, count, subtotal, getLinePrice, getLineLabel, clear, giftChoices, setGiftSelected } =
     useCart();
   const { getProduct } = useProducts();
   const { data: content } = useSiteContent();
@@ -391,7 +391,7 @@ function CheckoutPage() {
     slug: i.slug,
     variantId: i.variantId ?? null,
     pack: i.pack ?? "single",
-    quantity: i.quantity, freeGift: i.freeGift === true,
+    quantity: i.quantity, freeGift: i.freeGift === true, giftOfferId: i.giftOfferId ?? null,
   }));
   const quotePayment: "card" | "payid" | "wise" | "crypto" =
     method === "crypto" ? "crypto" : method === "card" ? "card" : method === "wise" ? "wise" : "payid";
@@ -463,7 +463,7 @@ function CheckoutPage() {
       slug: i.slug,
       variantId: i.variantId ?? null,
       pack: i.pack ?? "single",
-      quantity: i.quantity, freeGift: i.freeGift === true,
+      quantity: i.quantity, freeGift: i.freeGift === true, giftOfferId: i.giftOfferId ?? null,
     })),
     ...pricingExtras(),
   });
@@ -581,7 +581,7 @@ function CheckoutPage() {
             slug: i.slug,
             variantId: i.variantId ?? null,
             pack: i.pack ?? "single",
-            quantity: i.quantity, freeGift: i.freeGift === true,
+            quantity: i.quantity, freeGift: i.freeGift === true, giftOfferId: i.giftOfferId ?? null,
           })),
           ...pricingExtras(),
         },
@@ -963,7 +963,7 @@ function CheckoutPage() {
             <aside className="rounded-xl border border-border bg-card p-6 sm:p-8 lg:col-span-5 lg:sticky lg:top-6">
               <h2 className="technical-label text-foreground">Your order</h2>
               <ul className="mt-5 divide-y divide-border">
-                {storageGiftAvailable ? <li className="py-4"><label className="flex items-center gap-3 text-sm"><input type="checkbox" checked={storageGiftSelected} disabled={Boolean(stripeClientSecret)} onChange={e => setStorageGiftSelected(e.target.checked)} /> Include my free 4 × 3ml peptide storage</label></li> : null}
+                {giftChoices.map(gift => <li key={gift.id} className="py-4"><label className="flex items-center gap-3 text-sm"><input type="checkbox" checked={gift.selected} disabled={Boolean(stripeClientSecret)} onChange={e => setGiftSelected(gift.id, e.target.checked)} /> Include free: {gift.quantity} × {gift.label}</label></li>)}
                 {items.map((item) => {
                   const product = getProduct(item.slug);
                   if (!product) return null;
@@ -1223,6 +1223,7 @@ function CheckoutPage() {
     </div>
   );
 }
+
 
 
 

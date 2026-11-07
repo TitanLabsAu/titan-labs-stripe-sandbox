@@ -8,6 +8,7 @@ export type SubmitOrderItem = {
   variantId?: string | null;
   pack?: "single" | "kit";
   freeGift?: boolean;
+  giftOfferId?: string | null;
   quantity: number;
 };
 
@@ -52,7 +53,8 @@ function clean(value: string | undefined, max: number) {
 export const submitOrder = createServerFn({ method: "POST" })
   .inputValidator((input: SubmitOrderInput) => input)
   .handler(async ({ data }): Promise<SubmittedOrder> => {
-    const items = (data.items ?? []).filter((i) => i.slug && i.quantity > 0).slice(0, 50);
+    if ((data.items ?? []).length > 50) throw new Error("Your cart has too many separate items. Please keep it to 50 lines or fewer.");
+    const items = (data.items ?? []).filter((i) => i.slug && i.quantity > 0);
     if (items.length === 0) throw new Error("Your order is empty.");
 
     const firstName = clean(data.firstName, 80);
@@ -252,4 +254,5 @@ export const saveOrderPaymentReference = createServerFn({ method: "POST" })
     if (error) throw error;
     return { ok: true };
   });
+
 

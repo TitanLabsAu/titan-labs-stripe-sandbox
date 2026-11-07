@@ -7,14 +7,15 @@ import {
   type ProductPack,
   type Product,
 } from "./products";
-import { useProducts } from "./useCatalog";
+import { useProducts, useSiteContent } from "./useCatalog";
 import { linkedLineKeys, repairPairedLines } from "./pen-companion";
 
 import { supabase } from "@/integrations/supabase/client";
-import { STORAGE_SLUG, STORAGE_GIFT_VARIANT, STORAGE_GIFT_KEY, rangeVialCount, isStorageGift } from "./storage-gift";
+import { EQUIPMENT_GIFTS_KEY, DEFAULT_STORAGE_RULE, eligibleGiftRules, isFreeGift, parseEquipmentGiftOffers } from "./equipment-gifts";
 
 export type CartItem = {
   freeGift?: boolean;
+  giftOfferId?: string | null;
   key: string;
   slug: string;
   quantity: number;
@@ -45,9 +46,8 @@ function sanitizeSource(raw: unknown): string | null {
 
 type CartContextValue = {
   items: CartItem[];
-  storageGiftAvailable: boolean;
-  storageGiftSelected: boolean;
-  setStorageGiftSelected: (selected: boolean) => void;
+  giftChoices: { id: string; label: string; quantity: number; selected: boolean }[];
+  setGiftSelected: (id: string, selected: boolean) => void;
   count: number;
   subtotal: number;
   addItem: (slug: string, quantity?: number, option?: CartItemOption) => void;
@@ -134,29 +134,39 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const { getProduct } = useProducts();
   const [memberId, setMemberId] = useState<string | null>(null);
-  const [giftDeclined, setGiftDeclined] = useState(false);
+  const [giftDeclined, setGiftDeclined] = useState<string[]>([]);
+  const { data: giftContent } = useSiteContent();
+  const giftRules = parseEquipmentGiftOffers(giftContent?.[EQUIPMENT_GIFTS_KEY]);
   useEffect(() => {
     let live = true;
     const apply = (id: string | null) => {
       if (!live) return;
       setMemberId(id);
-      try { setGiftDeclined(id ? localStorage.getItem(`titan-storage-gift-declined:${id}`) === "true" : false); } catch { setGiftDeclined(false); }
+      try {
+        const raw = localStorage.getItem(`titan-equipment-gifts-declined:${id || "guest"}`);
+        const declined = raw ? JSON.parse(raw) : [];
+        const ids = Array.isArray(declined) ? declined.filter((v): v is string => typeof v === "string") : [];
+        if (!raw && id && localStorage.getItem(`titan-storage-gift-declined:${id}`) === "true") ids.push(DEFAULT_STORAGE_RULE.id);
+        setGiftDeclined(ids);
+      } catch { setGiftDeclined([]); }
     };
     let authChanged = false;
     supabase.auth.getSession().then(({ data }) => { if (!authChanged) apply(data.session?.user.id ?? null); });
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => { authChanged = true; apply(session?.user.id ?? null); });
     return () => { live = false; listener.subscription.unsubscribe(); };
   }, []);
-  const selectGift = (selected: boolean) => {
-    setGiftDeclined(!selected);
-    try { if (memberId) localStorage.setItem(`titan-storage-gift-declined:${memberId}`, String(!selected)); } catch { /* optional preference */ }
+  const selectGift = (id: string, selected: boolean) => {
+    const next = selected ? giftDeclined.filter(v => v !== id) : [...new Set([...giftDeclined, id])];
+    setGiftDeclined(next);
+    try { localStorage.setItem(`titan-equipment-gifts-declined:${memberId || "guest"}`, JSON.stringify(next)); } catch { /* optional preference */ }
   };
-  const giftProduct = getProduct(STORAGE_SLUG);
-  const giftVariant = giftProduct?.variants?.find(v => v.id === STORAGE_GIFT_VARIANT);
-  const paidStorage = items.filter(i => i.slug === STORAGE_SLUG && i.variantId === STORAGE_GIFT_VARIANT).reduce((n, i) => n + i.quantity, 0);
-  const storageGiftAvailable = Boolean(memberId && rangeVialCount(items, slug => getProduct(slug)?.catalogueSection) >= 4 && giftProduct && !giftProduct.comingSoon && giftVariant && !giftVariant.comingSoon && (giftVariant.stock == null || giftVariant.stock > paidStorage));
-  const storageGiftSelected = storageGiftAvailable && !giftDeclined;
-  const visibleItems: CartItem[] = storageGiftSelected ? [...items, { key: STORAGE_GIFT_KEY, slug: STORAGE_SLUG, variantId: STORAGE_GIFT_VARIANT, quantity: 1, pack: "single", freeGift: true }] : items;
+  const availableGifts = eligibleGiftRules(giftRules, items, Boolean(memberId), getProduct);
+  const giftChoices = availableGifts.map(rule => {
+    const product = getProduct(rule.giftSlug);
+    const variant = product?.variants?.find(v => v.id === rule.giftVariantId);
+    return { id: rule.id, label: `${product?.name || "Equipment"}${variant ? ` — ${variant.label}` : ""}`, quantity: rule.giftQuantity, selected: !giftDeclined.includes(rule.id) };
+  });
+  const visibleItems: CartItem[] = [...items, ...availableGifts.filter(rule => !giftDeclined.includes(rule.id)).map(rule => ({ key: `free-gift:${rule.id}`, slug: rule.giftSlug, variantId: rule.giftVariantId, quantity: rule.giftQuantity, pack: "single" as const, freeGift: true, giftOfferId: rule.id }))];
 
   useEffect(() => {
     try {
@@ -185,24 +195,24 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<CartContextValue>(() => {
     const getLinePrice = (item: CartItem) => {
-      if (isStorageGift(item)) return 0;
+      if (isFreeGift(item)) return 0;
       const product = getProduct(item.slug);
       if (!product) return 0;
       return getProductOption(product, item.variantId ?? null, item.pack ?? "single").unitPrice;
     };
     const getLineLabel = (item: CartItem, product?: Product | null) => {
-      if (isStorageGift(item)) return "4 × 3ml · Complimentary member gift";
       const found = product ?? getProduct(item.slug);
       if (!found) return item.variantLabel ?? "Selected option";
       const base = getProductOption(found, item.variantId ?? null, item.pack ?? "single").label;
       const bundle = bundleSummary(found.variants?.find((v) => v.id === item.variantId)?.contents);
-      return bundle ? `${base} (${bundle})` : base;
+      const label = bundle ? `${base} (${bundle})` : base;
+      return isFreeGift(item) ? `${label} · Complimentary gift` : label;
     };
     const count = visibleItems.reduce((sum, i) => sum + i.quantity, 0);
     const subtotal = visibleItems.reduce((sum, i) => sum + getLinePrice(i) * i.quantity, 0);
     return {
       items: visibleItems,
-      storageGiftAvailable, storageGiftSelected, setStorageGiftSelected: selectGift,
+      giftChoices, setGiftSelected: selectGift,
       count,
       subtotal,
       addItem: (slug, quantity = 1, option) => {
@@ -234,7 +244,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       },
       // A paired V2 pen and its case are linked: quantity and removal apply to both.
       setQuantity: (key, quantity) => {
-        if (key === STORAGE_GIFT_KEY) { if (quantity <= 0) selectGift(false); return; }
+        if (key.startsWith("free-gift:")) { if (quantity <= 0) selectGift(key.slice(10), false); return; }
         setItems((prev) => {
           const keys = linkedLineKeys(prev, key);
           return quantity <= 0
@@ -242,12 +252,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
             : prev.map((i) => (keys.includes(i.key) ? { ...i, quantity: clampQuantity(quantity) } : i));
         });
       },
-      removeItem: (key) => { if (key === STORAGE_GIFT_KEY) { selectGift(false); return; } setItems((prev) => { const keys = linkedLineKeys(prev, key); return prev.filter((i) => !keys.includes(i.key)); }); },
-      clear: () => { setItems([]); selectGift(true); },
+      removeItem: (key) => { if (key.startsWith("free-gift:")) { selectGift(key.slice(10), false); return; } setItems((prev) => { const keys = linkedLineKeys(prev, key); return prev.filter((i) => !keys.includes(i.key)); }); },
+      clear: () => { setItems([]); setGiftDeclined([]); try { localStorage.removeItem(`titan-equipment-gifts-declined:${memberId || "guest"}`); if (memberId) localStorage.removeItem(`titan-storage-gift-declined:${memberId}`); } catch { /* optional preference */ } },
       getLinePrice,
       getLineLabel,
     };
-  }, [items, getProduct, memberId, giftDeclined, storageGiftAvailable]);
+  }, [items, getProduct, memberId, giftDeclined, giftContent]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
@@ -257,4 +267,5 @@ export function useCart() {
   if (!ctx) throw new Error("useCart must be used inside CartProvider");
   return ctx;
 }
+
 

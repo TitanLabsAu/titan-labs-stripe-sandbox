@@ -37,7 +37,7 @@ export function CartSheet({ floating = false, inline = false }: { floating?: boo
   const catalogue = pathname === "/range";
   const copy = cmsValues(useSiteContent().data, "cart_summary");
   const {
-    items, storageGiftAvailable, storageGiftSelected, setStorageGiftSelected,
+    items, giftChoices, setGiftSelected,
     count,
     subtotal,
     addItem,
@@ -74,7 +74,7 @@ export function CartSheet({ floating = false, inline = false }: { floating?: boo
     });
     return () => sub.subscription.unsubscribe();
   }, [queryClient]);
-  const quoteItems = items.map((i) => ({ slug: i.slug, variantId: i.variantId ?? null, pack: i.pack ?? "single", quantity: i.quantity, freeGift: i.freeGift === true }));
+  const quoteItems = items.map((i) => ({ slug: i.slug, variantId: i.variantId ?? null, pack: i.pack ?? "single", quantity: i.quantity, freeGift: i.freeGift === true, giftOfferId: i.giftOfferId ?? null }));
   const memberQuote = useQuery({
     queryKey: ["cart-member-quote", userId, JSON.stringify(quoteItems)],
     queryFn: async () => {
@@ -157,10 +157,10 @@ export function CartSheet({ floating = false, inline = false }: { floating?: boo
                   (after multibuy + crypto percent, matching checkout eligibility). */}
               <FreeShippingMeter remaining={quote.remainingForFreeShippingCents / 100} club={quote.clubFreeShipping === true} />
 
-              {storageGiftAvailable ? <label className="flex items-start gap-3 rounded-xl border border-accent/40 bg-card p-3 text-sm">
-                <input type="checkbox" checked={storageGiftSelected} onChange={e => setStorageGiftSelected(e.target.checked)} className="mt-1" />
-                <span><strong>Free 4 × 3ml peptide storage</strong><span className="block text-xs text-muted-foreground">Included with your four Range vials. Deselect if you do not need it.</span></span>
-              </label> : null}
+              {giftChoices.map(gift => <label key={gift.id} className="flex items-start gap-3 rounded-xl border border-accent/40 bg-card p-3 text-sm">
+                <input type="checkbox" checked={gift.selected} onChange={e => setGiftSelected(gift.id, e.target.checked)} className="mt-1" />
+                <span><strong>Free: {gift.quantity} × {gift.label}</strong><span className="block text-xs text-muted-foreground">Your order qualifies. Deselect if you do not need this gift.</span></span>
+              </label>)}
               <ul className="space-y-4">
                  {items.map((item) => {
                   const product = getProduct(item.slug);
@@ -196,7 +196,7 @@ export function CartSheet({ floating = false, inline = false }: { floating?: boo
                           </Button>
                         </div>
                         <p className="mt-1 text-xs text-muted-foreground">
-                          {item.freeGift ? "FREE · Member gift" : `${formatPrice(linePrice)} each`}
+                          {item.freeGift ? "FREE · Complimentary gift" : `${formatPrice(linePrice)} each`}
                         </p>
                         <div className="mt-2 flex items-center justify-between">
                           {!item.freeGift ? <div className="flex items-center gap-2">
@@ -225,7 +225,7 @@ export function CartSheet({ floating = false, inline = false }: { floating?: boo
                             >
                               <Plus className="h-3 w-3" />
                             </Button>
-                          </div> : <span className="text-xs">1 complimentary container</span>}
+                          </div> : <span className="text-xs">{item.quantity} complimentary item{item.quantity === 1 ? "" : "s"}</span>}
                           <span className="text-sm font-extrabold text-accent">
                             {formatPrice(linePrice * item.quantity)}
                           </span>
@@ -394,6 +394,7 @@ export function CartSheet({ floating = false, inline = false }: { floating?: boo
     </Sheet>
   );
 }
+
 
 
 

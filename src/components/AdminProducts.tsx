@@ -1,3 +1,4 @@
+import { EquipmentFreeGiftEditor } from "./EquipmentFreeGiftEditor";
 import { allowsEquipmentAddOns } from "@/lib/optional-equipment";
 import { ProductThemePhotoEditor } from "./ProductThemePhotoEditor";
 import { ProductInformationEditor } from "./ProductInformationEditor";
@@ -482,6 +483,7 @@ export function ProductEditor({
 
       <WebsiteSaleProductToggle id={draft.id} />
       <ProductInformationEditor key={`information:${draft.id||"new"}`} id={draft.id} defaults={{details:[draft.description, ...draft.details.split("\n")].filter(Boolean).join("\n\n"),included:draft.variants.length === 1 ? (draft.variants[0]?.contents || []).map(it=>`${it.quantity} × ${it.name}`).join("\n") : "",care:draft.protocol,shipping:""}}/>
+      {draft.catalogue_section === "equipment" ? <EquipmentFreeGiftEditor key={`gifts:${draft.id||"new"}`} id={draft.id} slug={draft.slug} /> : null}
       <ProductThemePhotoEditor key={`theme:${draft.id||"new"}`} id={draft.id} slug={draft.slug} image={draft.image_url} variants={draft.variants} upload={uploadImageFile}/>
       {isPenGallery(draft) ? <ProductGalleryEditor key={draft.id||"new"} id={draft.id} variants={draft.variants} upload={uploadImageFile}/> : null}
 
@@ -1403,6 +1405,7 @@ export function AdminProducts() {
     </div>
   );
 }
+
 
 
 
