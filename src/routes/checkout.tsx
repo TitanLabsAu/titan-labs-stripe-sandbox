@@ -87,10 +87,12 @@ function StripePaymentForm({
   onPaid,
   onCancel,
   acknowledged,
+  cartCurrent,
 }: {
   onPaid: (paymentIntentId: string) => void;
   onCancel: () => void;
   acknowledged: boolean;
+  cartCurrent: boolean;
 }) {
   const stripe = useStripe();
   const elements = useElements();
@@ -98,6 +100,7 @@ function StripePaymentForm({
 
   const handlePayment = async () => {
     if (!stripe || !elements || submitting) return;
+    if (!cartCurrent) { toast.error("Your cart changed. Cancel this payment and start again to update your order."); return; }
     if (!acknowledged) {
       toast.error("Please tick the Research Use Acknowledgement to continue.");
       return;
@@ -165,11 +168,12 @@ function StripePaymentForm({
         />
       </div>
 
+      {!cartCurrent ? <p role="alert" className="text-sm text-destructive">Your cart changed. Cancel this payment and start again to update your items and free gift.</p> : null}
       <Button
         type="button"
         size="lg"
         className="w-full font-bold uppercase tracking-wide"
-        disabled={!stripe || !elements || submitting || !acknowledged}
+        disabled={!stripe || !elements || submitting || !acknowledged || !cartCurrent}
         onClick={handlePayment}
       >
         {submitting ? "Processing payment…" : "Pay securely with Stripe"}
@@ -216,7 +220,7 @@ export const Route = createFileRoute("/checkout")({
 
 function CheckoutPage() {
   const copy = cmsValues(useSiteContent().data, "checkout_copy");
-  const { items, count, subtotal, getLinePrice, getLineLabel, clear } =
+  const { items, count, subtotal, getLinePrice, getLineLabel, clear, storageGiftAvailable, storageGiftSelected, setStorageGiftSelected } =
     useCart();
   const { getProduct } = useProducts();
   const { data: content } = useSiteContent();
@@ -236,6 +240,7 @@ function CheckoutPage() {
     staleTime: 60_000,
   });
   const stripePromise = stripeConfig?.ok ? stripePromiseFor(stripeConfig.publishableKey) : null;
+  const [stripeCartKey, setStripeCartKey] = useState<string | null>(null);
   const [stripeIntentId, setStripeIntentId] = useState<string | null>(null);
   const [guestMode, setGuestModeState] = useState(false);
   const [authLost, setAuthLost] = useState(false);
@@ -386,7 +391,7 @@ function CheckoutPage() {
     slug: i.slug,
     variantId: i.variantId ?? null,
     pack: i.pack ?? "single",
-    quantity: i.quantity,
+    quantity: i.quantity, freeGift: i.freeGift === true,
   }));
   const quotePayment: "card" | "payid" | "wise" | "crypto" =
     method === "crypto" ? "crypto" : method === "card" ? "card" : method === "wise" ? "wise" : "payid";
@@ -458,7 +463,7 @@ function CheckoutPage() {
       slug: i.slug,
       variantId: i.variantId ?? null,
       pack: i.pack ?? "single",
-      quantity: i.quantity,
+      quantity: i.quantity, freeGift: i.freeGift === true,
     })),
     ...pricingExtras(),
   });
@@ -531,12 +536,15 @@ function CheckoutPage() {
       if (!mode) throw new Error("Please log in, join, or choose Continue as guest.");
       // Acknowledgement is recorded server side before any payment is initiated.
       const { ackId } = await recordAck({ data: { version: ackVersion, mode } });
-      return createStripePayment({
+      const cartKey = JSON.stringify(quoteItems);
+      const result = await createStripePayment({
         data: { ...cardCheckoutData(ackId), ...(stripeConfig?.ok ? { expectedStripeMode: stripeConfig.mode } : {}) },
       });
+      return { ...result, cartKey };
     },
 
-    onSuccess: ({ clientSecret, paymentIntentId, publishableKey }) => {
+    onSuccess: ({ clientSecret, paymentIntentId, publishableKey, cartKey }) => {
+      setStripeCartKey(cartKey);
       setIntentPublishableKey(publishableKey);
       setStripeClientSecret(clientSecret);
       setStripeIntentId(paymentIntentId);
@@ -573,7 +581,7 @@ function CheckoutPage() {
             slug: i.slug,
             variantId: i.variantId ?? null,
             pack: i.pack ?? "single",
-            quantity: i.quantity,
+            quantity: i.quantity, freeGift: i.freeGift === true,
           })),
           ...pricingExtras(),
         },
@@ -936,6 +944,7 @@ function CheckoutPage() {
                             .finally(() => setCancellingPayment(false));
                         }}
                         acknowledged={acknowledged}
+                        cartCurrent={stripeCartKey === JSON.stringify(quoteItems)}
                       />
                     </Elements>
                   ) : null}
@@ -954,6 +963,7 @@ function CheckoutPage() {
             <aside className="rounded-xl border border-border bg-card p-6 sm:p-8 lg:col-span-5 lg:sticky lg:top-6">
               <h2 className="technical-label text-foreground">Your order</h2>
               <ul className="mt-5 divide-y divide-border">
+                {storageGiftAvailable ? <li className="py-4"><label className="flex items-center gap-3 text-sm"><input type="checkbox" checked={storageGiftSelected} disabled={Boolean(stripeClientSecret)} onChange={e => setStorageGiftSelected(e.target.checked)} /> Include my free 4 × 3ml peptide storage</label></li> : null}
                 {items.map((item) => {
                   const product = getProduct(item.slug);
                   if (!product) return null;
@@ -1213,5 +1223,6 @@ function CheckoutPage() {
     </div>
   );
 }
+
 
 

@@ -37,7 +37,7 @@ export function CartSheet({ floating = false, inline = false }: { floating?: boo
   const catalogue = pathname === "/range";
   const copy = cmsValues(useSiteContent().data, "cart_summary");
   const {
-    items,
+    items, storageGiftAvailable, storageGiftSelected, setStorageGiftSelected,
     count,
     subtotal,
     addItem,
@@ -74,7 +74,7 @@ export function CartSheet({ floating = false, inline = false }: { floating?: boo
     });
     return () => sub.subscription.unsubscribe();
   }, [queryClient]);
-  const quoteItems = items.map((i) => ({ slug: i.slug, variantId: i.variantId ?? null, pack: i.pack ?? "single", quantity: i.quantity }));
+  const quoteItems = items.map((i) => ({ slug: i.slug, variantId: i.variantId ?? null, pack: i.pack ?? "single", quantity: i.quantity, freeGift: i.freeGift === true }));
   const memberQuote = useQuery({
     queryKey: ["cart-member-quote", userId, JSON.stringify(quoteItems)],
     queryFn: async () => {
@@ -157,6 +157,10 @@ export function CartSheet({ floating = false, inline = false }: { floating?: boo
                   (after multibuy + crypto percent, matching checkout eligibility). */}
               <FreeShippingMeter remaining={quote.remainingForFreeShippingCents / 100} club={quote.clubFreeShipping === true} />
 
+              {storageGiftAvailable ? <label className="flex items-start gap-3 rounded-xl border border-accent/40 bg-card p-3 text-sm">
+                <input type="checkbox" checked={storageGiftSelected} onChange={e => setStorageGiftSelected(e.target.checked)} className="mt-1" />
+                <span><strong>Free 4 × 3ml peptide storage</strong><span className="block text-xs text-muted-foreground">Included with your four Range vials. Deselect if you do not need it.</span></span>
+              </label> : null}
               <ul className="space-y-4">
                  {items.map((item) => {
                   const product = getProduct(item.slug);
@@ -192,10 +196,10 @@ export function CartSheet({ floating = false, inline = false }: { floating?: boo
                           </Button>
                         </div>
                         <p className="mt-1 text-xs text-muted-foreground">
-                          {formatPrice(linePrice)} each
+                          {item.freeGift ? "FREE · Member gift" : `${formatPrice(linePrice)} each`}
                         </p>
                         <div className="mt-2 flex items-center justify-between">
-                          <div className="flex items-center gap-2">
+                          {!item.freeGift ? <div className="flex items-center gap-2">
                             <Button
                               variant="outline"
                               size="icon"
@@ -221,7 +225,7 @@ export function CartSheet({ floating = false, inline = false }: { floating?: boo
                             >
                               <Plus className="h-3 w-3" />
                             </Button>
-                          </div>
+                          </div> : <span className="text-xs">1 complimentary container</span>}
                           <span className="text-sm font-extrabold text-accent">
                             {formatPrice(linePrice * item.quantity)}
                           </span>
@@ -390,5 +394,6 @@ export function CartSheet({ floating = false, inline = false }: { floating?: boo
     </Sheet>
   );
 }
+
 
 
