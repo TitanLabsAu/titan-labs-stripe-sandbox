@@ -53,3 +53,6 @@
 - Standalone Equipment `titan-v2-reusable-pen` can offer real Equipment add-ons (default Travel Case when enabled); explicit empty offers and disabled defaults remain authoritative. Photo colour tiles reuse saved Blue/Purple variant photos, SKU stock and prices.
 
 - Homepage announcements use `cms:home_announcements` through the shared Admin > Storefront content > Homepage editor (CAS saves, ordered topics, optional links, visibility and speed). The standalone homepage first-offer block is retired, while membership/checkout offer settings stay independent. Shared header is one compact row with individual tabs at every width; narrow screens use labelled icons and a title sized to its available space, without a hamburger menu.
+
+- Free equipment offers: `equipment_free_gifts` site-content rules are edited per saved Equipment option, admin-only with raw-body CAS. Exact product/options or primary catalogue sections qualify by paid quantity; free lines never qualify other gifts. One configured gift quantity per offer/order, removable by customers. Every server checkout validates the rule ID, current member eligibility, exact SKU and paid-plus-free stock. Missing settings retain the original four-Range-vial storage offer; an explicit empty/disabled configuration overrides it.
+

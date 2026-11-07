@@ -1,18 +1,19 @@
 import { readFileSync } from 'node:fs';
 import { stripTypeScriptTypes } from 'node:module';
 import assert from 'node:assert/strict';
-import * as gift from '../src/lib/storage-gift.ts';
+import * as gift from '../src/lib/equipment-gifts.ts';
 const raw=readFileSync('src/lib/checkout-pricing.server.ts','utf8');
 const code=stripTypeScriptTypes(raw).replace(/^import[\s\S]*?from\s+["'][^"']+["'];\s*/gm,'').replace(/export /g,'');
 const settings={programEnabled:false,firstOffer:{enabled:false,percent:0},combinedCapPercent:40};
-const deps={...gift,readWebsitePromotion:async()=>({}),websiteSalePrice:(_list,current)=>current,promotedPrice:(price)=>price,effectiveStock:(_p,stock)=>stock,bundleSummary:()=>'',sanitizeBundle:()=>[],packLabel:(label)=>label,sanitizePackSize:()=>1,settingsFromRow:()=>settings,quoteOrder:({lines})=>({itemsCents:lines.reduce((n,l)=>n+l.unitCents*l.quantity,0)}),sanitizeClub:()=>null,clubLabel:()=>'',fromCents:(n)=>n/100};
+let rules = [gift.DEFAULT_STORAGE_RULE];
+const deps={...gift,readEquipmentGiftOffers:async()=>rules,readWebsitePromotion:async()=>({}),websiteSalePrice:(_list,current)=>current,promotedPrice:(price)=>price,effectiveStock:(_p,stock)=>stock,bundleSummary:()=>'',sanitizeBundle:()=>[],packLabel:(label)=>label,sanitizePackSize:()=>1,settingsFromRow:()=>settings,quoteOrder:({lines})=>({itemsCents:lines.reduce((n,l)=>n+l.unitCents*l.quantity,0)}),sanitizeClub:()=>null,clubLabel:()=>'',fromCents:(n)=>n/100};
 const {priceCheckout}=new Function(...Object.keys(deps),code+'\nreturn {priceCheckout};')(...Object.values(deps));
-const product={id:'storage',slug:gift.STORAGE_SLUG,name:'Storage',catalogue_section:'equipment',price:20,stock_quantity:40,product_variants:[{id:'2x3ml',label:'2 × 3ml',price:20,stock:20},{id:'4x3ml',label:'4 × 3ml',price:35,stock:20}]};
+const product={id:'storage',slug:gift.DEFAULT_STORAGE_RULE.giftSlug,name:'Storage',catalogue_section:'equipment',price:20,stock_quantity:40,product_variants:[{id:'2x3ml',label:'2 × 3ml',price:20,stock:20},{id:'4x3ml',label:'4 × 3ml',price:35,stock:20}]};
 const rows=[product,{id:'a',slug:'a',name:'A',catalogue_section:'range',price:100,stock_quantity:20},{id:'b',slug:'b',name:'B',catalogue_section:'range',price:100,stock_quantity:20},{id:'pen',slug:'pen',name:'Pen',catalogue_section:'pens',price:40,stock_quantity:20}];
 const admin={from(table){const q={select(){return q},in(){return q},eq(){return q},maybeSingle:async()=>({data:null}),then(resolve){return Promise.resolve({data:table==='products'?rows:null}).then(resolve)}};return q},rpc:async()=>({data:0})};
 const buyer={userId:'member',emails:[],emailVerified:false};
 const paid=[{slug:'a',quantity:2},{slug:'b',quantity:2}];
-const free={slug:gift.STORAGE_SLUG,variantId:'4x3ml',quantity:1,freeGift:true};
+const free={slug:gift.DEFAULT_STORAGE_RULE.giftSlug,variantId:'4x3ml',quantity:1,freeGift:true};
 const quote=(items,b=buyer)=>priceCheckout(admin,b,{items,shippingMethod:'express',paymentMethod:'payid'});
 let result=await quote([...paid,free]);assert.equal(result.lines.at(-1).unit_price,0);assert.equal(result.lines.at(-1).variant_id,'4x3ml');assert.match(result.lines.at(-1).variant_label,/Complimentary/);assert.equal(result.quote.itemsCents,40000);
 result=await quote([...paid,{...free,freeGift:false},free]);assert.equal(result.lines.at(-2).unit_price,35);assert.equal(result.lines.at(-1).unit_price,0);assert.equal(result.quote.itemsCents,43500);
@@ -26,3 +27,14 @@ await assert.rejects(()=>quote([...paid,{...free,freeGift:false,quantity:20},fre
 product.product_variants[1].stock=0;
 await assert.rejects(()=>quote([...paid,free]),/stock/);
 console.log('Server pricing passed: free line snapshot, mixed SKUs, paid-plus-free separation, opt-out, member enforcement, tampering, stock aggregation and sold-out checks.');
+
+product.product_variants[1].stock=20;
+rules = [{ ...gift.DEFAULT_STORAGE_RULE, id: 'free-with-pen', giftVariantId: '2x3ml', minimumQuantity: 1, giftQuantity: 2, membersOnly: false, sections: [], targets: [{ slug: 'pen', variantId: null }] }];
+const customGift = {slug: gift.DEFAULT_STORAGE_RULE.giftSlug, variantId:'2x3ml', quantity:2, freeGift:true, giftOfferId:'free-with-pen'};
+result = await quote([{slug:'pen',quantity:1}, customGift], {...buyer,userId:null});
+assert.equal(result.lines[1].unit_price,0);assert.equal(result.lines[1].quantity,2);assert.equal(result.quote.itemsCents,4000);
+await assert.rejects(()=>quote([...paid, customGift]));
+await assert.rejects(()=>quote([{slug:'pen',quantity:1}, {...customGift,giftOfferId:'forged'}]));
+rules = [{...rules[0],enabled:false}];
+await assert.rejects(()=>quote([{slug:'pen',quantity:1}, customGift]));
+console.log('Configurable offer server tests passed: guest offers, arbitrary Pens pairing, exact gift option and quantities, stale/disabled offers.');

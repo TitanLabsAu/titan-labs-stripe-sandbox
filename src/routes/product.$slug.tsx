@@ -1,4 +1,4 @@
-import { STORAGE_SLUG, STORAGE_GIFT_VARIANT, STORAGE_OFFER } from "@/lib/storage-gift";
+import { EquipmentGiftNotice } from "@/components/EquipmentGiftNotice";
 import { productDisplayName, productDisplaySize, relatedProductPresentation } from "@/lib/product-presentation";
 import { productInformation, type ProductInformationEntry } from "@/lib/product-information";
 import { ProductGallery } from "@/components/ProductGallery";
@@ -258,7 +258,7 @@ function ProductPageBody() {
                 {subDescriptionFor(product) ? `${subDescriptionFor(product)} · ` : ""}{formatPrice(singleOption.unitPrice)}
               </p>
 
-        {product.slug === STORAGE_SLUG && variantId === STORAGE_GIFT_VARIANT ? <p className="mt-2 text-sm font-semibold text-accent">{STORAGE_OFFER}<span className="mt-1 block text-xs font-normal text-muted-foreground">Members · one per order · while stocks last</span></p> : null}
+        <EquipmentGiftNotice product={product} variantId={variantId} />
               <PenCompanionOffer key={`pen-${variantId || "base"}`} product={product} variantId={variantId} />
               <StarterKitOffer key={`kit-${variantId || "base"}`} product={product} variantId={variantId}/>
               <label className="mt-6 block text-xs font-bold uppercase tracking-[0.2em] text-accent">
@@ -395,6 +395,7 @@ function ProductPageBody() {
     </div>
   );
 }
+
 
 
 
