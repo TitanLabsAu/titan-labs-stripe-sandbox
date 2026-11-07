@@ -1,5 +1,17 @@
 [
   {
+    "slug": "peptide-vial-storage",
+    "source": "/images/product-theme/storage-4x3ml-dark.webp",
+    "dark": "/images/product-theme/storage-4x3ml-dark.webp",
+    "light": "/images/product-theme/storage-4x3ml-light.webp"
+  },
+  {
+    "slug": "peptide-vial-storage",
+    "source": "/images/product-theme/storage-2x3ml-dark.webp",
+    "dark": "/images/product-theme/storage-2x3ml-dark.webp",
+    "light": "/images/product-theme/storage-2x3ml-light.webp"
+  },
+  {
     "slug": "lipo-b",
     "source": "/images/product-theme/lipo-b-dark.webp",
     "dark": "/images/product-theme/lipo-b-dark.webp",

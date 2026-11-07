@@ -10,7 +10,11 @@ import {
 import { useProducts } from "./useCatalog";
 import { linkedLineKeys, repairPairedLines } from "./pen-companion";
 
+import { supabase } from "@/integrations/supabase/client";
+import { STORAGE_SLUG, STORAGE_GIFT_VARIANT, STORAGE_GIFT_KEY, rangeVialCount, isStorageGift } from "./storage-gift";
+
 export type CartItem = {
+  freeGift?: boolean;
   key: string;
   slug: string;
   quantity: number;
@@ -41,6 +45,9 @@ function sanitizeSource(raw: unknown): string | null {
 
 type CartContextValue = {
   items: CartItem[];
+  storageGiftAvailable: boolean;
+  storageGiftSelected: boolean;
+  setStorageGiftSelected: (selected: boolean) => void;
   count: number;
   subtotal: number;
   addItem: (slug: string, quantity?: number, option?: CartItemOption) => void;
@@ -126,6 +133,30 @@ export function coerceCartItems(
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const { getProduct } = useProducts();
+  const [memberId, setMemberId] = useState<string | null>(null);
+  const [giftDeclined, setGiftDeclined] = useState(false);
+  useEffect(() => {
+    let live = true;
+    const apply = (id: string | null) => {
+      if (!live) return;
+      setMemberId(id);
+      try { setGiftDeclined(id ? localStorage.getItem(`titan-storage-gift-declined:${id}`) === "true" : false); } catch { setGiftDeclined(false); }
+    };
+    let authChanged = false;
+    supabase.auth.getSession().then(({ data }) => { if (!authChanged) apply(data.session?.user.id ?? null); });
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => { authChanged = true; apply(session?.user.id ?? null); });
+    return () => { live = false; listener.subscription.unsubscribe(); };
+  }, []);
+  const selectGift = (selected: boolean) => {
+    setGiftDeclined(!selected);
+    try { if (memberId) localStorage.setItem(`titan-storage-gift-declined:${memberId}`, String(!selected)); } catch { /* optional preference */ }
+  };
+  const giftProduct = getProduct(STORAGE_SLUG);
+  const giftVariant = giftProduct?.variants?.find(v => v.id === STORAGE_GIFT_VARIANT);
+  const paidStorage = items.filter(i => i.slug === STORAGE_SLUG && i.variantId === STORAGE_GIFT_VARIANT).reduce((n, i) => n + i.quantity, 0);
+  const storageGiftAvailable = Boolean(memberId && rangeVialCount(items, slug => getProduct(slug)?.catalogueSection) >= 4 && giftProduct && !giftProduct.comingSoon && giftVariant && !giftVariant.comingSoon && (giftVariant.stock == null || giftVariant.stock > paidStorage));
+  const storageGiftSelected = storageGiftAvailable && !giftDeclined;
+  const visibleItems: CartItem[] = storageGiftSelected ? [...items, { key: STORAGE_GIFT_KEY, slug: STORAGE_SLUG, variantId: STORAGE_GIFT_VARIANT, quantity: 1, pack: "single", freeGift: true }] : items;
 
   useEffect(() => {
     try {
@@ -154,21 +185,24 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<CartContextValue>(() => {
     const getLinePrice = (item: CartItem) => {
+      if (isStorageGift(item)) return 0;
       const product = getProduct(item.slug);
       if (!product) return 0;
       return getProductOption(product, item.variantId ?? null, item.pack ?? "single").unitPrice;
     };
     const getLineLabel = (item: CartItem, product?: Product | null) => {
+      if (isStorageGift(item)) return "4 × 3ml · Complimentary member gift";
       const found = product ?? getProduct(item.slug);
       if (!found) return item.variantLabel ?? "Selected option";
       const base = getProductOption(found, item.variantId ?? null, item.pack ?? "single").label;
       const bundle = bundleSummary(found.variants?.find((v) => v.id === item.variantId)?.contents);
       return bundle ? `${base} (${bundle})` : base;
     };
-    const count = items.reduce((sum, i) => sum + i.quantity, 0);
-    const subtotal = items.reduce((sum, i) => sum + getLinePrice(i) * i.quantity, 0);
+    const count = visibleItems.reduce((sum, i) => sum + i.quantity, 0);
+    const subtotal = visibleItems.reduce((sum, i) => sum + getLinePrice(i) * i.quantity, 0);
     return {
-      items,
+      items: visibleItems,
+      storageGiftAvailable, storageGiftSelected, setStorageGiftSelected: selectGift,
       count,
       subtotal,
       addItem: (slug, quantity = 1, option) => {
@@ -199,19 +233,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
         });
       },
       // A paired V2 pen and its case are linked: quantity and removal apply to both.
-      setQuantity: (key, quantity) =>
+      setQuantity: (key, quantity) => {
+        if (key === STORAGE_GIFT_KEY) { if (quantity <= 0) selectGift(false); return; }
         setItems((prev) => {
           const keys = linkedLineKeys(prev, key);
           return quantity <= 0
             ? prev.filter((i) => !keys.includes(i.key))
             : prev.map((i) => (keys.includes(i.key) ? { ...i, quantity: clampQuantity(quantity) } : i));
-        }),
-      removeItem: (key) => setItems((prev) => { const keys = linkedLineKeys(prev, key); return prev.filter((i) => !keys.includes(i.key)); }),
-      clear: () => setItems([]),
+        });
+      },
+      removeItem: (key) => { if (key === STORAGE_GIFT_KEY) { selectGift(false); return; } setItems((prev) => { const keys = linkedLineKeys(prev, key); return prev.filter((i) => !keys.includes(i.key)); }); },
+      clear: () => { setItems([]); selectGift(true); },
       getLinePrice,
       getLineLabel,
     };
-  }, [items, getProduct]);
+  }, [items, getProduct, memberId, giftDeclined, storageGiftAvailable]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
@@ -221,3 +257,4 @@ export function useCart() {
   if (!ctx) throw new Error("useCart must be used inside CartProvider");
   return ctx;
 }
+

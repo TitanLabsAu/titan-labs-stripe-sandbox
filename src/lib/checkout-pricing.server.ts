@@ -15,10 +15,13 @@ import {
   type Quote,
 } from "@/lib/order-pricing";
 
+import { isStorageGift, validateStorageGift } from "./storage-gift";
+
 export type CheckoutItemInput = {
   slug: string;
   variantId?: string | null;
   pack?: "single" | "kit";
+  freeGift?: boolean;
   quantity: number;
 };
 
@@ -173,6 +176,7 @@ export async function priceCheckout(
   const settings = settingsFromRow(settingsRow);
 
   const bySlug = new Map((products ?? []).map((p: any) => [p.slug, p]));
+  validateStorageGift(items, Boolean(buyer.userId), slug => (bySlug.get(slug) as any)?.catalogue_section);
   const lines: PricedLine[] = [];
   const priceLines: PriceLine[] = [];
   const requestedStock = new Map<string, number>();
@@ -198,9 +202,10 @@ export async function priceCheckout(
     const singlePrice = variant ? promotedPrice(Number(variant.price), variant.salePrice == null ? null : Number(variant.salePrice)) : basePrice;
     // The 10x bulk-kit is retired: every line prices as a single item, so a
     // crafted pack:"kit" request simply pays the ordinary single price.
-    const unitPrice = websiteSalePrice(variant ? Number(variant.price) : listPrice, singlePrice, product.id, websitePromotion);
+    const regularPrice = websiteSalePrice(variant ? Number(variant.price) : listPrice, singlePrice, product.id, websitePromotion);
+    const unitPrice = isStorageGift(item) ? 0 : regularPrice;
     const quantity = Math.min(99, Math.max(1, Math.floor(item.quantity)));
-    if (!Number.isFinite(unitPrice) || unitPrice <= 0)
+    if (!Number.isFinite(regularPrice) || regularPrice <= 0)
       throw new Error("One of the product prices is unavailable.");
     const stockKey = `${product.slug}::${variant?.id ?? "base"}`;
     const units = (requestedStock.get(stockKey) ?? 0) + quantity;
@@ -225,7 +230,7 @@ export async function priceCheckout(
       product_name: product.name,
       unit_price: unitPrice,
       quantity,
-      variant_label: label,
+      variant_label: isStorageGift(item) ? `${label} · Complimentary member gift` : label,
       variant_id: variant ? String(variant.id) : null,
     });
     priceLines.push({
@@ -465,4 +470,5 @@ export async function claimReferralRedemption(
 export async function releaseReferralRedemptionForAttempt(admin: any, paymentAttemptId: string) {
   await admin.rpc("release_referral_redemption_for_attempt", { _payment_attempt_id: paymentAttemptId });
 }
+
 

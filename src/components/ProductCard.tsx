@@ -1,3 +1,4 @@
+import { STORAGE_SLUG, STORAGE_GIFT_VARIANT, STORAGE_OFFER } from "@/lib/storage-gift";
 import { productDisplayName, productDisplaySize } from "@/lib/product-presentation";
 import { productInformation, type ProductInformationEntry } from "@/lib/product-information";
 import { cmsValues } from "@/lib/storefrontContent";
@@ -153,6 +154,7 @@ export function ProductCard({ product: p, aligned = true }: { product: Product; 
         </PromotionSlot>
         <PromotionSlot aligned={aligned} name="pen"><PenCompanionOffer key={variantId || "base"} product={p} variantId={variantId} /></PromotionSlot>
         <PromotionSlot aligned={aligned} name="inclusions">
+        {p.slug === STORAGE_SLUG && variantId === STORAGE_GIFT_VARIANT ? <p className="mt-2 text-sm font-semibold text-accent">{STORAGE_OFFER}<span className="mt-1 block text-xs font-normal text-muted-foreground">Members · one per order · while stocks last</span></p> : null}
         {optionDescription ? <p className="mt-2 whitespace-pre-wrap text-[11px] leading-4 text-muted-foreground">{optionDescription}</p> : null}
         {(() => {
           const items = variants.find((v) => v.id === variantId)?.contents ?? [];
@@ -235,5 +237,6 @@ export function ProductCard({ product: p, aligned = true }: { product: Product; 
     </article>
   );
 }
+
 
 

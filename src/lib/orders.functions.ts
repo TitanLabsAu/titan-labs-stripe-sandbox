@@ -7,6 +7,7 @@ export type SubmitOrderItem = {
   slug: string;
   variantId?: string | null;
   pack?: "single" | "kit";
+  freeGift?: boolean;
   quantity: number;
 };
 
@@ -251,3 +252,4 @@ export const saveOrderPaymentReference = createServerFn({ method: "POST" })
     if (error) throw error;
     return { ok: true };
   });
+
