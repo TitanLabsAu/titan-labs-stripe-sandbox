@@ -65,3 +65,5 @@
 
 
 - Product information panel edits must be awaited by both main Save product buttons before the product mutation can close the editor. A failed panel save keeps entered text and the editor open; standalone panel saves stay available and use the existing CMS conflict guards.
+
+- Hot Product membership is edited only under Website Editor > Home using the add/remove controls; product editors never expose membership flags. Preserve saved flags in product drafts for compatibility; promotion-label inputs are Home-only. Adding a selection must retain the full resolved list, including variant flags not yet in home_featured.

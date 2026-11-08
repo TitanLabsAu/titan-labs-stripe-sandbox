@@ -696,10 +696,10 @@ export function ProductEditor({
               />
             </div>
             <div>
-              <Label>Promotion badge (e.g. Hot product, 20% off)</Label>
+              <Label>Promotion badge (e.g. Special offer)</Label>
               <Input
                 value={draft.promo_label}
-                placeholder="Hot product"
+                placeholder="Special offer"
                 onChange={(e) => set({ promo_label: e.target.value })}
               />
             </div>
@@ -845,15 +845,10 @@ export function ProductEditor({
                         : `${Number(variant.stock) || 0}${draft.catalogue_section === "equipment" ? " packs" : ""} in stock`}
                     {draft.catalogue_section === "equipment" && Number(variant.packSize) > 1 ? ` · each pack = ${Number(variant.packSize)} items, sold and stocked as one pack` : ""}
                   </p>
-                  <div className="grid gap-3 rounded-lg border border-accent/30 bg-background/40 p-3 sm:grid-cols-3">
-                    <label className="flex items-center gap-2 text-sm font-semibold">
-                      <input type="checkbox" checked={Boolean(variant.hotProduct)} aria-label={`Hot product: ${variant.label || "this size"}`}
-                        onChange={(e) => set({ variants: draft.variants.map((v, idx) => ({ ...v, hotProduct: idx === i ? e.target.checked : Boolean(v.hotProduct) })) })} />
-                      Hot product — this size only
-                    </label>
+                  <div className="grid gap-3 rounded-lg border border-accent/30 bg-background/40 p-3 sm:grid-cols-2">
                     <div><Label>Sale price for this size (AUD)</Label><Input type="number" min="0.01" step="0.01" value={variant.salePrice ?? ""} placeholder="No sale" onChange={(e) => setVariant(i, { salePrice: e.target.value })} /></div>
-                    <div><Label>Promotion label for this size</Label><Input value={variant.promoLabel ?? ""} placeholder="e.g. Special offer" onChange={(e) => setVariant(i, { promoLabel: e.target.value })} /></div>
-                    <p className="text-xs text-muted-foreground sm:col-span-3">Applies only to {variant.label || "this size"}. Regular prices and promotions for other sizes stay separate.</p>
+                    {showPromo ? <div><Label>Promotion label for this size</Label><Input value={variant.promoLabel ?? ""} placeholder="e.g. Special offer" onChange={(e) => setVariant(i, { promoLabel: e.target.value })} /></div> : null}
+                    <p className="text-xs text-muted-foreground sm:col-span-2">Applies only to {variant.label || "this size"}. Regular prices and promotions for other sizes stay separate.</p>
                   </div>
                   <div className="rounded-lg border border-border p-3">
                     <Label>Photo for {variant.label || "this option"} (optional)</Label>
