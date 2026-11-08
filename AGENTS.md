@@ -59,3 +59,6 @@
 
 
 - Free-gift offer copy: `message` is the headline; optional `subtext` overrides automatic terms (explicit blank hides the line, missing retains legacy terms). Admin uses plain MarkupTextEditor for subtext; storefront renders escaped text with preserved newlines. Display copy never changes pricing or eligibility. Keep `equipment_free_gifts` as the existing settings key to preserve all saved offers.
+
+
+- Range artwork previews in Admin use the current draft identity, including inactive/new products, rather than depending on the public active catalogue. Saved blend concentrations (including ratios per ml) stay intact on vial labels; selected option strengths remain authoritative.

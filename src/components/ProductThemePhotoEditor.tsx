@@ -1,3 +1,4 @@
+import type { Product } from "@/lib/products";
 import { RangeProductArt } from "./RangeProductArt";
 import { usesRangeArtwork, usesBacWaterArtwork } from "@/lib/range-artwork";
 import { useEffect, useState } from "react";
@@ -23,12 +24,14 @@ export function ProductThemePhotoEditor({
   image,
   variants,
   upload,
+  preview,
 }: {
   id: string | undefined;
   slug: string;
   image: string;
   variants: { id: string; label: string; image?: string }[];
   upload: (file: File) => Promise<string>;
+  preview?: { name: string; catalogueSection: NonNullable<Product["catalogueSection"]>; subDescription: string };
 }) {
   const { data: content } = useSiteContent();
   const qc = useQueryClient();
@@ -40,7 +43,15 @@ export function ProductThemePhotoEditor({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const { products } = useProducts();
-  const product = products.find((item) => item.slug === slug);
+  const savedProduct = products.find((item) => item.slug === slug);
+  // The public catalogue excludes inactive products. Admin previews use the draft
+  // identity so new/inactive Range items get the same artwork as the storefront.
+  const product: Product | undefined = preview ? {
+    slug, name: preview.name, catalogueSection: preview.catalogueSection,
+    subDescription: preview.subDescription, image, alt: preview.name,
+    price: savedProduct?.price ?? 0, blurb: "", details: [],
+    variants: variants.map(v => ({ id: v.id, label: v.label, price: 0, ...(v.image ? { image: v.image } : {}) })),
+  } : savedProduct;
   const usesStorefrontArt = product && (usesRangeArtwork(product) || usesBacWaterArtwork(product));
   const variant = variants.find((v) => v.id === selected);
   const previewVariant = product?.variants?.find((item) => item.id === selected);
@@ -228,3 +239,4 @@ export function ProductThemePhotoEditor({
     </section>
   );
 }
+

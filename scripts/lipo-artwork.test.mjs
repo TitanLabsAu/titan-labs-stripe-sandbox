@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {stripTypeScriptTypes} from 'node:module';
+const source=stripTypeScriptTypes(readFileSync('src/lib/range-artwork.ts','utf8')).replace(/^import[\s\S]*?from\s+["'][^"']+["'];\s*/gm,'').replace(/export /g,'');
+const {rangeLabelDetails}=new Function('productDisplaySize','normalizeCatalogueSection',source+'\nreturn {rangeLabelDetails};')((_p,v)=>v.label,s=>s||'range');
+const lipo={slug:'lipo-b',name:'Lipo-B',subDescription:'25/50/50/1mg/ml'};
+assert.deepEqual(rangeLabelDetails(lipo),{name:'Lipo-B',strength:'25/50/50/1mg/ml'});
+assert.deepEqual(rangeLabelDetails({name:'Lipo-B 25/50/50/1mg/ml'}),{name:'Lipo-B',strength:'25/50/50/1mg/ml'});
+assert.equal(rangeLabelDetails(lipo,{label:'10mg'}).strength,'10mg');
+assert.equal(rangeLabelDetails(lipo,{label:'20/40/50/2mg/ml'}).strength,'20/40/50/2mg/ml');
+assert.equal(rangeLabelDetails({...lipo,subDescription:''}).strength,'');
+assert.equal(rangeLabelDetails({...lipo,subDescription:'custom note without concentration'}).strength,'');
+assert.deepEqual(rangeLabelDetails({name:'BPC-157'}),{name:'BPC-157',strength:''});
+for(const label of ['10mg','10IU','3ml','5mg / 5mg'])assert.equal(rangeLabelDetails({name:'Test'},{label}).strength,label);
+assert.deepEqual(rangeLabelDetails({name:'NAD+ 1000mg'}),{name:'NAD+',strength:'1000mg'});
+console.log('Lipo-B concentration and existing Range label regressions passed.');
