@@ -62,3 +62,6 @@
 
 
 - Range artwork previews in Admin use the current draft identity, including inactive/new products, rather than depending on the public active catalogue. Saved blend concentrations (including ratios per ml) stay intact on vial labels; selected option strengths remain authoritative.
+
+
+- Product information panel edits must be awaited by both main Save product buttons before the product mutation can close the editor. A failed panel save keeps entered text and the editor open; standalone panel saves stay available and use the existing CMS conflict guards.

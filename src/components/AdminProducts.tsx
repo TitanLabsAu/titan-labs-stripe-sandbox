@@ -1,12 +1,12 @@
 import { EquipmentFreeGiftEditor } from "./EquipmentFreeGiftEditor";
 import { allowsEquipmentAddOns } from "@/lib/optional-equipment";
 import { ProductThemePhotoEditor } from "./ProductThemePhotoEditor";
-import { ProductInformationEditor } from "./ProductInformationEditor";
+import { ProductInformationEditor, type ProductInformationEditorHandle } from "./ProductInformationEditor";
 import { isPenGallery } from "@/lib/product-gallery";
 import { ProductGalleryEditor } from "./ProductGalleryEditor";
 import { WebsiteSaleProductToggle } from "@/components/christmas/WebsitePromotionEditor";
 import { HomeCategoryPhotoButton } from "@/components/HomeCategoryPhotoButton";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Trash2, Upload } from "lucide-react";
@@ -364,6 +364,26 @@ export function ProductEditor({
   title?: string;
   showPromo?: boolean;
 }) {
+  const informationRef = useRef<ProductInformationEditorHandle>(null);
+  const [savingPanels, setSavingPanels] = useState(false);
+  const [panelSaveError, setPanelSaveError] = useState("");
+  async function saveProductAndPanels() {
+    if (saving || savingPanels) return;
+    setSavingPanels(true);
+    setPanelSaveError("");
+    try {
+      const panelsSaved = await informationRef.current?.saveIfDirty();
+      if (panelsSaved === false) {
+        setPanelSaveError("Information panels could not be saved. Your edits are still open; check the panel error below and try again.");
+        return;
+      }
+      onSave();
+    } catch (error) {
+      setPanelSaveError(error instanceof Error ? error.message : "Could not save information panels. Your edits are still open.");
+    } finally {
+      setSavingPanels(false);
+    }
+  }
   const [uploading, setUploading] = useState(false);
   const [linkUploading, setLinkUploading] = useState<number | null>(null);
   const [variantUploading, setVariantUploading] = useState<number | null>(null);
@@ -464,10 +484,10 @@ export function ProductEditor({
         <div className="flex gap-3">
           <Button
             className="font-bold uppercase"
-            disabled={saving || uploading || linkUploading !== null || !draft.name.trim() || !draft.image_url.trim()}
-            onClick={onSave}
+            disabled={saving || savingPanels || uploading || linkUploading !== null || !draft.name.trim() || !draft.image_url.trim()}
+            onClick={() => void saveProductAndPanels()}
           >
-            {uploading ? "Uploading" : "Save product"}
+            {saving || savingPanels ? "Saving…" : uploading ? "Uploading" : "Save product"}
           </Button>
           {onCancel ? (
             <Button
@@ -481,8 +501,9 @@ export function ProductEditor({
         </div>
       </div>
 
+      {panelSaveError ? <p role="alert" className="text-sm text-destructive">{panelSaveError}</p> : null}
       <WebsiteSaleProductToggle id={draft.id} />
-      <ProductInformationEditor key={`information:${draft.id||"new"}`} id={draft.id} defaults={{details:[draft.description, ...draft.details.split("\n")].filter(Boolean).join("\n\n"),included:draft.variants.length === 1 ? (draft.variants[0]?.contents || []).map(it=>`${it.quantity} × ${it.name}`).join("\n") : "",care:draft.protocol,shipping:""}}/>
+      <ProductInformationEditor ref={informationRef} disabled={saving || savingPanels} key={`information:${draft.id||"new"}`} id={draft.id} defaults={{details:[draft.description, ...draft.details.split("\n")].filter(Boolean).join("\n\n"),included:draft.variants.length === 1 ? (draft.variants[0]?.contents || []).map(it=>`${it.quantity} × ${it.name}`).join("\n") : "",care:draft.protocol,shipping:""}}/>
       <EquipmentFreeGiftEditor key={`gifts:${draft.id||"new"}`} id={draft.id} slug={draft.slug} />
       <ProductThemePhotoEditor key={`theme:${draft.id||"new"}`} id={draft.id} slug={draft.slug} image={draft.image_url} variants={draft.variants} upload={uploadImageFile} preview={{ name: draft.name, catalogueSection: draft.catalogue_section, subDescription: draft.sub_description }}/>
       {isPenGallery(draft) ? <ProductGalleryEditor key={draft.id||"new"} id={draft.id} variants={draft.variants} upload={uploadImageFile}/> : null}
@@ -1068,10 +1089,10 @@ export function ProductEditor({
       <div className="flex gap-3">
         <Button
           className="font-bold uppercase"
-          disabled={saving || uploading || linkUploading !== null || !draft.name.trim() || !draft.image_url.trim()}
-          onClick={onSave}
+          disabled={saving || savingPanels || uploading || linkUploading !== null || !draft.name.trim() || !draft.image_url.trim()}
+          onClick={() => void saveProductAndPanels()}
         >
-          {uploading ? (
+          {saving || savingPanels ? "Saving…" : uploading ? (
             <>
               <Upload className="mr-2 h-4 w-4" /> Uploading
             </>
@@ -1405,6 +1426,7 @@ export function AdminProducts() {
     </div>
   );
 }
+
 
 
 

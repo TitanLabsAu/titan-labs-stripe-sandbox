@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSiteContent } from "@/lib/useCatalog";
 import { cmsKey, cmsValues } from "@/lib/storefrontContent";
@@ -15,13 +15,16 @@ const fields = [
   ["shipping", "Shipping & returns"],
 ] as const;
 type Values = Omit<ProductInformationEntry, "product">;
-export function ProductInformationEditor({
-  id,
-  defaults,
-}: {
+export type ProductInformationEditorHandle = { saveIfDirty: () => Promise<boolean> };
+export const ProductInformationEditor = forwardRef<ProductInformationEditorHandle, {
   id: string | undefined;
   defaults: Values;
-}) {
+  disabled?: boolean;
+}>(function ProductInformationEditor({
+  id,
+  defaults,
+  disabled = false,
+}, ref) {
   const { data: content } = useSiteContent();
   const qc = useQueryClient();
   const [values, setValues] = useState(defaults);
@@ -29,6 +32,7 @@ export function ProductInformationEditor({
   const [dirty, setDirty] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
+  const [saved, setSaved] = useState(false);
   useEffect(() => {
     if (dirty) return;
     const items = (cmsValues(content, "product_information").items ||
@@ -51,7 +55,7 @@ export function ProductInformationEditor({
     return () => setCmsDirty(key, false);
   }, [id, dirty]);
   async function save() {
-    if (!id) return;
+    if (!id || pending) return false;
     setPending(true);
     setError("");
     try {
@@ -64,7 +68,7 @@ export function ProductInformationEditor({
           ),
         } as ProductInformationEntry,
       ];
-      await adminSaveStorefrontSection({
+      const result = await adminSaveStorefrontSection({
         data: {
           id: "product_information",
           changes: { items },
@@ -73,19 +77,23 @@ export function ProductInformationEditor({
       });
       qc.setQueryData<Record<string, string>>(["site-content"], (old) => ({
         ...old,
-        [cmsKey("product_information")]: JSON.stringify({ items }),
+        [cmsKey("product_information")]: result.raw,
       }));
       setBase(items);
       setDirty(false);
+      setSaved(true);
       await qc.invalidateQueries({ queryKey: ["site-content"] });
+      return true;
     } catch (e) {
       setError(
         e instanceof Error ? e.message : "Could not save product panels.",
       );
+      return false;
     } finally {
       setPending(false);
     }
   }
+  useImperativeHandle(ref, () => ({ saveIfDirty: async () => !dirty || save() }));
   return (
     <section
       className="space-y-4 rounded-xl border border-border p-4"
@@ -98,7 +106,7 @@ export function ProductInformationEditor({
         These are the expandable panels on the product page. A saved blank field
         hides its panel. Documents & certificates use the document links further
         below and are hidden when none are saved. Save the product first before
-        editing these panels; these settings have their own Save button. Saved panel text takes precedence over the original description and care fields below.
+        editing these panels. Save product also saves pending panel changes; the button below saves these panels on their own. Saved panel text takes precedence over the original description and care fields below.
       </p>
       {fields.map(([key, label]) => (
         <div key={key} className="space-y-1">
@@ -109,10 +117,12 @@ export function ProductInformationEditor({
             maxLength={key === "shipping" ? 6000 : 12000}
             value={values[key]}
             placeholder="Leave blank to hide this panel"
-            disabled={!id || pending}
+            disabled={!id || pending || disabled || !content}
             onChange={(e) => {
               setValues((v) => ({ ...v, [key]: e.target.value }));
               setDirty(true);
+              setSaved(false);
+              setError("");
             }}
           />
           <p className="text-xs text-muted-foreground">
@@ -122,6 +132,7 @@ export function ProductInformationEditor({
           </p>
         </div>
       ))}
+      {saved && !dirty ? <p role="status" className="text-sm text-muted-foreground">Information panels saved.</p> : null}
       {error ? (
         <p role="alert" className="text-sm text-destructive">
           {error}
@@ -130,11 +141,11 @@ export function ProductInformationEditor({
       <Button
         type="button"
         variant="outline"
-        disabled={!id || !dirty || pending || !content}
+        disabled={!id || !dirty || pending || disabled || !content}
         onClick={save}
       >
         {pending ? "Saving…" : "Save information panels"}
       </Button>
     </section>
   );
-}
+});
