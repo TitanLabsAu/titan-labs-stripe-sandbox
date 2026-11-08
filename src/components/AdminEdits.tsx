@@ -820,11 +820,11 @@ export function AdminEdits() {
   const removeFeatured = useMutation({
     mutationFn: async (item: { product: NonNullable<typeof products>[number]; selectionKey: string; variantId?: string }) => {
       const slugs = selectionKeys.filter(s => s !== item.selectionKey);
-      await adminSaveContent({ data: { key: "home_featured", body: slugs.join(",") } });
       const d = toDraft(item.product);
       if (item.variantId) d.variants = d.variants.map(v => ({ ...v, hotProduct: v.id === item.variantId ? false : Boolean(v.hotProduct) }));
       else { d.promo_label = /^hot\s*products?$/i.test(d.promo_label.trim()) ? "" : d.promo_label; d.variants = d.variants.map(v => ({ ...v, hotProduct: false })); }
       await adminSaveProduct({ data: draftToPayload(d) as any });
+      await adminSaveContent({ data: { key: "home_featured", body: slugs.join(",") } });
       setFeatured(slugs);
     },
     onSuccess: () => { toast.success("Removed from Hot Products. Sale prices are unchanged."); refreshContent(); refreshProducts(); },
@@ -846,8 +846,7 @@ export function AdminEdits() {
   const addable = choices.filter(p => !selectionKeys.includes(p.selectionKey) && !featured.includes(p.slug));
 
   const setFeaturedAndSave = (slugs: string[]) => {
-    setFeatured(slugs);
-    saveFeatured.mutate(slugs);
+    saveFeatured.mutate(slugs, { onSuccess: () => setFeatured(slugs) });
   };
 
   return (
@@ -1281,19 +1280,20 @@ export function AdminEdits() {
               Hot products on the home page
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Choose an individual size for the front page. Edit its Hot Product flag, sale price and label under Products. Removing a Hot Product does not cancel its sale.
+              Manage Hot Products here only. Select a product or individual size to add it; use Remove to take it off the home page. Use Edit details here for promotion prices and labels. Sale prices remain separate from home-page placement.
             </p>
 
             <div className="mt-4 flex flex-wrap items-center gap-3">
               <select
                 className="h-10 rounded-md border border-input bg-background px-3 text-sm text-foreground"
                 value=""
+                disabled={saveFeatured.isPending || removeFeatured.isPending || saveProduct.isPending}
                 onChange={(e) => {
                   if (e.target.value)
-                    setFeaturedAndSave([...featured, e.target.value]);
+                    setFeaturedAndSave([...selectionKeys, e.target.value]);
                 }}
               >
-                <option value="">Add an individual item…</option>
+                <option value="">Add a Hot Product…</option>
                 {addable.map((p) => (
                   <option key={p.selectionKey} value={p.selectionKey}>
                     {p.displayName}
@@ -1359,7 +1359,7 @@ export function AdminEdits() {
                       <Button
                         variant="outline"
                         className="font-bold uppercase"
-                        disabled={i === 0}
+                        disabled={i === 0 || saveFeatured.isPending || removeFeatured.isPending || saveProduct.isPending}
                         onClick={() => {
                           const next = [...selectionKeys];
                           const j = next.indexOf(p.selectionKey);
@@ -1377,6 +1377,7 @@ export function AdminEdits() {
                       <Button
                         variant="outline"
                         className="font-bold uppercase"
+                        disabled={saveFeatured.isPending || removeFeatured.isPending || saveProduct.isPending}
                         onClick={() => setDraft(toDraft(list.find(item => item.id === p.id)!))}
                       >
                         Edit details
@@ -1384,7 +1385,7 @@ export function AdminEdits() {
                       <Button
                         variant="destructive"
                         className="font-bold uppercase"
-                        disabled={removeFeatured.isPending}
+                        disabled={saveFeatured.isPending || removeFeatured.isPending || saveProduct.isPending}
                         onClick={() => removeFeatured.mutate({ product: list.find(item => item.id === p.id)!, selectionKey: p.selectionKey, ...(p.variantId ? { variantId: p.variantId } : {}) })}
                       >
                         Remove
@@ -1554,4 +1555,5 @@ export function AdminEdits() {
     </div>
   );
 }
+
 
