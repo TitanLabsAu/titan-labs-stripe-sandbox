@@ -323,7 +323,8 @@ function evaluate(
 
   const option = SHIPPING_OPTIONS.find((o) => o.key === input.shippingMethod) ?? SHIPPING_OPTIONS[1]!;
   const threshold = toCents(FREE_SHIPPING_THRESHOLD);
-  const qualifies = afterPct >= threshold;
+  // Qualify only on merchandise payable after every discount and referral reward.
+  const qualifies = merchandiseCents >= threshold;
   const shippingCents = itemsCents <= 0 || qualifies ? 0 : toCents(option.price);
 
   return {
@@ -363,7 +364,7 @@ function evaluate(
     shippingCents,
     freeShippingCents: qualifies && itemsCents > 0 ? toCents(option.price) : 0,
     totalCents: itemsCents <= 0 ? 0 : merchandiseCents + shippingCents,
-    remainingForFreeShippingCents: Math.max(0, threshold - afterPct),
+    remainingForFreeShippingCents: Math.max(0, threshold - merchandiseCents),
     notices,
     codeError,
   };
@@ -587,3 +588,4 @@ export function assertExpectedTotal(expected: unknown, actualCents: number) {
   if (typeof expected !== "number" || !Number.isInteger(expected) || expected !== actualCents)
     throw new Error("Your order summary has been updated (for example, a member benefit changed). Please review the new total and try again.");
 }
+
