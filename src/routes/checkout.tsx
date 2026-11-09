@@ -1,4 +1,4 @@
-import { CatalogueProductImage } from "@/components/RangeProductArt";
+import { CheckoutOrderItems } from "@/components/CheckoutOrderItems";
 import { cmsValues } from "@/lib/storefrontContent";
 import { cancelAndRefreshQuote, isVerifiedQuote } from "@/lib/checkout-quote-refresh";
 import { TitanPageHeading } from "@/components/TitanPageHeading";
@@ -14,7 +14,7 @@ import {
 } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { getStripePublicConfig } from "@/lib/stripe-config.functions";
-import { CheckCircle2, ShoppingBag } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -220,7 +220,7 @@ export const Route = createFileRoute("/checkout")({
 
 function CheckoutPage() {
   const copy = cmsValues(useSiteContent().data, "checkout_copy");
-  const { items, count, subtotal, getLinePrice, getLineLabel, clear, giftChoices, setGiftSelected } =
+  const { items, count, subtotal, getLinePrice, getLineLabel, clear, giftChoices, setGiftSelected, setQuantity, removeItem } =
     useCart();
   const { getProduct } = useProducts();
   const { data: content } = useSiteContent();
@@ -633,6 +633,9 @@ function CheckoutPage() {
       toast.error(error?.message ?? "Could not save that reference."),
   });
 
+  const itemsLocked = Boolean(stripeClientSecret) || startStripeCardPayment.isPending ||
+    verifyStripeCardPayment.isPending || placeOrder.isPending || cancellingPayment;
+
   if (confirmed) {
     return (
       <div className="bg-hero min-h-screen">
@@ -720,6 +723,10 @@ function CheckoutPage() {
     <div className="bg-hero min-h-screen">
       <SiteHeader />
       <main className="page-shell py-8 sm:py-12">
+        <Link to="/range" className="mb-4 inline-flex items-center gap-2 rounded text-sm font-semibold text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          Continue shopping
+        </Link>
         <TitanPageHeading
           as="h1"
           icon={ShoppingBag}
@@ -962,38 +969,18 @@ function CheckoutPage() {
             {/* Right: order breakdown */}
             <aside className="rounded-xl border border-border bg-card p-6 sm:p-8 lg:col-span-5 lg:sticky lg:top-6">
               <h2 className="technical-label text-foreground">Your order</h2>
-              <ul className="mt-5 divide-y divide-border">
-                {giftChoices.map(gift => <li key={gift.id} className="py-4"><label className="flex items-center gap-3 text-sm"><input type="checkbox" checked={gift.selected} disabled={Boolean(stripeClientSecret)} onChange={e => setGiftSelected(gift.id, e.target.checked)} /> Include free: {gift.quantity} × {gift.label}</label></li>)}
-                {items.map((item) => {
-                  const product = getProduct(item.slug);
-                  if (!product) return null;
-                  const linePrice = getLinePrice(item);
-                  const imageVariant = product.variants?.find(v => v.id === item.variantId);
-                  return (
-                    <li key={item.key} className="flex items-center gap-4 py-4">
-                      <CatalogueProductImage
-                        product={product} variant={imageVariant}
-                        alt={product.alt}
-                        className="h-14 w-14 shrink-0 rounded object-cover"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate font-bold uppercase text-foreground">
-                          {product.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {getLineLabel(item, product)}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {item.quantity} × {formatPrice(linePrice)}
-                        </p>
-                      </div>
-                      <span className="shrink-0 font-extrabold text-accent">
-                        {formatPrice(linePrice * item.quantity)}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
+              {stripeClientSecret ? <p className="mt-2 text-xs text-muted-foreground">Cancel the current card payment to edit your items.</p> : null}
+              <CheckoutOrderItems
+                items={items}
+                giftChoices={giftChoices}
+                locked={itemsLocked}
+                getProduct={getProduct}
+                getLinePrice={getLinePrice}
+                getLineLabel={getLineLabel}
+                setQuantity={setQuantity}
+                removeItem={removeItem}
+                setGiftSelected={setGiftSelected}
+              />
 
               <div className="mt-6">
                 <p className="technical-label text-foreground">
@@ -1223,6 +1210,7 @@ function CheckoutPage() {
     </div>
   );
 }
+
 
 
 
