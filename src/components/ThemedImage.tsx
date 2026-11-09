@@ -190,17 +190,26 @@ export function ThemedProductImage({
 /** Exact source-bound pairs also cover uploaded page, guide and branding photos. */
 export function ThemedContentImage({
   src,
+  darkSrc,
+  darkFallbackClassName,
   ...props
-}: Omit<ImgHTMLAttributes<HTMLImageElement>, "src"> & { src: string }) {
+}: Omit<ImgHTMLAttributes<HTMLImageElement>, "src"> & {
+  src: string;
+  darkSrc?: string | null;
+  darkFallbackClassName?: string;
+}) {
   const { data } = useSiteContent();
   const shipped = shippedPhotoPair(src);
-  const dark = shipped?.dark || src;
+  const dark = darkSrc || shipped?.dark || src;
   const light =
     contentLightPhoto(
       src,
       cmsValues(data, "theme_artwork").images as PhotoPair[],
-    ) || shipped?.light;
-  if (!light) return <img {...props} src={src} />;
+    ) || shipped?.light || (darkSrc ? src : null);
+  if (!light || (darkFallbackClassName && light === dark)) {
+    const className = [props.className, darkFallbackClassName].filter(Boolean).join(" ");
+    return <img {...props} src={light || src} className={className || undefined} />;
+  }
   return (
     <>
       <img
