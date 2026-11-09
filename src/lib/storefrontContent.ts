@@ -343,8 +343,8 @@ export const CMS_SECTIONS: CmsSection[] = [
     fields: [
       T("title", "Guide heading", 80), P("intro", "Guide introduction", 400),
       T("kit_title", "Kit contents heading", 80),
-      { key: "kit", label: "Kit contents", type: "list", maxItems: 8, itemFields: [{ key: "label", label: "Item", type: "text", max: 80 }, { key: "body", label: "What it is for", type: "textarea", max: 300 }, { key: "image", label: "Photo URL", type: "url" }] },
-      { key: "steps", label: "Steps", type: "list", maxItems: 12, itemFields: [{ key: "title", label: "Step heading", type: "text", max: 80 }, { key: "body", label: "Step text", type: "textarea", max: 600 }, { key: "image", label: "Step photo URL", type: "url" }] },
+      { key: "kit", label: "Kit contents", type: "list", maxItems: 8, itemFields: [{ key: "label", label: "Item", type: "text", max: 80 }, { key: "body", label: "What it is for", type: "textarea", max: 300 }, { key: "image", label: "Photo URL", type: "url" }, { key: "image_dark", label: "Dark theme photo URL (optional)", type: "url", optional: true }] },
+      { key: "steps", label: "Steps", type: "list", maxItems: 12, itemFields: [{ key: "title", label: "Step heading", type: "text", max: 80 }, { key: "body", label: "Step text", type: "textarea", max: 600 }, { key: "image", label: "Step photo URL", type: "url" }, { key: "image_dark", label: "Dark theme step photo URL (optional)", type: "url", optional: true }] },
       T("tips_title", "Tips heading", 80),
       { key: "tips", label: "Important tips", type: "list", maxItems: 10, itemFields: [{ key: "text", label: "Tip", type: "text", max: 200 }] },
       T("note_title", "Note heading", 80), P("note", "Important note", 600),
@@ -388,8 +388,8 @@ export const CMS_SECTIONS: CmsSection[] = [
     fields: [
       T("title", "Guide heading", 80), P("intro", "Guide introduction", 400),
       T("kit_title", "Kit contents heading", 80),
-      { key: "kit", label: "Kit contents", type: "list", maxItems: 8, itemFields: [{ key: "label", label: "Item", type: "text", max: 80 }, { key: "body", label: "What it is for", type: "textarea", max: 300 }, { key: "image", label: "Photo URL", type: "url" }] },
-      { key: "steps", label: "Steps", type: "list", maxItems: 12, itemFields: [{ key: "title", label: "Step heading", type: "text", max: 80 }, { key: "body", label: "Step text", type: "textarea", max: 600 }, { key: "image", label: "Step photo URL", type: "url" }] },
+      { key: "kit", label: "Kit contents", type: "list", maxItems: 8, itemFields: [{ key: "label", label: "Item", type: "text", max: 80 }, { key: "body", label: "What it is for", type: "textarea", max: 300 }, { key: "image", label: "Photo URL", type: "url" }, { key: "image_dark", label: "Dark theme photo URL (optional)", type: "url", optional: true }] },
+      { key: "steps", label: "Steps", type: "list", maxItems: 12, itemFields: [{ key: "title", label: "Step heading", type: "text", max: 80 }, { key: "body", label: "Step text", type: "textarea", max: 600 }, { key: "image", label: "Step photo URL", type: "url" }, { key: "image_dark", label: "Dark theme step photo URL (optional)", type: "url", optional: true }] },
       T("tips_title", "Tips heading", 80),
       { key: "tips", label: "Important tips", type: "list", maxItems: 10, itemFields: [{ key: "text", label: "Tip", type: "text", max: 200 }] },
       T("note_title", "Remember heading", 80), P("note", "Remember note", 600),

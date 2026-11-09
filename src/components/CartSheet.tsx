@@ -1,5 +1,4 @@
 import { CatalogueProductImage } from "@/components/RangeProductArt";
-import { ThemedProductImage } from "@/components/ThemedImage";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Check, ChevronRight, Minus, Plus, ShoppingCart, Trash2, Wrench } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -267,10 +266,10 @@ export function CartSheet({ floating = false, inline = false }: { floating?: boo
                           key={variant.id}
                           className="grid grid-cols-[2.75rem_minmax(0,1fr)_auto] items-center gap-3 px-3 py-2.5"
                         >
-                          <ThemedProductImage
-                            slug={bacWater.slug}
-                            src={bacWater.image}
-                            alt={bacWater.alt}
+                          <CatalogueProductImage
+                            product={bacWater}
+                            variant={variant}
+                            alt={`${bacWater.name} — ${variant.label}`}
                             className="h-11 w-11 rounded-md border border-border bg-card object-cover"
                           />
                           <div className="min-w-0">
