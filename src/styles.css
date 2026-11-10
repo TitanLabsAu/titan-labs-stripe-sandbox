@@ -1032,16 +1032,13 @@ html.dark .kit-photo-dark-fallback { filter: brightness(.78); }
 .titan-announcement-topic img { width:22px; height:24px; object-fit:contain; flex-shrink:0; }
 .titan-announcement-topic a { text-decoration:none; }
 .titan-announcement-topic a:hover { text-decoration:underline; }
-.titan-announcement-pause { display:grid; place-items:center; width:40px; min-height:38px; flex-shrink:0; background:#00659b; }
-.titan-announcement-pause svg { width:14px; height:14px; }
 .titan-announcements:hover .titan-announcement-track,
-.titan-announcement-window:focus-within .titan-announcement-track,
-.titan-announcements.is-paused .titan-announcement-track { animation-play-state:paused; }
+.titan-announcement-window:focus-within .titan-announcement-track { animation-play-state:paused; }
 @keyframes titan-announcement-scroll { to { transform:translateX(-50%); } }
 @media(prefers-reduced-motion:reduce) {
  .titan-announcement-track { animation:none; }
  .titan-announcement-window { overflow-x:auto; }
- .titan-announcement-group[aria-hidden="true"], .titan-announcement-pause { display:none; }
+ .titan-announcement-group[aria-hidden="true"] { display:none; }
 }
 .titan-home .discovery-copy { padding-bottom:1.5rem; }
 .titan-home > .hot-products-band { padding-top:1.75rem; }
@@ -1074,7 +1071,6 @@ html.dark .kit-photo-dark-fallback { filter: brightness(.78); }
 .titan-membership h2, .titan-home .discovery-welcome h1 { color:var(--foreground); text-shadow:none; }
 .discovery-shipping { color:var(--muted-foreground); }
 .titan-announcements { background:var(--secondary); color:var(--foreground); border-color:var(--accent); }
-.titan-announcement-pause { background:var(--card); }
 .review-band { --review-blue:var(--accent); --review-gold:var(--accent); color:var(--foreground); }
 .light .discovery-category { color:var(--foreground); }
 .light .titan-site-footer { background:var(--background); }
