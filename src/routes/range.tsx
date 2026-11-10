@@ -5,9 +5,10 @@ import { hotVariantIds, withHotSelections } from "@/lib/product-promotions";
 import { SITE_ORIGIN } from "@/lib/seo";
 import { cmsValues } from "@/lib/storefrontContent";
 import { useEffect, useState } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowDownAZ,
+  ChevronRight,
   ArrowDownWideNarrow,
   ArrowUpNarrowWide,
   Search,
@@ -132,15 +133,17 @@ function RangePage() {
   const term = query.toLowerCase();
   const activeCategory = mounted && categoryValid ? category : "All";
   const activeSort = mounted ? sort : "name-asc";
-  const matched = term
+  const suggestions = term
     ? products.filter((p) => p.name.trim().toLowerCase().startsWith(term))
-    : sectionProducts.filter((p) =>
-        activeCategory === "All" || (p.categories ?? []).includes(activeCategory),
-      );
+        .sort((a, b) => a.name.localeCompare(b.name))
+    : [];
+  const matched = sectionProducts.filter((p) =>
+    activeCategory === "All" || (p.categories ?? []).includes(activeCategory),
+  );
   const hotSlugs = new Set(featuredSlugs(content));
   const isHot = (p: typeof matched[number]) => (p.variants ?? []).length ? hotVariantIds(p, [...hotSlugs]).length > 0 : hotSlugs.has(p.slug) || /^hot\s*products?$/i.test(p.promoLabel?.trim() ?? "");
   const visible = [...matched].sort((a, b) => {
-    if (!term && activeSection === "range") {
+    if (activeSection === "range") {
       const priority = Number(isHot(b)) - Number(isHot(a));
       if (priority) return priority;
     }
@@ -156,8 +159,8 @@ function RangePage() {
       <SiteHeader />
 
       <main id="range" className="page-shell pb-32 pt-8 sm:pt-12">
-        <section aria-labelledby="catalogue-banner-heading" className="catalogue-banner relative isolate overflow-hidden rounded-lg border border-primary/35 bg-card p-5 sm:p-7">
-          <ThemedArt tone={false} dark={bannerImage} light={banner.image_light || "/images/titan-banners/catalogue-plain-light.webp"} sizes="(min-width: 1280px) 1200px, 100vw" alt="" priority className="absolute inset-0 -z-20 h-full w-full object-cover object-right" />
+        <section aria-labelledby="catalogue-banner-heading" className={cn("catalogue-banner relative isolate rounded-lg border border-primary/35 bg-card p-5 sm:p-7", term ? "z-10" : "overflow-hidden")}>
+          <ThemedArt tone={false} dark={bannerImage} light={banner.image_light || "/images/titan-banners/catalogue-plain-light.webp"} sizes="(min-width: 1280px) 1200px, 100vw" alt="" priority className="absolute inset-0 -z-20 h-full w-full rounded-[inherit] object-cover object-right" />
           <ChristmasCatalogueWreath />
           <div className="w-fit max-w-full p-4">
             <p className="font-display text-sm font-bold uppercase tracking-[.2em] text-accent">{banner.eyebrow}</p>
@@ -201,17 +204,56 @@ function RangePage() {
                 </div>
                 )}
 
-                  <label className="catalogue-banner-search relative block w-full lg:max-w-sm">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <div
+                  className="catalogue-banner-search relative w-full lg:max-w-sm"
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape" && search) {
+                      e.preventDefault();
+                      e.currentTarget.querySelector("input")?.focus();
+                      setSearch("");
+                    }
+                  }}
+                >
+                  <div className="relative">
+                    <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                       type="search"
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
                       placeholder={banner.search_placeholder}
                       aria-label="Search all product names"
+                      aria-controls={term ? "catalogue-search-results" : undefined}
+                      autoComplete="off"
                       className="h-11 rounded-full border-primary/60 bg-[#030f19]/90 pl-10"
                     />
-                  </label>
+                  </div>
+                  {term && (
+                    <div id="catalogue-search-results" className="absolute inset-x-0 top-full z-20 mt-2 overflow-hidden rounded-xl border border-border bg-card text-foreground shadow-lg">
+                      <div role="status" className="border-b border-border px-4 py-2 text-xs font-semibold text-muted-foreground">
+                        {productsLoading ? "Loading products…" : suggestions.length > 0
+                          ? `${suggestions.length} matching ${suggestions.length === 1 ? "product" : "products"}`
+                          : `No product names start with “${query}”.`}
+                      </div>
+                      {suggestions.length > 0 && (
+                        <ul aria-label="Matching products" className="max-h-60 divide-y divide-border overflow-y-auto overscroll-contain">
+                          {suggestions.map((product) => (
+                            <li key={product.slug}>
+                              <Link
+                                to="/product/$slug"
+                                params={{ slug: product.slug }}
+                                search={{}}
+                                className="flex min-h-11 items-center justify-between gap-3 px-4 py-3 text-sm font-semibold hover:bg-muted focus-visible:bg-muted focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
+                              >
+                                <span className="min-w-0 break-words">{product.name}</span>
+                                <ChevronRight aria-hidden="true" className="h-4 w-4 shrink-0 text-accent" />
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
+                </div>
 
           </div>
         </section>
@@ -276,8 +318,8 @@ function RangePage() {
             return (
               <section key={section} className="py-5">
                 <details className="mb-4 text-sm text-muted-foreground"><summary className="cursor-pointer font-display uppercase tracking-wide text-accent">Filters and sorting</summary>
-                <div className={cn("mt-3 grid gap-3", !term && "lg:grid-cols-[13rem_auto]")}>
-                  {!term && <select
+                <div className="mt-3 grid gap-3 lg:grid-cols-[13rem_auto]">
+                  <select
                     value={activeCategory}
                     onChange={(e) => setCategory(e.target.value)}
                     aria-label="Filter by category"
@@ -289,7 +331,7 @@ function RangePage() {
                         {c}
                       </option>
                     ))}
-                  </select>}
+                  </select>
                   <div className="grid h-11 grid-cols-3 overflow-hidden rounded-xl border border-input bg-card divide-x divide-input">
                     {(
                       [
@@ -330,17 +372,14 @@ function RangePage() {
                 </details>
                 <div className="mt-4">
                   <div>
-                    <p className="technical-label mb-4 text-muted-foreground" role="status">
+                    <p className="technical-label mb-4 text-muted-foreground">
                       {visible.length} {visible.length === 1 ? "product" : "products"}
-                      {term ? ` starting with “${query}” across the Catalogue` : ""}
                     </p>
                     {visible.length === 0 ? (
                       <p className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
                         {products.length === 0
                           ? "No products are available yet — check back soon."
-                          : term
-                            ? `No product names start with “${query}”.`
-                            : "No products in this category."}
+                          : "No products in this category."}
                       </p>
                     ) : (
                       <div className="titan-product-content titan-row-aligned grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
