@@ -1,5 +1,4 @@
-import { useState, type CSSProperties } from "react";
-import { Pause, Play } from "lucide-react";
+import type { CSSProperties } from "react";
 import { cmsValues, canonicalUrl } from "@/lib/storefrontContent";
 import { useSiteContent } from "@/lib/useCatalog";
 import { CmsLink } from "./CmsLink";
@@ -26,7 +25,6 @@ export function announcementTopics(
 export function HomeAnnouncementBanner() {
   const { data } = useSiteContent();
   const { visible, speed, topics } = announcementTopics(data);
-  const [paused, setPaused] = useState(false);
   if (!visible) return null;
   const seconds =
     Math.max(
@@ -34,10 +32,7 @@ export function HomeAnnouncementBanner() {
       topics.reduce((sum, t) => sum + t.text.length * 0.16 + 1.2, 0),
     ) / (speed === "fast" ? 1.5 : speed === "slow" ? 0.7 : 1);
   return (
-    <aside
-      className={`titan-announcements ${paused ? "is-paused" : ""}`}
-      aria-label="Titan announcements"
-    >
+    <aside className="titan-announcements" aria-label="Titan announcements">
       <div className="titan-announcement-window">
         <div
           className="titan-announcement-track"
@@ -74,15 +69,6 @@ export function HomeAnnouncementBanner() {
           ))}
         </div>
       </div>
-      <button
-        type="button"
-        className="titan-announcement-pause"
-        onClick={() => setPaused(!paused)}
-        aria-label={paused ? "Play announcements" : "Pause announcements"}
-        aria-pressed={paused}
-      >
-        {paused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}
-      </button>
     </aside>
   );
 }
