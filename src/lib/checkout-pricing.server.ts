@@ -168,10 +168,9 @@ export async function priceCheckout(
     admin
       .from("products")
       .select(
-        "id, slug, name, price, sale_price, product_variants, catalogue_section, stock_quantity, coming_soon, unlimited_stock",
+        "id, slug, name, price, sale_price, product_variants, catalogue_section, stock_quantity, coming_soon, unlimited_stock, active",
       )
-      .in("slug", slugs)
-      .eq("active", true),
+      .in("slug", slugs),
     admin.from("referral_settings").select("*").eq("id", 1).maybeSingle(),
     readWebsitePromotion(admin),
     readEquipmentGiftOffers(admin),
@@ -180,6 +179,13 @@ export async function priceCheckout(
   const settings = settingsFromRow(settingsRow);
 
   const bySlug = new Map((products ?? []).map((p: any) => [p.slug, p]));
+  // Hidden products may be present only as gifts. Reject paid lines before
+  // checking gift qualifications so a hidden product can never earn an offer.
+  for (const item of items) {
+    const product: any = bySlug.get(item.slug);
+    if (!product || (!isFreeGift(item) && product.active !== true))
+      throw new Error("One of the items is no longer available.");
+  }
   const giftProduct = (slug: string): GiftProduct | undefined => {
     const p: any = bySlug.get(slug);
     if (!p) return undefined;
@@ -216,7 +222,7 @@ export async function priceCheckout(
     const regularPrice = websiteSalePrice(variant ? Number(variant.price) : listPrice, singlePrice, product.id, websitePromotion);
     const unitPrice = isFreeGift(item) ? 0 : regularPrice;
     const quantity = Math.min(99, Math.max(1, Math.floor(item.quantity)));
-    if (!Number.isFinite(regularPrice) || regularPrice <= 0)
+    if (!isFreeGift(item) && (!Number.isFinite(regularPrice) || regularPrice <= 0))
       throw new Error("One of the product prices is unavailable.");
     const stockKey = `${product.slug}::${variant?.id ?? "base"}`;
     const units = (requestedStock.get(stockKey) ?? 0) + quantity;

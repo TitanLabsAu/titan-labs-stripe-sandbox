@@ -42,6 +42,7 @@ export function CartSheet({ floating = false, inline = false }: { floating?: boo
     addItem,
     setQuantity,
     removeItem,
+    getLineProduct,
     getLinePrice,
     getLineLabel,
   } = useCart();
@@ -162,7 +163,7 @@ export function CartSheet({ floating = false, inline = false }: { floating?: boo
               </label>)}
               <ul className="space-y-4">
                  {items.map((item) => {
-                  const product = getProduct(item.slug);
+                  const product = getLineProduct(item);
                   if (!product) return null;
                   const linePrice = getLinePrice(item);
                   const lineVariant = (product.variants ?? []).find((v) => v.id === item.variantId);

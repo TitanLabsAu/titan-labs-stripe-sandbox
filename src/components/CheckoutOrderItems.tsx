@@ -8,7 +8,7 @@ export function CheckoutOrderItems({
   items,
   giftChoices,
   locked,
-  getProduct,
+  getLineProduct,
   getLinePrice,
   getLineLabel,
   setQuantity,
@@ -18,7 +18,7 @@ export function CheckoutOrderItems({
   items: CartItem[];
   giftChoices: { id: string; label: string; quantity: number; selected: boolean }[];
   locked: boolean;
-  getProduct: (slug: string) => Product | undefined;
+  getLineProduct: (item: CartItem) => Product | undefined;
   getLinePrice: (item: CartItem) => number;
   getLineLabel: (item: CartItem, product?: Product) => string;
   setQuantity: (key: string, quantity: number) => void;
@@ -42,7 +42,7 @@ export function CheckoutOrderItems({
         </li>
       ))}
       {items.map((item) => {
-        const product = getProduct(item.slug);
+        const product = getLineProduct(item);
         const variant = product?.variants?.find((v) => v.id === item.variantId);
         const name = product?.name ?? item.slug;
         const label = getLineLabel(item, product);

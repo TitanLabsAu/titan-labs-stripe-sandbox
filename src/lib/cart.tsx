@@ -11,7 +11,7 @@ import { useProducts, useSiteContent } from "./useCatalog";
 import { linkedLineKeys, repairPairedLines } from "./pen-companion";
 
 import { supabase } from "@/integrations/supabase/client";
-import { EQUIPMENT_GIFTS_KEY, DEFAULT_STORAGE_RULE, eligibleGiftRules, isFreeGift, parseEquipmentGiftOffers } from "./equipment-gifts";
+import { EQUIPMENT_GIFTS_KEY, INACTIVE_GIFT_PRODUCTS_KEY, DEFAULT_STORAGE_RULE, eligibleGiftRules, isFreeGift, parseEquipmentGiftOffers } from "./equipment-gifts";
 
 export type CartItem = {
   freeGift?: boolean;
@@ -54,6 +54,8 @@ type CartContextValue = {
   setQuantity: (key: string, quantity: number) => void;
   removeItem: (key: string) => void;
   clear: () => void;
+  getGiftProduct: (slug: string) => Product | undefined;
+  getLineProduct: (item: CartItem) => Product | undefined;
   getLinePrice: (item: CartItem) => number;
   getLineLabel: (item: CartItem, product?: Product | null) => string;
 };
@@ -160,9 +162,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setGiftDeclined(next);
     try { localStorage.setItem(`titan-equipment-gifts-declined:${memberId || "guest"}`, JSON.stringify(next)); } catch { /* optional preference */ }
   };
-  const availableGifts = eligibleGiftRules(giftRules, items, Boolean(memberId), getProduct);
+  const inactiveGiftData = giftContent?.[INACTIVE_GIFT_PRODUCTS_KEY];
+  const inactiveGifts = useMemo(() => {
+    try {
+      const products: Product[] = JSON.parse(inactiveGiftData ?? "[]");
+      return new Map(products.map((product) => [product.slug, product]));
+    } catch {
+      return new Map<string, Product>();
+    }
+  }, [inactiveGiftData]);
+  const getGiftProduct = (slug: string) => getProduct(slug) ?? inactiveGifts.get(slug);
+  const getLineProduct = (item: CartItem) => isFreeGift(item) ? getGiftProduct(item.slug) : getProduct(item.slug);
+  const availableGifts = eligibleGiftRules(giftRules, items, Boolean(memberId), getProduct, getGiftProduct);
   const giftChoices = availableGifts.map(rule => {
-    const product = getProduct(rule.giftSlug);
+    const product = getGiftProduct(rule.giftSlug);
     const variant = product?.variants?.find(v => v.id === rule.giftVariantId);
     return { id: rule.id, label: `${product?.name || "Equipment"}${variant ? ` — ${variant.label}` : ""}`, quantity: rule.giftQuantity, selected: !giftDeclined.includes(rule.id) };
   });
@@ -201,7 +214,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return getProductOption(product, item.variantId ?? null, item.pack ?? "single").unitPrice;
     };
     const getLineLabel = (item: CartItem, product?: Product | null) => {
-      const found = product ?? getProduct(item.slug);
+      const found = product ?? getLineProduct(item);
       if (!found) return item.variantLabel ?? "Selected option";
       const base = getProductOption(found, item.variantId ?? null, item.pack ?? "single").label;
       const bundle = bundleSummary(found.variants?.find((v) => v.id === item.variantId)?.contents);
@@ -254,6 +267,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       },
       removeItem: (key) => { if (key.startsWith("free-gift:")) { selectGift(key.slice(10), false); return; } setItems((prev) => { const keys = linkedLineKeys(prev, key); return prev.filter((i) => !keys.includes(i.key)); }); },
       clear: () => { setItems([]); setGiftDeclined([]); try { localStorage.removeItem(`titan-equipment-gifts-declined:${memberId || "guest"}`); if (memberId) localStorage.removeItem(`titan-storage-gift-declined:${memberId}`); } catch { /* optional preference */ } },
+      getGiftProduct,
+      getLineProduct,
       getLinePrice,
       getLineLabel,
     };

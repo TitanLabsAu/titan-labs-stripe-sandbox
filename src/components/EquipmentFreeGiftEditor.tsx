@@ -41,7 +41,7 @@ export function EquipmentFreeGiftEditor({ id, slug }: { id?: string | undefined;
   const error = settings.error || catalogue.error;
   return <section className="rounded-xl border border-border bg-card p-4 sm:p-6">
     <h3 className="font-bold uppercase tracking-wide">Offer this product free</h3>
-    <p className="mt-2 text-sm text-muted-foreground">Pair each saved option with any catalogue products, sizes or whole sections. Quantities across your selected qualifying items combine. Gifts never count towards another gift. Each offer applies once per order, while stock lasts, and customers can deselect it.</p>
+    <p className="mt-2 text-sm text-muted-foreground">Pair each saved option with any catalogue products, sizes or whole sections. Quantities across your selected qualifying items combine. Gifts never count towards another gift. Each offer applies once per order, while stock lasts, and customers can deselect it. Leave this product inactive to offer it as a gift without listing it for sale.</p>
     <p className="mt-2 text-xs text-muted-foreground">Save product or option changes first. These offers have their own Save button.</p>
     {error ? <div role="alert" className="mt-3 text-sm text-destructive">{error.message}<Button type="button" variant="outline" onClick={async () => { const result = await settings.refetch(); await catalogue.refetch(); if (result.data) { setRules(result.data.rules.filter(r => r.giftSlug === slug)); setExpectedRaw(result.data.raw); setLoaded(true); } }}>Reload offers</Button></div> : null}
     {!loaded || catalogue.isLoading ? <p className="mt-3 text-sm">Loading saved offers…</p> : <>

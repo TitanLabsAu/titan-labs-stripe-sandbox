@@ -220,7 +220,7 @@ export const Route = createFileRoute("/checkout")({
 
 function CheckoutPage() {
   const copy = cmsValues(useSiteContent().data, "checkout_copy");
-  const { items, count, subtotal, getLinePrice, getLineLabel, clear, giftChoices, setGiftSelected, setQuantity, removeItem } =
+  const { items, count, subtotal, getLineProduct, getLinePrice, getLineLabel, clear, giftChoices, setGiftSelected, setQuantity, removeItem } =
     useCart();
   const { getProduct } = useProducts();
   const { data: content } = useSiteContent();
@@ -974,7 +974,7 @@ function CheckoutPage() {
                 items={items}
                 giftChoices={giftChoices}
                 locked={itemsLocked}
-                getProduct={getProduct}
+                getLineProduct={getLineProduct}
                 getLinePrice={getLinePrice}
                 getLineLabel={getLineLabel}
                 setQuantity={setQuantity}
