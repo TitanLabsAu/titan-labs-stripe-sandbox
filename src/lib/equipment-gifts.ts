@@ -1,4 +1,5 @@
 export const EQUIPMENT_GIFTS_KEY = "equipment_free_gifts";
+export const INACTIVE_GIFT_PRODUCTS_KEY = "inactive_gift_products";
 export type GiftTarget = { slug: string; variantId: string | null };
 export type EquipmentGiftRule = {
   id: string;
@@ -74,10 +75,14 @@ export function matchesGiftTarget(rule: EquipmentGiftRule, line: GiftCartLine, p
 export function qualifyingGiftQuantity(rule: EquipmentGiftRule, lines: GiftCartLine[], lookup: (slug: string) => GiftProduct | undefined) {
   return lines.reduce((n, line) => n + (matchesGiftTarget(rule, line, lookup(line.slug)) && Number.isInteger(line.quantity) && line.quantity > 0 && line.quantity <= 99 ? line.quantity : 0), 0);
 }
-export function eligibleGiftRules(rules: EquipmentGiftRule[], lines: GiftCartLine[], member: boolean, lookup: (slug: string) => GiftProduct | undefined) {
+export function eligibleGiftRules(
+  rules: EquipmentGiftRule[], lines: GiftCartLine[], member: boolean,
+  lookup: (slug: string) => GiftProduct | undefined,
+  lookupGift = lookup,
+) {
   return rules.filter(rule => {
     if (!rule.enabled || (rule.membersOnly && !member) || qualifyingGiftQuantity(rule, lines, lookup) < rule.minimumQuantity) return false;
-    const product = lookup(rule.giftSlug);
+    const product = lookupGift(rule.giftSlug);
     if (!product || !isGiftCatalogueSection(product.catalogueSection) || product.comingSoon) return false;
     const variant = product.variants?.find(v => v.id === rule.giftVariantId);
     if ((product.variants?.length && !variant) || (!product.variants?.length && rule.giftVariantId !== null) || variant?.comingSoon) return false;

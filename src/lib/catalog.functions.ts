@@ -1,3 +1,4 @@
+import { EQUIPMENT_GIFTS_KEY, INACTIVE_GIFT_PRODUCTS_KEY, parseEquipmentGiftOffers } from "./equipment-gifts";
 import { readWebsitePromotion, websiteSalePrice, parseWebsitePromotion, type WebsitePromotion } from "./website-promotion";
 import { sanitizeOptionalEquipment } from "./optional-equipment";
 import { optimizedProductImage } from "./product-image-delivery";
@@ -143,6 +144,33 @@ export const listSiteLinks = createServerFn({ method: "GET" }).handler(
   },
 );
 
+/** Expose only presentation/availability for inactive options offered as gifts. */
+async function inactiveGiftProducts(raw: string | undefined): Promise<Product[]> {
+  if (raw === undefined) return [];
+  const rules = parseEquipmentGiftOffers(raw).filter((rule) => rule.enabled);
+  const slugs = [...new Set(rules.map((rule) => rule.giftSlug))];
+  if (!slugs.length) return [];
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin.from("products")
+    .select("slug, name, price, image_url, alt, product_variants, catalogue_section, coming_soon, stock_quantity, unlimited_stock")
+    .eq("active", false)
+    .in("slug", slugs);
+  if (error) throw error;
+  return (data ?? []).flatMap((row) => {
+    const variants = Array.isArray(row.product_variants) ? row.product_variants : [];
+    const offeredIds = new Set(rules.filter((rule) => rule.giftSlug === row.slug).map((rule) => rule.giftVariantId));
+    const offered = variants.filter((variant: any) => offeredIds.has(variant?.id));
+    if (variants.length ? !offered.length : !offeredIds.has(null)) return [];
+    return [toProduct({
+      ...row,
+      product_variants: offered.map((variant: any) => ({
+        id: variant.id, label: variant.label, price: variant.price,
+        image: variant.image, stock: variant.stock, comingSoon: variant.comingSoon, packSize: variant.packSize,
+      })),
+    })];
+  });
+}
+
 export const getSiteContent = createServerFn({ method: "GET" }).handler(
   async (): Promise<Record<string, string>> => {
     const { data, error } = await publicClient().from("site_content").select("key, body");
@@ -153,6 +181,8 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
       out[key] = key === PROMOTION_BANNERS_KEY ? serialiseBannerSettings(parseBannerSettings(body))
         : key === PEN_CASES_KEY ? serialisePenCases(parsePenCases(body)) : body;
     }
+    // Gift metadata travels with the offer settings, never through catalogue or product-page queries.
+    out[INACTIVE_GIFT_PRODUCTS_KEY] = JSON.stringify(await inactiveGiftProducts(out[EQUIPMENT_GIFTS_KEY]).catch(() => []));
     return out;
   },
 );
