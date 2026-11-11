@@ -1,5 +1,5 @@
 import type { ResearchEntry } from "./research";
-import { isResearchReferenceSection, publishedReferenceRows } from "./research-reference-fields";
+import { isResearchReferenceSection } from "./research-reference-fields";
 
 /** Presentation only: never split prose into invented clinical steps or infer protocols. */
 export function researchDetailModel(entry: ResearchEntry) {
@@ -11,7 +11,6 @@ export function researchDetailModel(entry: ResearchEntry) {
     quick: [
       { label: "Class", value: entry.category || "—" },
     ],
-    protocol: publishedReferenceRows(entry),
     ratings: ["Efficacy rating", "Safety rating", "Overall rating"].map(label => ({ label, value: "—" })),
   };
 }

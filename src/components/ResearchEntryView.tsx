@@ -12,7 +12,7 @@ import { researchSourceDescription } from "@/lib/research-source-descriptions";
 import { researchDetailModel } from "@/lib/research-detail";
 import { ResearchShowcase } from "@/components/ResearchShowcase";
 import { ResearchSubjectiveScorecard } from "@/components/ResearchSubjectiveScorecard";
-import { isResearchReferenceSection } from "@/lib/research-reference-fields";
+import { isResearchReferenceSection, studyReadout } from "@/lib/research-reference-fields";
 import { ResearchExplanations } from "@/components/ResearchExplanations";
 
 export function ResearchEntryView({ entry, entries = [], preview = false }: { entry: ResearchEntry; entries?: ResearchEntry[]; preview?: boolean }) {
@@ -20,6 +20,7 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
   const lb = cmsValues(useSiteContent().data, "research_entry");
   const linkedProducts = researchProducts(entry, products);
   const model = researchDetailModel(entry);
+  const readout = studyReadout(entry, preview);
   const source = researchSourceDescription(entry, entries);
   const related = relatedResearch(entry, preview ? entries : entries.filter(item => item.published));
   const blends = blendsForEntry(entry);
@@ -44,10 +45,29 @@ export function ResearchEntryView({ entry, entries = [], preview = false }: { en
     <ResearchSubjectiveScorecard entry={entry} entries={entries} />
     <ResearchExplanations entry={entry} entries={entries} />
 
-    {model.protocol.length ? <section className="research-numbered-section" aria-labelledby="research-protocol">
-      <SectionHeading number="04" eyebrow="PROTOCOL REFERENCE" title="Protocol readout" id="research-protocol" />
-      <div className="research-terminal"><div className="research-terminal-bar research-mono">Saved reference fields</div><dl>{model.protocol.map(item => <div key={item.label}><dt className="research-mono">{item.label}</dt><dd className="whitespace-pre-wrap break-words">{item.value}</dd></div>)}</dl><p className="research-terminal-note">Educational research reference only. Not medical advice.</p></div>
-    </section> : null}
+    {readout.fields.length || readout.notes ? (
+      <section className="research-numbered-section" aria-labelledby="research-protocol">
+        <SectionHeading number="04" eyebrow="STUDY REFERENCE" title="Study readout" id="research-protocol" />
+        <div className="research-terminal">
+          <div className="research-terminal-bar research-mono">
+            <span className="research-terminal-dots" aria-hidden="true"><i /><i /><i /></span>
+            {entry.title}
+          </div>
+          {readout.fields.length ? (
+            <dl>{readout.fields.map(({ label, value }) => (
+              <div key={label}>
+                <dt className="research-mono">{label}</dt>
+                <dd className="whitespace-pre-wrap break-words">{value}</dd>
+              </div>
+            ))}</dl>
+          ) : null}
+          <div className="research-terminal-note">
+            {readout.notes ? <p className="whitespace-pre-wrap break-words"><strong>Notes</strong> {readout.notes}</p> : null}
+            <p>Educational research reference only. Not medical advice.</p>
+          </div>
+        </div>
+      </section>
+    ) : null}
 
     <section className="research-numbered-section" aria-labelledby="research-related">
       <SectionHeading number="05" eyebrow="RELATED RESEARCH" title="Related compounds" id="research-related" />
