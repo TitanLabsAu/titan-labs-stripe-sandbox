@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { AlertTriangle, Check, Copy, ExternalLink } from "lucide-react";
+import { AlertTriangle, Check, Copy, ExternalLink, MessageCircle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { CmsLink } from "@/components/CmsLink";
+import { cmsValues } from "@/lib/storefrontContent";
 import { CryptoQr } from "@/components/CryptoQr";
 import { getCryptoRates } from "@/lib/crypto.functions";
 import { cardPaymentsEnabled, homeValue, type PaymentMethodKey } from "@/lib/homeContent";
@@ -91,6 +93,7 @@ export function PaymentDetails({
     const bsb = value("payment_payid_bsb");
     const accountNumber = value("payment_payid_account_number");
     const hasDetails = Boolean(payid || account || bsb || accountNumber);
+    const whatsappUrl = cmsValues(content, "page_contact").whatsapp_url;
     return (
       <div className={cn("border border-border bg-muted/20 p-4", className)}>
         {hasDetails ? (
@@ -111,14 +114,24 @@ export function PaymentDetails({
           {value("payment_payid_instructions")}
         </p>
         {bsb && accountNumber && /^Titan Labs Aus(?:tralia)?$/i.test(account) ? (
-          <p className="mt-3 border-l-2 border-accent pl-3 text-sm text-foreground">
-            <strong>Bank transfer notice.</strong> {account} is our trading name. The bank
-            account is registered under a different name. If your bank flags a mismatch,
-            please{" "}
-            <a href="/contact" className="font-semibold underline">contact us</a>{" "}
-            to verify the details before sending payment. If you’ve already transferred the
-            money and need help locating it, contact us with your order number.
-          </p>
+          <div className="mt-3 space-y-3">
+            <p className="border-l-2 border-accent pl-3 text-sm text-foreground">
+              <strong>Bank transfer notice.</strong> {account} is our trading name. The bank
+              account is registered under a different name. If your bank flags an account-name
+              mismatch, you can proceed once you’ve independently verified the recipient and
+              bank details. Alternatively,{" "}
+              <a href="/contact" className="font-semibold underline">contact us</a>{" "}
+              to confirm the details before sending payment. If you’ve already transferred the
+              money and need help locating it, contact us with your order number.
+            </p>
+            {whatsappUrl ? (
+              <Button asChild variant="outline" className="h-auto min-h-11 w-full whitespace-normal py-2 text-center">
+                <CmsLink href={whatsappUrl}>
+                  <MessageCircle aria-hidden="true" /> Follow up on WhatsApp
+                </CmsLink>
+              </Button>
+            ) : null}
+          </div>
         ) : null}
       </div>
     );
