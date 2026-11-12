@@ -110,6 +110,16 @@ export function PaymentDetails({
         <p className="mt-3 whitespace-pre-line text-xs text-muted-foreground">
           {value("payment_payid_instructions")}
         </p>
+        {bsb && accountNumber && /^Titan Labs Aus(?:tralia)?$/i.test(account) ? (
+          <p className="mt-3 border-l-2 border-accent pl-3 text-sm text-foreground">
+            <strong>Bank transfer notice.</strong> {account} is our trading name. The bank
+            account is registered under a different name. If your bank flags a mismatch,
+            please{" "}
+            <a href="/contact" className="font-semibold underline">contact us</a>{" "}
+            to verify the details before sending payment. If you’ve already transferred the
+            money and need help locating it, contact us with your order number.
+          </p>
+        ) : null}
       </div>
     );
   }
