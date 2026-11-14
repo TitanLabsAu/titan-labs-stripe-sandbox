@@ -29,7 +29,7 @@ export function FirstOfferBanner({ redirectTo = "/checkout", className, placemen
       <BadgePercent className="h-5 w-5 shrink-0 text-accent" aria-hidden />
       <div className="min-w-0 flex-1">
         {includeReferralInvitation ? (
-          <p className="font-bold text-foreground">Join Titan Labs before you check out</p>
+          <p className="font-bold text-foreground">JOIN &amp; SAVE</p>
         ) : null}
         {showOffer ? (
           <p className={cn("whitespace-pre-line", includeReferralInvitation ? "mt-1 text-muted-foreground" : "font-bold text-foreground")}>
