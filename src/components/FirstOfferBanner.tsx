@@ -7,7 +7,7 @@ import { useReferralSettings } from "@/lib/useReferralSettings";
 import { cn } from "@/lib/utils";
 
 /** Shown to signed-out visitors while the admin offer is on. Text follows saved settings. */
-export function FirstOfferBanner({ redirectTo = "/checkout", className, placement = "checkout" }: { redirectTo?: string; className?: string; placement?: "home" | "checkout" }) {
+export function FirstOfferBanner({ redirectTo = "/checkout", className, placement = "checkout", includeReferralInvitation = false }: { redirectTo?: string; className?: string; placement?: "home" | "checkout"; includeReferralInvitation?: boolean }) {
   const { settings } = useReferralSettings();
   const c = cmsValues(useSiteContent().data, placement === "home" ? "home_offer" : "checkout_offer");
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
@@ -21,17 +21,28 @@ export function FirstOfferBanner({ redirectTo = "/checkout", className, placemen
     };
   }, []);
   const offer = settings.firstOffer;
-  if (!c.visible || !offer.enabled || !(offer.percent > 0) || signedIn !== false) return null;
+  const showOffer = c.visible && offer.enabled && offer.percent > 0;
+  if (signedIn !== false || (!showOffer && !includeReferralInvitation)) return null;
   const q = `?redirect=${encodeURIComponent(redirectTo)}`;
   return (
     <div className={cn("titan-promotion flex flex-wrap items-center gap-3 px-5 py-4 text-sm", className)}>
       <BadgePercent className="h-5 w-5 shrink-0 text-accent" aria-hidden />
-      <p className="min-w-0 flex-1 whitespace-pre-line font-bold text-foreground">
-        {fillTokens(c.text, { percent: offer.percent })}
-      </p>
+      <div className="min-w-0 flex-1">
+        {includeReferralInvitation ? (
+          <p className="font-bold text-foreground">Join Titan Labs before you check out</p>
+        ) : null}
+        {showOffer ? (
+          <p className={cn("whitespace-pre-line", includeReferralInvitation ? "mt-1 text-muted-foreground" : "font-bold text-foreground")}>
+            {fillTokens(c.text, { percent: offer.percent })}
+          </p>
+        ) : null}
+        {includeReferralInvitation ? (
+          <p className="mt-1 text-muted-foreground">Earn referral rewards when friends use your code.</p>
+        ) : null}
+      </div>
       <span className="flex gap-3 text-xs font-bold uppercase tracking-wide">
-        {c.join_label ? <a className="text-accent underline underline-offset-4" href={`/auth/signup${q}`}>{c.join_label}</a> : null}
-        {c.login_label ? <a className="text-accent underline underline-offset-4" href={`/auth${q}`}>{c.login_label}</a> : null}
+        {(c.join_label || includeReferralInvitation) ? <a className="text-accent underline underline-offset-4" href={`/auth/signup${q}`}>{c.join_label || "Join"}</a> : null}
+        {(c.login_label || includeReferralInvitation) ? <a className="text-accent underline underline-offset-4" href={`/auth${q}`}>{c.login_label || "Log in"}</a> : null}
       </span>
     </div>
   );

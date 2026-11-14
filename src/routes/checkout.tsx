@@ -734,17 +734,8 @@ function CheckoutPage() {
           title="Order summary"
         />
         {copy.intro ? <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{copy.intro}</p> : null}
-        <FirstOfferBanner className="mt-4" />
         {session === null && items.length > 0 ? (
-          <aside className="mt-4 border border-accent/50 bg-accent/5 p-4 text-sm">
-            <p className="font-bold text-foreground">Last chance to join before you check out</p>
-            <p className="mt-1 text-muted-foreground">
-              Become a Titan Labs member and earn rewards when friends use your referral code.
-            </p>
-            <Button asChild size="sm" variant="outline" className="mt-3">
-              <a href="/auth/signup?redirect=%2Fcheckout">Become a member</a>
-            </Button>
-          </aside>
+          <FirstOfferBanner className="mt-4" includeReferralInvitation />
         ) : null}
         {authLost && !session ? (
           <div role="alert" className="mt-4 border border-destructive/60 bg-destructive/10 p-4 text-sm">
