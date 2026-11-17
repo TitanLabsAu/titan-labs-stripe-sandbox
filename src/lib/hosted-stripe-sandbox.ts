@@ -57,3 +57,36 @@ export function createSandboxStripeClient(StripeClient: typeof Stripe, secretKey
   }
   return new StripeClient(secretKey);
 }
+
+type SavedSandboxAttempt = {
+  id: string;
+  transaction_id: string;
+  amount_cents: number;
+  user_id: string | null;
+  guest_session_id: string | null;
+};
+
+export function paidSandboxIntentId(
+  session: Stripe.Checkout.Session,
+  attempt: SavedSandboxAttempt,
+): string | null {
+  if (
+    session.id !== attempt.transaction_id ||
+    session.livemode !== false ||
+    session.mode !== "payment" ||
+    session.status !== "complete" ||
+    session.payment_status !== "paid" ||
+    session.currency !== "aud" ||
+    session.amount_total !== attempt.amount_cents ||
+    session.client_reference_id !== attempt.id ||
+    session.metadata?.payment_attempt_id !== attempt.id ||
+    session.metadata.user_id !== (attempt.user_id ?? "") ||
+    session.metadata.guest_session_id !== (attempt.guest_session_id ?? "")
+  ) {
+    return null;
+  }
+
+  const intent = session.payment_intent;
+  const id = typeof intent === "string" ? intent : intent?.id;
+  return id?.startsWith("pi_") ? id : null;
+}
