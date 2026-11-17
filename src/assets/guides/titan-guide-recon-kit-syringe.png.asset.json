@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "65f1e93d-8077-4889-964a-a70d2c56364e",
-  "project_id": "06904455-d4ee-4c47-97ca-4d4f7c6cce48",
-  "url": "/__l5e/assets-v1/65f1e93d-8077-4889-964a-a70d2c56364e/titan-guide-recon-kit-syringe.png",
-  "r2_key": "a/v1/06904455-d4ee-4c47-97ca-4d4f7c6cce48/65f1e93d-8077-4889-964a-a70d2c56364e/titan-guide-recon-kit-syringe.png",
-  "original_filename": "titan-guide-recon-kit-syringe.png",
-  "size": 40146,
   "content_type": "image/png",
-  "created_at": "2026-10-24T10:52:52Z"
+  "created_at": "2026-10-24T10:52:52Z",
+  "original_filename": "titan-guide-recon-kit-syringe.png",
+  "project_id": "3c691c32-e5a1-4a59-8a68-86b04a0f9729",
+  "r2_key": "a/v1/3c691c32-e5a1-4a59-8a68-86b04a0f9729/65f1e93d-8077-4889-964a-a70d2c56364e/titan-guide-recon-kit-syringe.png",
+  "size": 40146,
+  "url": "/__l5e/assets-v1/65f1e93d-8077-4889-964a-a70d2c56364e/titan-guide-recon-kit-syringe.png",
+  "version": 1
 }

@@ -1,1 +1,0 @@
-REVOKE EXECUTE ON FUNCTION public.handle_order_milestone() FROM PUBLIC, anon, authenticated;

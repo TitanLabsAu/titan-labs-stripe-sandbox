@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "d4e5683d-d055-43a0-8ff7-f72c6185ffff",
-  "project_id": "06904455-d4ee-4c47-97ca-4d4f7c6cce48",
-  "url": "/__l5e/assets-v1/d4e5683d-d055-43a0-8ff7-f72c6185ffff/titan-guide-recon-kit-alcohol.png",
-  "r2_key": "a/v1/06904455-d4ee-4c47-97ca-4d4f7c6cce48/d4e5683d-d055-43a0-8ff7-f72c6185ffff/titan-guide-recon-kit-alcohol.png",
-  "original_filename": "titan-guide-recon-kit-alcohol.png",
-  "size": 360896,
   "content_type": "image/png",
-  "created_at": "2026-10-24T10:58:07Z"
+  "created_at": "2026-10-24T10:58:07Z",
+  "original_filename": "titan-guide-recon-kit-alcohol.png",
+  "project_id": "3c691c32-e5a1-4a59-8a68-86b04a0f9729",
+  "r2_key": "a/v1/3c691c32-e5a1-4a59-8a68-86b04a0f9729/d4e5683d-d055-43a0-8ff7-f72c6185ffff/titan-guide-recon-kit-alcohol.png",
+  "size": 360896,
+  "url": "/__l5e/assets-v1/d4e5683d-d055-43a0-8ff7-f72c6185ffff/titan-guide-recon-kit-alcohol.png",
+  "version": 1
 }

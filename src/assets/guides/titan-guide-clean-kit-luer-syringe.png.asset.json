@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "2b49bde6-f54b-4700-8c8a-ad88670087ee",
-  "project_id": "06904455-d4ee-4c47-97ca-4d4f7c6cce48",
-  "url": "/__l5e/assets-v1/2b49bde6-f54b-4700-8c8a-ad88670087ee/titan-guide-clean-kit-luer-syringe.png",
-  "r2_key": "a/v1/06904455-d4ee-4c47-97ca-4d4f7c6cce48/2b49bde6-f54b-4700-8c8a-ad88670087ee/titan-guide-clean-kit-luer-syringe.png",
-  "original_filename": "titan-guide-clean-kit-luer-syringe.png",
-  "size": 1143003,
   "content_type": "image/png",
-  "created_at": "2026-10-24T12:47:11Z"
+  "created_at": "2026-10-24T12:47:11Z",
+  "original_filename": "titan-guide-clean-kit-luer-syringe.png",
+  "project_id": "3c691c32-e5a1-4a59-8a68-86b04a0f9729",
+  "r2_key": "a/v1/3c691c32-e5a1-4a59-8a68-86b04a0f9729/2b49bde6-f54b-4700-8c8a-ad88670087ee/titan-guide-clean-kit-luer-syringe.png",
+  "size": 1143003,
+  "url": "/__l5e/assets-v1/2b49bde6-f54b-4700-8c8a-ad88670087ee/titan-guide-clean-kit-luer-syringe.png",
+  "version": 1
 }

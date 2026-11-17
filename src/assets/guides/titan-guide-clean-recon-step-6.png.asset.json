@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "c21d2d22-4be6-4aa6-8b66-7c06cb28a405",
-  "project_id": "06904455-d4ee-4c47-97ca-4d4f7c6cce48",
-  "url": "/__l5e/assets-v1/c21d2d22-4be6-4aa6-8b66-7c06cb28a405/titan-guide-clean-recon-step-6.png",
-  "r2_key": "a/v1/06904455-d4ee-4c47-97ca-4d4f7c6cce48/c21d2d22-4be6-4aa6-8b66-7c06cb28a405/titan-guide-clean-recon-step-6.png",
-  "original_filename": "titan-guide-clean-recon-step-6.png",
-  "size": 1056886,
   "content_type": "image/png",
-  "created_at": "2026-10-24T12:47:38Z"
+  "created_at": "2026-10-24T12:47:38Z",
+  "original_filename": "titan-guide-clean-recon-step-6.png",
+  "project_id": "3c691c32-e5a1-4a59-8a68-86b04a0f9729",
+  "r2_key": "a/v1/3c691c32-e5a1-4a59-8a68-86b04a0f9729/c21d2d22-4be6-4aa6-8b66-7c06cb28a405/titan-guide-clean-recon-step-6.png",
+  "size": 1056886,
+  "url": "/__l5e/assets-v1/c21d2d22-4be6-4aa6-8b66-7c06cb28a405/titan-guide-clean-recon-step-6.png",
+  "version": 1
 }

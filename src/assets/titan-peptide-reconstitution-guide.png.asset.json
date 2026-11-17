@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "f8a434e0-f9d9-484a-8c04-e9c5d30b86fd",
-  "project_id": "06904455-d4ee-4c47-97ca-4d4f7c6cce48",
-  "url": "/__l5e/assets-v1/f8a434e0-f9d9-484a-8c04-e9c5d30b86fd/titan-peptide-reconstitution-guide.png",
-  "r2_key": "a/v1/06904455-d4ee-4c47-97ca-4d4f7c6cce48/f8a434e0-f9d9-484a-8c04-e9c5d30b86fd/titan-peptide-reconstitution-guide.png",
-  "original_filename": "titan-peptide-reconstitution-guide.png",
-  "size": 1961643,
   "content_type": "image/png",
-  "created_at": "2026-10-23T12:44:58Z"
+  "created_at": "2026-10-23T12:44:58Z",
+  "original_filename": "titan-peptide-reconstitution-guide.png",
+  "project_id": "3c691c32-e5a1-4a59-8a68-86b04a0f9729",
+  "r2_key": "a/v1/3c691c32-e5a1-4a59-8a68-86b04a0f9729/f8a434e0-f9d9-484a-8c04-e9c5d30b86fd/titan-peptide-reconstitution-guide.png",
+  "size": 1961643,
+  "url": "/__l5e/assets-v1/f8a434e0-f9d9-484a-8c04-e9c5d30b86fd/titan-peptide-reconstitution-guide.png",
+  "version": 1
 }
