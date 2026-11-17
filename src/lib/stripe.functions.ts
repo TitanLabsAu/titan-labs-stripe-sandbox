@@ -176,7 +176,10 @@ export const createStripeSandboxPayment = createServerFn({
     }
 
     const Stripe = (await import("stripe")).default;
-    const stripe = new Stripe(secretKey);
+    const { createHostedSandboxSession, createSandboxStripeClient, expireHostedSandboxSession, sandboxReturnOrigin } =
+      await import("@/lib/hosted-stripe-sandbox");
+    const stripe = createSandboxStripeClient(Stripe, secretKey);
+    const returnOrigin = sandboxReturnOrigin(process.env["STRIPE_SANDBOX_CHECKOUT_ORIGIN"] ?? "");
 
     const { resolveBuyer, requireAcknowledgement, ownerColumns } = await import("@/lib/checkout-buyer.server");
     const buyer = await resolveBuyer(data.mode === "guest" ? "guest" : "member");
@@ -281,61 +284,29 @@ export const createStripeSandboxPayment = createServerFn({
       });
     }
 
-    let createdIntentId: string | null = null;
+    let createdSessionId: string | null = null;
     try {
-      const paymentIntent =
-        await stripe.paymentIntents.create({
-          amount: amountCents,
-          currency: "aud",
-
-          automatic_payment_methods: {
-            enabled: true,
-          },
-
-          receipt_email: payload.customer.email,
-
-          metadata: {
-            payment_attempt_id: String(attempt.id),
-            user_id: String(buyer.userId ?? ""),
-            guest_session_id: String(buyer.guestSessionId ?? ""),
-          },
-
-          description: "Titan Labs order",
-        });
-
-      createdIntentId = paymentIntent.id;
-      if (!paymentIntent.client_secret) {
-        throw new Error(
-          "Stripe did not return a client secret.",
-        );
-      }
-
-      const { error: updateError } =
-        await (supabaseAdmin as any)
-          .from("payment_attempts")
-          .update({
-            status: "ready",
-            transaction_id: paymentIntent.id,
-            stripe_livemode: paymentIntent.livemode === true,
-          })
-          .eq("id", attempt.id);
-
-      if (updateError) {
-        throw updateError;
-      }
-
-      return {
-        clientSecret: paymentIntent.client_secret,
-        paymentIntentId: paymentIntent.id,
+      const session = await createHostedSandboxSession(stripe, {
         attemptId: String(attempt.id),
         amountCents,
-        publishableKey: keyCheck.publishableKey,
-        stripeMode: keyCheck.mode,
-      };
-       } catch (error) {
-      // An intent may exist even if saving its id failed. Cancel it before releasing rewards.
-      const { cancelUnboundIntent } = await import("@/lib/stripe-recovery");
-      const safeToRelease = await cancelUnboundIntent(stripe, createdIntentId);
+        returnOrigin,
+        email: payload.customer.email,
+        userId: buyer.userId ?? null,
+        guestSessionId: buyer.guestSessionId ?? null,
+      });
+      createdSessionId = session.id;
+      if (!session.url || session.livemode) throw new Error("Stripe did not return a sandbox payment page.");
+      const { error: updateError } = await (supabaseAdmin as any)
+        .from("payment_attempts")
+        .update({ status: "ready", transaction_id: session.id, stripe_livemode: false })
+        .eq("id", attempt.id);
+      if (updateError) throw updateError;
+      return { url: session.url };
+    } catch (error) {
+      const safeToRelease = createdSessionId
+        ? await expireHostedSandboxSession(stripe, createdSessionId).catch(() => false)
+        : error instanceof Stripe.errors.StripeInvalidRequestError ||
+          error instanceof Stripe.errors.StripeAuthenticationError;
       if (safeToRelease) {
         await (supabaseAdmin as any).rpc("release_store_credit_for_attempt", { _payment_attempt_id: attempt.id });
         await (supabaseAdmin as any).rpc("release_first_offer_for_attempt", { _payment_attempt_id: attempt.id });
@@ -345,7 +316,7 @@ export const createStripeSandboxPayment = createServerFn({
         .from("payment_attempts")
         .update({
           status: safeToRelease ? "failed" : "ready",
-          ...(createdIntentId ? { transaction_id: createdIntentId } : {}),
+          ...(createdSessionId ? { transaction_id: createdSessionId } : {}),
         })
         .eq("id", attempt.id);
 
@@ -357,19 +328,19 @@ export const verifyStripeSandboxPayment = createServerFn({
   method: "POST",
 })
   .inputValidator(
-    (input: { paymentIntentId: string; mode: CheckoutMode }) => input,
+    (input: { paymentIntentId?: string; sessionId?: string; mode: CheckoutMode }) => input,
   )
   .handler(
     async ({ data }): Promise<SubmittedOrder> => {
       const { resolveBuyer } = await import("@/lib/checkout-buyer.server");
       const { ownsRow } = await import("@/lib/guest-capability");
       const buyer = await resolveBuyer(data.mode === "guest" ? "guest" : "member");
-      const paymentIntentId = clean(
+      let paymentIntentId = clean(
         data.paymentIntentId,
         255,
       );
 
-      if (!paymentIntentId) {
+      if (!paymentIntentId && !data.sessionId) {
         throw new Error(
           "Missing Stripe PaymentIntent ID.",
         );
@@ -389,6 +360,18 @@ export const verifyStripeSandboxPayment = createServerFn({
       const { supabaseAdmin } = await import(
         "@/integrations/supabase/client.server"
       );
+
+      if (data.sessionId) {
+        const { bindPaidSandboxSession, createSandboxStripeClient } = await import("@/lib/hosted-stripe-sandbox");
+        const session = await createSandboxStripeClient(Stripe, secretKey).checkout.sessions.retrieve(clean(data.sessionId, 255));
+        const id = session.metadata?.["payment_attempt_id"];
+        if (!id) throw new Error("Stripe did not return the checkout reference.");
+        const { data: hostedAttempt, error } = await (supabaseAdmin as any)
+          .from("payment_attempts").select("*").eq("provider", "stripe").eq("id", id).maybeSingle();
+        if (error) throw error;
+        if (!ownsRow(buyer, hostedAttempt)) throw new Error("This payment belongs to another checkout.");
+        paymentIntentId = await bindPaidSandboxSession(supabaseAdmin, session, hostedAttempt);
+      }
 
       const { data: attempt, error: attemptError } =
         await (supabaseAdmin as any)
@@ -574,10 +557,10 @@ export const verifyStripeSandboxPayment = createServerFn({
  * it can never be paid later, and only then release held credit and offer.
  */
 export const cancelStripeCheckout = createServerFn({ method: "POST" })
-  .inputValidator((input: { paymentIntentId: string; mode: CheckoutMode }) => input)
+  .inputValidator((input: { paymentIntentId?: string; hostedAttemptId?: string; mode: CheckoutMode }) => input)
   .handler(async ({ data }) => {
     const paymentIntentId = clean(data.paymentIntentId, 255);
-    if (!paymentIntentId) return { ok: false };
+    if (!paymentIntentId && !data.hostedAttemptId) return { ok: false };
     const secretKey = process.env["STRIPE_SECRET_KEY"];
     if (!secretKey) throw new Error("Stripe sandbox credentials are not configured.");
     const { resolveBuyer } = await import("@/lib/checkout-buyer.server");
@@ -587,15 +570,19 @@ export const cancelStripeCheckout = createServerFn({ method: "POST" })
     const db = supabaseAdmin as any;
     const { data: attempt } = await db
       .from("payment_attempts")
-      .select("id, user_id, guest_session_id, order_id")
+      .select("id, user_id, guest_session_id, order_id, transaction_id")
       .eq("provider", "stripe")
-      .eq("transaction_id", paymentIntentId)
+      .eq(data.hostedAttemptId ? "id" : "transaction_id", data.hostedAttemptId ?? paymentIntentId)
       .maybeSingle();
     if (!ownsRow(buyer, attempt) || attempt.order_id) return { ok: false };
     const Stripe = (await import("stripe")).default;
     const stripe = new Stripe(secretKey);
     let canceled = false;
-    try {
+    if (data.hostedAttemptId) {
+      const { createSandboxStripeClient, expireHostedSandboxSession } = await import("@/lib/hosted-stripe-sandbox");
+      if (!attempt.transaction_id?.startsWith("cs_test_")) return { ok: false };
+      canceled = await expireHostedSandboxSession(createSandboxStripeClient(Stripe, secretKey), attempt.transaction_id);
+    } else try {
       const pi = await stripe.paymentIntents.cancel(paymentIntentId);
       canceled = pi.status === "canceled";
     } catch (error) {
@@ -604,9 +591,13 @@ export const cancelStripeCheckout = createServerFn({ method: "POST" })
       if (!canceled) console.warn("Stripe cancel refused", pi.status, (error as Error)?.message);
     }
     if (!canceled) return { ok: false };
-    await db.from("payment_attempts").update({ status: "cancelled", error_code: "CUSTOMER_CANCELLED" }).eq("id", attempt.id).is("order_id", null);
-    await db.rpc("release_store_credit_for_attempt", { _payment_attempt_id: attempt.id });
-    await db.rpc("release_first_offer_for_attempt", { _payment_attempt_id: attempt.id });
-    await db.rpc("release_referral_redemption_for_attempt", { _payment_attempt_id: attempt.id });
+    const { error: updateError } = await db.from("payment_attempts")
+      .update({ status: "cancelled", error_code: "CUSTOMER_CANCELLED" })
+      .eq("id", attempt.id).is("order_id", null);
+    if (updateError) throw updateError;
+    for (const rpc of ["release_store_credit_for_attempt", "release_first_offer_for_attempt", "release_referral_redemption_for_attempt"]) {
+      const { error } = await db.rpc(rpc, { _payment_attempt_id: attempt.id });
+      if (error) throw error;
+    }
     return { ok: true };
   });

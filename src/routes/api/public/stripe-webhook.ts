@@ -83,21 +83,55 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
           );
         }
 
-        // Only past this point do we touch the database.
-        if (
-          event.type !== "payment_intent.succeeded" &&
-          event.type !== "payment_intent.payment_failed" &&
-          event.type !== "payment_intent.canceled"
-        ) {
-          return ok({ ignored: event.type });
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const db = supabaseAdmin as any;
+        let paymentIntent: import("stripe").Stripe.PaymentIntent;
+        let paymentEvent: string = event.type;
+
+        if (event.type === "checkout.session.completed" || event.type === "checkout.session.expired") {
+          if (!secretKey.startsWith("sk_test_") || event.livemode) return ok({ ignored: event.type });
+          const session = event.data.object;
+          const id = session.metadata?.["payment_attempt_id"];
+          if (!id) return ok({ ignored: event.type });
+          const { data: hostedAttempt, error } = await db.from("payment_attempts")
+            .select("*").eq("provider", "stripe").eq("id", id).maybeSingle();
+          if (error) return Response.json({ error: "Lookup failed" }, { status: 500 });
+          if (!hostedAttempt) return ok({ unmatched: true });
+          if (event.type === "checkout.session.expired") {
+            if (session.status !== "expired" || hostedAttempt.transaction_id !== session.id || hostedAttempt.order_id) {
+              return ok({ ignored: event.type });
+            }
+            const { error: cancelError } = await db.from("payment_attempts")
+              .update({ status: "cancelled", error_code: "STRIPE_CHECKOUT_EXPIRED" })
+              .eq("id", id).eq("transaction_id", session.id).is("order_id", null);
+            if (cancelError) return Response.json({ error: "Could not expire payment" }, { status: 500 });
+            for (const rpc of ["release_store_credit_for_attempt", "release_first_offer_for_attempt", "release_referral_redemption_for_attempt"]) {
+              const { error: releaseError } = await db.rpc(rpc, { _payment_attempt_id: id });
+              if (releaseError) return Response.json({ error: "Could not release payment reservation" }, { status: 500 });
+            }
+            return ok({ status: "cancelled" });
+          }
+          try {
+            const { bindPaidSandboxSession } = await import("@/lib/hosted-stripe-sandbox");
+            const intentId = await bindPaidSandboxSession(db, session, hostedAttempt);
+            paymentIntent = await stripe.paymentIntents.retrieve(intentId);
+            if (paymentIntent.status !== "succeeded") {
+              return Response.json({ error: "Payment is not yet confirmed" }, { status: 503 });
+            }
+          } catch (error) {
+            console.error("[stripe-webhook] hosted payment link failed", error);
+            return Response.json({ error: "Could not link hosted payment" }, { status: 500 });
+          }
+          paymentEvent = "payment_intent.succeeded";
+        } else {
+          if (event.type !== "payment_intent.succeeded" &&
+              event.type !== "payment_intent.payment_failed" &&
+              event.type !== "payment_intent.canceled") {
+            return ok({ ignored: event.type });
+          }
+          paymentIntent = event.data.object;
+          if (paymentIntent.metadata["hosted_sandbox"] === "true") return ok({ ignored: event.type });
         }
-
-        const paymentIntent = event.data
-          .object as import("stripe").Stripe.PaymentIntent;
-
-        const { supabaseAdmin } = await import(
-          "@/integrations/supabase/client.server"
-        );
 
         const { data: attempt, error: attemptError } = await (
           supabaseAdmin as any
@@ -133,7 +167,7 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
           return ok({ alreadyProcessed: true });
         }
 
-        if (event.type === "payment_intent.payment_failed") {
+        if (paymentEvent === "payment_intent.payment_failed") {
           await (supabaseAdmin as any)
             .from("payment_attempts")
             .update({
@@ -151,7 +185,7 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
           return ok({ status: "failed" });
         }
 
-        if (event.type === "payment_intent.canceled") {
+        if (paymentEvent === "payment_intent.canceled") {
           await (supabaseAdmin as any)
             .from("payment_attempts")
             .update({

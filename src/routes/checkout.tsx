@@ -1,18 +1,11 @@
 import { CheckoutOrderItems } from "@/components/CheckoutOrderItems";
 import { cmsValues } from "@/lib/storefrontContent";
-import { cancelAndRefreshQuote, isVerifiedQuote } from "@/lib/checkout-quote-refresh";
+import { isVerifiedQuote } from "@/lib/checkout-quote-refresh";
 import { TitanPageHeading } from "@/components/TitanPageHeading";
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import {
-  Elements,
-  PaymentElement,
-  useElements,
-  useStripe,
-} from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
 import { getStripePublicConfig } from "@/lib/stripe-config.functions";
 import { ArrowLeft, CheckCircle2, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
@@ -72,129 +65,6 @@ import { clubLabel, quoteOrder } from "@/lib/order-pricing";
 const MODE_KEY = "titan_checkout_mode";
 import { cartPriceLines, useReferralSettings } from "@/lib/useReferralSettings";
 
-// Publishable key is looked up at runtime (mode-checked against the secret key on the server).
-const stripePromiseCache = new Map<string, ReturnType<typeof loadStripe>>();
-function stripePromiseFor(key: string) {
-  let p = stripePromiseCache.get(key);
-  if (!p) {
-    p = loadStripe(key);
-    stripePromiseCache.set(key, p);
-  }
-  return p;
-}
-
-function StripePaymentForm({
-  onPaid,
-  onCancel,
-  acknowledged,
-  cartCurrent,
-}: {
-  onPaid: (paymentIntentId: string) => void;
-  onCancel: () => void;
-  acknowledged: boolean;
-  cartCurrent: boolean;
-}) {
-  const stripe = useStripe();
-  const elements = useElements();
-  const [submitting, setSubmitting] = useState(false);
-
-  const handlePayment = async () => {
-    if (!stripe || !elements || submitting) return;
-    if (!cartCurrent) { toast.error("Your cart changed. Cancel this payment and start again to update your order."); return; }
-    if (!acknowledged) {
-      toast.error("Please tick the Research Use Acknowledgement to continue.");
-      return;
-    }
-
-    setSubmitting(true);
-
-    try {
-      const { error: submitError } = await elements.submit();
-
-      if (submitError) {
-        toast.error(
-          submitError.message ?? "Please check your payment details.",
-        );
-        return;
-      }
-
-      const { error, paymentIntent } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/checkout`,
-        },
-        redirect: "if_required",
-      });
-
-      if (error) {
-        toast.error(
-          error.message ?? "The card payment could not be completed.",
-        );
-        return;
-      }
-
-      if (!paymentIntent) {
-        toast.error("Stripe did not return the payment result.");
-        return;
-      }
-
-      if (paymentIntent.status === "succeeded") {
-        onPaid(paymentIntent.id);
-        return;
-      }
-
-      toast.error(`Payment status: ${paymentIntent.status}`);
-    } catch (error: any) {
-      toast.error(error?.message ?? "The card payment could not be completed.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  return (
-    <div className="mt-4 space-y-4">
-      <div className="rounded border border-border bg-background p-4">
-        <PaymentElement
-          options={{
-            layout: {
-              type: "accordion",
-              defaultCollapsed: false,
-              radios: true,
-              spacedAccordionItems: false,
-            },
-            paymentMethodOrder: ["card", "zip", "klarna"],
-            wallets: { link: "never" },
-          }}
-        />
-      </div>
-
-      {!cartCurrent ? <p role="alert" className="text-sm text-destructive">Your cart changed. Cancel this payment and start again to update your items and free gift.</p> : null}
-      <Button
-        type="button"
-        size="lg"
-        className="w-full font-bold uppercase tracking-wide"
-        disabled={!stripe || !elements || submitting || !acknowledged || !cartCurrent}
-        onClick={handlePayment}
-      >
-        {submitting ? "Processing payment…" : "Pay securely with Stripe"}
-      </Button>
-
-      <Button
-        type="button"
-        variant="outline"
-        className="w-full font-bold uppercase"
-        disabled={submitting}
-        onClick={onCancel}
-      >
-        Cancel card payment
-      </Button>
-
-      <p className="text-center text-xs text-muted-foreground">
-        Payment details are securely handled by Stripe.
-      </p>
-    </div>
-  );
-}
 export const Route = createFileRoute("/checkout")({
   head: () => ({
     meta: [
@@ -239,9 +109,6 @@ function CheckoutPage() {
     queryFn: () => fetchStripeConfig(),
     staleTime: 60_000,
   });
-  const stripePromise = stripeConfig?.ok ? stripePromiseFor(stripeConfig.publishableKey) : null;
-  const [stripeCartKey, setStripeCartKey] = useState<string | null>(null);
-  const [stripeIntentId, setStripeIntentId] = useState<string | null>(null);
   const [guestMode, setGuestModeState] = useState(false);
   const [authLost, setAuthLost] = useState(false);
   const [guestError, setGuestError] = useState<string | null>(null);
@@ -261,13 +128,6 @@ function CheckoutPage() {
       /* ignore */
     }
   }, []);
-
-  const [stripeClientSecret, setStripeClientSecret] = useState<string | null>(
-    null,
-  );
-  // Key returned with the PaymentIntent, so the form never uses a stale cached key.
-  const [intentPublishableKey, setIntentPublishableKey] = useState<string | null>(null);
-  const intentStripePromise = intentPublishableKey ? stripePromiseFor(intentPublishableKey) : stripePromise;
 
   const { data: session, refetch: refetchSession } = useQuery({
     queryKey: ["checkout-session"],
@@ -468,13 +328,11 @@ function CheckoutPage() {
     ...pricingExtras(),
   });
   const verifyStripeCardPayment = useMutation({
-    mutationFn: (args: { paymentIntentId: string; mode: CheckoutMode }) =>
+    mutationFn: (args: { paymentIntentId?: string; sessionId?: string; mode: CheckoutMode }) =>
       verifyStripePayment({ data: args }),
 
     onSuccess: (result) => {
       setConfirmed(result);
-      setStripeClientSecret(null);
-      setStripeIntentId(null);
       clear();
 
       toast.success(`Payment approved — order ${result.reference} confirmed`);
@@ -487,44 +345,36 @@ function CheckoutPage() {
     onError: (error: any) => void handleCheckoutError(error, "We could not verify the Stripe payment."),
   });
 
-  /*
-   * Redirect-based payment methods (Zip, Klarna) send the
-   * customer back to /checkout with Stripe's query params.
-   * We ignore redirect_status entirely — the server-side
-   * verification against Stripe is the only source of truth.
-   */
   const runStripeReturn = verifyStripeCardPayment.mutate;
   const stripeReturnHandled = useRef(false);
-
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (stripeReturnHandled.current) return;
-
+    if (session === undefined || !mode || stripeReturnHandled.current) return;
     const params = new URLSearchParams(window.location.search);
-    const paymentIntentId = params.get("payment_intent");
-    if (!paymentIntentId) return;
+    const sessionId = params.get("stripe_session_id");
+    const attemptId = params.get("stripe_cancel_attempt");
+    if (!sessionId && !attemptId) return;
 
     stripeReturnHandled.current = true;
+    if (sessionId) {
+      runStripeReturn({ sessionId, mode });
+      return;
+    }
 
-    params.delete("payment_intent");
-    params.delete("payment_intent_client_secret");
-    params.delete("redirect_status");
-    const rest = params.toString();
-    window.history.replaceState(
-      {},
-      "",
-      rest ? `/checkout?${rest}` : "/checkout",
-    );
-
-    const returnMode: CheckoutMode = (() => {
-      try {
-        return window.sessionStorage.getItem(MODE_KEY) === "guest" ? "guest" : "member";
-      } catch {
-        return "member";
-      }
-    })();
-    runStripeReturn({ paymentIntentId, mode: returnMode });
-  }, [runStripeReturn]);
+    if (attemptId) {
+      setCancellingPayment(true);
+      void cancelStripe({ data: { hostedAttemptId: attemptId, mode } })
+        .then(async ({ ok }) => {
+          if (!ok) throw new Error("Cancellation could not be confirmed.");
+          await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ["cart-member-quote"] }),
+            queryClient.invalidateQueries({ queryKey: ["checkout-quote"] }),
+          ]);
+          window.history.replaceState({}, "", "/checkout");
+        })
+        .catch(() => toast.error("Cancellation could not be confirmed. Reload this page to retry."))
+        .finally(() => setCancellingPayment(false));
+    }
+  }, [session, mode, runStripeReturn, cancelStripe, queryClient]);
 
   const startStripeCardPayment = useMutation({
     mutationFn: async () => {
@@ -536,19 +386,12 @@ function CheckoutPage() {
       if (!mode) throw new Error("Please log in, join, or choose Continue as guest.");
       // Acknowledgement is recorded server side before any payment is initiated.
       const { ackId } = await recordAck({ data: { version: ackVersion, mode } });
-      const cartKey = JSON.stringify(quoteItems);
-      const result = await createStripePayment({
+      return createStripePayment({
         data: { ...cardCheckoutData(ackId), ...(stripeConfig?.ok ? { expectedStripeMode: stripeConfig.mode } : {}) },
       });
-      return { ...result, cartKey };
     },
 
-    onSuccess: ({ clientSecret, paymentIntentId, publishableKey, cartKey }) => {
-      setStripeCartKey(cartKey);
-      setIntentPublishableKey(publishableKey);
-      setStripeClientSecret(clientSecret);
-      setStripeIntentId(paymentIntentId);
-    },
+    onSuccess: ({ url }) => window.location.assign(url),
 
     onError: (error: any) => void handleCheckoutError(error, "Could not start the Stripe payment."),
   });
@@ -633,7 +476,7 @@ function CheckoutPage() {
       toast.error(error?.message ?? "Could not save that reference."),
   });
 
-  const itemsLocked = Boolean(stripeClientSecret) || startStripeCardPayment.isPending ||
+  const itemsLocked = startStripeCardPayment.isPending ||
     verifyStripeCardPayment.isPending || placeOrder.isPending || cancellingPayment;
 
   if (confirmed) {
@@ -891,71 +734,27 @@ function CheckoutPage() {
                 className="mt-4"
                 checked={acknowledged}
                 onChange={setAcknowledged}
-                disabled={Boolean(stripeClientSecret)}
+                disabled={startStripeCardPayment.isPending || verifyStripeCardPayment.isPending}
               />
               {method === "card" ? (
                 <div className="mt-4">
-                  {!stripeClientSecret ? (
-                    <div className="rounded border border-border bg-background p-4">
-                      <p className="text-sm text-muted-foreground">
-                        Pay securely by card using Stripe.
-                      </p>
-
-                      <Button
-                        type="button"
-                        className="mt-4 w-full font-bold uppercase"
-                        disabled={
-                          startStripeCardPayment.isPending ||
-                          !stripePromise ||
-                          !acknowledged ||
-                          !quoteReady || cancellingPayment ||
-                          !mode
-                        }
-                        onClick={() => startStripeCardPayment.mutate()}
-                      >
-                        {startStripeCardPayment.isPending
-                          ? "Connecting securely…"
-                          : "Continue to secure payment"}
-                      </Button>
-
-                      {!stripePromise ? (
-                        <p className="mt-3 text-xs text-destructive">
-                          Secure card payments are not currently available.
-                        </p>
-                      ) : null}
-                    </div>
-                  ) : stripePromise ? (
-                    <Elements
-                      stripe={intentStripePromise}
-                      options={{
-                        clientSecret: stripeClientSecret,
-                        appearance: {
-                          theme: "stripe",
-                        },
-                      }}
-                    >
-                      <StripePaymentForm
-                        onPaid={(paymentIntentId) =>
-                          verifyStripeCardPayment.mutate({ paymentIntentId, mode: mode ?? "member" })
-                        }
-                        onCancel={() => {
-                          const id = stripeIntentId;
-                          if (!id || !mode || cancellingPayment) return;
-                          setCancellingPayment(true);
-                          void cancelAndRefreshQuote({
-                            cancel: () => cancelStripe({ data: { paymentIntentId: id, mode } }),
-                            clear: () => { setStripeClientSecret(null); setStripeIntentId(null); },
-                            refresh: async () => {
-                              await queryClient.invalidateQueries({ queryKey: ["cart-member-quote"] });
-                              await queryClient.invalidateQueries({ queryKey: ["checkout-quote"] });
-                            },
-                          }).catch(() => toast.error("Payment cancellation could not be confirmed. Your offer remains reserved; please try again."))
-                            .finally(() => setCancellingPayment(false));
-                        }}
-                        acknowledged={acknowledged}
-                        cartCurrent={stripeCartKey === JSON.stringify(quoteItems)}
-                      />
-                    </Elements>
+                  <p className="text-sm text-muted-foreground">
+                    You’ll pay the full Titan Labs order total on Stripe’s secure sandbox page.
+                  </p>
+                  <Button
+                    type="button"
+                    className="mt-4 w-full font-bold uppercase"
+                    disabled={
+                      startStripeCardPayment.isPending || !stripeConfig?.ok ||
+                      stripeConfig.mode !== "test" || !acknowledged || !quoteReady ||
+                      cancellingPayment || verifyStripeCardPayment.isPending || !mode
+                    }
+                    onClick={() => startStripeCardPayment.mutate()}
+                  >
+                    {startStripeCardPayment.isPending ? "Connecting securely…" : "Continue to Secure Payment"}
+                  </Button>
+                  {stripeConfig && (!stripeConfig.ok || stripeConfig.mode !== "test") ? (
+                    <p className="mt-3 text-xs text-destructive">Sandbox card payments are unavailable.</p>
                   ) : null}
                 </div>
               ) : (
@@ -971,7 +770,6 @@ function CheckoutPage() {
             {/* Right: order breakdown */}
             <aside className="rounded-xl border border-border bg-card p-6 sm:p-8 lg:col-span-5 lg:sticky lg:top-6">
               <h2 className="technical-label text-foreground">Your order</h2>
-              {stripeClientSecret ? <p className="mt-2 text-xs text-muted-foreground">Cancel the current card payment to edit your items.</p> : null}
               <CheckoutOrderItems
                 items={items}
                 giftChoices={giftChoices}
@@ -1004,7 +802,7 @@ function CheckoutPage() {
                     {appliedCode && !codeError ? (
                       <div className="flex items-center justify-between rounded border border-accent/50 bg-accent/10 px-3 py-2 text-sm">
                         <span className="font-bold uppercase tracking-wide">{appliedCode}</span>
-                        <Button type="button" variant="ghost" size="sm" disabled={Boolean(stripeClientSecret)} onClick={() => { setAppliedCode(null); setCodeInput(""); }}>
+                        <Button type="button" variant="ghost" size="sm" disabled={startStripeCardPayment.isPending || verifyStripeCardPayment.isPending} onClick={() => { setAppliedCode(null); setCodeInput(""); }}>
                           Remove
                         </Button>
                       </div>
@@ -1018,8 +816,8 @@ function CheckoutPage() {
                         }}
                       >
                         <Label htmlFor="discount-code" className="sr-only">Discount or referral code</Label>
-                        <Input id="discount-code" value={codeInput} maxLength={32} placeholder="Discount or referral code" disabled={Boolean(stripeClientSecret)} onChange={(e) => setCodeInput(e.target.value.toUpperCase())} />
-                        <Button type="submit" variant="outline" className="font-bold uppercase" disabled={!codeInput.trim() || Boolean(stripeClientSecret)}>Apply</Button>
+                        <Input id="discount-code" value={codeInput} maxLength={32} placeholder="Discount or referral code" disabled={startStripeCardPayment.isPending || verifyStripeCardPayment.isPending} onChange={(e) => setCodeInput(e.target.value.toUpperCase())} />
+                        <Button type="submit" variant="outline" className="font-bold uppercase" disabled={!codeInput.trim() || startStripeCardPayment.isPending || verifyStripeCardPayment.isPending}>Apply</Button>
                       </form>
                     )}
                     {appliedCode && codeError ? <p className="text-xs text-destructive" role="alert">{codeError}</p> : null}
@@ -1030,7 +828,7 @@ function CheckoutPage() {
                         </p>
                         <div className="mt-2 flex flex-wrap gap-2" role="radiogroup" aria-label="Referral rewards to use">
                           {Array.from({ length: Math.max(0, maxCredit) + 1 }, (_, n) => (
-                            <Button key={n} type="button" size="sm" role="radio" aria-checked={creditUnits === n} variant={creditUnits === n ? "default" : "outline"} disabled={Boolean(stripeClientSecret)} onClick={() => setCreditUnits(n)}>
+                            <Button key={n} type="button" size="sm" role="radio" aria-checked={creditUnits === n} variant={creditUnits === n ? "default" : "outline"} disabled={startStripeCardPayment.isPending || verifyStripeCardPayment.isPending} onClick={() => setCreditUnits(n)}>
                               {n === 0 ? "None" : `${n} × ${settings.rewardPercent}% off`}
                             </Button>
                           ))}

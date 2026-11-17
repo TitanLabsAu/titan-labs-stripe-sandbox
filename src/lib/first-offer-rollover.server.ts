@@ -59,8 +59,16 @@ export function stripeRolloverDeps(db: any, stripe: any): RolloverDeps {
       if (attemptsError) throw new Error("Could not check held first-purchase offers");
       return ((attempts ?? []) as any[]).map((a) => ({ attemptId: a.id, intentId: a.transaction_id ?? null }));
     },
-    retrieve: (id) => stripe.paymentIntents.retrieve(id),
-    cancel: (id) => stripe.paymentIntents.cancel(id),
+    async retrieve(id) {
+      if (!id.startsWith("cs_test_")) return stripe.paymentIntents.retrieve(id);
+      const session = await stripe.checkout.sessions.retrieve(id);
+      return { status: session.status === "expired" ? "canceled" : session.status === "open" ? "requires_payment_method" : "processing" };
+    },
+    async cancel(id) {
+      if (!id.startsWith("cs_test_")) return stripe.paymentIntents.cancel(id);
+      const { expireHostedSandboxSession } = await import("@/lib/hosted-stripe-sandbox");
+      return { status: await expireHostedSandboxSession(stripe, id) ? "canceled" : "processing" };
+    },
     async release(attemptId) {
       const { error } = await db.rpc("release_first_offer_for_attempt", { _payment_attempt_id: attemptId });
       if (error) throw new Error("Could not release a cancelled first-purchase offer");
